@@ -1,0 +1,45 @@
+plugins {
+    id "com.gradle.plugin-publish" version "0.9.5"
+    id 'com.github.johnrengelman.shadow' version '1.2.4'
+}
+
+apply plugin: 'groovy'
+apply plugin: 'maven-publish'
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+}
+
+repositories {
+    jcenter()
+}
+
+publishing {
+    publications {
+        plugin(MavenPublication) {
+            artifact shadowJar
+        }
+    }
+}
+
+version = '1.0'
+group = 'edu.wpi.first'
+
+pluginBundle {
+    website = 'https://github.com/wpilibsuite/native-utils'
+    vcsUrl = 'https://github.com/wpilibsuite/native-utils'
+    description = 'This plugin provides native build utilities for FRC projects.'
+    tags = ['groovy', 'native', 'utils', 'maven', 'frc', 'wpilib']
+
+    plugins {
+        NativeUtils {
+            id = 'edu.wpi.first.NativeUtils'
+            displayName = 'WPILib NativeUtils'
+        }
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.0.1'
+}
