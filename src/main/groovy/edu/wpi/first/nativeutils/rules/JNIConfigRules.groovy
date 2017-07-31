@@ -51,6 +51,8 @@ class JNIConfigRules extends RuleSource {
                             classPath << ';'
                         }
                     }
+                    classPath.deleteCharAt(classPath.length()-1) 
+
                     project.exec {
                         executable org.gradle.internal.jvm.Jvm.current().getExecutable('javah')
 
