@@ -11,6 +11,7 @@ import org.gradle.platform.base.BinaryContainer
 import org.gradle.language.cpp.tasks.CppCompile
 import org.gradle.api.file.FileTree
 import edu.wpi.first.nativeutils.NativeUtils
+import java.util.Properties;
 
 @SuppressWarnings("GroovyUnusedDeclaration")
 class JNIConfigRules extends RuleSource {
@@ -48,7 +49,7 @@ class JNIConfigRules extends RuleSource {
                     jniConfig.sourceSets.each {
                         it.output.classesDirs.each {
                             classPath << it
-                            classPath << ';'
+                            classPath << System.getProperty("path.separator");
                         }
                     }
                     classPath.deleteCharAt(classPath.length()-1) 
