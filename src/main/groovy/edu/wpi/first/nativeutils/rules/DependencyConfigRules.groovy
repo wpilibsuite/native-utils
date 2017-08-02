@@ -164,14 +164,14 @@ class DependencyConfigRules extends RuleSource {
                 def component = binary.component
                 if (config.sharedConfigs != null && config.sharedConfigs.containsKey(component.name)) {
                     if (config.sharedConfigs.get(component.name).size() == 0 ||
-                        config.sharedConfigs.get(component.name).contains("${it.targetPlatform.operatingSystem.name}:${it.targetPlatform.architecture.name}".toString())) {
+                        config.sharedConfigs.get(component.name).contains("${binary.targetPlatform.operatingSystem.name}:${binary.targetPlatform.architecture.name}".toString())) {
                         binary.lib(new SharedDependencySet("$depLocation/${config.artifactId.toLowerCase()}", binary, config.artifactId, currentProject))
                     }
                 }
 
                 if (config.staticConfigs != null && config.staticConfigs.containsKey(component.name)) {
                     if (config.staticConfigs.get(component.name).size() == 0 ||
-                        config.staticConfigs.get(component.name).contains("${it.targetPlatform.operatingSystem.name}:${it.targetPlatform.architecture.name}".toString())) {
+                        config.staticConfigs.get(component.name).contains("${binary.targetPlatform.operatingSystem.name}:${binary.targetPlatform.architecture.name}".toString())) {
                         binary.lib(new StaticDependencySet("$depLocation/${config.artifactId.toLowerCase()}", binary, config.artifactId, currentProject))
                     }
                 }
