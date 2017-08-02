@@ -104,7 +104,7 @@ class JNIConfigRules extends RuleSource {
 
                                 def nmOutput = new ByteArrayOutputStream()
                                 project.exec { 
-                                    commandLine "nm", library
+                                    commandLine BuildConfigRulesBase.binTools('nm', projectLayout, config), library
                                     standardOutput nmOutput
                                 }
                                 // Remove '\r' so we can check for full string contents
