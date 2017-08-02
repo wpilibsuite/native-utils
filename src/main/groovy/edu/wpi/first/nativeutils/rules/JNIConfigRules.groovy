@@ -119,7 +119,7 @@ class JNIConfigRules extends RuleSource {
                                 
                                 if (missingSymbols.size() != 0) {
                                     def missingString = StringBuilder.newInstance()
-                                    missingString.each {
+                                    missingSymbols.each {
                                         missingString << it
                                         missingString << '\n'
                                     }

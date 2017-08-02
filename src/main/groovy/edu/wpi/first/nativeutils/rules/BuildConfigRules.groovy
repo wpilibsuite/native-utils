@@ -156,7 +156,8 @@ class BuildConfigRules extends RuleSource {
                     def input = binary.buildTask.name
                     def task = binary.tasks.link
                     if (binary.targetPlatform.operatingSystem.name == 'osx') {
-                        def library = task.outputFile.absolutePath
+                        
+                        def library = "\"${task.outputFile.absolutePath}\""
                         task.doLast {
                             if (new File(library).exists()) {
                                 project.exec { commandLine "dsymutil", library }
@@ -164,8 +165,8 @@ class BuildConfigRules extends RuleSource {
                             }
                         }
                     } else {
-                        def library = task.outputFile.absolutePath
-                        def debugLibrary = task.outputFile.absolutePath + ".debug"
+                        def library = "\"${task.outputFile.absolutePath}\""
+                        def debugLibrary = "\"${task.outputFile.absolutePath}.debug\""
                         task.doLast {
                             if (new File(library).exists()) {
                                 project.exec { commandLine BuildConfigRulesBase.binTools('objcopy', projectLayout, config), '--only-keep-debug', library, debugLibrary }
