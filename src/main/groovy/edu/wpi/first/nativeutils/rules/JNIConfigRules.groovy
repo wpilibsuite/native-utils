@@ -107,12 +107,23 @@ class JNIConfigRules extends RuleSource {
 
                                 def symbolList = getJniSymbols()
 
+                                def missingSymbols = []
+
                                 symbolList.each {
                                     //Add \n so we can check for the exact symbol
                                     def found = nmSymbols.contains(it + '\n')
                                     if (!found) {
-                                        throw new GradleException("Found a definition that does not have a matching symbol ${it}")
+                                        missingSymbols.add(it);
                                     }
+                                }
+                                
+                                if (missingSymbols.size() != 0) {
+                                    def missingString = StringBuilder.newInstance()
+                                    missingString.each {
+                                        missingString << it
+                                        missingString << '\n'
+                                    }
+                                    throw new GradleException("Found a definition that does not have a matching symbol ${missingString.toString()}")
                                 }
                             }
                         }

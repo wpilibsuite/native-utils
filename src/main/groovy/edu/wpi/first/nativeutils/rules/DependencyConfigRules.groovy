@@ -114,6 +114,14 @@ class DependencyConfigRules extends RuleSource {
 
         def filesList = currentProject.configurations.nativeDeps.files
 
+        def downloadAllTaskName = 'downloadAllDependencies'
+        def downloadAllTask = rootProject.tasks.findByPath(downloadAllTaskName)
+        if (downloadAllTask == null) {
+            downloadAllTask = rootProject.tasks.create(downloadAllTaskName) {
+                description 'Downloads and extracts all native c++ dependencies'
+            }
+        }
+
         currentProject.configurations.nativeDeps.dependencies.each { dependency ->
             def classifier = dependency.artifacts[0].classifier
             def extension = dependency.artifacts[0].extension
@@ -130,6 +138,7 @@ class DependencyConfigRules extends RuleSource {
                     from rootProject.zipTree(file)
                     into "$depLocation/${dependency.name.toLowerCase()}/${classifier}"
                 }
+                downloadAllTask.dependsOn task
                 binaries.findAll { BuildConfigRulesBase.isNativeProject(it) }.each { binary ->
                     if (NativeUtils.getClassifier(binary) == classifier || headerClassifiers.contains(classifier)) {
                         binary.buildTask.dependsOn task

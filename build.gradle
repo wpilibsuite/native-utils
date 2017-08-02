@@ -1,5 +1,5 @@
 plugins {
-    id "com.gradle.plugin-publish" version "0.9.5"
+    id "com.gradle.plugin-publish" version "0.9.7"
     id 'com.github.johnrengelman.shadow' version '1.2.4'
 }
 
@@ -15,16 +15,21 @@ repositories {
     jcenter()
 }
 
+group = 'edu.wpi.first'
+version = '1.2.2'
+
 publishing {
     publications {
         plugin(MavenPublication) {
-            artifact shadowJar
+            artifact (shadowJar) {
+                if (project.hasProperty('localPublish')) {
+                    classifier null
+                    groupId 'gradle.plugin.' + group
+                }
+            }
         }
     }
 }
-
-version = '1.1'
-group = 'edu.wpi.first'
 
 pluginBundle {
     website = 'https://github.com/wpilibsuite/native-utils'
