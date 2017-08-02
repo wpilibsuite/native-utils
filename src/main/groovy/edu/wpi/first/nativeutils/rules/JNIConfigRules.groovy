@@ -101,8 +101,13 @@ class JNIConfigRules extends RuleSource {
                         tasks.create(checkTaskName) {
                             doLast {
                                 def library = binary.sharedLibraryFile.absolutePath
-                                def nmOutput = "${BuildConfigRulesBase.binTools('nm', projectLayout, config)} \"${library}\"".execute().text
 
+                                def nmOutput = new ByteArrayOutputStream()
+                                project.exec { 
+                                    commandLine "nm", library
+                                    standardOutput nmOutput
+                                }
+                                // Remove '\r' so we can check for full string contents
                                 def nmSymbols = nmOutput.toString().replace('\r', '')
 
                                 def symbolList = getJniSymbols()

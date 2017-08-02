@@ -16,7 +16,7 @@ repositories {
 }
 
 group = 'edu.wpi.first'
-version = '1.2.6'
+version = '1.2.7'
 
 publishing {
     publications {
