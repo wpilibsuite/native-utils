@@ -11,7 +11,9 @@ import org.gradle.platform.base.BinaryContainer
 import org.gradle.language.cpp.tasks.CppCompile
 import org.gradle.api.file.FileTree
 import edu.wpi.first.nativeutils.NativeUtils
-import java.util.Properties;
+import edu.wpi.first.nativeutils.tasks.JNIHeaders
+import edu.wpi.first.nativeutils.tasks.JNISymbolCheck
+import java.util.Properties
 
 @SuppressWarnings("GroovyUnusedDeclaration")
 class JNIConfigRules extends RuleSource {
@@ -37,7 +39,7 @@ class JNIConfigRules extends RuleSource {
         jniConfigs.each { jniConfig->
             def generatedJNIHeaderLoc = "${project.buildDir}/${jniConfig.name}/jniinclude"
             def headerTaskName = "${jniConfig.name}jniHeaders"
-            tasks.create(headerTaskName) {
+            tasks.create(headerTaskName, JNIHeaders) {
                 def outputFolder = project.file(generatedJNIHeaderLoc)
                 jniConfig.sourceSets.each {
                     inputs.files it.output
@@ -98,7 +100,7 @@ class JNIConfigRules extends RuleSource {
                         && !jniConfig.skipSymbolCheck) {
                         def input = binary.buildTask.name
                         def checkTaskName = 'check' + input.substring(0, 1).toUpperCase() + input.substring(1) + "JniSymbols";
-                        tasks.create(checkTaskName) {
+                        tasks.create(checkTaskName, JNISymbolCheck) {
                             doLast {
                                 def library = binary.sharedLibraryFile.absolutePath
 

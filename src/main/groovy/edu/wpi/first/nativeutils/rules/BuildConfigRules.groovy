@@ -29,6 +29,7 @@ import org.gradle.platform.base.ComponentSpecContainer
 import org.gradle.platform.base.PlatformContainer
 import edu.wpi.first.nativeutils.configs.*
 import edu.wpi.first.nativeutils.NativeUtils
+import edu.wpi.first.nativeutils.tasks.NativeInstallAll
 
 interface BuildConfigSpec extends ModelMap<BuildConfig> {}
 
@@ -182,7 +183,7 @@ class BuildConfigRules extends RuleSource {
 
     @Mutate
     void createInstallAllComponentsTask(ModelMap<Task> tasks, ComponentSpecContainer components) {
-        tasks.create("installAllExecutables") {
+        tasks.create("installAllExecutables", NativeInstallAll) {
             components.each { component->
                 if (component in NativeExecutableSpec) {
                     component.binaries.each { binary->

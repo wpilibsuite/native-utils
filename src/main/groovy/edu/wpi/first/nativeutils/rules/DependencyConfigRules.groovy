@@ -7,6 +7,8 @@ import org.gradle.model.*
 import org.gradle.platform.base.BinaryContainer
 import edu.wpi.first.nativeutils.dependencysets.*
 import edu.wpi.first.nativeutils.NativeUtils
+import edu.wpi.first.nativeutils.tasks.NativeDependencyDownload
+import edu.wpi.first.nativeutils.tasks.NativeDependencyCombiner
 
 @SuppressWarnings("GroovyUnusedDeclaration")
 class DependencyConfigRules extends RuleSource {
@@ -117,7 +119,7 @@ class DependencyConfigRules extends RuleSource {
         def downloadAllTaskName = 'downloadAllDependencies'
         def downloadAllTask = rootProject.tasks.findByPath(downloadAllTaskName)
         if (downloadAllTask == null) {
-            downloadAllTask = rootProject.tasks.create(downloadAllTaskName) {
+            downloadAllTask = rootProject.tasks.create(downloadAllTaskName, NativeDependencyCombiner) {
                 description 'Downloads and extracts all native c++ dependencies'
             }
         }
@@ -128,7 +130,7 @@ class DependencyConfigRules extends RuleSource {
             def taskName = "download${dependency.group}${dependency.name}${classifier}"
             def task = rootProject.tasks.findByPath(taskName)
             if (task == null) {
-                task = rootProject.tasks.create(taskName, Copy) {
+                task = rootProject.tasks.create(taskName, NativeDependencyDownload) {
                     def file
                     filesList.each {
                         if (it.toString().endsWith("${classifier}.${extension}") && it.toString().contains("${dependency.name}-".toString())) {
