@@ -141,17 +141,17 @@ class DependencyConfigRules extends RuleSource {
                     into "$depLocation/${dependency.name.toLowerCase()}/${classifier}"
                 }
                 downloadAllTask.dependsOn task
-                binaries.findAll { BuildConfigRulesBase.isNativeProject(it) }.each { binary ->
-                    if (NativeUtils.getClassifier(binary) == classifier || headerClassifiers.contains(classifier)) {
-                        binary.buildTask.dependsOn task
-                    }
+            }
+            binaries.findAll { BuildConfigRulesBase.isNativeProject(it) }.each { binary ->
+                if (NativeUtils.getClassifier(binary) == classifier || headerClassifiers.contains(classifier)) {
+                    binary.buildTask.dependsOn task
                 }
             }
         }
     }
 
     @Validate
-    void setupDependencies(BinaryContainer binaries, DependencyConfigSpec configs, 
+    void setupDependencies(BinaryContainer binaries, DependencyConfigSpec configs,
                         ProjectLayout projectLayout, BuildConfigSpec buildConfigs) {
         def rootProject = projectLayout.projectIdentifier.rootProject
         def currentProject = projectLayout.projectIdentifier
