@@ -54,7 +54,7 @@ class JNIConfigRules extends RuleSource {
                             classPath << System.getProperty("path.separator");
                         }
                     }
-                    classPath.deleteCharAt(classPath.length()-1) 
+                    classPath.deleteCharAt(classPath.length()-1)
 
                     project.exec {
                         executable org.gradle.internal.jvm.Jvm.current().getExecutable('javah')
@@ -105,7 +105,7 @@ class JNIConfigRules extends RuleSource {
                                 def library = binary.sharedLibraryFile.absolutePath
 
                                 def nmOutput = new ByteArrayOutputStream()
-                                project.exec { 
+                                project.exec {
                                     commandLine BuildConfigRulesBase.binTools('nm', projectLayout, config), library
                                     standardOutput nmOutput
                                 }
@@ -123,7 +123,7 @@ class JNIConfigRules extends RuleSource {
                                         missingSymbols.add(it);
                                     }
                                 }
-                                
+
                                 if (missingSymbols.size() != 0) {
                                     def missingString = StringBuilder.newInstance()
                                     missingSymbols.each {
