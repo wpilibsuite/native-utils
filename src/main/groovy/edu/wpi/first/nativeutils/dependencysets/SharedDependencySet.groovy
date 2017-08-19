@@ -20,7 +20,7 @@ public class SharedDependencySet extends WPINativeDependencySet {
         } else if (m_binarySpec.targetPlatform.operatingSystem.name == 'windows') {
             fileList = fileList.filter { it.toString().endsWith('.dll') }
         } else {
-            fileList = fileList.filter { (it.toString().endsWith('.so') || it.toString().endsWith('.dylib') || it.toString().contains('.so.')) }
+            fileList = fileList.filter { (it.toString().endsWith('.so') || it.toString().endsWith('.dylib') || (it.toString().contains('.so.') && !it.toString().endsWith('.debug')))  }
         }
 
         return m_project.files(fileList.files)
