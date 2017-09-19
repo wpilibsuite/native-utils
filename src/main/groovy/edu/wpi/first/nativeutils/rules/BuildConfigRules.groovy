@@ -234,6 +234,7 @@ class BuildConfigRules extends RuleSource {
             }
             if (config != null) {
                 BuildConfigRulesBase.addArgsToTool(binary.cppCompiler, config.debugCompilerArgs)
+                BuildConfigRulesBase.addArgsToTool(binary.cCompiler, config.debugCCompilerArgs)
                 BuildConfigRulesBase.addArgsToTool(binary.linker, config.debugLinkerArgs)
             }
         }
@@ -260,6 +261,7 @@ class BuildConfigRules extends RuleSource {
             }
             if (config != null) {
                 BuildConfigRulesBase.addArgsToTool(binary.cppCompiler, config.releaseCompilerArgs)
+                BuildConfigRulesBase.addArgsToTool(binary.cCompiler, config.releaseCCompilerArgs)
                 BuildConfigRulesBase.addArgsToTool(binary.linker, config.releaseLinkerArgs)
             }
         }
@@ -285,10 +287,14 @@ class BuildConfigRules extends RuleSource {
                             toolChain.assembler.executable = config.toolChainPrefix + toolChain.assembler.executable
                             toolChain.staticLibArchiver.executable = config.toolChainPrefix + toolChain.staticLibArchiver.executable
                         }
-
                         if (config.compilerArgs != null) {
                             toolChain.cppCompiler.withArguments { args ->
                                 config.compilerArgs.each { a -> args.add(a) }
+                            }
+                        }
+                        if (config.CCompilerArgs != null) {
+                            cCompiler.withArguments { args ->
+                                config.CCompilerArgs.each { a -> args.add(a) }
                             }
                         }
                         if (config.linkerArgs != null) {
@@ -323,6 +329,11 @@ class BuildConfigRules extends RuleSource {
                                 config.compilerArgs.each { a -> args.add(a) }
                             }
                         }
+                        if (config.CCompilerArgs != null) {
+                            cCompiler.withArguments { args ->
+                                config.CCompilerArgs.each { a -> args.add(a) }
+                            }
+                        }
                         if (config.linkerArgs != null) {
                             linker.withArguments { args ->
                                 config.linkerArgs.each { a -> args.add(a) }
@@ -349,6 +360,11 @@ class BuildConfigRules extends RuleSource {
                         if (config.compilerArgs != null) {
                             cppCompiler.withArguments { args ->
                                 config.compilerArgs.each { a -> args.add(a) }
+                            }
+                        }
+                        if (config.CCompilerArgs != null) {
+                            cCompiler.withArguments { args ->
+                                config.CCompilerArgs.each { a -> args.add(a) }
                             }
                         }
                         if (config.linkerArgs != null) {

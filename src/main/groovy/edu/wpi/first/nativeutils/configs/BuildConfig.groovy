@@ -41,6 +41,21 @@ interface BuildConfig extends Named {
     List<String> getReleaseCompilerArgs()
 
     @SuppressWarnings("GroovyUnusedDeclaration")
+    void setCCompilerArgs(List<String> args)
+
+    List<String> getCCompilerArgs()
+
+    @SuppressWarnings("GroovyUnusedDeclaration")
+    void setDebugCCompilerArgs(List<String> args)
+
+    List<String> getDebugCCompilerArgs()
+
+    @SuppressWarnings("GroovyUnusedDeclaration")
+    void setReleaseCCompilerArgs(List<String> args)
+
+    List<String> getReleaseCCompilerArgs()
+
+    @SuppressWarnings("GroovyUnusedDeclaration")
     void setReleaseLinkerArgs(List<String> args)
 
     List<String> getReleaseLinkerArgs()
