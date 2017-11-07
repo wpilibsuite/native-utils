@@ -9,9 +9,13 @@ import org.gradle.api.tasks.Copy
 import org.gradle.internal.os.OperatingSystem
 import org.gradle.language.base.internal.ProjectLayout
 import org.gradle.language.cpp.tasks.CppCompile
+import org.gradle.api.internal.project.ProjectIdentifier
+import org.gradle.language.assembler.tasks.Assemble
+import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask
 import org.gradle.model.*
 import org.gradle.nativeplatform.BuildTypeContainer
 import org.gradle.nativeplatform.NativeBinarySpec
+import org.gradle.nativeplatform.NativeLibrarySpec
 import org.gradle.nativeplatform.NativeExecutableSpec
 import org.gradle.nativeplatform.SharedLibraryBinarySpec
 import org.gradle.nativeplatform.StaticLibraryBinarySpec
@@ -157,7 +161,7 @@ class BuildConfigRules extends RuleSource {
                     def input = binary.buildTask.name
                     def task = binary.tasks.link
                     if (binary.targetPlatform.operatingSystem.name == 'osx') {
-                        
+
                         def library = task.outputFile.absolutePath
                         task.doLast {
                             if (new File(library).exists()) {
@@ -264,6 +268,74 @@ class BuildConfigRules extends RuleSource {
                 BuildConfigRulesBase.addArgsToTool(binary.cCompiler, config.releaseCCompilerArgs)
                 BuildConfigRulesBase.addArgsToTool(binary.linker, config.releaseLinkerArgs)
             }
+        }
+    }
+
+    static void performWarningPrinting(String taskName, ProjectIdentifier project) {
+        def warningFile = project.file("$project.buildDir/tmp/$taskName/output.txt");
+
+        if (!warningFile.exists()) {
+            return
+        }
+
+        def currentFile = ''
+        def hasFirstLine = false
+
+        def hasPrintedFileName = false
+        warningFile.eachLine { line->
+            if (!hasFirstLine) {
+                hasFirstLine = true
+                return
+            }
+            if (line.startsWith('compiling ')) {
+                currentFile = line.substring(10, line.indexOf('successful.'))
+                hasPrintedFileName = false
+                return
+            }
+            if (line.contains('Finished') && line.contains('see full log')) {
+                return
+            }
+
+            if (line.trim().equals(currentFile.trim())) {
+                return
+            }
+
+            if (!line.isEmpty()) {
+                if (!hasPrintedFileName) {
+                    hasPrintedFileName = true
+                    println "Warnings in file $currentFile"
+                }
+                println line
+            }
+
+        }
+    }
+
+    @SuppressWarnings("GroovyUnusedDeclaration")
+    @Validate
+    void setupCompilerWarningPrinting(ModelMap<Task> tasks, ProjectLayout projectLayout, ComponentSpecContainer components) {
+
+        if (components == null) {
+            return
+        }
+
+        def project = projectLayout.projectIdentifier
+
+        if (project.hasProperty('skipWarningPrints')) {
+            return
+        }
+
+        components.each { component->
+            if (component instanceof NativeLibrarySpec || component instanceof NativeExecutableSpec) {
+                component.binaries.each { binary->
+                    binary.tasks.withType(AbstractNativeSourceCompileTask) {
+                        it.doLast {
+                            BuildConfigRules.performWarningPrinting(it.name.toString(), project)
+                        }
+                    }
+                }
+            }
+
         }
     }
 
