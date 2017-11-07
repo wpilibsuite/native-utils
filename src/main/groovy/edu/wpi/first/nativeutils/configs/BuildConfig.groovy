@@ -55,6 +55,68 @@ interface BuildConfig extends Named {
 
     List<String> getReleaseCCompilerArgs()
 
+
+
+
+    @SuppressWarnings("GroovyUnusedDeclaration")
+    void setObjCCompilerArgs(List<String> args)
+
+    List<String> getObjCCompilerArgs()
+
+    @SuppressWarnings("GroovyUnusedDeclaration")
+    void setDebugObjCCompilerArgs(List<String> args)
+
+    List<String> getDebugObjCCompilerArgs()
+
+    @SuppressWarnings("GroovyUnusedDeclaration")
+    void setReleaseObjCCompilerArgs(List<String> args)
+
+    List<String> getReleaseObjCCompilerArgs()
+
+
+
+
+
+    @SuppressWarnings("GroovyUnusedDeclaration")
+    void setObjCppCompilerArgs(List<String> args)
+
+    List<String> getObjCppCompilerArgs()
+
+    @SuppressWarnings("GroovyUnusedDeclaration")
+    void setDebugObjCppCompilerArgs(List<String> args)
+
+    List<String> getDebugObjCppCompilerArgs()
+
+    @SuppressWarnings("GroovyUnusedDeclaration")
+    void setReleaseObjCppCompilerArgs(List<String> args)
+
+    List<String> getReleaseObjCppCompilerArgs()
+
+
+
+
+
+    @SuppressWarnings("GroovyUnusedDeclaration")
+    void setAsmCompilerArgs(List<String> args)
+
+    List<String> getAsmCompilerArgs()
+
+    @SuppressWarnings("GroovyUnusedDeclaration")
+    void setDebugAsmCompilerArgs(List<String> args)
+
+    List<String> getDebugAsmCompilerArgs()
+
+    @SuppressWarnings("GroovyUnusedDeclaration")
+    void setReleaseAsmCompilerArgs(List<String> args)
+
+    List<String> getReleaseAsmCompilerArgs()
+
+
+
+
+
+
+
     @SuppressWarnings("GroovyUnusedDeclaration")
     void setReleaseLinkerArgs(List<String> args)
 

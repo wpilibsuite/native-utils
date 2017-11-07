@@ -240,6 +240,9 @@ class BuildConfigRules extends RuleSource {
                 BuildConfigRulesBase.addArgsToTool(binary.cppCompiler, config.debugCompilerArgs)
                 BuildConfigRulesBase.addArgsToTool(binary.cCompiler, config.debugCCompilerArgs)
                 BuildConfigRulesBase.addArgsToTool(binary.linker, config.debugLinkerArgs)
+                BuildConfigRulesBase.addArgsToTool(binary.assembler, config.debugAsmCompilerArgs)
+                BuildConfigRulesBase.addArgsToTool(binary.objcCompiler, config.debugObjCCompilerArgs)
+                BuildConfigRulesBase.addArgsToTool(binary.objcppCompiler, config.debugObjCppCompilerArgs)
             }
         }
     }
@@ -267,6 +270,9 @@ class BuildConfigRules extends RuleSource {
                 BuildConfigRulesBase.addArgsToTool(binary.cppCompiler, config.releaseCompilerArgs)
                 BuildConfigRulesBase.addArgsToTool(binary.cCompiler, config.releaseCCompilerArgs)
                 BuildConfigRulesBase.addArgsToTool(binary.linker, config.releaseLinkerArgs)
+                BuildConfigRulesBase.addArgsToTool(binary.assembler, config.releaseAsmCompilerArgs)
+                BuildConfigRulesBase.addArgsToTool(binary.objcCompiler, config.releaseObjCCompilerArgs)
+                BuildConfigRulesBase.addArgsToTool(binary.objcppCompiler, config.releaseObjCppCompilerArgs)
             }
         }
     }
@@ -369,6 +375,21 @@ class BuildConfigRules extends RuleSource {
                                 config.CCompilerArgs.each { a -> args.add(a) }
                             }
                         }
+                        if (config.objCCompilerArgs != null) {
+                            objcCompiler.withArguments { args ->
+                                config.objCCompilerArgs.each { a -> args.add(a) }
+                            }
+                        }
+                        if (config.objCppCompilerArgs != null) {
+                            objcppCompiler.withArguments { args ->
+                                config.objCppCompilerArgs.each { a -> args.add(a) }
+                            }
+                        }
+                        if (config.asmCompilerArgs != null) {
+                            assembler.withArguments { args ->
+                                config.asmCompilerArgs.each { a -> args.add(a) }
+                            }
+                        }
                         if (config.linkerArgs != null) {
                             toolChain.linker.withArguments { args ->
                                 config.linkerArgs.each { a -> args.add(a) }
@@ -406,6 +427,21 @@ class BuildConfigRules extends RuleSource {
                                 config.CCompilerArgs.each { a -> args.add(a) }
                             }
                         }
+                        if (config.objCCompilerArgs != null) {
+                            objcCompiler.withArguments { args ->
+                                config.objCCompilerArgs.each { a -> args.add(a) }
+                            }
+                        }
+                        if (config.objCppCompilerArgs != null) {
+                            objcppCompiler.withArguments { args ->
+                                config.objCppCompilerArgs.each { a -> args.add(a) }
+                            }
+                        }
+                        if (config.asmCompilerArgs != null) {
+                            assembler.withArguments { args ->
+                                config.asmCompilerArgs.each { a -> args.add(a) }
+                            }
+                        }
                         if (config.linkerArgs != null) {
                             linker.withArguments { args ->
                                 config.linkerArgs.each { a -> args.add(a) }
@@ -437,6 +473,21 @@ class BuildConfigRules extends RuleSource {
                         if (config.CCompilerArgs != null) {
                             cCompiler.withArguments { args ->
                                 config.CCompilerArgs.each { a -> args.add(a) }
+                            }
+                        }
+                        if (config.objCCompilerArgs != null) {
+                            objcCompiler.withArguments { args ->
+                                config.objCCompilerArgs.each { a -> args.add(a) }
+                            }
+                        }
+                        if (config.objCppCompilerArgs != null) {
+                            objcppCompiler.withArguments { args ->
+                                config.objCppCompilerArgs.each { a -> args.add(a) }
+                            }
+                        }
+                        if (config.asmCompilerArgs != null) {
+                            assembler.withArguments { args ->
+                                config.asmCompilerArgs.each { a -> args.add(a) }
                             }
                         }
                         if (config.linkerArgs != null) {
