@@ -47,75 +47,86 @@ class ExportsConfigRules extends RuleSource {
                                 && binary instanceof SharedLibraryBinarySpec
                                 && !excludeBuildTypes.contains(binary.buildType.name)) {
 
+                                def taskArray = []
+                                def objFileDirArr = []
+
                                 binary.tasks.withType(AbstractNativeSourceCompileTask).each {
-                                    def objDir = it.objectFileDir
+                                    objFileDirArr.add(it.objectFileDir)
+                                    taskArray.add(it)
+                                }
 
-                                    def defFile = project.file("${objDir}/exports.def")
-                                    binary.linker.args "/DEF:${defFile}"
+                                def defFile
 
-                                    def exportsTaskName = 'generateExports' + it.name.substring(7)
-                                    def linkTask = binary.tasks.link
-                                    def compileTask = it
+                                def exportsTaskName = 'generateExports' + binary.buildTask.name
 
-                                    def exportsTask = project.tasks.create(exportsTaskName, ExportsGenerationTask) {
-                                        inputs.dir(objDir)
-                                        outputs.file(defFile)
-                                        doLast {
-                                            def exeName = NativeUtils.getGeneratorFilePath();
-                                            def files = project.fileTree(objDir).include("**/*.obj")
-                                            project.exec {
-                                                executable = exeName
-                                                args defFile
-                                                files.each {
-                                                    args it
-                                                }
-                                            }
-
-                                            def lines = []
-                                            def excludeSymbols
-                                            if (binary.targetPlatform.architecture.name == 'x86') {
-                                                excludeSymbols = config.x86ExcludeSymbols
-                                            } else {
-                                                excludeSymbols = config.x64ExcludeSymbols
-                                            }
-
-                                            if (excludeSymbols == null) {
-                                                excludeSymbols = []
-                                            }
-
-                                            defFile.eachLine { line->
-
-                                                def symbol = line.trim()
-                                                def space = symbol.indexOf(' ')
-                                                if (space != -1) {
-                                                    symbol = symbol.substring(0, space)
-                                                }
-                                                if (symbol != 'EXPORTS' && !excludeSymbols.contains(symbol)) {
-                                                    lines << symbol
-                                                }
-                                            }
-
-                                            if (binary.targetPlatform.architecture.name == 'x86') {
-                                                if (config.x86SymbolFilter != null) {
-                                                    lines = config.x86SymbolFilter(lines);
-                                                }
-                                            } else {
-                                                if (config.x64SymbolFilter != null) {
-                                                    lines = config.x64SymbolFilter(lines);
-                                                }
-                                            }
-
-                                            defFile.withWriter{ out ->
-                                                out.println 'EXPORTS'
-                                                lines.each {out.println it}
+                                def exportsTask = project.tasks.create(exportsTaskName, ExportsGenerationTask) {
+                                    objFileDirArr.each {
+                                        inputs.dir(it)
+                                    }
+                                    defFile = project.file(it.getTemporaryDir().toString() + '/exports.def')
+                                    outputs.file(defFile)
+                                    doLast {
+                                        def exeName = NativeUtils.getGeneratorFilePath();
+                                        def files = []
+                                        objFileDirArr.each {
+                                            files.add(project.fileTree(it).include("**/*.obj"))
+                                        }
+                                        project.exec {
+                                            executable = exeName
+                                            args defFile
+                                            files.each {
+                                                args it
                                             }
                                         }
-                                    }
 
-                                    exportsTask.dependsOn compileTask
-                                    linkTask.dependsOn exportsTask
-                                    linkTask.inputs.file(defFile)
+                                        def lines = []
+                                        def excludeSymbols
+                                        if (binary.targetPlatform.architecture.name == 'x86') {
+                                            excludeSymbols = config.x86ExcludeSymbols
+                                        } else {
+                                            excludeSymbols = config.x64ExcludeSymbols
+                                        }
+
+                                        if (excludeSymbols == null) {
+                                            excludeSymbols = []
+                                        }
+
+                                        defFile.eachLine { line->
+
+                                            def symbol = line.trim()
+                                            def space = symbol.indexOf(' ')
+                                            if (space != -1) {
+                                                symbol = symbol.substring(0, space)
+                                            }
+                                            if (symbol != 'EXPORTS' && !excludeSymbols.contains(symbol)) {
+                                                lines << symbol
+                                            }
+                                        }
+
+                                        if (binary.targetPlatform.architecture.name == 'x86') {
+                                            if (config.x86SymbolFilter != null) {
+                                                lines = config.x86SymbolFilter(lines);
+                                            }
+                                        } else {
+                                            if (config.x64SymbolFilter != null) {
+                                                lines = config.x64SymbolFilter(lines);
+                                            }
+                                        }
+
+                                        defFile.withWriter{ out ->
+                                            out.println 'EXPORTS'
+                                            lines.each {out.println it}
+                                        }
+                                    }
                                 }
+
+                                def linkTask = binary.tasks.link
+                                binary.linker.args "/DEF:${defFile}"
+                                taskArray.each {
+                                    exportsTask.dependsOn it
+                                }
+                                linkTask.dependsOn exportsTask
+                                linkTask.inputs.file(defFile)
                             }
                         }
                     }
