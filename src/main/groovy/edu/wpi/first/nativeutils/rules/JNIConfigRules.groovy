@@ -47,11 +47,7 @@ class JNIConfigRules extends RuleSource {
                     inputs.files it.output
                 }
                 outputs.dir outputFolder
-                if (project.hasProperty('printJniHeaderLocations')) {
-                    println 'JNIOUTPUTFOLER: ' + outputFolder
-                }
                 doLast {
-
                     outputFolder.mkdirs()
                     def classPath = StringBuilder.newInstance()
                     jniConfig.sourceSets.each {
