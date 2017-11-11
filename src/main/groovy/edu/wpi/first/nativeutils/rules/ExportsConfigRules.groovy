@@ -63,9 +63,11 @@ class ExportsConfigRules extends RuleSource {
                                     objFileDirArr.each {
                                         inputs.dir(it)
                                     }
-                                    defFile = project.file(it.getTemporaryDir().toString() + '/exports.def')
+                                    def tmpDir = project.file("$project.buildDir/tmp/$exportsTaskName")
+                                    defFile = project.file(tmpDir.toString() + '/exports.def')
                                     outputs.file(defFile)
                                     doLast {
+                                        tmpDir.mkdirs()
                                         def exeName = NativeUtils.getGeneratorFilePath();
                                         def files = []
                                         objFileDirArr.each {
