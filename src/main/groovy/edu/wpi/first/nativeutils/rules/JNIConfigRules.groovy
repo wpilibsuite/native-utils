@@ -13,6 +13,8 @@ import org.gradle.api.file.FileTree
 import edu.wpi.first.nativeutils.NativeUtils
 import edu.wpi.first.nativeutils.tasks.JNIHeaders
 import edu.wpi.first.nativeutils.tasks.JNISymbolCheck
+import edu.wpi.first.nativeutils.dependencysets.JNISourceDependencySet
+import edu.wpi.first.nativeutils.dependencysets.JNISystemDependencySet
 import java.util.Properties
 
 @SuppressWarnings("GroovyUnusedDeclaration")
@@ -44,8 +46,12 @@ class JNIConfigRules extends RuleSource {
                 jniConfig.sourceSets.each {
                     inputs.files it.output
                 }
-                outputs.file outputFolder
+                outputs.dir outputFolder
+                if (project.hasProperty('printJniHeaderLocations')) {
+                    println 'JNIOUTPUTFOLER: ' + outputFolder
+                }
                 doLast {
+
                     outputFolder.mkdirs()
                     def classPath = StringBuilder.newInstance()
                     jniConfig.sourceSets.each {
@@ -101,6 +107,8 @@ class JNIConfigRules extends RuleSource {
                         def input = binary.buildTask.name
                         def checkTaskName = 'check' + input.substring(0, 1).toUpperCase() + input.substring(1) + "JniSymbols";
                         tasks.create(checkTaskName, JNISymbolCheck) {
+                            dependsOn binary.tasks.link
+                            inputs.file(binary.sharedLibraryFile)
                             doLast {
                                 def library = binary.sharedLibraryFile.absolutePath
 
@@ -140,39 +148,42 @@ class JNIConfigRules extends RuleSource {
                     if (binary.targetPlatform.architecture.name == config.architecture
                     && binary.targetPlatform.operatingSystem.name == config.operatingSystem ) {
 
+                        List<String> jniFiles = []
+
                         if (BuildConfigRulesBase.isCrossCompile(config)) {
                             if (jniConfig.jniArmHeaderLocations != null && jniConfig.jniArmHeaderLocations.size() == 1 && jniConfig.jniArmHeaderLocations.containsKey('all')) {
-                                binary.cppCompiler.args '-I', jniConfig.jniArmHeaderLocations.get('all').absolutePath
-                                binary.cppCompiler.args '-I', jniConfig.jniArmHeaderLocations.get('all').absolutePath + '/linux'
+                                jniFiles.add(jniConfig.jniArmHeaderLocations.get('all').absolutePath)
+                                jniFiles.add(jniConfig.jniArmHeaderLocations.get('all').absolutePath + '/linux')
                             } else if (jniConfig.jniArmHeaderLocations != null && jniConfig.jniArmHeaderLocations.containsKey(config.architecture)) {
-                                binary.cppCompiler.args '-I', jniConfig.jniArmHeaderLocations.get(config.architecture).absolutePath
-                                binary.cppCompiler.args '-I', jniConfig.jniArmHeaderLocations.get(config.architecture).absolutePath + '/linux'
+                                jniFiles.add(jniConfig.jniArmHeaderLocations.get('all').absolutePath)
+                                jniFiles.add(jniConfig.jniArmHeaderLocations.get('all').absolutePath + '/linux')
                             }
                         } else {
                             def jdkLocation = org.gradle.internal.jvm.Jvm.current().javaHome
-                            NativeUtils.setPlatformSpecificIncludeFlag("${jdkLocation}/include", binary.cppCompiler)
+                            jniFiles.add("${jdkLocation}/include")
                             if (binary.targetPlatform.operatingSystem.macOsX) {
-                                NativeUtils.setPlatformSpecificIncludeFlag("${jdkLocation}/include/darwin", binary.cppCompiler)
+                                jniFiles.add("${jdkLocation}/include/darwin")
                             } else if (binary.targetPlatform.operatingSystem.linux) {
-                                NativeUtils.setPlatformSpecificIncludeFlag("${jdkLocation}/include/linux", binary.cppCompiler)
+                                jniFiles.add("${jdkLocation}/include/linux")
                             } else if (binary.targetPlatform.operatingSystem.windows) {
-                                NativeUtils.setPlatformSpecificIncludeFlag("${jdkLocation}/include/win32", binary.cppCompiler)
+                                jniFiles.add("${jdkLocation}/include/win32")
                             } else if (binary.targetPlatform.operatingSystem.freeBSD) {
-                                NativeUtils.setPlatformSpecificIncludeFlag("${jdkLocation}/include/freebsd", binary.cppCompiler)
+                                jniFiles.add("${jdkLocation}/include/freebsd")
                             } else if (file("$jdkLocation/include/darwin").exists()) {
                                 // TODO: As of Gradle 2.8, targetPlatform.operatingSystem.macOsX returns false
                                 // on El Capitan. We therefore manually test for the darwin folder and include it
                                 // if it exists
-                                NativeUtils.setPlatformSpecificIncludeFlag("${jdkLocation}/include/darwin", binary.cppCompiler)
+                                jniFiles.add("${jdkLocation}/include/darwin")
                             }
                         }
+
+                        List<String> jniHeadersList = []
                         headersTask.outputs.files.each { file ->
-                            if (BuildConfigRulesBase.isCrossCompile(config)) {
-                                binary.cppCompiler.args '-I', file.getPath()
-                            } else {
-                                NativeUtils.setPlatformSpecificIncludeFlag(file.getPath(), binary.cppCompiler)
-                            }
+                            jniHeadersList.add(file.getPath())
                         }
+
+                        binary.lib(new JNISourceDependencySet(jniHeadersList, project))
+                        binary.lib(new JNISystemDependencySet(jniFiles, project))
 
                         binary.tasks.withType(CppCompile) {
                             it.dependsOn headersTask

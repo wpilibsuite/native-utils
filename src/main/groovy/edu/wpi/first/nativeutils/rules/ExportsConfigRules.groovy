@@ -11,8 +11,10 @@ import org.gradle.nativeplatform.BuildTypeContainer
 import org.gradle.nativeplatform.SharedLibraryBinarySpec
 import org.gradle.platform.base.BinaryContainer
 import org.gradle.platform.base.ComponentSpecContainer
+import edu.wpi.first.nativeutils.tasks.ExportsGenerationTask
 import org.gradle.api.file.FileTree
 import org.gradle.internal.os.OperatingSystem
+import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask
 import edu.wpi.first.nativeutils.NativeUtils
 
 @SuppressWarnings("GroovyUnusedDeclaration")
@@ -44,64 +46,75 @@ class ExportsConfigRules extends RuleSource {
                             if (binary.targetPlatform.operatingSystem.name == 'windows'
                                 && binary instanceof SharedLibraryBinarySpec
                                 && !excludeBuildTypes.contains(binary.buildType.name)) {
-                                def objDir
-                                binary.tasks.withType(CppCompile) {
-                                    objDir = it.objectFileDir
-                                }
 
-                                def defFile = project.file("${objDir}/exports.def")
-                                binary.linker.args "/DEF:${defFile}"
+                                binary.tasks.withType(AbstractNativeSourceCompileTask).each {
+                                    def objDir = it.objectFileDir
 
-                                def input = binary.buildTask.name
-                                def task = binary.tasks.link
-                                task.doFirst {
-                                    def exeName = NativeUtils.getGeneratorFilePath();
-                                    def files = project.fileTree(objDir).include("**/*.obj")
-                                    project.exec {
-                                        executable = exeName
-                                        args defFile
-                                        files.each {
-                                            args it
+                                    def defFile = project.file("${objDir}/exports.def")
+                                    binary.linker.args "/DEF:${defFile}"
+
+                                    def exportsTaskName = 'generateExports' + it.name.substring(7)
+                                    def linkTask = binary.tasks.link
+                                    def compileTask = it
+
+                                    def exportsTask = project.tasks.create(exportsTaskName, ExportsGenerationTask) {
+                                        inputs.dir(objDir)
+                                        outputs.file(defFile)
+                                        doLast {
+                                            def exeName = NativeUtils.getGeneratorFilePath();
+                                            def files = project.fileTree(objDir).include("**/*.obj")
+                                            project.exec {
+                                                executable = exeName
+                                                args defFile
+                                                files.each {
+                                                    args it
+                                                }
+                                            }
+
+                                            def lines = []
+                                            def excludeSymbols
+                                            if (binary.targetPlatform.architecture.name == 'x86') {
+                                                excludeSymbols = config.x86ExcludeSymbols
+                                            } else {
+                                                excludeSymbols = config.x64ExcludeSymbols
+                                            }
+
+                                            if (excludeSymbols == null) {
+                                                excludeSymbols = []
+                                            }
+
+                                            defFile.eachLine { line->
+
+                                                def symbol = line.trim()
+                                                def space = symbol.indexOf(' ')
+                                                if (space != -1) {
+                                                    symbol = symbol.substring(0, space)
+                                                }
+                                                if (symbol != 'EXPORTS' && !excludeSymbols.contains(symbol)) {
+                                                    lines << symbol
+                                                }
+                                            }
+
+                                            if (binary.targetPlatform.architecture.name == 'x86') {
+                                                if (config.x86SymbolFilter != null) {
+                                                    lines = config.x86SymbolFilter(lines);
+                                                }
+                                            } else {
+                                                if (config.x64SymbolFilter != null) {
+                                                    lines = config.x64SymbolFilter(lines);
+                                                }
+                                            }
+
+                                            defFile.withWriter{ out ->
+                                                out.println 'EXPORTS'
+                                                lines.each {out.println it}
+                                            }
                                         }
                                     }
-                                    def lines = []
-                                    def excludeSymbols
-                                    if (binary.targetPlatform.architecture.name == 'x86') {
-                                        excludeSymbols = config.x86ExcludeSymbols
-                                    } else {
-                                        excludeSymbols = config.x64ExcludeSymbols
-                                    }
 
-                                    if (excludeSymbols == null) {
-                                        excludeSymbols = []
-                                    }
-
-                                    defFile.eachLine { line->
-                                        
-                                        def symbol = line.trim()
-                                        def space = symbol.indexOf(' ')
-                                        if (space != -1) {
-                                            symbol = symbol.substring(0, space)
-                                        }
-                                        if (symbol != 'EXPORTS' && !excludeSymbols.contains(symbol)) {
-                                            lines << symbol
-                                        }
-                                    }
-
-                                    if (binary.targetPlatform.architecture.name == 'x86') {
-                                        if (config.x86SymbolFilter != null) {
-                                            lines = config.x86SymbolFilter(lines);
-                                        }
-                                    } else {
-                                        if (config.x64SymbolFilter != null) {
-                                            lines = config.x64SymbolFilter(lines);
-                                        }
-                                    }
-
-                                    defFile.withWriter{ out ->
-                                        out.println 'EXPORTS'
-                                        lines.each {out.println it}
-                                    }
+                                    exportsTask.dependsOn compileTask
+                                    linkTask.dependsOn exportsTask
+                                    linkTask.inputs.file(defFile)
                                 }
                             }
                         }
