@@ -23,6 +23,9 @@ class JNIConfigRules extends RuleSource {
     @Validate
     void validateJniConfigHasSourceSets(JNIConfigSpec configs) {
         configs.each { config->
+            if (config.onlyIncludeSystemHeaders) {
+                return
+            }
             assert config.sourceSets != null && config.sourceSets.size() > 0
         }
     }
@@ -30,6 +33,9 @@ class JNIConfigRules extends RuleSource {
     @Validate
     void validateJniConfigHasJNIClasses(JNIConfigSpec configs) {
         configs.each { config->
+            if (config.onlyIncludeSystemHeaders) {
+                return
+            }
             assert config.jniDefinitionClasses != null && config.jniDefinitionClasses.size() > 0
         }
     }
@@ -39,58 +45,62 @@ class JNIConfigRules extends RuleSource {
                         BinaryContainer binaries, BuildTypeContainer buildTypes, BuildConfigSpec configs) {
         def project = projectLayout.projectIdentifier
         jniConfigs.each { jniConfig->
-            def generatedJNIHeaderLoc = "${project.buildDir}/${jniConfig.name}/jniinclude"
-            def headerTaskName = "${jniConfig.name}jniHeaders"
-            tasks.create(headerTaskName, JNIHeaders) {
-                def outputFolder = project.file(generatedJNIHeaderLoc)
-                jniConfig.sourceSets.each {
-                    inputs.files it.output
-                }
-                outputs.dir outputFolder
-                doLast {
-                    outputFolder.mkdirs()
-                    def classPath = StringBuilder.newInstance()
+            def headersTask = null
+            if (!jniConfig.onlyIncludeSystemHeaders) {
+                def generatedJNIHeaderLoc = "${project.buildDir}/${jniConfig.name}/jniinclude"
+                def headerTaskName = "${jniConfig.name}jniHeaders"
+                tasks.create(headerTaskName, JNIHeaders) {
+                    def outputFolder = project.file(generatedJNIHeaderLoc)
                     jniConfig.sourceSets.each {
-                        it.output.classesDirs.each {
-                            classPath << it
-                            classPath << System.getProperty("path.separator");
-                        }
+                        inputs.files it.output
                     }
-                    classPath.deleteCharAt(classPath.length()-1)
-
-                    project.exec {
-                        executable org.gradle.internal.jvm.Jvm.current().getExecutable('javah')
-
-                        args '-d', outputFolder
-                        args '-classpath', classPath
-                        jniConfig.jniDefinitionClasses.each {
-                            args it
+                    outputs.dir outputFolder
+                    doLast {
+                        outputFolder.mkdirs()
+                        def classPath = StringBuilder.newInstance()
+                        jniConfig.sourceSets.each {
+                            it.output.classesDirs.each {
+                                classPath << it
+                                classPath << System.getProperty("path.separator");
+                            }
                         }
-                    }
-                }
-            }
+                        classPath.deleteCharAt(classPath.length()-1)
 
-            def headersTask = tasks.get(headerTaskName)
+                        project.exec {
+                            executable org.gradle.internal.jvm.Jvm.current().getExecutable('javah')
 
-            def getJniSymbols = {
-                def symbolsList = []
-
-                headersTask.outputs.files.each {
-                    FileTree tree = project.fileTree(dir: it)
-                    tree.each { File file ->
-                        file.eachLine { line ->
-                            if (line.trim()) {
-                                if (line.startsWith("JNIEXPORT ") && line.contains('JNICALL')) {
-                                    def (p1, p2) = line.split('JNICALL').collect { it.trim() }
-                                    // p2 is our JNI call
-                                    symbolsList << p2
-                                }
+                            args '-d', outputFolder
+                            args '-classpath', classPath
+                            jniConfig.jniDefinitionClasses.each {
+                                args it
                             }
                         }
                     }
                 }
 
-                return symbolsList
+                headersTask = tasks.get(headerTaskName)
+
+                def getJniSymbols = {
+                    def symbolsList = []
+
+                    headersTask.outputs.files.each {
+                        FileTree tree = project.fileTree(dir: it)
+                        tree.each { File file ->
+                            file.eachLine { line ->
+                                if (line.trim()) {
+                                    if (line.startsWith("JNIEXPORT ") && line.contains('JNICALL')) {
+                                        def (p1, p2) = line.split('JNICALL').collect { it.trim() }
+                                        // p2 is our JNI call
+                                        symbolsList << p2
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    return symbolsList
+                }
+
             }
 
             configs.findAll { BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) }.each { config ->
@@ -99,7 +109,8 @@ class JNIConfigRules extends RuleSource {
                         && binary.targetPlatform.operatingSystem.name == config.operatingSystem
                         && binary.targetPlatform.operatingSystem.name != 'windows'
                         && binary instanceof SharedLibraryBinarySpec
-                        && !jniConfig.skipSymbolCheck) {
+                        && !jniConfig.skipSymbolCheck
+                        && !jniConfig.onlyIncludeSystemHeaders) {
                         def input = binary.buildTask.name
                         def checkTaskName = 'check' + input.substring(0, 1).toUpperCase() + input.substring(1) + "JniSymbols";
                         tasks.create(checkTaskName, JNISymbolCheck) {
@@ -173,16 +184,19 @@ class JNIConfigRules extends RuleSource {
                             }
                         }
 
-                        List<String> jniHeadersList = []
-                        headersTask.outputs.files.each { file ->
-                            jniHeadersList.add(file.getPath())
-                        }
-
-                        binary.lib(new JNISourceDependencySet(jniHeadersList, project))
                         binary.lib(new JNISystemDependencySet(jniFiles, project))
 
-                        binary.tasks.withType(CppCompile) {
-                            it.dependsOn headersTask
+                        if (headersTask != null) {
+                            List<String> jniHeadersList = []
+                            headersTask.outputs.files.each { file ->
+                                jniHeadersList.add(file.getPath())
+                            }
+
+                            binary.lib(new JNISourceDependencySet(jniHeadersList, project))
+
+                            binary.tasks.withType(CppCompile) {
+                                it.dependsOn headersTask
+                            }
                         }
                     }
                 }

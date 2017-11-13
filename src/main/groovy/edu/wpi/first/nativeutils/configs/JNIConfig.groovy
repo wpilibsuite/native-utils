@@ -26,4 +26,8 @@ interface JNIConfig extends Named {
     void setSkipSymbolCheck(boolean skip)
 
     boolean getSkipSymbolCheck()
+
+    void setOnlyIncludeSystemHeaders(boolean onlyHeaders)
+
+    boolean getOnlyIncludeSystemHeaders()
 }
