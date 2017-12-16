@@ -46,6 +46,7 @@ class JNIConfigRules extends RuleSource {
         def project = projectLayout.projectIdentifier
         jniConfigs.each { jniConfig->
             def headersTask = null
+            def getJniSymbols = null
             if (!jniConfig.onlyIncludeSystemHeaders) {
                 def generatedJNIHeaderLoc = "${project.buildDir}/${jniConfig.name}/jniinclude"
                 def headerTaskName = "${jniConfig.name}jniHeaders"
@@ -80,7 +81,7 @@ class JNIConfigRules extends RuleSource {
 
                 headersTask = tasks.get(headerTaskName)
 
-                def getJniSymbols = {
+                getJniSymbols = {
                     def symbolsList = []
 
                     headersTask.outputs.files.each {
