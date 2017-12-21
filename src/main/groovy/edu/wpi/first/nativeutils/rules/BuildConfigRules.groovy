@@ -158,7 +158,6 @@ class BuildConfigRules extends RuleSource {
                     && ((config.debugStripBinaries && binary.buildType.name.contains('debug')) ||  (config.releaseStripBinaries && binary.buildType.name.contains('release')))
                     && binary.targetPlatform.operatingSystem.name != 'windows'
                     && binary instanceof SharedLibraryBinarySpec) {
-                    def input = binary.buildTask.name
                     def task = binary.tasks.link
                     if (binary.targetPlatform.operatingSystem.name == 'osx') {
 

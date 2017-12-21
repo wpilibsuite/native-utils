@@ -15,6 +15,7 @@ import edu.wpi.first.nativeutils.tasks.JNIHeaders
 import edu.wpi.first.nativeutils.tasks.JNISymbolCheck
 import edu.wpi.first.nativeutils.dependencysets.JNISourceDependencySet
 import edu.wpi.first.nativeutils.dependencysets.JNISystemDependencySet
+import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask
 import java.util.Properties
 
 @SuppressWarnings("GroovyUnusedDeclaration")
@@ -195,7 +196,7 @@ class JNIConfigRules extends RuleSource {
 
                             binary.lib(new JNISourceDependencySet(jniHeadersList, project))
 
-                            binary.tasks.withType(CppCompile) {
+                            binary.tasks.withType(AbstractNativeSourceCompileTask) {
                                 it.dependsOn headersTask
                             }
                         }

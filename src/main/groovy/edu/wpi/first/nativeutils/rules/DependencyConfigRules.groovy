@@ -7,6 +7,7 @@ import org.gradle.model.*
 import org.gradle.platform.base.BinaryContainer
 import edu.wpi.first.nativeutils.dependencysets.*
 import edu.wpi.first.nativeutils.NativeUtils
+import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask
 import edu.wpi.first.nativeutils.tasks.NativeDependencyDownload
 import edu.wpi.first.nativeutils.tasks.NativeDependencyCombiner
 
@@ -144,7 +145,9 @@ class DependencyConfigRules extends RuleSource {
             }
             binaries.findAll { BuildConfigRulesBase.isNativeProject(it) }.each { binary ->
                 if (NativeUtils.getClassifier(binary) == classifier || headerClassifiers.contains(classifier)) {
-                    binary.buildTask.dependsOn task
+                    binary.tasks.withType(AbstractNativeSourceCompileTask) { compTask->
+                        compTask.dependsOn task
+                    }
                 }
             }
         }
