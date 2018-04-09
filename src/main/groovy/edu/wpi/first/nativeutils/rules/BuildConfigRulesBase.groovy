@@ -19,10 +19,12 @@ import org.gradle.platform.base.PlatformContainer
 import edu.wpi.first.nativeutils.configs.BuildConfig
 import edu.wpi.first.nativeutils.NativeUtils
 import edu.wpi.first.nativeutils.configs.CrossBuildConfig
+import groovy.transform.CompileStatic
 
 class BuildConfigRulesBase  {
     private static final ToolSearchPath toolSearchPath = new ToolSearchPath(OperatingSystem.current())
 
+    @CompileStatic
     static String binTools(String tool, ProjectLayout projectLayout, BuildConfig config) {
         def toolChainPath = NativeUtils.getToolChainPath(config, projectLayout.projectIdentifier)
         def compilerPrefix = config.toolChainPrefix
@@ -31,12 +33,14 @@ class BuildConfigRulesBase  {
         return "${compilerPrefix}${tool}"
     }
 
+    @CompileStatic
     static void addArgsToTool(Tool tool, args) {
         if (args != null) {
             tool.args.addAll((List<String>)args)
         }
     }
 
+    @CompileStatic
     static Class getCompilerFamily(String family) {
         switch (family) {
             case 'VisualCpp':
@@ -48,14 +52,17 @@ class BuildConfigRulesBase  {
         }
     }
 
+    @CompileStatic
     static boolean isNativeProject(BinarySpec binary) {
         return binary instanceof NativeBinarySpec
     }
 
+    @CompileStatic
     static boolean isCrossCompile(BuildConfig config) {
         return config in CrossBuildConfig
     }
 
+    @CompileStatic
     static boolean isComponentEnabled(BuildConfig config, String componentName) {
         if (config.exclude == null || config.exclude.size() == 0) {
             return true
@@ -67,6 +74,7 @@ class BuildConfigRulesBase  {
      * If a config is crosscompiling, only enable for athena. Otherwise, only enable if the current os is the config os,
      * or specific cross compiler is specified
      */
+    @CompileStatic
     static boolean isConfigEnabled(BuildConfig config, ProjectIdentifier projectIdentifier) {
         if (isCrossCompile(config) && NativeUtils.getCrossConfigEnabledCmdLine(config, projectIdentifier)) {
             return doesToolChainExist(config, projectIdentifier)
@@ -74,12 +82,14 @@ class BuildConfigRulesBase  {
         if (!config.detectPlatform) {
             return false
         }
+        def func = config.detectPlatform;
 
-        return config.detectPlatform(config)
+        return (boolean)func(config)
     }
 
     private static final Map<BuildConfig, Boolean> existingToolChains = [:]
 
+    @CompileStatic
     static boolean doesToolChainExist(BuildConfig config, ProjectIdentifier projectIdentifier) {
         if (!isCrossCompile(config)) {
             return true;

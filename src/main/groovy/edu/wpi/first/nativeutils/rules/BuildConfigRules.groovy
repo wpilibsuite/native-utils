@@ -13,6 +13,8 @@ import org.gradle.api.internal.project.ProjectIdentifier
 import org.gradle.language.assembler.tasks.Assemble
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask
 import org.gradle.model.*
+import org.gradle.nativeplatform.platform.NativePlatform
+import org.gradle.nativeplatform.NativeExecutableBinarySpec
 import org.gradle.nativeplatform.BuildTypeContainer
 import org.gradle.nativeplatform.NativeBinarySpec
 import org.gradle.nativeplatform.NativeLibrarySpec
@@ -22,6 +24,7 @@ import org.gradle.nativeplatform.StaticLibraryBinarySpec
 import org.gradle.nativeplatform.test.googletest.GoogleTestTestSuiteBinarySpec
 import org.gradle.nativeplatform.Tool
 import org.gradle.nativeplatform.toolchain.Clang
+import org.gradle.nativeplatform.tasks.LinkSharedLibrary
 import org.gradle.nativeplatform.toolchain.Gcc
 import org.gradle.nativeplatform.toolchain.internal.tools.ToolSearchPath
 import org.gradle.nativeplatform.toolchain.internal.ToolType
@@ -34,6 +37,9 @@ import org.gradle.platform.base.PlatformContainer
 import edu.wpi.first.nativeutils.configs.*
 import edu.wpi.first.nativeutils.NativeUtils
 import edu.wpi.first.nativeutils.tasks.NativeInstallAll
+import org.gradle.nativeplatform.NativeComponentSpec
+import groovy.transform.CompileStatic
+import org.gradle.api.tasks.Exec
 
 interface BuildConfigSpec extends ModelMap<BuildConfig> {}
 
@@ -63,6 +69,7 @@ class BuildConfigRules extends RuleSource {
 
     @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
     @Validate
+    @CompileStatic
     void validateCompilerFamilyExists(BuildConfigSpec configs) {
         configs.each { config ->
             assert config.compilerFamily == 'VisualCpp' ||
@@ -73,6 +80,7 @@ class BuildConfigRules extends RuleSource {
 
     @SuppressWarnings("GrMethodMayBeStatic")
     @Validate
+    @CompileStatic
     void validateOsExists(BuildConfigSpec configs) {
         def validOs = ['windows', 'osx', 'linux', 'unix']
         configs.each { config ->
@@ -84,14 +92,14 @@ class BuildConfigRules extends RuleSource {
     @Validate
     void setTargetPlatforms(ComponentSpecContainer components, ProjectLayout projectLayout, BuildConfigSpec configs) {
         components.each { component ->
-            configs.findAll { BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) }.each { config ->
+            configs.findAll { BuildConfigRulesBase.isConfigEnabled((BuildConfig)it, projectLayout.projectIdentifier) }.each { config ->
                 if (config.include == null || config.include.size() == 0) {
                     if (config.exclude == null || !config.exclude.contains(component.name)) {
-                        component.targetPlatform config.architecture
+                        component.targetPlatform = config.architecture
                     }
                 } else {
                     if (config.include.contains(component.name)) {
-                        component.targetPlatform config.architecture
+                        component.targetPlatform = config.architecture
                     }
                 }
             }
@@ -100,6 +108,7 @@ class BuildConfigRules extends RuleSource {
 
     @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
     @Mutate
+    @CompileStatic
     void addBuildTypes(BuildTypeContainer buildTypes, ProjectLayout projectLayout) {
         if (projectLayout.projectIdentifier.hasProperty('releaseBuild')) {
             buildTypes.create('release')
@@ -112,9 +121,10 @@ class BuildConfigRules extends RuleSource {
     @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
     @Mutate
     void disableCrossCompileGoogleTest(BinaryContainer binaries, BuildConfigSpec configs) {
-        def crossCompileConfigs = configs.findAll { BuildConfigRulesBase.isCrossCompile(it) }.collect { it.architecture }
+        def crossCompileConfigs = configs.findAll { BuildConfigRulesBase.isCrossCompile((BuildConfig)it) }.collect { ((BuildConfig)it).architecture }
         if (crossCompileConfigs != null && !crossCompileConfigs.empty) {
-            binaries.withType(GoogleTestTestSuiteBinarySpec) { spec ->
+            binaries.withType(GoogleTestTestSuiteBinarySpec) { oSpec ->
+                def spec = (GoogleTestTestSuiteBinarySpec)oSpec
                 if (crossCompileConfigs.contains(spec.targetPlatform.architecture.name)) {
                     spec.buildable = false
                 }
@@ -142,30 +152,33 @@ class BuildConfigRules extends RuleSource {
         def skipAllTests = projectLayout.projectIdentifier.hasProperty('skipAllTests')
         if (skipAllTests) {
             binaries.withType(GoogleTestTestSuiteBinarySpec) { spec ->
-                    spec.buildable = false
+                spec.buildable = false
             }
         }
     }
 
     @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
     @Mutate
+    @CompileStatic
     void createStripTasks(ModelMap<Task> tasks, BinaryContainer binaries, ProjectLayout projectLayout, BuildConfigSpec configs) {
-        def project = projectLayout.projectIdentifier
-        configs.findAll { BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) }.each { config ->
-            binaries.findAll { BuildConfigRulesBase.isNativeProject(it) }.each { binary ->
+        def project = (Project)projectLayout.projectIdentifier
+        configs.findAll { BuildConfigRulesBase.isConfigEnabled((BuildConfig)it, projectLayout.projectIdentifier) }.each { oConfig ->
+            binaries.findAll { BuildConfigRulesBase.isNativeProject((BinarySpec)it) }.each { oBinary ->
+                def binary = (NativeBinarySpec)oBinary
+                def config = (BuildConfig)oConfig
                 if (binary.targetPlatform.architecture.name == config.architecture
                     && binary.targetPlatform.operatingSystem.name == config.operatingSystem
                     && ((config.debugStripBinaries && binary.buildType.name.contains('debug')) ||  (config.releaseStripBinaries && binary.buildType.name.contains('release')))
                     && binary.targetPlatform.operatingSystem.name != 'windows'
                     && binary instanceof SharedLibraryBinarySpec) {
-                    def task = binary.tasks.link
+                    def task = (LinkSharedLibrary)((SharedLibraryBinarySpec)binary).tasks.link
                     if (binary.targetPlatform.operatingSystem.name == 'osx') {
 
                         def library = task.outputFile.absolutePath
                         task.doLast {
                             if (new File(library).exists()) {
-                                project.exec { commandLine "dsymutil", library }
-                                project.exec { commandLine "strip", '-S', library }
+                                project.exec { ((Exec)it).commandLine "dsymutil", library }
+                                project.exec { ((Exec)it).commandLine "strip", '-S', library }
                             }
                         }
                     } else {
@@ -173,9 +186,9 @@ class BuildConfigRules extends RuleSource {
                         def debugLibrary = task.outputFile.absolutePath + ".debug"
                         task.doLast {
                             if (new File(library).exists()) {
-                                project.exec { commandLine BuildConfigRulesBase.binTools('objcopy', projectLayout, config), '--only-keep-debug', library, debugLibrary }
-                                project.exec { commandLine BuildConfigRulesBase.binTools('strip', projectLayout, config), '-g', library }
-                                project.exec { commandLine BuildConfigRulesBase.binTools('objcopy', projectLayout, config), "--add-gnu-debuglink=$debugLibrary", library }
+                                project.exec { ((Exec)it).commandLine BuildConfigRulesBase.binTools('objcopy', projectLayout, config), '--only-keep-debug', library, debugLibrary }
+                                project.exec { ((Exec)it).commandLine BuildConfigRulesBase.binTools('strip', projectLayout, config), '-g', library }
+                                project.exec { ((Exec)it).commandLine BuildConfigRulesBase.binTools('objcopy', projectLayout, config), "--add-gnu-debuglink=$debugLibrary", library }
                             }
                         }
                     }
@@ -185,12 +198,13 @@ class BuildConfigRules extends RuleSource {
     }
 
     @Mutate
+    @CompileStatic
     void createInstallAllComponentsTask(ModelMap<Task> tasks, ComponentSpecContainer components) {
         tasks.create("installAllExecutables", NativeInstallAll) {
             components.each { component->
                 if (component in NativeExecutableSpec) {
-                    component.binaries.each { binary->
-                        dependsOn binary.tasks.install
+                    ((NativeExecutableSpec)component).binaries.each { binary->
+                        ((NativeInstallAll)it).dependsOn (((NativeExecutableBinarySpec)binary).tasks.install)
                     }
                 }
             }
@@ -199,14 +213,17 @@ class BuildConfigRules extends RuleSource {
 
     @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
     @Mutate
+    @CompileStatic
     void createPlatforms(PlatformContainer platforms, ProjectLayout projectLayout, BuildConfigSpec configs) {
         if (configs == null) {
             return
         }
 
-        configs.findAll { BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) }.each { config ->
+        configs.findAll { BuildConfigRulesBase.isConfigEnabled((BuildConfig)it, projectLayout.projectIdentifier) }.each { oConfig ->
+            def config = (BuildConfig)oConfig
             if (config.architecture != null) {
-                platforms.create(config.architecture) { platform ->
+                platforms.create(config.architecture) {
+                    def platform = (NativePlatform)it
                     platform.architecture config.architecture
                     if (config.operatingSystem != null) {
                         platform.operatingSystem config.operatingSystem
@@ -217,13 +234,15 @@ class BuildConfigRules extends RuleSource {
     }
 
     @Validate
+    //@CompileStatic
     void setDebugToolChainArgs(BinaryContainer binaries, ProjectLayout projectLayout, BuildConfigSpec configs) {
         if (configs == null) {
             return
         }
 
         def enabledConfigs = configs.findAll {
-            BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) && (it.debugCompilerArgs != null || it.debugLinkerArgs != null)
+            def config = (BuildConfig)it
+            BuildConfigRulesBase.isConfigEnabled(config, projectLayout.projectIdentifier) && (config.debugCompilerArgs != null || config.debugLinkerArgs != null)
         }
         if (enabledConfigs == null || enabledConfigs.empty) {
             return
@@ -247,13 +266,14 @@ class BuildConfigRules extends RuleSource {
     }
 
     @Validate
+
     void setReleaseToolChainArgs(BinaryContainer binaries, ProjectLayout projectLayout, BuildConfigSpec configs) {
         if (configs == null) {
             return
         }
 
         def enabledConfigs = configs.findAll {
-            BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) && (it.releaseCompilerArgs != null || it.releaseLinkerArgs != null)
+            BuildConfigRulesBase.isConfigEnabled((BuildConfig)it, projectLayout.projectIdentifier) && (it.releaseCompilerArgs != null || it.releaseLinkerArgs != null)
         }
         if (enabledConfigs == null || enabledConfigs.empty) {
             return
@@ -351,7 +371,7 @@ class BuildConfigRules extends RuleSource {
             return
         }
 
-        def vcppConfigs = configs.findAll { BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) && it.compilerFamily == 'VisualCpp' }
+        def vcppConfigs = configs.findAll { BuildConfigRulesBase.isConfigEnabled((BuildConfig)it, projectLayout.projectIdentifier) && it.compilerFamily == 'VisualCpp' }
         if (vcppConfigs != null && !vcppConfigs.empty) {
             toolChains.create('visualCpp', VisualCpp.class) { t ->
                 t.eachPlatform { toolChain ->
@@ -399,7 +419,7 @@ class BuildConfigRules extends RuleSource {
             }
         }
 
-        def gccConfigs = configs.findAll { BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) && it.compilerFamily == 'Gcc' }
+        def gccConfigs = configs.findAll { BuildConfigRulesBase.isConfigEnabled((BuildConfig)it, projectLayout.projectIdentifier) && it.compilerFamily == 'Gcc' }
         if (gccConfigs != null && !gccConfigs.empty) {
             toolChains.create('gcc', Gcc.class) {
                 gccConfigs.each { config ->
@@ -451,7 +471,7 @@ class BuildConfigRules extends RuleSource {
             }
         }
 
-        def clangConfigs = configs.findAll { BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) && it.compilerFamily == 'Clang' }
+        def clangConfigs = configs.findAll { BuildConfigRulesBase.isConfigEnabled((BuildConfig)it, projectLayout.projectIdentifier) && it.compilerFamily == 'Clang' }
         if (clangConfigs != null && !clangConfigs.empty) {
             toolChains.create('clang', Clang.class) {
                 clangConfigs.each { config ->

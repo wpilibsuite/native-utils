@@ -9,6 +9,7 @@ import org.gradle.nativeplatform.Tool
 import edu.wpi.first.nativeutils.configs.BuildConfig
 import edu.wpi.first.nativeutils.rules.BuildConfigRulesBase
 import edu.wpi.first.nativeutils.configs.CrossBuildConfig
+import groovy.transform.CompileStatic
 
 /**
  * Created by 333fr on 3/1/2017.
@@ -17,6 +18,7 @@ public class NativeUtils implements Plugin<Project> {
 
     static File extractedFile = null
 
+    @CompileStatic
     static String getGeneratorFilePath() {
         if (extractedFile != null) {
             return extractedFile.toString()
@@ -44,7 +46,7 @@ public class NativeUtils implements Plugin<Project> {
 
     private static final Map<CrossBuildConfig, Boolean> enabledConfigCache = [:]
 
-    public static boolean getCrossConfigEnabledCmdLine(CrossBuildConfig config, Project project) {
+    public static boolean getCrossConfigEnabledCmdLine(BuildConfig config, ProjectIdentifier project) {
         if (!config.skipByDefault) {
             return true
         }
@@ -89,7 +91,7 @@ public class NativeUtils implements Plugin<Project> {
     /**
      * Gets the toolChainPath for the specific build configuration
      */
-    public static String getToolChainPath(BuildConfig config, Project project) {
+    public static String getToolChainPath(BuildConfig config, ProjectIdentifier project) {
         if (!BuildConfigRulesBase.isCrossCompile(config)) {
             return null
         }
@@ -116,6 +118,7 @@ public class NativeUtils implements Plugin<Project> {
         return config.toolChainPath
     }
 
+    @CompileStatic
     public static boolean isConfigEnabled(BuildConfig config, ProjectIdentifier identifier) {
         return BuildConfigRulesBase.isConfigEnabled(config, identifier)
     }
@@ -123,6 +126,7 @@ public class NativeUtils implements Plugin<Project> {
     /**
      * Gets the extraction platform path for the specific build configuration
      */
+    @CompileStatic
     public static String getPlatformPath(BuildConfig config) {
         return config.operatingSystem + '/' + config.architecture
     }
@@ -130,6 +134,7 @@ public class NativeUtils implements Plugin<Project> {
     /**
      * Gets the artifact classifier for a specifc build configuration
      */
+    @CompileStatic
     public static String getClassifier(BuildConfig config) {
         return config.operatingSystem + config.architecture
     }
@@ -137,6 +142,7 @@ public class NativeUtils implements Plugin<Project> {
     /**
      * Gets the extraction platform path for a specific binary
      */
+    @CompileStatic
     public static String getPlatformPath(NativeBinarySpec binary) {
         return binary.targetPlatform.operatingSystem.name + '/' + binary.targetPlatform.architecture.name
     }
@@ -144,6 +150,7 @@ public class NativeUtils implements Plugin<Project> {
     /**
      * Gets the artifact classifier for a specific binary
      */
+    @CompileStatic
     public static String getClassifier(NativeBinarySpec binary) {
         return binary.targetPlatform.operatingSystem.name + binary.targetPlatform.architecture.name
     }
@@ -151,6 +158,7 @@ public class NativeUtils implements Plugin<Project> {
     /**
      * Sets an include flag in the compiler that is platform specific
      */
+    @CompileStatic
     public static String setPlatformSpecificIncludeFlag(String loc, Tool cppCompiler) {
         if (OperatingSystem.current().isWindows()) {
             cppCompiler.args "/I$loc"

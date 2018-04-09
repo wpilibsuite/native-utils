@@ -16,7 +16,7 @@ repositories {
 }
 
 group = 'edu.wpi.first'
-version = '1.5.2'
+version = '1.5.25'
 
 publishing {
     publications {
@@ -46,5 +46,5 @@ pluginBundle {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.0.1'
+    gradleVersion = '4.4'
 }

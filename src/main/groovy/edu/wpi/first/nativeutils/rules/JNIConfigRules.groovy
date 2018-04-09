@@ -10,18 +10,25 @@ import org.gradle.nativeplatform.SharedLibraryBinarySpec
 import org.gradle.platform.base.BinaryContainer
 import org.gradle.language.cpp.tasks.CppCompile
 import org.gradle.api.file.FileTree
+import org.gradle.api.Project
 import edu.wpi.first.nativeutils.NativeUtils
 import edu.wpi.first.nativeutils.tasks.JNIHeaders
 import edu.wpi.first.nativeutils.tasks.JNISymbolCheck
 import edu.wpi.first.nativeutils.dependencysets.JNISourceDependencySet
 import edu.wpi.first.nativeutils.dependencysets.JNISystemDependencySet
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask
+import org.gradle.nativeplatform.NativeBinarySpec
+import edu.wpi.first.nativeutils.configs.BuildConfig
+import org.gradle.platform.base.BinarySpec
 import java.util.Properties
+import groovy.transform.CompileStatic
+import org.gradle.api.tasks.Exec
 
 @SuppressWarnings("GroovyUnusedDeclaration")
 class JNIConfigRules extends RuleSource {
 
     @Validate
+    @CompileStatic
     void validateJniConfigHasSourceSets(JNIConfigSpec configs) {
         configs.each { config->
             if (config.onlyIncludeSystemHeaders) {
@@ -32,6 +39,7 @@ class JNIConfigRules extends RuleSource {
     }
 
     @Validate
+    @CompileStatic
     void validateJniConfigHasJNIClasses(JNIConfigSpec configs) {
         configs.each { config->
             if (config.onlyIncludeSystemHeaders) {
@@ -42,22 +50,24 @@ class JNIConfigRules extends RuleSource {
     }
 
     @Mutate
+    @CompileStatic
     void createJniTasks(ModelMap<Task> tasks, JNIConfigSpec jniConfigs, ProjectLayout projectLayout,
                         BinaryContainer binaries, BuildTypeContainer buildTypes, BuildConfigSpec configs) {
-        def project = projectLayout.projectIdentifier
+        def project = (Project)projectLayout.projectIdentifier
         jniConfigs.each { jniConfig->
-            def headersTask = null
-            def getJniSymbols = null
+            JNIHeaders headersTask = null
+            Closure getJniSymbols = null
             if (!jniConfig.onlyIncludeSystemHeaders) {
                 def generatedJNIHeaderLoc = "${project.buildDir}/${jniConfig.name}/jniinclude"
                 def headerTaskName = "${jniConfig.name}jniHeaders"
                 tasks.create(headerTaskName, JNIHeaders) {
-                    def outputFolder = project.file(generatedJNIHeaderLoc)
+                    def outputFolder = (File)project.file(generatedJNIHeaderLoc)
+                    def createdTask = it;
                     jniConfig.sourceSets.each {
-                        inputs.files it.output
+                        createdTask.inputs.files it.output
                     }
-                    outputs.dir outputFolder
-                    doLast {
+                    createdTask.outputs.dir outputFolder
+                    createdTask.doLast {
                         outputFolder.mkdirs()
                         def classPath = StringBuilder.newInstance()
                         jniConfig.sourceSets.each {
@@ -69,18 +79,19 @@ class JNIConfigRules extends RuleSource {
                         classPath.deleteCharAt(classPath.length()-1)
 
                         project.exec {
-                            executable org.gradle.internal.jvm.Jvm.current().getExecutable('javah')
+                            def execTask = (Exec)it
+                            execTask.executable org.gradle.internal.jvm.Jvm.current().getExecutable('javah')
 
-                            args '-d', outputFolder
-                            args '-classpath', classPath
+                            execTask.args '-d', outputFolder
+                            execTask.args '-classpath', classPath
                             jniConfig.jniDefinitionClasses.each {
-                                args it
+                                execTask.args it
                             }
                         }
                     }
                 }
 
-                headersTask = tasks.get(headerTaskName)
+                headersTask = (JNIHeaders)tasks.get(headerTaskName)
 
                 getJniSymbols = {
                     def symbolsList = []
@@ -91,9 +102,9 @@ class JNIConfigRules extends RuleSource {
                             file.eachLine { line ->
                                 if (line.trim()) {
                                     if (line.startsWith("JNIEXPORT ") && line.contains('JNICALL')) {
-                                        def (p1, p2) = line.split('JNICALL').collect { it.trim() }
+                                        def split = line.split('JNICALL').collect { ((String)it).trim() }
                                         // p2 is our JNI call
-                                        symbolsList << p2
+                                        symbolsList << split[1]
                                     }
                                 }
                             }
@@ -105,8 +116,16 @@ class JNIConfigRules extends RuleSource {
 
             }
 
-            configs.findAll { BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) }.each { config ->
-                binaries.findAll { BuildConfigRulesBase.isNativeProject(it)  && (it.component.name == jniConfig.name || it.component.name == "${jniConfig.name}Test".toString()) }.each { binary ->
+            configs.findAll { BuildConfigRulesBase.isConfigEnabled((BuildConfig)it, projectLayout.projectIdentifier) }.each { oConfig ->
+                binaries.findAll {
+                        if (!BuildConfigRulesBase.isNativeProject((BinarySpec)it)) {
+                            return false;
+                        }
+                        NativeBinarySpec spec = (NativeBinarySpec)it
+                        return (spec.component.name == jniConfig.name || spec.component.name == "${jniConfig.name}Test".toString())
+                    }.each { oBinary ->
+                    NativeBinarySpec binary = (NativeBinarySpec)oBinary
+                    BuildConfig config = (BuildConfig)oConfig;
                     if (binary.targetPlatform.architecture.name == config.architecture
                         && binary.targetPlatform.operatingSystem.name == config.operatingSystem
                         && binary.targetPlatform.operatingSystem.name != 'windows'
@@ -116,15 +135,18 @@ class JNIConfigRules extends RuleSource {
                         def input = binary.buildTask.name
                         def checkTaskName = 'check' + input.substring(0, 1).toUpperCase() + input.substring(1) + "JniSymbols";
                         tasks.create(checkTaskName, JNISymbolCheck) {
-                            dependsOn binary.tasks.link
-                            inputs.file(binary.sharedLibraryFile)
-                            doLast {
+                            JNISymbolCheck createdTask = (JNISymbolCheck)it;
+                            SharedLibraryBinarySpec slbs = (SharedLibraryBinarySpec)binary
+                            createdTask.dependsOn slbs.tasks.link
+                            createdTask.inputs.file(binary.sharedLibraryFile)
+                            createdTask.doLast {
                                 def library = binary.sharedLibraryFile.absolutePath
 
-                                def nmOutput = new ByteArrayOutputStream()
+                                OutputStream nmOutput = new ByteArrayOutputStream()
                                 project.exec {
-                                    commandLine BuildConfigRulesBase.binTools('nm', projectLayout, config), library
-                                    standardOutput nmOutput
+                                    def execTask = (Exec)it
+                                    execTask.commandLine BuildConfigRulesBase.binTools('nm', projectLayout, config), library
+                                    execTask.standardOutput = nmOutput
                                 }
                                 // Remove '\r' so we can check for full string contents
                                 def nmSymbols = nmOutput.toString().replace('\r', '')
@@ -135,9 +157,10 @@ class JNIConfigRules extends RuleSource {
 
                                 symbolList.each {
                                     //Add \n so we can check for the exact symbol
-                                    def found = nmSymbols.contains(it + '\n')
+                                    String symbol = (String)it;
+                                    def found = nmSymbols.contains(symbol + '\n')
                                     if (!found) {
-                                        missingSymbols.add(it);
+                                        missingSymbols.add(symbol);
                                     }
                                 }
 
@@ -169,20 +192,20 @@ class JNIConfigRules extends RuleSource {
                             }
                         } else {
                             def jdkLocation = org.gradle.internal.jvm.Jvm.current().javaHome
-                            jniFiles.add("${jdkLocation}/include")
+                            jniFiles.add("${jdkLocation}/include".toString())
                             if (binary.targetPlatform.operatingSystem.macOsX) {
-                                jniFiles.add("${jdkLocation}/include/darwin")
+                                jniFiles.add("${jdkLocation}/include/darwin".toString())
                             } else if (binary.targetPlatform.operatingSystem.linux) {
-                                jniFiles.add("${jdkLocation}/include/linux")
+                                jniFiles.add("${jdkLocation}/include/linux".toString())
                             } else if (binary.targetPlatform.operatingSystem.windows) {
-                                jniFiles.add("${jdkLocation}/include/win32")
+                                jniFiles.add("${jdkLocation}/include/win32".toString())
                             } else if (binary.targetPlatform.operatingSystem.freeBSD) {
-                                jniFiles.add("${jdkLocation}/include/freebsd")
-                            } else if (file("$jdkLocation/include/darwin").exists()) {
+                                jniFiles.add("${jdkLocation}/include/freebsd".toString())
+                            } else if (project.file("$jdkLocation/include/darwin").exists()) {
                                 // TODO: As of Gradle 2.8, targetPlatform.operatingSystem.macOsX returns false
                                 // on El Capitan. We therefore manually test for the darwin folder and include it
                                 // if it exists
-                                jniFiles.add("${jdkLocation}/include/darwin")
+                                jniFiles.add("${jdkLocation}/include/darwin".toString())
                             }
                         }
 
@@ -197,7 +220,7 @@ class JNIConfigRules extends RuleSource {
                             binary.lib(new JNISourceDependencySet(jniHeadersList, project))
 
                             binary.tasks.withType(AbstractNativeSourceCompileTask) {
-                                it.dependsOn headersTask
+                                ((AbstractNativeSourceCompileTask)it).dependsOn headersTask
                             }
                         }
                     }
