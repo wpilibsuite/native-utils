@@ -84,7 +84,7 @@ public class ExportsConfigRules extends RuleSource {
                       exec.args(((AbstractLinkTask)sBinary.getTasks().getLink()).getSource());
                     });
 
-                    List<String> lines = new ArrayList<>();
+                    final List<String> lines = new ArrayList<>();
                     List<String> excludeSymbols;
                     boolean isX86 = sBinary.getTargetPlatform().getArchitecture().getName().equals("x86");
                     if (isX86) {
@@ -115,12 +115,16 @@ public class ExportsConfigRules extends RuleSource {
                     if (isX86) {
                       Closure symbolFilter = config.getX86SymbolFilter();
                       if (symbolFilter != null) {
-                        symbolFilter.call(lines);
+                        List<String> tmpLines = (List<String>)symbolFilter.call(lines);
+                        lines.clear();
+                        lines.addAll(tmpLines);
                       }
                     } else {
                       Closure symbolFilter = config.getX64SymbolFilter();
                       if (symbolFilter != null) {
-                        symbolFilter.call(lines);
+                        List<String> tmpLines = (List<String>)symbolFilter.call(lines);
+                        lines.clear();
+                        lines.addAll(tmpLines);
                       }
                     }
 
