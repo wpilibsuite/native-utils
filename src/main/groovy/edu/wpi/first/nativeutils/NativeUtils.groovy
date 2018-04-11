@@ -170,9 +170,11 @@ public class NativeUtils implements Plugin<Project> {
 
         project.pluginManager.apply(edu.wpi.first.nativeutils.rules.DependencyConfigRules)
 
-        project.ext.JNIConfig = edu.wpi.first.nativeutils.configs.JNIConfig
+        //project.ext.JNIConfig = edu.wpi.first.nativeutils.configs.JNIConfig
 
-        project.pluginManager.apply(edu.wpi.first.nativeutils.rules.JNIConfigRules)
+        //project.pluginManager.apply(edu.wpi.first.nativeutils.rules.JNIConfigRules)
+
+        project.ext.NativeUtils = edu.wpi.first.nativeutils.NativeUtils
 
         project.ext.ExportsConfig = edu.wpi.first.nativeutils.configs.ExportsConfig
 

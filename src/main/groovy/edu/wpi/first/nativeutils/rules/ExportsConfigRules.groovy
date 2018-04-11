@@ -18,7 +18,7 @@ import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask
 import edu.wpi.first.nativeutils.NativeUtils
 
 @SuppressWarnings("GroovyUnusedDeclaration")
-class ExportsConfigRules extends RuleSource {
+class ExportsConfigRules2 extends RuleSource {
 
     @Validate
     void setupExports(ModelMap<Task> tasks, ExportsConfigSpec configs, ProjectLayout projectLayout, ComponentSpecContainer components) {
@@ -47,36 +47,24 @@ class ExportsConfigRules extends RuleSource {
                                 && binary instanceof SharedLibraryBinarySpec
                                 && !excludeBuildTypes.contains(binary.buildType.name)) {
 
-                                def taskArray = []
-                                def objFileDirArr = []
-
-                                binary.tasks.withType(AbstractNativeSourceCompileTask).each {
-                                    objFileDirArr.add(it.objectFileDir)
-                                    taskArray.add(it)
-                                }
-
                                 def defFile
 
                                 def exportsTaskName = 'generateExports' + binary.buildTask.name
 
                                 def exportsTask = project.tasks.create(exportsTaskName, ExportsGenerationTask) {
-                                    objFileDirArr.each {
-                                        inputs.dir(it)
-                                    }
+
+                                    inputs.files binary.tasks.link.source
+
                                     def tmpDir = project.file("$project.buildDir/tmp/$exportsTaskName")
                                     defFile = project.file(tmpDir.toString() + '/exports.def')
                                     outputs.file(defFile)
                                     doLast {
                                         tmpDir.mkdirs()
                                         def exeName = NativeUtils.getGeneratorFilePath();
-                                        def files = []
-                                        objFileDirArr.each {
-                                            files.add(project.fileTree(it).include("**/*.obj"))
-                                        }
                                         project.exec {
                                             executable = exeName
                                             args defFile
-                                            files.each {
+                                            binary.tasks.link.source.each {
                                                 args it
                                             }
                                         }
@@ -122,9 +110,13 @@ class ExportsConfigRules extends RuleSource {
                                     }
                                 }
 
+                                binary.tasks.withType(AbstractNativeSourceCompileTask).each {
+                                    exportsTask.dependsOn it
+                                }
+
                                 def linkTask = binary.tasks.link
                                 binary.linker.args "/DEF:${defFile}"
-                                taskArray.each {
+                                linkTask.dependsOn.each {
                                     exportsTask.dependsOn it
                                 }
                                 linkTask.dependsOn exportsTask

@@ -39,8 +39,6 @@ interface BuildConfigSpec extends ModelMap<BuildConfig> {}
 
 interface DependencyConfigSpec extends ModelMap<DependencyConfig> {}
 
-interface ExportsConfigSpec extends ModelMap<ExportsConfig> {}
-
 interface JNIConfigSpec extends ModelMap<JNIConfig> {}
 
 @SuppressWarnings("GroovyUnusedDeclaration")
