@@ -15,33 +15,6 @@ import edu.wpi.first.nativeutils.configs.CrossBuildConfig
  */
 public class NativeUtils implements Plugin<Project> {
 
-    static File extractedFile = null
-
-    static String getGeneratorFilePath() {
-        if (extractedFile != null) {
-            return extractedFile.toString()
-        }
-
-        InputStream is = NativeUtils.class.getResourceAsStream("/DefFileGenerator.exe");
-        extractedFile = File.createTempFile("DefFileGenerator", ".exe")
-        extractedFile.deleteOnExit();
-
-        OutputStream os = new FileOutputStream(extractedFile);
-
-        byte[] buffer = new byte[1024];
-        int readBytes;
-        try {
-            while ((readBytes = is.read(buffer)) != -1) {
-            os.write(buffer, 0, readBytes);
-            }
-        } finally {
-            os.close();
-            is.close();
-        }
-
-        return extractedFile.toString()
-    }
-
     private static final Map<CrossBuildConfig, Boolean> enabledConfigCache = [:]
 
     public static boolean getCrossConfigEnabledCmdLine(CrossBuildConfig config, Project project) {
@@ -177,6 +150,8 @@ public class NativeUtils implements Plugin<Project> {
         project.ext.NativeUtils = edu.wpi.first.nativeutils.NativeUtils
 
         project.ext.ExportsConfig = edu.wpi.first.nativeutils.configs.ExportsConfig
+
+        project.ext.ExportsGenerationTask = edu.wpi.first.nativeutils.tasks.ExportsGenerationTask
 
         project.pluginManager.apply(edu.wpi.first.nativeutils.rules.ExportsConfigRules)
     }

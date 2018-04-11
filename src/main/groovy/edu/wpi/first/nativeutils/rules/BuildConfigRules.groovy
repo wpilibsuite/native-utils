@@ -56,9 +56,6 @@ class BuildConfigRules extends RuleSource {
     @Model('jniConfigs')
     void createJniConfigs(JNIConfigSpec configs) {}
 
-    @Model('exportsConfigs')
-    void createExportsConfigs(ExportsConfigSpec configs) {}
-
     @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
     @Validate
     void validateCompilerFamilyExists(BuildConfigSpec configs) {

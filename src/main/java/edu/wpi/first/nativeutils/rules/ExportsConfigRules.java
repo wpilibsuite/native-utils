@@ -12,7 +12,9 @@ import org.gradle.api.Task;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.language.base.internal.ProjectLayout;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
+import org.gradle.model.Model;
 import org.gradle.model.ModelMap;
+import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
 import org.gradle.model.Validate;
 import org.gradle.nativeplatform.NativeBinarySpec;
@@ -25,10 +27,14 @@ import org.gradle.platform.base.ComponentSpecContainer;
 
 import edu.wpi.first.nativeutils.configs.ExportsConfig;
 import edu.wpi.first.nativeutils.specs.ExportsConfigSpec;
+import edu.wpi.first.nativeutils.storage.ExportsStorage;
 import edu.wpi.first.nativeutils.tasks.ExportsGenerationTask;
 import groovy.lang.Closure;
 
 public class ExportsConfigRules extends RuleSource {
+
+  @Model("exportsConfigs")
+  void createExportsConfigs(ExportsConfigSpec configs) {}
 
   @Validate
   void setupExports(ModelMap<Task> tasks, ExportsConfigSpec configs, ProjectLayout projectLayout, ComponentSpecContainer components) {
@@ -59,19 +65,17 @@ public class ExportsConfigRules extends RuleSource {
                     SharedLibraryBinarySpec sBinary = (SharedLibraryBinarySpec)binary;
 
                     String exportsTaskName = "generateExports" + binary.getBuildTask().getName();
+                    File tmpDir = project.file(project.getBuildDir() + "/tmp/" + exportsTaskName);
+                    File defFile = project.file(tmpDir.toString() + "/exports.def");
 
                     Task exportsTask = project.getTasks().create(exportsTaskName, ExportsGenerationTask.class, task -> {
                       task.getInputs().files(((AbstractLinkTask)sBinary.getTasks().getLink()).getSource());
-                      File tmpDir = project.file(project.getBuildDir() + "/tmp/" + exportsTaskName);
-                      File defFile = project.file(tmpDir.toString() + "/exports.def");
+
                       task.getOutputs().file(defFile);
-                      sBinary.getTasks().getLink().getInputs().file(defFile);
-                      binary.getLinker().args("/DEF:" + defFile.toString());
 
                       task.doLast(last -> {
                         tmpDir.mkdirs();
-                        // TODO: Get exe name
-                        String exeName = "";
+                        String exeName = ExportsStorage.getGeneratorFilePath();
                         project.exec(exec -> {
                           exec.setExecutable(exeName);
                           exec.args(defFile);
@@ -134,8 +138,12 @@ public class ExportsConfigRules extends RuleSource {
                     });
 
                     Task linkTask = sBinary.getTasks().getLink();
-                    exportsTask.dependsOn(linkTask.getDependsOn());
+                    sBinary.getLinker().args("/DEF:" + defFile.toString());
+                    for (Object o : linkTask.getDependsOn()) {
+                      exportsTask.dependsOn(o);
+                    }
                     linkTask.dependsOn(exportsTask);
+                    linkTask.getInputs().file(defFile);
                   }
             }
           }
@@ -143,4 +151,7 @@ public class ExportsConfigRules extends RuleSource {
       }
     }
   }
+
+  @Mutate
+  void doThingWithExports(ModelMap<Task> tasks, ExportsConfigSpec exports) {}
 }
