@@ -64,7 +64,7 @@ class BuildConfigRulesBase  {
 
     @CompileStatic
     static boolean isCrossCompile(BuildConfig config) {
-        return config in CrossBuildConfig
+        return config instanceof CrossBuildConfig
     }
 
     @CompileStatic
