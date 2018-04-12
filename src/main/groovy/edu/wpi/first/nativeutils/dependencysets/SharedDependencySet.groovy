@@ -5,16 +5,18 @@ import org.gradle.api.Project
 import org.gradle.nativeplatform.NativeBinarySpec
 import edu.wpi.first.nativeutils.NativeUtils
 import groovy.transform.InheritConstructors
+import groovy.transform.CompileStatic
 
 @InheritConstructors
+@CompileStatic
 public class SharedDependencySet extends WPINativeDependencySet {
-
+    @CompileStatic
     private FileCollection getFiles(boolean isRuntime) {
         def classifier = NativeUtils.getClassifier(m_binarySpec)
         def platformPath = NativeUtils.getPlatformPath(m_binarySpec)
         def dirPath = 'shared'
 
-        def fileList =  m_project.fileTree("${m_rootLocation}/${classifier}/${platformPath}/${dirPath}/").filter { it.isFile() }
+        def fileList =  m_project.fileTree("${m_rootLocation}/${classifier}/${platformPath}/${dirPath}/").filter { ((File)it).isFile() }
         if (m_binarySpec.targetPlatform.operatingSystem.name == 'windows' && !isRuntime) {
             fileList = fileList.filter { it.toString().endsWith('.lib') }
         } else if (m_binarySpec.targetPlatform.operatingSystem.name == 'windows') {
@@ -25,11 +27,11 @@ public class SharedDependencySet extends WPINativeDependencySet {
 
         return m_project.files(fileList.files)
     }
-
+    @CompileStatic
     public FileCollection getLinkFiles() {
         return getFiles(false)
     }
-
+    @CompileStatic
     public FileCollection getRuntimeFiles() {
         return getFiles(true)
     }

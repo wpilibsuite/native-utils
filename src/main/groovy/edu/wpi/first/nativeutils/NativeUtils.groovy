@@ -9,6 +9,7 @@ import org.gradle.nativeplatform.Tool
 import edu.wpi.first.nativeutils.configs.BuildConfig
 import edu.wpi.first.nativeutils.rules.BuildConfigRulesBase
 import edu.wpi.first.nativeutils.configs.CrossBuildConfig
+import groovy.transform.CompileStatic
 
 /**
  * Created by 333fr on 3/1/2017.
@@ -17,6 +18,7 @@ public class NativeUtils implements Plugin<Project> {
 
     private static final Map<CrossBuildConfig, Boolean> enabledConfigCache = [:]
 
+    @CompileStatic
     public static boolean getCrossConfigEnabledCmdLine(CrossBuildConfig config, Project project) {
         if (!config.skipByDefault) {
             return true
@@ -59,9 +61,14 @@ public class NativeUtils implements Plugin<Project> {
 
     private static final Map<BuildConfig, String> toolChainPathCache = [:]
 
+    private static Object getValue(Object item) {
+        return item.value
+    }
+
     /**
      * Gets the toolChainPath for the specific build configuration
      */
+    @CompileStatic
     public static String getToolChainPath(BuildConfig config, Project project) {
         if (!BuildConfigRulesBase.isCrossCompile(config)) {
             return null
@@ -73,29 +80,32 @@ public class NativeUtils implements Plugin<Project> {
         // Try getting the toolChainPath
         for (item in project.properties) {
             def key = item.key
-            def value = item.value
+            def value = getValue(item)
             if (key.contains('-toolChainPath')) {
                 String[] configSplit = key.split("-", 2);
                 if (value != null && configSplit.length == 2 && configSplit[0] != "") {
                     if (configSplit[0] == config.architecture) {
-                        toolChainPathCache.put(config, value)
+                        toolChainPathCache.put(config, (String)(Object)value)
                         return value
                     }
                 }
             }
         }
 
-        toolChainPathCache.put(config, config.toolChainPath)
-        return config.toolChainPath
+        String path = ((CrossBuildConfig)config).toolChainPath
+        toolChainPathCache.put(config, path)
+        return path
     }
 
-    public static boolean isConfigEnabled(BuildConfig config, ProjectIdentifier identifier) {
-        return BuildConfigRulesBase.isConfigEnabled(config, identifier)
+    @CompileStatic
+    public static boolean isConfigEnabled(BuildConfig config, Project project) {
+        return BuildConfigRulesBase.isConfigEnabled(config, project)
     }
 
     /**
      * Gets the extraction platform path for the specific build configuration
      */
+    @CompileStatic
     public static String getPlatformPath(BuildConfig config) {
         return config.operatingSystem + '/' + config.architecture
     }
@@ -103,6 +113,7 @@ public class NativeUtils implements Plugin<Project> {
     /**
      * Gets the artifact classifier for a specifc build configuration
      */
+    @CompileStatic
     public static String getClassifier(BuildConfig config) {
         return config.operatingSystem + config.architecture
     }
@@ -110,6 +121,7 @@ public class NativeUtils implements Plugin<Project> {
     /**
      * Gets the extraction platform path for a specific binary
      */
+    @CompileStatic
     public static String getPlatformPath(NativeBinarySpec binary) {
         return binary.targetPlatform.operatingSystem.name + '/' + binary.targetPlatform.architecture.name
     }
@@ -117,6 +129,7 @@ public class NativeUtils implements Plugin<Project> {
     /**
      * Gets the artifact classifier for a specific binary
      */
+    @CompileStatic
     public static String getClassifier(NativeBinarySpec binary) {
         return binary.targetPlatform.operatingSystem.name + binary.targetPlatform.architecture.name
     }
@@ -124,6 +137,7 @@ public class NativeUtils implements Plugin<Project> {
     /**
      * Sets an include flag in the compiler that is platform specific
      */
+    @CompileStatic
     public static String setPlatformSpecificIncludeFlag(String loc, Tool cppCompiler) {
         if (OperatingSystem.current().isWindows()) {
             cppCompiler.args "/I$loc"

@@ -13,10 +13,13 @@ import org.gradle.api.internal.project.ProjectIdentifier
 import org.gradle.language.assembler.tasks.Assemble
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask
 import org.gradle.model.*
+import org.gradle.api.tasks.Exec
 import org.gradle.nativeplatform.BuildTypeContainer
 import org.gradle.nativeplatform.NativeBinarySpec
 import org.gradle.nativeplatform.NativeLibrarySpec
+import org.gradle.platform.base.VariantComponentSpec
 import org.gradle.nativeplatform.NativeExecutableSpec
+import org.gradle.nativeplatform.NativeComponentSpec
 import org.gradle.nativeplatform.SharedLibraryBinarySpec
 import org.gradle.nativeplatform.StaticLibraryBinarySpec
 import org.gradle.nativeplatform.test.googletest.GoogleTestTestSuiteBinarySpec
@@ -30,56 +33,69 @@ import org.gradle.nativeplatform.toolchain.VisualCpp
 import org.gradle.platform.base.BinaryContainer
 import org.gradle.platform.base.BinarySpec
 import org.gradle.platform.base.ComponentSpecContainer
+import org.gradle.nativeplatform.tasks.LinkSharedLibrary
 import org.gradle.platform.base.PlatformContainer
+import org.gradle.nativeplatform.TargetedNativeComponent
 import edu.wpi.first.nativeutils.configs.*
 import edu.wpi.first.nativeutils.NativeUtils
 import edu.wpi.first.nativeutils.tasks.NativeInstallAll
+import org.gradle.nativeplatform.NativeExecutableBinarySpec
+import org.gradle.platform.base.ComponentSpec
+import org.gradle.nativeplatform.platform.NativePlatform
+import groovy.transform.CompileStatic
 
 interface BuildConfigSpec extends ModelMap<BuildConfig> {}
 
 interface DependencyConfigSpec extends ModelMap<DependencyConfig> {}
-
-interface JNIConfigSpec extends ModelMap<JNIConfig> {}
 
 @SuppressWarnings("GroovyUnusedDeclaration")
 class BuildConfigRules extends RuleSource {
 
     @SuppressWarnings("GroovyUnusedDeclaration")
     @Model('buildConfigs')
+    @CompileStatic
     void createBuildConfigs(BuildConfigSpec configs) {}
 
     @SuppressWarnings("GroovyUnusedDeclaration")
     @Model('dependencyConfigs')
+    @CompileStatic
     void createDependencyConfigs(DependencyConfigSpec configs) {}
-
-    @SuppressWarnings("GroovyUnusedDeclaration")
-    @Model('jniConfigs')
-    void createJniConfigs(JNIConfigSpec configs) {}
 
     @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
     @Validate
+    @CompileStatic
     void validateCompilerFamilyExists(BuildConfigSpec configs) {
-        configs.each { config ->
+        for (BuildConfig config : configs) {
             assert config.compilerFamily == 'VisualCpp' ||
-                    config.compilerFamily == 'Gcc' ||
-                    config.compilerFamily == 'Clang'
+                   config.compilerFamily == 'Gcc' ||
+                   config.compilerFamily == 'Clang'
         }
     }
 
     @SuppressWarnings("GrMethodMayBeStatic")
     @Validate
+    @CompileStatic
     void validateOsExists(BuildConfigSpec configs) {
         def validOs = ['windows', 'osx', 'linux', 'unix']
-        configs.each { config ->
+        for (BuildConfig config : configs) {
             assert validOs.contains(config.operatingSystem.toLowerCase())
         }
     }
 
     @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
     @Validate
+    @CompileStatic
     void setTargetPlatforms(ComponentSpecContainer components, ProjectLayout projectLayout, BuildConfigSpec configs) {
-        components.each { component ->
-            configs.findAll { BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) }.each { config ->
+        def project = (Project)projectLayout.projectIdentifier
+        for (ComponentSpec oComponent : components) {
+            if (!(oComponent in TargetedNativeComponent)) {
+                continue
+            }
+            for (BuildConfig config : configs) {
+                if (!BuildConfigRulesBase.isConfigEnabled(config, project)) {
+                    continue
+                }
+                TargetedNativeComponent component = (TargetedNativeComponent)oComponent
                 if (config.include == null || config.include.size() == 0) {
                     if (config.exclude == null || !config.exclude.contains(component.name)) {
                         component.targetPlatform config.architecture
@@ -95,6 +111,7 @@ class BuildConfigRules extends RuleSource {
 
     @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
     @Mutate
+    @CompileStatic
     void addBuildTypes(BuildTypeContainer buildTypes, ProjectLayout projectLayout) {
         if (projectLayout.projectIdentifier.hasProperty('releaseBuild')) {
             buildTypes.create('release')
@@ -104,14 +121,26 @@ class BuildConfigRules extends RuleSource {
         }
     }
 
+    private void setBuildableFalseDynamically(NativeBinarySpec binary) {
+        binary.buildable = false
+    }
+
     @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
     @Mutate
+    @CompileStatic
     void disableCrossCompileGoogleTest(BinaryContainer binaries, BuildConfigSpec configs) {
-        def crossCompileConfigs = configs.findAll { BuildConfigRulesBase.isCrossCompile(it) }.collect { it.architecture }
-        if (crossCompileConfigs != null && !crossCompileConfigs.empty) {
-            binaries.withType(GoogleTestTestSuiteBinarySpec) { spec ->
+        def crossCompileConfigs = []
+        for (BuildConfig config : configs) {
+            if (!BuildConfigRulesBase.isCrossCompile(config)) {
+                continue
+            }
+            crossCompileConfigs << config.architecture
+        }
+        if (!crossCompileConfigs.empty) {
+            binaries.withType(GoogleTestTestSuiteBinarySpec) { oSpec ->
+                GoogleTestTestSuiteBinarySpec spec = (GoogleTestTestSuiteBinarySpec)oSpec
                 if (crossCompileConfigs.contains(spec.targetPlatform.architecture.name)) {
-                    spec.buildable = false
+                    setBuildableFalseDynamically(spec)
                 }
             }
         }
@@ -119,13 +148,21 @@ class BuildConfigRules extends RuleSource {
 
     @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
     @Mutate
+    @CompileStatic
     void setSkipGoogleTest(BinaryContainer binaries, ProjectLayout projectLayout, BuildConfigSpec configs) {
-        def skipConfigs = configs.findAll { it.skipTests }.collect { it.architecture + ':' + it.operatingSystem }
-        if (skipConfigs != null && !skipConfigs.empty) {
-            binaries.withType(GoogleTestTestSuiteBinarySpec) { spec ->
+        def skipConfigs = []
+        for (BuildConfig config : configs) {
+            if (!config.skipTests) {
+                continue
+            }
+            skipConfigs << config.architecture + ':' + config.operatingSystem
+        }
+        if (!skipConfigs.empty) {
+            binaries.withType(GoogleTestTestSuiteBinarySpec) { oSpec ->
+                GoogleTestTestSuiteBinarySpec spec = (GoogleTestTestSuiteBinarySpec)oSpec
                 def checkString = spec.targetPlatform.architecture.name + ':' + spec.targetPlatform.operatingSystem.name
                 if (skipConfigs.contains(checkString)) {
-                    spec.buildable = false
+                    setBuildableFalseDynamically(spec)
                 }
             }
         }
@@ -133,34 +170,44 @@ class BuildConfigRules extends RuleSource {
 
     @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
     @Mutate
+    @CompileStatic
     void setSkipAllGoogleTest(BinaryContainer binaries, ProjectLayout projectLayout, BuildConfigSpec configs) {
         def skipAllTests = projectLayout.projectIdentifier.hasProperty('skipAllTests')
         if (skipAllTests) {
             binaries.withType(GoogleTestTestSuiteBinarySpec) { spec ->
-                    spec.buildable = false
+                    setBuildableFalseDynamically((GoogleTestTestSuiteBinarySpec)spec)
             }
         }
     }
 
     @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
     @Mutate
+    @CompileStatic
     void createStripTasks(ModelMap<Task> tasks, BinaryContainer binaries, ProjectLayout projectLayout, BuildConfigSpec configs) {
-        def project = projectLayout.projectIdentifier
-        configs.findAll { BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) }.each { config ->
-            binaries.findAll { BuildConfigRulesBase.isNativeProject(it) }.each { binary ->
+        def project = (Project)projectLayout.projectIdentifier
+        for (BuildConfig config : configs) {
+            if (!BuildConfigRulesBase.isConfigEnabled(config, project)) {
+                continue
+            }
+            for (BinarySpec oBinary : binaries) {
+                if (!BuildConfigRulesBase.isNativeProject(oBinary)) {
+                    continue
+                }
+                NativeBinarySpec binary = (NativeBinarySpec)oBinary
                 if (binary.targetPlatform.architecture.name == config.architecture
                     && binary.targetPlatform.operatingSystem.name == config.operatingSystem
                     && ((config.debugStripBinaries && binary.buildType.name.contains('debug')) ||  (config.releaseStripBinaries && binary.buildType.name.contains('release')))
                     && binary.targetPlatform.operatingSystem.name != 'windows'
                     && binary instanceof SharedLibraryBinarySpec) {
-                    def task = binary.tasks.link
+                    def sBinary = (SharedLibraryBinarySpec)binary
+                    def task = (LinkSharedLibrary)sBinary.tasks.link
                     if (binary.targetPlatform.operatingSystem.name == 'osx') {
 
                         def library = task.outputFile.absolutePath
                         task.doLast {
                             if (new File(library).exists()) {
-                                project.exec { commandLine "dsymutil", library }
-                                project.exec { commandLine "strip", '-S', library }
+                                project.exec { ((Exec)it).commandLine "dsymutil", library }
+                                project.exec { ((Exec)it).commandLine "strip", '-S', library }
                             }
                         }
                     } else {
@@ -168,9 +215,9 @@ class BuildConfigRules extends RuleSource {
                         def debugLibrary = task.outputFile.absolutePath + ".debug"
                         task.doLast {
                             if (new File(library).exists()) {
-                                project.exec { commandLine BuildConfigRulesBase.binTools('objcopy', projectLayout, config), '--only-keep-debug', library, debugLibrary }
-                                project.exec { commandLine BuildConfigRulesBase.binTools('strip', projectLayout, config), '-g', library }
-                                project.exec { commandLine BuildConfigRulesBase.binTools('objcopy', projectLayout, config), "--add-gnu-debuglink=$debugLibrary", library }
+                                project.exec { ((Exec)it).commandLine BuildConfigRulesBase.binTools('objcopy', projectLayout, config), '--only-keep-debug', library, debugLibrary }
+                                project.exec { ((Exec)it).commandLine BuildConfigRulesBase.binTools('strip', projectLayout, config), '-g', library }
+                                project.exec { ((Exec)it).commandLine BuildConfigRulesBase.binTools('objcopy', projectLayout, config), "--add-gnu-debuglink=$debugLibrary", library }
                             }
                         }
                     }
@@ -180,12 +227,16 @@ class BuildConfigRules extends RuleSource {
     }
 
     @Mutate
+    @CompileStatic
     void createInstallAllComponentsTask(ModelMap<Task> tasks, ComponentSpecContainer components) {
         tasks.create("installAllExecutables", NativeInstallAll) {
-            components.each { component->
-                if (component in NativeExecutableSpec) {
-                    component.binaries.each { binary->
-                        dependsOn binary.tasks.install
+            Task task = (Task)it
+            for (ComponentSpec oComponent : components) {
+                if (oComponent in NativeExecutableSpec) {
+                    NativeExecutableSpec component = (NativeExecutableSpec)oComponent
+                    for (BinarySpec binary : component.binaries) {
+                        def install = ((NativeExecutableBinarySpec)binary).tasks.install
+                        task.dependsOn install
                     }
                 }
             }
@@ -194,14 +245,19 @@ class BuildConfigRules extends RuleSource {
 
     @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
     @Mutate
+    @CompileStatic
     void createPlatforms(PlatformContainer platforms, ProjectLayout projectLayout, BuildConfigSpec configs) {
         if (configs == null) {
             return
         }
-
-        configs.findAll { BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) }.each { config ->
+        def project = (Project)projectLayout.projectIdentifier
+        for (BuildConfig config : configs) {
+            if (!BuildConfigRulesBase.isConfigEnabled(config, project)) {
+                continue
+            }
             if (config.architecture != null) {
-                platforms.create(config.architecture) { platform ->
+                platforms.create(config.architecture) { oPlatform ->
+                    NativePlatform platform = (NativePlatform)oPlatform
                     platform.architecture config.architecture
                     if (config.operatingSystem != null) {
                         platform.operatingSystem config.operatingSystem
@@ -212,23 +268,40 @@ class BuildConfigRules extends RuleSource {
     }
 
     @Validate
+    @CompileStatic
     void setDebugToolChainArgs(BinaryContainer binaries, ProjectLayout projectLayout, BuildConfigSpec configs) {
         if (configs == null) {
             return
         }
+        def project = (Project)projectLayout.projectIdentifier
 
-        def enabledConfigs = configs.findAll {
-            BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) && (it.debugCompilerArgs != null || it.debugLinkerArgs != null)
+        def enabledConfigs = []
+        for (BuildConfig cfg : configs) {
+            if (BuildConfigRulesBase.isConfigEnabled(cfg, project) && (cfg.debugCompilerArgs != null || cfg.debugLinkerArgs != null)) {
+                enabledConfigs << cfg
+            }
         }
-        if (enabledConfigs == null || enabledConfigs.empty) {
+
+        if (enabledConfigs.empty) {
             return
         }
 
-        binaries.findAll {
-            BuildConfigRulesBase.isNativeProject(it) && it.buildType.name.contains('debug') }.each { binary ->
-            def config = enabledConfigs.find {
-                it.architecture == binary.targetPlatform.architecture.name &&
-                        BuildConfigRulesBase.getCompilerFamily(it.compilerFamily).isAssignableFrom(binary.toolChain.class)
+        for (BinarySpec oBinary : binaries) {
+            if (!BuildConfigRulesBase.isNativeProject(oBinary)) {
+                continue
+            }
+            def binary = (NativeBinarySpec)oBinary
+            if (!binary.buildType.name.contains('debug')) {
+                continue
+            }
+
+            BuildConfig config = null
+            for (BuildConfig it : enabledConfigs) {
+                if (it.architecture == binary.targetPlatform.architecture.name &&
+                        BuildConfigRulesBase.getCompilerFamily(it.compilerFamily).isAssignableFrom(binary.toolChain.class)) {
+                    config = it
+                    break;
+                }
             }
             if (config != null) {
                 BuildConfigRulesBase.addArgsToTool(binary.cppCompiler, config.debugCompilerArgs)
@@ -242,23 +315,41 @@ class BuildConfigRules extends RuleSource {
     }
 
     @Validate
+    @CompileStatic
     void setReleaseToolChainArgs(BinaryContainer binaries, ProjectLayout projectLayout, BuildConfigSpec configs) {
         if (configs == null) {
             return
         }
 
-        def enabledConfigs = configs.findAll {
-            BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) && (it.releaseCompilerArgs != null || it.releaseLinkerArgs != null)
+        def project = (Project)projectLayout.projectIdentifier
+
+        def enabledConfigs = []
+        for (BuildConfig cfg : configs) {
+            if (BuildConfigRulesBase.isConfigEnabled(cfg, project) && (cfg.releaseCompilerArgs != null || cfg.releaseLinkerArgs != null)) {
+                enabledConfigs << cfg
+            }
         }
-        if (enabledConfigs == null || enabledConfigs.empty) {
+
+        if (enabledConfigs.empty) {
             return
         }
 
-        binaries.findAll {
-            BuildConfigRulesBase.isNativeProject(it) && it.buildType.name.contains('release') }.each { binary ->
-            def config = enabledConfigs.find {
-                it.architecture == binary.targetPlatform.architecture.name &&
-                        BuildConfigRulesBase.getCompilerFamily(it.compilerFamily).isAssignableFrom(binary.toolChain.class)
+        for (BinarySpec oBinary : binaries) {
+            if (!BuildConfigRulesBase.isNativeProject(oBinary)) {
+                continue
+            }
+            def binary = (NativeBinarySpec)oBinary
+            if (!binary.buildType.name.contains('release')) {
+                continue
+            }
+
+            BuildConfig config = null
+            for (BuildConfig it : enabledConfigs) {
+                if (it.architecture == binary.targetPlatform.architecture.name &&
+                        BuildConfigRulesBase.getCompilerFamily(it.compilerFamily).isAssignableFrom(binary.toolChain.class)) {
+                    config = it
+                    break;
+                }
             }
             if (config != null) {
                 BuildConfigRulesBase.addArgsToTool(binary.cppCompiler, config.releaseCompilerArgs)
@@ -271,7 +362,8 @@ class BuildConfigRules extends RuleSource {
         }
     }
 
-    static void performWarningPrinting(String taskName, ProjectIdentifier project) {
+    @CompileStatic
+    static void performWarningPrinting(String taskName, Project project) {
         def warningFile = project.file("$project.buildDir/tmp/$taskName/output.txt");
 
         if (!warningFile.exists()) {
@@ -313,24 +405,26 @@ class BuildConfigRules extends RuleSource {
 
     @SuppressWarnings("GroovyUnusedDeclaration")
     @Validate
+    @CompileStatic
     void setupCompilerWarningPrinting(ModelMap<Task> tasks, ProjectLayout projectLayout, ComponentSpecContainer components) {
 
         if (components == null) {
             return
         }
 
-        def project = projectLayout.projectIdentifier
+        def project = (Project)projectLayout.projectIdentifier
 
         if (project.hasProperty('skipWarningPrints')) {
             return
         }
 
-        components.each { component->
+        for (ComponentSpec component : components) {
             if (component instanceof NativeLibrarySpec || component instanceof NativeExecutableSpec) {
-                component.binaries.each { binary->
+                for (BinarySpec binary : ((VariantComponentSpec)component).binaries) {
                     binary.tasks.withType(AbstractNativeSourceCompileTask) {
-                        it.doLast {
-                            BuildConfigRules.performWarningPrinting(it.name.toString(), project)
+                        def task = (AbstractNativeSourceCompileTask)it
+                        task.doLast {
+                            BuildConfigRules.performWarningPrinting(task.name.toString(), project)
                         }
                     }
                 }

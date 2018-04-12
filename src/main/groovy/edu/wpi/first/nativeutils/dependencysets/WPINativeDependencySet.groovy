@@ -4,13 +4,16 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.Project
 import org.gradle.nativeplatform.NativeDependencySet
 import org.gradle.nativeplatform.NativeBinarySpec
+import groovy.transform.CompileStatic
 
+@CompileStatic
 public abstract class WPINativeDependencySet implements NativeDependencySet {
     protected String m_rootLocation
     protected NativeBinarySpec m_binarySpec
     protected Project m_project
     protected String m_libraryName
 
+    @CompileStatic
     public WPINativeDependencySet(String rootLocation, NativeBinarySpec binarySpec, String libraryName, Project project) {
         m_rootLocation = rootLocation
         m_binarySpec = binarySpec
@@ -18,6 +21,7 @@ public abstract class WPINativeDependencySet implements NativeDependencySet {
         m_project = project
     }
 
+    @CompileStatic
     public FileCollection getIncludeRoots() {
         return m_project.files("${m_rootLocation}/headers")
     }

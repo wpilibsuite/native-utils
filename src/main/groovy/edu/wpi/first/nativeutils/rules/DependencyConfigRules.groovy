@@ -10,13 +10,24 @@ import edu.wpi.first.nativeutils.NativeUtils
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask
 import edu.wpi.first.nativeutils.tasks.NativeDependencyDownload
 import edu.wpi.first.nativeutils.tasks.NativeDependencyCombiner
+import edu.wpi.first.nativeutils.configs.DependencyConfig
+import groovy.transform.CompileStatic
+import org.gradle.nativeplatform.NativeBinarySpec
+import org.gradle.nativeplatform.NativeComponentSpec
+import org.gradle.api.tasks.Exec
+import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.DependencyHandler
+import edu.wpi.first.nativeutils.configs.BuildConfig
+import org.gradle.api.artifacts.ExternalModuleDependency
+import org.gradle.platform.base.BinarySpec
 
 @SuppressWarnings("GroovyUnusedDeclaration")
 class DependencyConfigRules extends RuleSource {
 
     @Validate
+    @CompileStatic
     void validateAllConfigsHaveProperties(DependencyConfigSpec configs) {
-        configs.each { config->
+        for (DependencyConfig config : configs) {
             assert config.groupId != null && config.groupId != ''
             assert config.artifactId != null && config.artifactId != ''
             assert config.headerClassifier != null && config.headerClassifier != ''
@@ -26,8 +37,9 @@ class DependencyConfigRules extends RuleSource {
     }
 
     @Validate
+    @CompileStatic
     void assertDependenciesAreNotNullMaps(DependencyConfigSpec configs) {
-        configs.each { config->
+        for (DependencyConfig config : configs) {
             if (config.sharedConfigs != null) {
                 config.sharedConfigs.each {
                     assert it.value != null
@@ -42,8 +54,9 @@ class DependencyConfigRules extends RuleSource {
     }
 
     @Validate
+    @CompileStatic
     void vaidateDependenciesDontSpecifyAll(DependencyConfigSpec configs) {
-        configs.each { config->
+        for (DependencyConfig config : configs) {
             def sharedConfigs
             if (config.sharedConfigs != null) {
                 sharedConfigs = config.sharedConfigs.collect { it.key }
@@ -65,8 +78,9 @@ class DependencyConfigRules extends RuleSource {
     }
 
     @Validate
+    @CompileStatic
     void validateDependenciesDontIntersectSharedStatic(DependencyConfigSpec configs) {
-        configs.each { config->
+        for (DependencyConfig config : configs) {
             def sharedConfigs
             if (config.sharedConfigs != null) {
                 sharedConfigs = config.sharedConfigs.collect { it.key }
@@ -89,11 +103,16 @@ class DependencyConfigRules extends RuleSource {
         }
     }
 
+    private void addDependency(DependencyHandler handler, java.util.LinkedHashMap <java.lang.String, java.lang.String> map) {
+        handler.nativeDeps map
+    }
+
     @Mutate
+    @CompileStatic
     void setupDependencyDownloads(ModelMap<Task> tasks, DependencyConfigSpec configs, BinaryContainer binaries,
                         ProjectLayout projectLayout, BuildConfigSpec buildConfigs) {
-        def rootProject = projectLayout.projectIdentifier.rootProject
-        def currentProject = projectLayout.projectIdentifier
+        def currentProject = (Project)projectLayout.projectIdentifier
+        def rootProject = (Project)currentProject.rootProject
 
         currentProject.configurations.create('nativeDeps')
 
@@ -101,52 +120,63 @@ class DependencyConfigRules extends RuleSource {
 
         def sortedConfigs = configs.toSorted { a, b -> a.sortOrder<=>b.sortOrder }
 
-        sortedConfigs.each { config->
+        for (DependencyConfig config : sortedConfigs) {
             headerClassifiers.add(config.headerClassifier)
             currentProject.dependencies {
-                nativeDeps group: config.groupId, name: config.artifactId, version: config.version, classifier: config.headerClassifier, ext: config.ext
+                def dep = (DependencyHandler)it
+                def map = [group: config.groupId, name: config.artifactId, version: config.version, classifier: config.headerClassifier, ext: config.ext]
+                addDependency(dep, map)
             }
-            buildConfigs.findAll { BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) }.each { buildConfig ->
+            for (BuildConfig buildConfig : buildConfigs) {
+                if (!(BuildConfigRulesBase.isConfigEnabled(buildConfig, currentProject))) {
+                    continue
+                }
                 currentProject.dependencies {
-                    nativeDeps group: config.groupId, name: config.artifactId, version: config.version, classifier: NativeUtils.getClassifier(buildConfig), ext: config.ext
+                    def dep = (DependencyHandler)it
+                    def map = [group: config.groupId, name: config.artifactId, version: config.version, classifier: NativeUtils.getClassifier((BuildConfig)buildConfig), ext: config.ext]
+                    addDependency(dep, map)
                 }
             }
         }
 
         def depLocation = "${rootProject.buildDir}/dependencies"
 
-        def filesList = currentProject.configurations.nativeDeps.files
+        def filesList = currentProject.configurations.getByName('nativeDeps').files
 
         def downloadAllTaskName = 'downloadAllDependencies'
         def downloadAllTask = rootProject.tasks.findByPath(downloadAllTaskName)
         if (downloadAllTask == null) {
             downloadAllTask = rootProject.tasks.create(downloadAllTaskName, NativeDependencyCombiner) {
-                description 'Downloads and extracts all native c++ dependencies'
+                NativeDependencyCombiner combineTask = (NativeDependencyCombiner)it;
+                combineTask.description = 'Downloads and extracts all native c++ dependencies'
             }
         }
 
-        currentProject.configurations.nativeDeps.dependencies.each { dependency ->
+        currentProject.configurations.getByName('nativeDeps').dependencies.each { oDependency ->
+            def dependency = (ExternalModuleDependency)oDependency
             def classifier = dependency.artifacts[0].classifier
             def extension = dependency.artifacts[0].extension
             def taskName = "download${dependency.group}${dependency.name}${classifier}"
             def task = rootProject.tasks.findByPath(taskName)
             if (task == null) {
                 task = rootProject.tasks.create(taskName, NativeDependencyDownload) {
+                    def createdTask = (NativeDependencyDownload)it
                     def file
                     filesList.each {
                         if (it.toString().endsWith("${classifier}.${extension}") && it.toString().contains("${dependency.name}-".toString())) {
                             file = it
                         }
                     }
-                    from rootProject.zipTree(file)
-                    into "$depLocation/${dependency.name.toLowerCase()}/${classifier}"
+                    createdTask.from rootProject.zipTree(file)
+                    createdTask.into "$depLocation/${dependency.name.toLowerCase()}/${classifier}"
                 }
                 downloadAllTask.dependsOn task
             }
-            binaries.findAll { BuildConfigRulesBase.isNativeProject(it) }.each { binary ->
+            binaries.findAll { BuildConfigRulesBase.isNativeProject((BinarySpec)it) }.each { oBinary ->
+                NativeBinarySpec binary = (NativeBinarySpec)oBinary
                 if (NativeUtils.getClassifier(binary) == classifier || headerClassifiers.contains(classifier)) {
                     binary.tasks.withType(AbstractNativeSourceCompileTask) { compTask->
-                        compTask.dependsOn task
+                        ((Task)compTask).dependsOn task
                     }
                 }
             }
@@ -154,18 +184,20 @@ class DependencyConfigRules extends RuleSource {
     }
 
     @Validate
+    @CompileStatic
     void setupDependencies(BinaryContainer binaries, DependencyConfigSpec configs,
                         ProjectLayout projectLayout, BuildConfigSpec buildConfigs) {
-        def rootProject = projectLayout.projectIdentifier.rootProject
-        def currentProject = projectLayout.projectIdentifier
+        def currentProject = (Project)projectLayout.projectIdentifier
+        def rootProject = (Project)currentProject.rootProject
 
         def sortedConfigs = configs.toSorted { a, b -> a.sortOrder<=>b.sortOrder }
 
         def depLocation = "${rootProject.buildDir}/dependencies"
 
         sortedConfigs.each { config ->
-            def nativeBinaries = binaries.findAll { BuildConfigRulesBase.isNativeProject(it) }
-            nativeBinaries.each { binary ->
+            def nativeBinaries = binaries.findAll { BuildConfigRulesBase.isNativeProject((BinarySpec)it) }
+            nativeBinaries.each { oBinary ->
+                def binary = (NativeBinarySpec)oBinary
                 def component = binary.component
                 if (config.sharedConfigs != null && config.sharedConfigs.containsKey(component.name)) {
                     if (config.sharedConfigs.get(component.name).size() == 0 ||
