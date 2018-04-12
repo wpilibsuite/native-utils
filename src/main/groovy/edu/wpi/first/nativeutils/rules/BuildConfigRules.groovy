@@ -113,7 +113,8 @@ class BuildConfigRules extends RuleSource {
     @Mutate
     @CompileStatic
     void addBuildTypes(BuildTypeContainer buildTypes, ProjectLayout projectLayout) {
-        if (projectLayout.projectIdentifier.hasProperty('releaseBuild')) {
+        def project =  (Project)projectLayout.projectIdentifier
+        if (project.hasProperty('releaseBuild')) {
             buildTypes.create('release')
         } else {
             println 'Currently building a debug binary. To build release, add -PreleaseBuild to your gradle command.'
@@ -172,7 +173,8 @@ class BuildConfigRules extends RuleSource {
     @Mutate
     @CompileStatic
     void setSkipAllGoogleTest(BinaryContainer binaries, ProjectLayout projectLayout, BuildConfigSpec configs) {
-        def skipAllTests = projectLayout.projectIdentifier.hasProperty('skipAllTests')
+        def project = (Project)projectLayout.projectIdentifier
+        def skipAllTests = project.hasProperty('skipAllTests')
         if (skipAllTests) {
             binaries.withType(GoogleTestTestSuiteBinarySpec) { spec ->
                     setBuildableFalseDynamically((GoogleTestTestSuiteBinarySpec)spec)
