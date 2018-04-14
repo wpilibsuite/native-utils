@@ -16,6 +16,7 @@ import org.gradle.nativeplatform.NativeBinarySpec
 import org.gradle.nativeplatform.NativeComponentSpec
 import org.gradle.api.tasks.Exec
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import edu.wpi.first.nativeutils.configs.BuildConfig
 import org.gradle.api.artifacts.ExternalModuleDependency
@@ -103,8 +104,8 @@ class DependencyConfigRules extends RuleSource {
         }
     }
 
-    private void addDependency(DependencyHandler handler, java.util.LinkedHashMap <java.lang.String, java.lang.String> map) {
-        handler.nativeDeps map
+    private void addDependency(Configuration configuration, java.util.LinkedHashMap <java.lang.String, java.lang.String> map) {
+        configuration map
     }
 
     @Mutate
@@ -114,9 +115,11 @@ class DependencyConfigRules extends RuleSource {
         def currentProject = (Project)projectLayout.projectIdentifier
         def rootProject = (Project)currentProject.rootProject
 
-        currentProject.configurations.create('nativeDeps')
+        //currentProject.configurations.create('nativeDeps')
 
         def headerClassifiers = []
+
+        def configurationList = []
 
         def sortedConfigs = configs.toSorted { a, b -> a.sortOrder<=>b.sortOrder }
 
@@ -125,7 +128,10 @@ class DependencyConfigRules extends RuleSource {
             currentProject.dependencies {
                 def dep = (DependencyHandler)it
                 def map = [group: config.groupId, name: config.artifactId, version: config.version, classifier: config.headerClassifier, ext: config.ext]
-                addDependency(dep, map)
+                def configurationName = "${config.groupId}${config.artifactId}${config.headerClassifier}".toString()
+                configurationName = configurationName.replace('.', '')
+                configurationList << new Tuple(config.artifactId, config.headerClassifier, currentProject.configurations.create(configurationName))
+                dep.add(configurationName, map)
             }
             for (BuildConfig buildConfig : buildConfigs) {
                 if (!(BuildConfigRulesBase.isConfigEnabled(buildConfig, currentProject))) {
@@ -133,24 +139,63 @@ class DependencyConfigRules extends RuleSource {
                 }
                 currentProject.dependencies {
                     def dep = (DependencyHandler)it
-                    def map = [group: config.groupId, name: config.artifactId, version: config.version, classifier: NativeUtils.getClassifier((BuildConfig)buildConfig), ext: config.ext]
-                    addDependency(dep, map)
+                    def classifier = NativeUtils.getClassifier((BuildConfig)buildConfig)
+                    def map = [group: config.groupId, name: config.artifactId, version: config.version, classifier: classifier, ext: config.ext]
+                    def configurationName = "${config.groupId}${config.artifactId}${classifier}".toString()
+                    configurationName = configurationName.replace('.', '')
+                    configurationList << new Tuple(config.artifactId, classifier, currentProject.configurations.create(configurationName))
+                    dep.add(configurationName, map)
                 }
             }
         }
 
         def depLocation = "${rootProject.buildDir}/dependencies"
 
-        def filesList = currentProject.configurations.getByName('nativeDeps').files
-
         def downloadAllTaskName = 'downloadAllDependencies'
         def downloadAllTask = rootProject.tasks.findByPath(downloadAllTaskName)
         if (downloadAllTask == null) {
             downloadAllTask = rootProject.tasks.create(downloadAllTaskName, NativeDependencyCombiner) {
                 NativeDependencyCombiner combineTask = (NativeDependencyCombiner)it;
+                combineTask.group = 'Dependencies'
                 combineTask.description = 'Downloads and extracts all native c++ dependencies'
             }
         }
+
+        for (Tuple t : configurationList) {
+            String id = (String)t.get(0)
+            String classifier = (String)t.get(1)
+            Configuration configuration = (Configuration)t.get(2)
+            def taskName = "download${configuration.name}"
+            def task = rootProject.tasks.findByPath(taskName)
+            if (task == null) {
+                task = rootProject.tasks.create(taskName, NativeDependencyDownload) {
+                    def createdTask = (NativeDependencyDownload)it
+                    createdTask.group = 'Dependencies'
+                    createdTask.description = 'Downloads and extracts a native c++ dependency'
+                    createdTask.dependsOn configuration
+
+                    createdTask.from {
+                        configuration.collect {
+                            currentProject.zipTree(it)
+                        }
+                    }
+
+                    createdTask.into "$depLocation/${id.toLowerCase()}/${classifier}"
+
+                }
+                downloadAllTask.dependsOn task
+            }
+            binaries.findAll { BuildConfigRulesBase.isNativeProject((BinarySpec)it) }.each { oBinary ->
+                NativeBinarySpec binary = (NativeBinarySpec)oBinary
+                if (NativeUtils.getClassifier(binary) == classifier || headerClassifiers.contains(classifier)) {
+                    binary.tasks.withType(AbstractNativeSourceCompileTask) { compTask->
+                        ((Task)compTask).dependsOn task
+                    }
+                }
+            }
+        }
+
+        /*
 
         currentProject.configurations.getByName('nativeDeps').dependencies.each { oDependency ->
             def dependency = (ExternalModuleDependency)oDependency
@@ -181,6 +226,7 @@ class DependencyConfigRules extends RuleSource {
                 }
             }
         }
+        */
     }
 
     @Validate

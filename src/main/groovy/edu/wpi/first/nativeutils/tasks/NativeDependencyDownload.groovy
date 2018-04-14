@@ -1,5 +1,5 @@
 package edu.wpi.first.nativeutils.tasks
 
-import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.Sync
 
-public class NativeDependencyDownload extends Copy { }
+public class NativeDependencyDownload extends Sync { }

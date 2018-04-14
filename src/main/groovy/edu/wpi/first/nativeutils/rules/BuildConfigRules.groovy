@@ -234,6 +234,8 @@ class BuildConfigRules extends RuleSource {
     void createInstallAllComponentsTask(ModelMap<Task> tasks, ComponentSpecContainer components) {
         tasks.create("installAllExecutables", NativeInstallAll) {
             Task task = (Task)it
+            task.group = 'Install'
+            task.description = 'Install all executables from this project'
             for (ComponentSpec oComponent : components) {
                 if (oComponent in NativeExecutableSpec) {
                     NativeExecutableSpec component = (NativeExecutableSpec)oComponent
