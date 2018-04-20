@@ -185,6 +185,7 @@ class BuildConfigRules extends RuleSource {
 
     @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
     @Mutate
+    // TODO: Make this create a separate task
     void createStripTasks(ModelMap<Task> tasks, BinaryContainer binaries, ProjectLayout projectLayout, BuildConfigSpec configs) {
         def project = (Project)projectLayout.projectIdentifier
         for (BuildConfig config : configs) {
@@ -205,19 +206,19 @@ class BuildConfigRules extends RuleSource {
                     def task = (LinkSharedLibrary)sBinary.tasks.link
                     def lockConfig = config
                     if (binary.targetPlatform.operatingSystem.name == 'osx') {
-
-                        def library = task.outputFile.absolutePath
                         task.doLast {
+                            def library = task.linkedFile.asFile.toString()
                             if (new File(library).exists()) {
                                 project.exec { commandLine "dsymutil", library }
                                 project.exec { commandLine "strip", '-S', library }
                             }
                         }
                     } else {
-                        def library = task.outputFile.absolutePath
-                        def debugLibrary = task.outputFile.absolutePath + ".debug"
                         task.doLast {
+                            def library = task.linkedFile.get().asFile.toString()
+
                             if (new File(library).exists()) {
+                                def debugLibrary = library + '.debug'
                                 project.exec { commandLine BuildConfigRulesBase.binTools('objcopy', projectLayout, lockConfig), '--only-keep-debug', library, debugLibrary }
                                 project.exec { commandLine BuildConfigRulesBase.binTools('strip', projectLayout, lockConfig), '-g', library }
                                 project.exec { commandLine BuildConfigRulesBase.binTools('objcopy', projectLayout, lockConfig), "--add-gnu-debuglink=$debugLibrary", library }
