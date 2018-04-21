@@ -16,7 +16,9 @@ public class StaticDependencySet extends WPINativeDependencySet {
         def platformPath = NativeUtils.getPlatformPath(m_binarySpec)
         def dirPath = 'static'
 
-        def fileList =  m_project.fileTree("${m_rootLocation}/${classifier}/${platformPath}/${dirPath}/").filter { ((File)it).isFile() }
+        def fileList = m_project.fileTree("${m_rootLocation}/${classifier}/${platformPath}/${dirPath}/").filter {
+            ((File) it).isFile()
+        }
         if (m_binarySpec.targetPlatform.operatingSystem.name == 'windows') {
             fileList = fileList.filter { it.toString().endsWith('.lib') }
         } else {

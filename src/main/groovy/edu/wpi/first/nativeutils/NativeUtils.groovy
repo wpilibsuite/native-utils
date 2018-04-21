@@ -85,14 +85,14 @@ public class NativeUtils implements Plugin<Project> {
                 String[] configSplit = key.split("-", 2);
                 if (value != null && configSplit.length == 2 && configSplit[0] != "") {
                     if (configSplit[0] == config.architecture) {
-                        toolChainPathCache.put(config, (String)(Object)value)
+                        toolChainPathCache.put(config, (String) (Object) value)
                         return value
                     }
                 }
             }
         }
 
-        String path = ((CrossBuildConfig)config).toolChainPath
+        String path = ((CrossBuildConfig) config).toolChainPath
         toolChainPathCache.put(config, path)
         return path
     }

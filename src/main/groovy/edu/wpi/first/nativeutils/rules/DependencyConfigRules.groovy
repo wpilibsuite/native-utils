@@ -72,7 +72,7 @@ class DependencyConfigRules extends RuleSource {
                 staticConfigs = []
             }
 
-            sharedConfigs.intersect(staticConfigs).each { common->
+            sharedConfigs.intersect(staticConfigs).each { common ->
                 assert config.sharedConfigs.get(common).size() != 0 && config.staticConfigs.get(common).size() != 0
             }
         }
@@ -96,7 +96,7 @@ class DependencyConfigRules extends RuleSource {
                 staticConfigs = []
             }
 
-            sharedConfigs.intersect(staticConfigs).each { common->
+            sharedConfigs.intersect(staticConfigs).each { common ->
                 def sharedDeps = config.sharedConfigs.get(common)
                 def staticDeps = config.staticConfigs.get(common)
                 assert staticDeps.intersect(sharedDeps).size() == 0
@@ -104,16 +104,16 @@ class DependencyConfigRules extends RuleSource {
         }
     }
 
-    private void addDependency(Configuration configuration, java.util.LinkedHashMap <java.lang.String, java.lang.String> map) {
+    private void addDependency(Configuration configuration, java.util.LinkedHashMap<java.lang.String, java.lang.String> map) {
         configuration map
     }
 
     @Mutate
     @CompileStatic
     void setupDependencyDownloads(ModelMap<Task> tasks, DependencyConfigSpec configs, BinaryContainer binaries,
-                        ProjectLayout projectLayout, BuildConfigSpec buildConfigs) {
-        def currentProject = (Project)projectLayout.projectIdentifier
-        def rootProject = (Project)currentProject.rootProject
+                                  ProjectLayout projectLayout, BuildConfigSpec buildConfigs) {
+        def currentProject = (Project) projectLayout.projectIdentifier
+        def rootProject = (Project) currentProject.rootProject
 
         //currentProject.configurations.create('nativeDeps')
 
@@ -121,12 +121,12 @@ class DependencyConfigRules extends RuleSource {
 
         def configurationList = []
 
-        def sortedConfigs = configs.toSorted { a, b -> a.sortOrder<=>b.sortOrder }
+        def sortedConfigs = configs.toSorted { a, b -> a.sortOrder <=> b.sortOrder }
 
         for (DependencyConfig config : sortedConfigs) {
             headerClassifiers.add(config.headerClassifier)
             currentProject.dependencies {
-                def dep = (DependencyHandler)it
+                def dep = (DependencyHandler) it
                 def map = [group: config.groupId, name: config.artifactId, version: config.version, classifier: config.headerClassifier, ext: config.ext]
                 def configurationName = "${config.groupId}${config.artifactId}${config.headerClassifier}".toString()
                 configurationName = configurationName.replace('.', '')
@@ -138,8 +138,8 @@ class DependencyConfigRules extends RuleSource {
                     continue
                 }
                 currentProject.dependencies {
-                    def dep = (DependencyHandler)it
-                    def classifier = NativeUtils.getClassifier((BuildConfig)buildConfig)
+                    def dep = (DependencyHandler) it
+                    def classifier = NativeUtils.getClassifier((BuildConfig) buildConfig)
                     def map = [group: config.groupId, name: config.artifactId, version: config.version, classifier: classifier, ext: config.ext]
                     def configurationName = "${config.groupId}${config.artifactId}${classifier}".toString()
                     configurationName = configurationName.replace('.', '')
@@ -155,21 +155,21 @@ class DependencyConfigRules extends RuleSource {
         def downloadAllTask = rootProject.tasks.findByPath(downloadAllTaskName)
         if (downloadAllTask == null) {
             downloadAllTask = rootProject.tasks.create(downloadAllTaskName, NativeDependencyCombiner) {
-                NativeDependencyCombiner combineTask = (NativeDependencyCombiner)it;
+                NativeDependencyCombiner combineTask = (NativeDependencyCombiner) it;
                 combineTask.group = 'Dependencies'
                 combineTask.description = 'Downloads and extracts all native c++ dependencies'
             }
         }
 
         for (Tuple t : configurationList) {
-            String id = (String)t.get(0)
-            String classifier = (String)t.get(1)
-            Configuration configuration = (Configuration)t.get(2)
+            String id = (String) t.get(0)
+            String classifier = (String) t.get(1)
+            Configuration configuration = (Configuration) t.get(2)
             def taskName = "download${configuration.name}"
             def task = rootProject.tasks.findByPath(taskName)
             if (task == null) {
                 task = rootProject.tasks.create(taskName, NativeDependencyDownload) {
-                    def createdTask = (NativeDependencyDownload)it
+                    def createdTask = (NativeDependencyDownload) it
                     createdTask.group = 'Dependencies'
                     createdTask.description = 'Downloads and extracts a native c++ dependency'
                     createdTask.dependsOn configuration
@@ -185,11 +185,11 @@ class DependencyConfigRules extends RuleSource {
                 }
                 downloadAllTask.dependsOn task
             }
-            binaries.findAll { BuildConfigRulesBase.isNativeProject((BinarySpec)it) }.each { oBinary ->
-                NativeBinarySpec binary = (NativeBinarySpec)oBinary
+            binaries.findAll { BuildConfigRulesBase.isNativeProject((BinarySpec) it) }.each { oBinary ->
+                NativeBinarySpec binary = (NativeBinarySpec) oBinary
                 if (NativeUtils.getClassifier(binary) == classifier || headerClassifiers.contains(classifier)) {
-                    binary.tasks.withType(AbstractNativeSourceCompileTask) { compTask->
-                        ((Task)compTask).dependsOn task
+                    binary.tasks.withType(AbstractNativeSourceCompileTask) { compTask ->
+                        ((Task) compTask).dependsOn task
                     }
                 }
             }
@@ -232,29 +232,29 @@ class DependencyConfigRules extends RuleSource {
     @Validate
     @CompileStatic
     void setupDependencies(BinaryContainer binaries, DependencyConfigSpec configs,
-                        ProjectLayout projectLayout, BuildConfigSpec buildConfigs) {
-        def currentProject = (Project)projectLayout.projectIdentifier
-        def rootProject = (Project)currentProject.rootProject
+                           ProjectLayout projectLayout, BuildConfigSpec buildConfigs) {
+        def currentProject = (Project) projectLayout.projectIdentifier
+        def rootProject = (Project) currentProject.rootProject
 
-        def sortedConfigs = configs.toSorted { a, b -> a.sortOrder<=>b.sortOrder }
+        def sortedConfigs = configs.toSorted { a, b -> a.sortOrder <=> b.sortOrder }
 
         def depLocation = "${rootProject.buildDir}/dependencies"
 
         sortedConfigs.each { config ->
-            def nativeBinaries = binaries.findAll { BuildConfigRulesBase.isNativeProject((BinarySpec)it) }
+            def nativeBinaries = binaries.findAll { BuildConfigRulesBase.isNativeProject((BinarySpec) it) }
             nativeBinaries.each { oBinary ->
-                def binary = (NativeBinarySpec)oBinary
+                def binary = (NativeBinarySpec) oBinary
                 def component = binary.component
                 if (config.sharedConfigs != null && config.sharedConfigs.containsKey(component.name)) {
                     if (config.sharedConfigs.get(component.name).size() == 0 ||
-                        config.sharedConfigs.get(component.name).contains("${binary.targetPlatform.operatingSystem.name}:${binary.targetPlatform.architecture.name}".toString())) {
+                            config.sharedConfigs.get(component.name).contains("${binary.targetPlatform.operatingSystem.name}:${binary.targetPlatform.architecture.name}".toString())) {
                         binary.lib(new SharedDependencySet("$depLocation/${config.artifactId.toLowerCase()}", binary, config.artifactId, currentProject))
                     }
                 }
 
                 if (config.staticConfigs != null && config.staticConfigs.containsKey(component.name)) {
                     if (config.staticConfigs.get(component.name).size() == 0 ||
-                        config.staticConfigs.get(component.name).contains("${binary.targetPlatform.operatingSystem.name}:${binary.targetPlatform.architecture.name}".toString())) {
+                            config.staticConfigs.get(component.name).contains("${binary.targetPlatform.operatingSystem.name}:${binary.targetPlatform.architecture.name}".toString())) {
                         binary.lib(new StaticDependencySet("$depLocation/${config.artifactId.toLowerCase()}", binary, config.artifactId, currentProject))
                     }
                 }

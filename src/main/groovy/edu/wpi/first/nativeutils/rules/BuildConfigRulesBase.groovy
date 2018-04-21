@@ -26,12 +26,12 @@ class ConfigEnables {
     public boolean configEnabled = false
 }
 
-class BuildConfigRulesBase  {
+class BuildConfigRulesBase {
     private static final ToolSearchPath toolSearchPath = new ToolSearchPath(OperatingSystem.current())
 
     @CompileStatic
     static String binTools(String tool, ProjectLayout projectLayout, BuildConfig config) {
-        def toolChainPath = NativeUtils.getToolChainPath(config, (Project)projectLayout.projectIdentifier)
+        def toolChainPath = NativeUtils.getToolChainPath(config, (Project) projectLayout.projectIdentifier)
         def compilerPrefix = config.toolChainPrefix
         if (compilerPrefix == null) compilerPrefix = ''
         if (toolChainPath != null) return "${toolChainPath}/${compilerPrefix}${tool}"
@@ -41,7 +41,7 @@ class BuildConfigRulesBase  {
     @CompileStatic
     static void addArgsToTool(Tool tool, args) {
         if (args != null) {
-            tool.args.addAll((List<String>)args)
+            tool.args.addAll((List<String>) args)
         }
     }
 
@@ -81,7 +81,7 @@ class BuildConfigRulesBase  {
      * If a config is crosscompiling, only enable for athena. Otherwise, only enable if the current os is the config os,
      * or specific cross compiler is specified
      */
-     @CompileStatic
+    @CompileStatic
     static boolean isConfigEnabled(BuildConfig config, Project project) {
         if (configEnabledMap.containsKey(config)) {
             return configEnabledMap.get(config).configEnabled
@@ -90,7 +90,7 @@ class BuildConfigRulesBase  {
         ConfigEnables enable = new ConfigEnables()
         configEnabledMap.put(config, enable);
 
-        if (isCrossCompile(config) && NativeUtils.getCrossConfigEnabledCmdLine((CrossBuildConfig)config, project)) {
+        if (isCrossCompile(config) && NativeUtils.getCrossConfigEnabledCmdLine((CrossBuildConfig) config, project)) {
             enable.configEnabled = doesToolChainExist(config, project)
             return enable.configEnabled
         }

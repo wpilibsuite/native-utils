@@ -56,8 +56,6 @@ interface BuildConfig extends Named {
     List<String> getReleaseCCompilerArgs()
 
 
-
-
     @SuppressWarnings("GroovyUnusedDeclaration")
     void setObjCCompilerArgs(List<String> args)
 
@@ -72,9 +70,6 @@ interface BuildConfig extends Named {
     void setReleaseObjCCompilerArgs(List<String> args)
 
     List<String> getReleaseObjCCompilerArgs()
-
-
-
 
 
     @SuppressWarnings("GroovyUnusedDeclaration")
@@ -93,9 +88,6 @@ interface BuildConfig extends Named {
     List<String> getReleaseObjCppCompilerArgs()
 
 
-
-
-
     @SuppressWarnings("GroovyUnusedDeclaration")
     void setAsmCompilerArgs(List<String> args)
 
@@ -110,11 +102,6 @@ interface BuildConfig extends Named {
     void setReleaseAsmCompilerArgs(List<String> args)
 
     List<String> getReleaseAsmCompilerArgs()
-
-
-
-
-
 
 
     @SuppressWarnings("GroovyUnusedDeclaration")
@@ -159,6 +146,7 @@ interface BuildConfig extends Named {
 
     @Unmanaged
     void setDetectPlatform(Closure closure)
+
     @Unmanaged
     Closure getDetectPlatform()
 
