@@ -185,7 +185,6 @@ class BuildConfigRules extends RuleSource {
 
     @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
     @Mutate
-    // TODO: Make this create a separate task
     void createStripTasks(ModelMap<Task> tasks, BinaryContainer binaries, ProjectLayout projectLayout, BuildConfigSpec configs) {
         def project = (Project) projectLayout.projectIdentifier
         for (BuildConfig config : configs) {
@@ -238,18 +237,24 @@ class BuildConfigRules extends RuleSource {
 
     @Mutate
     @CompileStatic
-    void createInstallAllComponentsTask(ModelMap<Task> tasks, ComponentSpecContainer components) {
-        tasks.create("installAllExecutables", NativeInstallAll) {
-            Task task = (Task) it
-            task.group = 'Install'
-            task.description = 'Install all executables from this project'
-            for (ComponentSpec oComponent : components) {
-                if (oComponent in NativeExecutableSpec) {
-                    NativeExecutableSpec component = (NativeExecutableSpec) oComponent
-                    for (BinarySpec binary : component.binaries) {
-                        def install = ((NativeExecutableBinarySpec) binary).tasks.install
-                        task.dependsOn install
-                    }
+    void createInstallAllComponentsTask(ModelMap<Task> tasks, ComponentSpecContainer components, ProjectLayout projectLayout) {
+        def project = (Project) projectLayout.projectIdentifier
+        def installAllTaskName = 'installAllExecutables'
+        def installAllTask = project.tasks.findByPath(installAllTaskName)
+        if (installAllTask == null) {
+            installAllTask = project.tasks.create(installAllTaskName, NativeInstallAll) {
+                def task = (NativeInstallAll)it
+                task.group = 'Install'
+                task.description = 'Install all executables from this project'
+            }
+        }
+
+        for (ComponentSpec oComponent : components) {
+            if (oComponent in NativeExecutableSpec) {
+                NativeExecutableSpec component = (NativeExecutableSpec) oComponent
+                for (BinarySpec binary : component.binaries) {
+                    def install = ((NativeExecutableBinarySpec) binary).tasks.install
+                    installAllTask.dependsOn install
                 }
             }
         }

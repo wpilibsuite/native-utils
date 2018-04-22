@@ -9,7 +9,9 @@ import org.gradle.nativeplatform.Tool
 import edu.wpi.first.nativeutils.configs.BuildConfig
 import edu.wpi.first.nativeutils.rules.BuildConfigRulesBase
 import edu.wpi.first.nativeutils.configs.CrossBuildConfig
+import edu.wpi.first.nativeutils.tasks.NativeDependencyCombiner
 import groovy.transform.CompileStatic
+import edu.wpi.first.nativeutils.tasks.NativeInstallAll
 
 /**
  * Created by 333fr on 3/1/2017.
@@ -148,6 +150,26 @@ public class NativeUtils implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
+        def rootProject = project.rootProject;
+
+        if (rootProject == project) {
+            rootProject.tasks.create('downloadAllDependencies', NativeDependencyCombiner) {
+                def combineTask = (NativeDependencyCombiner) it;
+                combineTask.group = 'Dependencies'
+                combineTask.description = 'Downloads and extracts all native c++ dependencies'
+            }
+        }
+
+        if (!project.plugins.hasPlugin('cpp')) {
+            return
+        }
+
+        project.tasks.create('installAllExecutables', NativeInstallAll) {
+            def task = (NativeInstallAll)it
+            task.group = 'Install'
+            task.description = 'Install all executables from this project'
+        }
+
         project.ext.BuildConfig = edu.wpi.first.nativeutils.configs.BuildConfig
         project.ext.CrossBuildConfig = edu.wpi.first.nativeutils.configs.CrossBuildConfig
 
@@ -156,10 +178,6 @@ public class NativeUtils implements Plugin<Project> {
         project.ext.DependencyConfig = edu.wpi.first.nativeutils.configs.DependencyConfig
 
         project.pluginManager.apply(edu.wpi.first.nativeutils.rules.DependencyConfigRules)
-
-        //project.ext.JNIConfig = edu.wpi.first.nativeutils.configs.JNIConfig
-
-        //project.pluginManager.apply(edu.wpi.first.nativeutils.rules.JNIConfigRules)
 
         project.ext.NativeUtils = edu.wpi.first.nativeutils.NativeUtils
 

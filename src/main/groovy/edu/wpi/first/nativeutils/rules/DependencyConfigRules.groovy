@@ -115,8 +115,6 @@ class DependencyConfigRules extends RuleSource {
         def currentProject = (Project) projectLayout.projectIdentifier
         def rootProject = (Project) currentProject.rootProject
 
-        //currentProject.configurations.create('nativeDeps')
-
         def headerClassifiers = []
 
         def configurationList = []
@@ -194,39 +192,6 @@ class DependencyConfigRules extends RuleSource {
                 }
             }
         }
-
-        /*
-
-        currentProject.configurations.getByName('nativeDeps').dependencies.each { oDependency ->
-            def dependency = (ExternalModuleDependency)oDependency
-            def classifier = dependency.artifacts[0].classifier
-            def extension = dependency.artifacts[0].extension
-            def taskName = "download${dependency.group}${dependency.name}${classifier}"
-            def task = rootProject.tasks.findByPath(taskName)
-            if (task == null) {
-                task = rootProject.tasks.create(taskName, NativeDependencyDownload) {
-                    def createdTask = (NativeDependencyDownload)it
-                    def file
-                    filesList.each {
-                        if (it.toString().endsWith("${classifier}.${extension}") && it.toString().contains("${dependency.name}-".toString())) {
-                            file = it
-                        }
-                    }
-                    createdTask.from rootProject.zipTree(file)
-                    createdTask.into "$depLocation/${dependency.name.toLowerCase()}/${classifier}"
-                }
-                downloadAllTask.dependsOn task
-            }
-            binaries.findAll { BuildConfigRulesBase.isNativeProject((BinarySpec)it) }.each { oBinary ->
-                NativeBinarySpec binary = (NativeBinarySpec)oBinary
-                if (NativeUtils.getClassifier(binary) == classifier || headerClassifiers.contains(classifier)) {
-                    binary.tasks.withType(AbstractNativeSourceCompileTask) { compTask->
-                        ((Task)compTask).dependsOn task
-                    }
-                }
-            }
-        }
-        */
     }
 
     @Validate
