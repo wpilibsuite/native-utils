@@ -2,7 +2,10 @@ package edu.wpi.first.nativeutils.rules;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,8 +31,8 @@ import org.gradle.platform.base.ComponentSpecContainer;
 
 import edu.wpi.first.nativeutils.configs.ExportsConfig;
 import edu.wpi.first.nativeutils.specs.ExportsConfigSpec;
-import edu.wpi.first.nativeutils.storage.ExportsStorage;
 import edu.wpi.first.nativeutils.tasks.ExportsGenerationTask;
+import edu.wpi.first.nativeutils.tasks.ExtractDefFileGeneratorTask;
 import groovy.lang.Closure;
 
 public class ExportsConfigRules extends RuleSource {
@@ -53,6 +56,41 @@ public class ExportsConfigRules extends RuleSource {
         }
 
         Project project = (Project) projectLayout.getProjectIdentifier();
+        Project rootProject = project.getRootProject();
+
+        String extractGeneratorTaskName = "extractGeneratorTask";
+        Task extractGeneratorTask = rootProject.getTasks().findByPath(extractGeneratorTaskName);
+        if (extractGeneratorTask == null) {
+            extractGeneratorTask = rootProject.getTasks().create(extractGeneratorTaskName, ExtractDefFileGeneratorTask.class, task -> {
+                task.getOutputs().file(task.defFileGenerator);
+                task.defFileGenerator.set(rootProject.getLayout().getBuildDirectory().file("DefFileGenerator.exe"));
+                task.doLast(t -> {
+                    File file = task.defFileGenerator.getAsFile().get();
+                    InputStream is = ExportsConfigRules.class.getResourceAsStream("/DefFileGenerator.exe");
+                    OutputStream os = null;
+
+                    byte[] buffer = new byte[1024];
+                    int readBytes;
+                    try {
+                        os = new FileOutputStream(file);
+                        while ((readBytes = is.read(buffer)) != -1) {
+                            os.write(buffer, 0, readBytes);
+                        }
+                    } catch (IOException ex) {
+                    } finally {
+                        try {
+                            if (os != null) {
+                                os.close();
+                            }
+                            is.close();
+                        } catch (IOException ex) {
+                        }
+                    }
+                });
+            });
+        }
+
+        ExtractDefFileGeneratorTask extractTask = (ExtractDefFileGeneratorTask)extractGeneratorTask;
 
         for (ExportsConfig config : configs) {
             for (ComponentSpec component : components) {
@@ -75,10 +113,11 @@ public class ExportsConfigRules extends RuleSource {
                                     sBinary.getLinker().args("/DEF:" + defFile.toString());
                                     sBinary.getTasks().getLink().getInputs().file(defFile);
                                     task.getOutputs().file(defFile);
+                                    task.dependsOn(extractTask);
 
                                     task.doLast(last -> {
                                         tmpDir.mkdirs();
-                                        String exeName = ExportsStorage.getGeneratorFilePath();
+                                        String exeName = extractTask.defFileGenerator.getAsFile().get().toString();
                                         project.exec(exec -> {
                                             exec.setExecutable(exeName);
                                             exec.args(defFile);
