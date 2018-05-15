@@ -118,7 +118,10 @@ class BuildConfigRules extends RuleSource {
         if (project.hasProperty('releaseBuild')) {
             buildTypes.create('release')
         } else {
-            println 'Currently building a debug binary. To build release, add -PreleaseBuild to your gradle command.'
+            if (!BuildConfigRulesBase.hasPrintedDebugMessage()) {
+                println 'Currently building a debug binary. To build release, add -PreleaseBuild to your gradle command.'
+                BuildConfigRulesBase.setPrintedDebugMessage()
+            }
             buildTypes.create('debug')
         }
     }

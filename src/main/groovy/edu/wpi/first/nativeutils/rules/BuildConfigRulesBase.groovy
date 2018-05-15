@@ -26,8 +26,23 @@ class ConfigEnables {
     public boolean configEnabled = false
 }
 
+class HasPrintedDebugMessage {
+    public boolean printedMessage = false;
+}
+
 class BuildConfigRulesBase {
     private static final ToolSearchPath toolSearchPath = new ToolSearchPath(OperatingSystem.current())
+    private static final HasPrintedDebugMessage printedDebugMessage = new HasPrintedDebugMessage();
+
+    @CompileStatic
+    static boolean hasPrintedDebugMessage() {
+        return printedDebugMessage.printedMessage;
+    }
+
+    @CompileStatic
+    static void setPrintedDebugMessage() {
+        printedDebugMessage.printedMessage = true;
+    }
 
     @CompileStatic
     static String binTools(String tool, ProjectLayout projectLayout, BuildConfig config) {
