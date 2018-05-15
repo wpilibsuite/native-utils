@@ -1,5 +1,5 @@
 plugins {
-    id "com.gradle.plugin-publish" version "0.9.7"
+    id "com.gradle.plugin-publish" version "0.9.9"
     id 'java-gradle-plugin'
     id 'maven-publish'
     id 'groovy'
@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'edu.wpi.first'
-version = '1.6.0'
+version = '1.6.1'
 
 compileJava {
     sourceCompatibility = 1.8
@@ -43,7 +43,7 @@ pluginBundle {
 
 gradlePlugin {
     plugins {
-        GradleJni {
+        NativeUtils {
             id = 'edu.wpi.first.NativeUtils'
             implementationClass = 'edu.wpi.first.nativeutils.NativeUtils'
         }
@@ -51,5 +51,5 @@ gradlePlugin {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.6'
+    gradleVersion = '4.7'
 }
