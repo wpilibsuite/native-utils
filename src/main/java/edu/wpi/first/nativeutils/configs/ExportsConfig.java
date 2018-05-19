@@ -23,14 +23,14 @@ public interface ExportsConfig extends Named {
     List<String> getExcludeBuildTypes();
 
     @Unmanaged
-    void setX86SymbolFilter(Closure closure);
+    void setX86SymbolFilter(Closure<List<String>> closure);
 
     @Unmanaged
-    Closure getX86SymbolFilter();
+    Closure<List<String>> getX86SymbolFilter();
 
     @Unmanaged
-    void setX64SymbolFilter(Closure closure);
+    void setX64SymbolFilter(Closure<List<String>> closure);
 
     @Unmanaged
-    Closure getX64SymbolFilter();
+    Closure<List<String>> getX64SymbolFilter();
 }

@@ -153,16 +153,16 @@ public class ExportsConfigRules extends RuleSource {
                                         }
 
                                         if (isX86) {
-                                            Closure symbolFilter = config.getX86SymbolFilter();
+                                            Closure<List<String>> symbolFilter = config.getX86SymbolFilter();
                                             if (symbolFilter != null) {
-                                                List<String> tmpLines = (List<String>) symbolFilter.call(lines);
+                                                List<String> tmpLines = symbolFilter.call(lines);
                                                 lines.clear();
                                                 lines.addAll(tmpLines);
                                             }
                                         } else {
-                                            Closure symbolFilter = config.getX64SymbolFilter();
+                                            Closure<List<String>> symbolFilter = config.getX64SymbolFilter();
                                             if (symbolFilter != null) {
-                                                List<String> tmpLines = (List<String>) symbolFilter.call(lines);
+                                                List<String> tmpLines = symbolFilter.call(lines);
                                                 lines.clear();
                                                 lines.addAll(tmpLines);
                                             }

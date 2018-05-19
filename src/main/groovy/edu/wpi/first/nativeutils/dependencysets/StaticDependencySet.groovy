@@ -1,36 +1,44 @@
 package edu.wpi.first.nativeutils.dependencysets
 
+import java.io.File
+import org.gradle.api.file.FileTree
 import org.gradle.api.file.FileCollection
 import org.gradle.api.Project
+import org.gradle.nativeplatform.NativeDependencySet
+import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.nativeplatform.NativeBinarySpec
-import edu.wpi.first.nativeutils.NativeUtils
 import groovy.transform.InheritConstructors
 import groovy.transform.CompileStatic
+import edu.wpi.first.nativeutils.NativeUtils
 
-@InheritConstructors
 @CompileStatic
+@InheritConstructors
 public class StaticDependencySet extends WPINativeDependencySet {
+
     @CompileStatic
-    public FileCollection getLinkFiles() {
-        def classifier = NativeUtils.getClassifier(m_binarySpec)
+    @Override
+    protected FileCollection getFiles(boolean isRuntime, boolean isDebug) {
+        if (isDebug) {
+            return m_project.files();
+        }
+
         def platformPath = NativeUtils.getPlatformPath(m_binarySpec)
         def dirPath = 'static'
 
-        def fileList = m_project.fileTree("${m_rootLocation}/${classifier}/${platformPath}/${dirPath}/").filter {
-            ((File) it).isFile()
-        }
+        List<String> matchers = [];
+        List<String> excludes = [];
+
         if (m_binarySpec.targetPlatform.operatingSystem.name == 'windows') {
-            fileList = fileList.filter { it.toString().endsWith('.lib') }
+            matchers << "**/*${platformPath}/${dirPath}/*.lib".toString()
         } else {
-            fileList = fileList.filter { it.toString().endsWith('.a') }
+            matchers << "**/*${platformPath}/${dirPath}/*.a".toString()
         }
 
+        def staticFiles = m_libs.matching { PatternFilterable pat ->
+            pat.include(matchers)
+            pat.exclude(excludes)
+        }
 
-        return m_project.files(fileList.files)
-    }
-
-    @CompileStatic
-    public FileCollection getRuntimeFiles() {
-        return m_project.files()
+        return m_project.files(staticFiles.files)
     }
 }

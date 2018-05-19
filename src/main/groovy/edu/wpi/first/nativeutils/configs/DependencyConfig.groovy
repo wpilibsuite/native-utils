@@ -16,6 +16,10 @@ interface DependencyConfig {
 
     String getHeaderClassifier()
 
+    void setSourceClassifier(String classifier)
+
+    String getSourceClassifier()
+
     void setExt(String extension)
 
     String getExt()

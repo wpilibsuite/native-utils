@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'edu.wpi.first'
-version = '1.6.2'
+version = '1.6.3'
 
 compileJava {
     sourceCompatibility = 1.8
