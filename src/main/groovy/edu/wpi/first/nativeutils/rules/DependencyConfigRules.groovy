@@ -112,8 +112,6 @@ class DependencyConfigRules extends RuleSource {
         def currentProject = (Project) projectLayout.projectIdentifier
         def rootProject = (Project) currentProject.rootProject
 
-        println rootProject
-
         def sortedConfigs = configs.toSorted { a, b -> a.sortOrder <=> b.sortOrder }
 
         for (DependencyConfig config : sortedConfigs) {
