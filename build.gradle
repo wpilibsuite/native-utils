@@ -2,12 +2,32 @@ plugins {
     id "com.gradle.plugin-publish" version "0.9.9"
     id 'java-gradle-plugin'
     id 'maven-publish'
+    id "edu.wpi.first.wpilib.versioning.WPILibVersioningPlugin" version "2.0"
     id 'groovy'
     id 'java'
 }
 
+// Ensure that the WPILibVersioningPlugin is setup by setting the release type, if releaseType wasn't
+// already specified on the command line
+if (!hasProperty('releaseType')) {
+    WPILibVersion {
+        releaseType = 'dev'
+    }
+}
+
+ext.pubVersion = ''
+if (project.hasProperty("publishVersion")) {
+    pubVersion = project.publishVersion
+} else {
+    pubVersion = WPILibVersion.version
+}
+
+if (pubVersion == '') {
+    pubVersion = '0.0.1-unknown'
+}
+
 group = 'edu.wpi.first'
-version = '1.6.4'
+version pubVersion
 
 compileJava {
     sourceCompatibility = 1.8
