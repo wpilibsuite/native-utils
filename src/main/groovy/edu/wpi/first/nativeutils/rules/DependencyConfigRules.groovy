@@ -160,6 +160,9 @@ class DependencyConfigRules extends RuleSource {
             def nativeBinaries = binaries.findAll { BuildConfigRulesBase.isNativeProject((BinarySpec) it) }
             nativeBinaries.each { oBinary ->
                 def binary = (NativeBinarySpec) oBinary
+                if (!binary.buildable) {
+                    return
+                }
                 def component = binary.component
 
                 def headerConfigurationName = "${config.groupId}${config.artifactId}${config.headerClassifier}".toString()
