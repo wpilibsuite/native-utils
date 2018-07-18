@@ -167,34 +167,27 @@ class DependencyConfigRules extends RuleSource {
 
                 def headerConfigurationName = "${config.groupId}${config.artifactId}${config.headerClassifier}".toString()
                 headerConfigurationName = headerConfigurationName.replace('.', '')
-                def headerConfig = rootProject.configurations.getByName(headerConfigurationName)
-                FileTree headerZip = rootProject.zipTree(headerConfig.dependencies.collectMany { headerConfig.files(it) as Collection }.first())
 
-                def sourceClassifier = config.sourceClassifier
-                FileTree sourceZip = rootProject.files().asFileTree
-                if (sourceClassifier != null) {
-                    def sourceConfigurationName = "${config.groupId}${config.artifactId}${sourceClassifier}".toString()
+                def sourceConfigurationName = config.sourceClassifier
+                if (sourceConfigurationName != null) {
+                    sourceConfigurationName = "${config.groupId}${config.artifactId}${sourceConfigurationName}".toString()
                     sourceConfigurationName = sourceConfigurationName.replace('.', '')
-                    def sourceConfig = rootProject.configurations.getByName(sourceConfigurationName)
-                    sourceZip = rootProject.zipTree(sourceConfig.dependencies.collectMany { sourceConfig.files(it) as Collection }.first())
                 }
 
-                def libConfigurationName = "${config.groupId}${config.artifactId}${NativeUtils.getClassifier(binary)}".toString()
+                String libConfigurationName = "${config.groupId}${config.artifactId}${NativeUtils.getClassifier(binary)}".toString()
                 libConfigurationName = libConfigurationName.replace('.', '')
-                def libConfig = rootProject.configurations.getByName(libConfigurationName)
-                def libZip = rootProject.zipTree(libConfig.dependencies.collectMany { libConfig.files(it) as Collection }.first())
 
                 if (config.sharedConfigs != null && config.sharedConfigs.containsKey(component.name)) {
                     if (config.sharedConfigs.get(component.name).size() == 0 ||
                             config.sharedConfigs.get(component.name).contains("${binary.targetPlatform.operatingSystem.name}:${binary.targetPlatform.architecture.name}".toString())) {
-                        binary.lib(new SharedDependencySet(binary, headerZip, libZip, sourceZip, rootProject))
+                        binary.lib(new SharedDependencySet(binary, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject))
                     }
                 }
 
                 if (config.staticConfigs != null && config.staticConfigs.containsKey(component.name)) {
                     if (config.staticConfigs.get(component.name).size() == 0 ||
                             config.staticConfigs.get(component.name).contains("${binary.targetPlatform.operatingSystem.name}:${binary.targetPlatform.architecture.name}".toString())) {
-                        binary.lib(new StaticDependencySet(binary, headerZip, libZip, sourceZip, rootProject))
+                        binary.lib(new StaticDependencySet(binary, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject))
                     }
                 }
             }
