@@ -31,8 +31,15 @@ class HasPrintedDebugMessage {
 }
 
 class BuildConfigRulesBase {
-    private static final ToolSearchPath toolSearchPath = new ToolSearchPath(OperatingSystem.current())
-    private static final HasPrintedDebugMessage printedDebugMessage = new HasPrintedDebugMessage();
+    private static ToolSearchPath toolSearchPath = new ToolSearchPath(OperatingSystem.current())
+    private static HasPrintedDebugMessage printedDebugMessage = new HasPrintedDebugMessage();
+
+    public static void finalizeBuild() {
+        toolSearchPath = new ToolSearchPath(OperatingSystem.current())
+        printedDebugMessage = new HasPrintedDebugMessage();
+        configEnabledMap.clear()
+        existingToolChains.clear()
+    }
 
     @CompileStatic
     static boolean hasPrintedDebugMessage() {

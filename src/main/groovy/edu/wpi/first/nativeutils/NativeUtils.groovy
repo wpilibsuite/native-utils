@@ -151,6 +151,12 @@ public class NativeUtils implements Plugin<Project> {
     @Override
     void apply(Project project) {
 
+        project.gradle.buildFinished {
+            toolChainPathCache.clear()
+            enabledConfigCache.clear()
+            BuildConfigRulesBase.finalizeBuild()
+        }
+
         project.plugins.withType(NativeComponentPlugin) {
             project.ext.BuildConfig = edu.wpi.first.nativeutils.configs.BuildConfig
             project.ext.CrossBuildConfig = edu.wpi.first.nativeutils.configs.CrossBuildConfig
