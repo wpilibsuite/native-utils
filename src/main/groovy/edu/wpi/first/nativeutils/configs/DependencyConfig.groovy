@@ -1,8 +1,10 @@
 package edu.wpi.first.nativeutils.configs
 
 import org.gradle.model.*
+import groovy.transform.CompileStatic
 
 @Managed
+@CompileStatic
 interface DependencyConfig {
     void setGroupId(String id)
 

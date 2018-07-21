@@ -43,10 +43,14 @@ import edu.wpi.first.nativeutils.tasks.NativeInstallAll
 import org.gradle.nativeplatform.NativeExecutableBinarySpec
 import org.gradle.platform.base.ComponentSpec
 import org.gradle.nativeplatform.platform.NativePlatform
+import org.gradle.process.ExecSpec
 import groovy.transform.CompileStatic
+import groovy.transform.CompileDynamic
 
+@CompileStatic
 interface BuildConfigSpec extends ModelMap<BuildConfig> {}
 
+@CompileStatic
 interface DependencyConfigSpec extends ModelMap<DependencyConfig> {}
 
 @SuppressWarnings("GroovyUnusedDeclaration")
@@ -126,6 +130,7 @@ class BuildConfigRules extends RuleSource {
         }
     }
 
+    @CompileDynamic
     private void setBuildableFalseDynamically(NativeBinarySpec binary) {
         binary.buildable = false
     }
@@ -188,6 +193,7 @@ class BuildConfigRules extends RuleSource {
 
     @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
     @Mutate
+    @CompileStatic
     void createStripTasks(ModelMap<Task> tasks, BinaryContainer binaries, ProjectLayout projectLayout, BuildConfigSpec configs) {
         def project = (Project) projectLayout.projectIdentifier
         for (BuildConfig config : configs) {
@@ -211,8 +217,12 @@ class BuildConfigRules extends RuleSource {
                         task.doLast {
                             def library = task.linkedFile.asFile.toString()
                             if (new File(library).exists()) {
-                                project.exec { commandLine "dsymutil", library }
-                                project.exec { commandLine "strip", '-S', library }
+                                project.exec { ExecSpec ex->
+                                    ex.commandLine "dsymutil", library
+                                }
+                                project.exec { ExecSpec ex->
+                                    ex.commandLine "strip", '-S', library
+                                }
                             }
                         }
                     } else {
@@ -221,14 +231,14 @@ class BuildConfigRules extends RuleSource {
 
                             if (new File(library).exists()) {
                                 def debugLibrary = library + '.debug'
-                                project.exec {
-                                    commandLine BuildConfigRulesBase.binTools('objcopy', projectLayout, lockConfig), '--only-keep-debug', library, debugLibrary
+                                project.exec { ExecSpec ex->
+                                    ex.commandLine BuildConfigRulesBase.binTools('objcopy', projectLayout, lockConfig), '--only-keep-debug', library, debugLibrary
                                 }
-                                project.exec {
-                                    commandLine BuildConfigRulesBase.binTools('strip', projectLayout, lockConfig), '-g', library
+                                project.exec { ExecSpec ex->
+                                    ex.commandLine BuildConfigRulesBase.binTools('strip', projectLayout, lockConfig), '-g', library
                                 }
-                                project.exec {
-                                    commandLine BuildConfigRulesBase.binTools('objcopy', projectLayout, lockConfig), "--add-gnu-debuglink=$debugLibrary", library
+                                project.exec { ExecSpec ex->
+                                    ex.commandLine BuildConfigRulesBase.binTools('objcopy', projectLayout, lockConfig), "--add-gnu-debuglink=$debugLibrary", library
                                 }
                             }
                         }

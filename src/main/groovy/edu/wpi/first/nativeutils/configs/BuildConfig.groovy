@@ -2,8 +2,10 @@ package edu.wpi.first.nativeutils.configs
 
 import org.gradle.model.*
 import org.gradle.api.Named
+import groovy.transform.CompileStatic
 
 @Managed
+@CompileStatic
 interface BuildConfig extends Named {
     @SuppressWarnings("GroovyUnusedDeclaration")
     void setArchitecture(String arch)
@@ -145,9 +147,9 @@ interface BuildConfig extends Named {
     boolean getReleaseStripBinaries()
 
     @Unmanaged
-    void setDetectPlatform(Closure closure)
+    void setDetectPlatform(Closure<Boolean> closure)
 
     @Unmanaged
-    Closure getDetectPlatform()
+    Closure<Boolean> getDetectPlatform()
 
 }
