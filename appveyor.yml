@@ -23,6 +23,10 @@ build_script:
         ./gradlew build -PjenkinsBuild --continue --no-daemon
     }
 
+    if ($lastexitcode -ne 0) {
+        throw ("Exec: " + $errorMessage)
+    }
+
 test: off
 artifacts:
 - path: '**/libs/*'
