@@ -13,6 +13,8 @@ import java.util.stream.Stream;
 
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.UnknownTaskException;
+import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.language.base.internal.ProjectLayout;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
@@ -59,9 +61,11 @@ public class ExportsConfigRules extends RuleSource {
         Project rootProject = project.getRootProject();
 
         String extractGeneratorTaskName = "extractGeneratorTask";
-        Task extractGeneratorTask = rootProject.getTasks().findByPath(extractGeneratorTaskName);
-        if (extractGeneratorTask == null) {
-            extractGeneratorTask = rootProject.getTasks().create(extractGeneratorTaskName, ExtractDefFileGeneratorTask.class, task -> {
+
+        try {
+            rootProject.getTasks().named(extractGeneratorTaskName);
+        } catch (UnknownTaskException notFound) {
+            rootProject.getTasks().register(extractGeneratorTaskName, ExtractDefFileGeneratorTask.class, task -> {
                 task.getOutputs().file(task.defFileGenerator);
                 task.defFileGenerator.set(rootProject.getLayout().getBuildDirectory().file("DefFileGenerator.exe"));
                 task.doLast(t -> {
@@ -90,8 +94,6 @@ public class ExportsConfigRules extends RuleSource {
             });
         }
 
-        ExtractDefFileGeneratorTask extractTask = (ExtractDefFileGeneratorTask)extractGeneratorTask;
-
         for (ExportsConfig config : configs) {
             for (ComponentSpec component : components) {
                 if (component.getName().equals(config.getName())) {
@@ -106,17 +108,18 @@ public class ExportsConfigRules extends RuleSource {
 
                                 String exportsTaskName = "generateExports" + binary.getBuildTask().getName();
 
-                                Task exportsTask = project.getTasks().create(exportsTaskName, ExportsGenerationTask.class, task -> {
+                                TaskProvider<ExportsGenerationTask> exportsTask = project.getTasks().register(exportsTaskName, ExportsGenerationTask.class, task -> {
                                     task.getInputs().files(((AbstractLinkTask) sBinary.getTasks().getLink()).getSource());
                                     File tmpDir = project.file(project.getBuildDir() + "/tmp/" + exportsTaskName);
                                     File defFile = project.file(tmpDir.toString() + "/exports.def");
                                     sBinary.getLinker().args("/DEF:" + defFile.toString());
                                     sBinary.getTasks().getLink().getInputs().file(defFile);
                                     task.getOutputs().file(defFile);
-                                    task.dependsOn(extractTask);
+                                    task.dependsOn(rootProject.getTasks().named(extractGeneratorTaskName));
 
                                     task.doLast(last -> {
                                         tmpDir.mkdirs();
+                                        ExtractDefFileGeneratorTask extractTask = (ExtractDefFileGeneratorTask)rootProject.getTasks().named(extractGeneratorTaskName).get();
                                         String exeName = extractTask.defFileGenerator.getAsFile().get().toString();
                                         project.exec(exec -> {
                                             exec.setExecutable(exeName);
@@ -178,14 +181,18 @@ public class ExportsConfigRules extends RuleSource {
                                     });
                                 });
 
-                                sBinary.getTasks().withType(AbstractNativeSourceCompileTask.class, it -> {
-                                    exportsTask.dependsOn(it);
+                                sBinary.getTasks().withType(AbstractNativeSourceCompileTask.class).configureEach(it -> {
+                                    exportsTask.configure(t -> {
+                                        t.dependsOn(it);
+                                    });
                                 });
 
                                 Task linkTask = sBinary.getTasks().getLink();
 
                                 for (Object o : linkTask.getDependsOn()) {
-                                    exportsTask.dependsOn(o);
+                                    exportsTask.configure(t -> {
+                                        t.dependsOn(o);
+                                    });
                                 }
                                 linkTask.dependsOn(exportsTask);
                             }

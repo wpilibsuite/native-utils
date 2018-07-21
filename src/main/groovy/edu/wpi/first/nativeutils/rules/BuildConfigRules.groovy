@@ -3,6 +3,8 @@ package edu.wpi.first.nativeutils.rules
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.UnknownTaskException
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.api.tasks.Copy
@@ -253,21 +255,24 @@ class BuildConfigRules extends RuleSource {
     void createInstallAllComponentsTask(ModelMap<Task> tasks, ComponentSpecContainer components, ProjectLayout projectLayout) {
         def project = (Project) projectLayout.projectIdentifier
         def installAllTaskName = 'installAllExecutables'
-        def installAllTask = project.tasks.findByPath(installAllTaskName)
-        if (installAllTask == null) {
-            installAllTask = project.tasks.create(installAllTaskName, NativeInstallAll) {
+        try {
+            project.tasks.named(installAllTaskName)
+        } catch (UnknownTaskException notFound) {
+            project.tasks.register(installAllTaskName, NativeInstallAll) {
                 def task = (NativeInstallAll)it
                 task.group = 'Install'
                 task.description = 'Install all executables from this project'
             }
         }
 
-        for (ComponentSpec oComponent : components) {
-            if (oComponent in NativeExecutableSpec) {
-                NativeExecutableSpec component = (NativeExecutableSpec) oComponent
-                for (BinarySpec binary : component.binaries) {
-                    def install = ((NativeExecutableBinarySpec) binary).tasks.install
-                    installAllTask.dependsOn install
+        project.tasks.named(installAllTaskName).configure { Task it->
+            for (ComponentSpec oComponent : components) {
+                if (oComponent in NativeExecutableSpec) {
+                    NativeExecutableSpec component = (NativeExecutableSpec) oComponent
+                    for (BinarySpec binary : component.binaries) {
+                        def install = ((NativeExecutableBinarySpec) binary).tasks.install
+                        it.dependsOn install
+                    }
                 }
             }
         }
