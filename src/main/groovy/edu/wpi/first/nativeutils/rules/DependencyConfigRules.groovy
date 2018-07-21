@@ -24,6 +24,7 @@ import org.gradle.api.artifacts.ExternalModuleDependency
 import org.gradle.platform.base.BinarySpec
 
 @SuppressWarnings("GroovyUnusedDeclaration")
+@CompileStatic
 class DependencyConfigRules extends RuleSource {
 
     @Validate

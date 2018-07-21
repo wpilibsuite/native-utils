@@ -22,14 +22,17 @@ import edu.wpi.first.nativeutils.NativeUtils
 import edu.wpi.first.nativeutils.configs.CrossBuildConfig
 import groovy.transform.CompileStatic
 
+@CompileStatic
 class ConfigEnables {
-    public boolean configEnabled = false
+    boolean configEnabled = false
 }
 
+@CompileStatic
 class HasPrintedDebugMessage {
-    public boolean printedMessage = false;
+    boolean printedMessage = false;
 }
 
+@CompileStatic
 class BuildConfigRulesBase {
     private static ToolSearchPath toolSearchPath = new ToolSearchPath(OperatingSystem.current())
     private static HasPrintedDebugMessage printedDebugMessage = new HasPrintedDebugMessage();
