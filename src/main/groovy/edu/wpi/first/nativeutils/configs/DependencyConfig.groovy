@@ -34,6 +34,16 @@ interface DependencyConfig {
 
     int getSortOrder()
 
+    void setHeaderOnly(boolean headerOnly)
+
+    boolean getHeaderOnly()
+
+    @Unmanaged
+    void setHeaderOnlyConfigs(Map<String, List<String>> configs)
+
+    @Unmanaged
+    Map<String, List<String>> getHeaderOnlyConfigs()
+
     @Unmanaged
     void setSharedConfigs(Map<String, List<String>> configs)
 
