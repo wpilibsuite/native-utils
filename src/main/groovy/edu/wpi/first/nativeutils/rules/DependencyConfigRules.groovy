@@ -1,5 +1,6 @@
 package edu.wpi.first.nativeutils.rules
 
+import org.apache.tools.ant.taskdefs.email.Header
 import org.gradle.api.Task
 import org.gradle.api.tasks.Copy
 import org.gradle.language.base.internal.ProjectLayout
@@ -43,9 +44,6 @@ class DependencyConfigRules extends RuleSource {
     @CompileStatic
     void assertDependenciesAreNotNullMaps(DependencyConfigSpec configs) {
         for (DependencyConfig config : configs) {
-            if (config.headerOnly) {
-                continue
-            }
             if (config.sharedConfigs != null) {
                 config.sharedConfigs.each {
                     assert it.value != null
@@ -63,9 +61,6 @@ class DependencyConfigRules extends RuleSource {
     @CompileStatic
     void vaidateDependenciesDontSpecifyAll(DependencyConfigSpec configs) {
         for (DependencyConfig config : configs) {
-            if (config.headerOnly) {
-                continue
-            }
             def sharedConfigs
             if (config.sharedConfigs != null) {
                 sharedConfigs = config.sharedConfigs.collect { it.key }
@@ -134,29 +129,6 @@ class DependencyConfigRules extends RuleSource {
                 }
             }
 
-            if (config.headerOnly) {
-                def nativeBinaries = binaries.findAll { BuildConfigRulesBase.isNativeProject((BinarySpec) it) }
-                nativeBinaries.each { oBinary ->
-                    def binary = (NativeBinarySpec) oBinary
-                    if (!binary.buildable) {
-                        return
-                    }
-                    def component = binary.component
-
-                    def headerConfigurationName = "${config.groupId}${config.artifactId}${config.headerClassifier}".toString()
-                    headerConfigurationName = headerConfigurationName.replace('.', '')
-
-                    if (config.headerOnlyConfigs != null && config.headerOnlyConfigs.containsKey(component.name)) {
-                        if (config.headerOnlyConfigs.get(component.name).size() == 0 ||
-                                config.headerOnlyConfigs.get(component.name).contains("${binary.targetPlatform.operatingSystem.name}:${binary.targetPlatform.architecture.name}".toString())) {
-                            binary.lib(new HeaderOnlyDependencySet(binary, headerConfigurationName, rootProject))
-                        }
-                    }
-                }
-                continue
-            }
-
-
             if (config.sourceClassifier != null) {
                 rootProject.dependencies {
                     def dep = (DependencyHandler) it
@@ -190,7 +162,7 @@ class DependencyConfigRules extends RuleSource {
             }
 
             def nativeBinaries = binaries.findAll { BuildConfigRulesBase.isNativeProject((BinarySpec) it) }
-            nativeBinaries.each { oBinary ->
+            for (Object oBinary : nativeBinaries) {
                 def binary = (NativeBinarySpec) oBinary
                 if (!binary.buildable) {
                     return
@@ -213,13 +185,20 @@ class DependencyConfigRules extends RuleSource {
                     if (config.sharedConfigs.get(component.name).size() == 0 ||
                             config.sharedConfigs.get(component.name).contains("${binary.targetPlatform.operatingSystem.name}:${binary.targetPlatform.architecture.name}".toString())) {
                         binary.lib(new SharedDependencySet(binary, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject))
+                        continue
                     }
                 }
-
                 if (config.staticConfigs != null && config.staticConfigs.containsKey(component.name)) {
                     if (config.staticConfigs.get(component.name).size() == 0 ||
                             config.staticConfigs.get(component.name).contains("${binary.targetPlatform.operatingSystem.name}:${binary.targetPlatform.architecture.name}".toString())) {
                         binary.lib(new StaticDependencySet(binary, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject))
+                        continue
+                    }
+                }
+                if (config.headerOnlyConfigs != null && config.headerOnlyConfigs.containsKey(component.name)) {
+                    if (config.headerOnlyConfigs.get(component.name).size() == 0 ||
+                            config.headerOnlyConfigs.get(component.name).contains("${binary.targetPlatform.operatingSystem.name}:${binary.targetPlatform.architecture.name}".toString())) {
+                        binary.lib(new HeaderOnlyDependencySet(binary, headerConfigurationName, rootProject))
                     }
                 }
             }

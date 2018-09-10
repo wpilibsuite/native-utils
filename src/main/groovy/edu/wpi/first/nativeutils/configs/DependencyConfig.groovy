@@ -34,10 +34,6 @@ interface DependencyConfig {
 
     int getSortOrder()
 
-    void setHeaderOnly(boolean headerOnly)
-
-    boolean getHeaderOnly()
-
     @Unmanaged
     void setHeaderOnlyConfigs(Map<String, List<String>> configs)
 
