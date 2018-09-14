@@ -165,7 +165,7 @@ class DependencyConfigRules extends RuleSource {
             for (Object oBinary : nativeBinaries) {
                 def binary = (NativeBinarySpec) oBinary
                 if (!binary.buildable) {
-                    return
+                    continue
                 }
                 def component = binary.component
 
