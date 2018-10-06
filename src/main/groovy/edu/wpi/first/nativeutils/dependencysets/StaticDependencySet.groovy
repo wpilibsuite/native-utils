@@ -18,7 +18,7 @@ public class StaticDependencySet extends WPINativeDependencySet {
     @CompileStatic
     @Override
     protected FileCollection getFiles(boolean isRuntime, boolean isDebug) {
-        if (isDebug) {
+        if (isDebug || isRuntime) {
             return m_project.files();
         }
 
