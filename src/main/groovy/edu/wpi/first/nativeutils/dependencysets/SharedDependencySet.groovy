@@ -28,7 +28,7 @@ public class SharedDependencySet extends WPINativeDependencySet {
             if (m_binarySpec.targetPlatform.operatingSystem.name == 'windows' && !isRuntime) {
                 matchers << "**/*${platformPath}/${dirPath}/*.pdb".toString()
             } else {
-                excludes << "**/*${platformPath}/${dirPath}/*.so.debug".toString()
+                matchers << "**/*${platformPath}/${dirPath}/*.so.debug".toString()
             }
 
             def debugFiles = m_libs.matching { PatternFilterable pat ->

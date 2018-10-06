@@ -51,4 +51,8 @@ interface DependencyConfig {
 
     @Unmanaged
     Map<String, List<String>> getStaticConfigs()
+
+    void setCompileOnlyShared(boolean set)
+
+    boolean getCompileOnlyShared()
 }

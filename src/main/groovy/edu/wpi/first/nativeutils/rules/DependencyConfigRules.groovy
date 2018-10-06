@@ -184,7 +184,11 @@ class DependencyConfigRules extends RuleSource {
                 if (config.sharedConfigs != null && config.sharedConfigs.containsKey(component.name)) {
                     if (config.sharedConfigs.get(component.name).size() == 0 ||
                             config.sharedConfigs.get(component.name).contains("${binary.targetPlatform.operatingSystem.name}:${binary.targetPlatform.architecture.name}".toString())) {
-                        binary.lib(new SharedDependencySet(binary, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject))
+                        if (config.compileOnlyShared) {
+                            binary.lib(new SharedCompileOnlyDependencySet(binary, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject))
+                        } else {
+                            binary.lib(new SharedDependencySet(binary, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject))
+                        }
                         continue
                     }
                 }
