@@ -28,6 +28,8 @@ public class StaticDependencySet extends WPINativeDependencySet {
         List<String> matchers = [];
         List<String> excludes = [];
 
+        excludes.addAll(m_linkExcludes)
+
         if (m_binarySpec.targetPlatform.operatingSystem.name == 'windows') {
             matchers << "**/*${platformPath}/${dirPath}/*.lib".toString()
         } else {

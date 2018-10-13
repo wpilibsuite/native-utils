@@ -41,6 +41,8 @@ public class SharedCompileOnlyDependencySet extends WPINativeDependencySet {
             List<String> matchers = [];
             List<String> excludes = [];
 
+            excludes.addAll(m_linkExcludes)
+
             if (isRuntime) {
                 return m_project.files()
             }

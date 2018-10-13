@@ -21,13 +21,15 @@ public abstract class WPINativeDependencySet implements NativeDependencySet {
     protected String m_headerConfigName
     protected String m_sourceConfigName
     protected Project m_project
+    protected List<String> m_linkExcludes
 
-    public WPINativeDependencySet(NativeBinarySpec binarySpec, String headers, String libConfigName, String src, Project project) {
+    public WPINativeDependencySet(NativeBinarySpec binarySpec, String headers, String libConfigName, String src, Project project, List<String> linkExcludes) {
         m_binarySpec = binarySpec
         m_headerConfigName = headers
         m_libConfigName = libConfigName
         m_project = project
         m_sourceConfigName = src
+        m_linkExcludes = linkExcludes
     }
 
     private void resolveHeaderConfigs() {

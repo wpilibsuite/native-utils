@@ -181,13 +181,19 @@ class DependencyConfigRules extends RuleSource {
                 String libConfigurationName = "${config.groupId}${config.artifactId}${NativeUtils.getClassifier(binary)}".toString()
                 libConfigurationName = libConfigurationName.replace('.', '')
 
+                List<String> linkExcludes = config.linkExcludes
+
+                if (linkExcludes == null) {
+                    linkExcludes = []
+                }
+
                 if (config.sharedConfigs != null && config.sharedConfigs.containsKey(component.name)) {
                     if (config.sharedConfigs.get(component.name).size() == 0 ||
                             config.sharedConfigs.get(component.name).contains("${binary.targetPlatform.operatingSystem.name}:${binary.targetPlatform.architecture.name}".toString())) {
                         if (config.compileOnlyShared) {
-                            binary.lib(new SharedCompileOnlyDependencySet(binary, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject))
+                            binary.lib(new SharedCompileOnlyDependencySet(binary, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject, linkExcludes))
                         } else {
-                            binary.lib(new SharedDependencySet(binary, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject))
+                            binary.lib(new SharedDependencySet(binary, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject, linkExcludes))
                         }
                         continue
                     }
@@ -195,7 +201,7 @@ class DependencyConfigRules extends RuleSource {
                 if (config.staticConfigs != null && config.staticConfigs.containsKey(component.name)) {
                     if (config.staticConfigs.get(component.name).size() == 0 ||
                             config.staticConfigs.get(component.name).contains("${binary.targetPlatform.operatingSystem.name}:${binary.targetPlatform.architecture.name}".toString())) {
-                        binary.lib(new StaticDependencySet(binary, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject))
+                        binary.lib(new StaticDependencySet(binary, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject, linkExcludes))
                         continue
                     }
                 }

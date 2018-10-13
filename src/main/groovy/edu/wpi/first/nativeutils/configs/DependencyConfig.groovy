@@ -55,4 +55,10 @@ interface DependencyConfig {
     void setCompileOnlyShared(boolean set)
 
     boolean getCompileOnlyShared()
+
+    @Unmanaged
+    void setLinkExcludes(List<String> excludes)
+
+    @Unmanaged
+    List<String> getLinkExcludes()
 }

@@ -41,6 +41,10 @@ public class SharedDependencySet extends WPINativeDependencySet {
             List<String> matchers = [];
             List<String> excludes = [];
 
+            if (!isRuntime) {
+                excludes.addAll(m_linkExcludes)
+            }
+
             if (m_binarySpec.targetPlatform.operatingSystem.name == 'windows' && !isRuntime) {
                 matchers << "**/*${platformPath}/${dirPath}/*.lib".toString()
             } else if (m_binarySpec.targetPlatform.operatingSystem.name == 'windows') {
