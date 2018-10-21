@@ -158,6 +158,16 @@ class DependencyConfigRules extends RuleSource {
                         dep.add(configurationName, map)
                     } catch (InvalidUserDataException) {
                     }
+
+                    classifier = classifier + 'debug'
+                    map = [group: config.groupId, name: config.artifactId, version: config.version, classifier: classifier, ext: config.ext]
+                    configurationName = "${config.groupId}${config.artifactId}${classifier}".toString()
+                    configurationName = configurationName.replace('.', '')
+                    try {
+                        rootProject.configurations.create(configurationName)
+                        dep.add(configurationName, map)
+                    } catch (InvalidUserDataException) {
+                    }
                 }
             }
 

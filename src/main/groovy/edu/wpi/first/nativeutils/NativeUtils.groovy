@@ -133,7 +133,11 @@ public class NativeUtils implements Plugin<Project> {
      */
     @CompileStatic
     public static String getClassifier(NativeBinarySpec binary) {
-        return binary.targetPlatform.operatingSystem.name + binary.targetPlatform.architecture.name
+        def classifierBase = binary.targetPlatform.operatingSystem.name + binary.targetPlatform.architecture.name
+        if (binary.buildType.name == 'debug') {
+            classifierBase += 'debug'
+        }
+        return classifierBase
     }
 
     /**
