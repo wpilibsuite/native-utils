@@ -119,17 +119,9 @@ class BuildConfigRules extends RuleSource {
     @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
     @Mutate
     @CompileStatic
-    void addBuildTypes(BuildTypeContainer buildTypes, ProjectLayout projectLayout) {
-        def project = (Project) projectLayout.projectIdentifier
-        if (project.hasProperty('releaseBuild')) {
-            buildTypes.create('release')
-        } else {
-            if (!BuildConfigRulesBase.hasPrintedDebugMessage()) {
-                println 'Currently building a debug binary. To build release, add -PreleaseBuild to your gradle command.'
-                BuildConfigRulesBase.setPrintedDebugMessage()
-            }
-            buildTypes.create('debug')
-        }
+    void addBuildTypes(BuildTypeContainer buildTypes) {
+        buildTypes.maybeCreate('release')
+        buildTypes.maybeCreate('debug')
     }
 
     @CompileDynamic
