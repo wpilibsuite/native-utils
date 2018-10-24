@@ -107,6 +107,72 @@ class DependencyConfigRules extends RuleSource {
         }
     }
 
+    private String createDependency(Project rootProject, DependencyConfig config, String classifier) {
+        def configurationName = "${config.groupId}${config.artifactId}${classifier}".toString()
+        configurationName = configurationName.replace('.', '')
+        rootProject.dependencies {
+            def dep = (DependencyHandler) it
+            def map = [group: config.groupId, name: config.artifactId, version: config.version, classifier: classifier, ext: config.ext]
+            try {
+                rootProject.configurations.maybeCreate(configurationName)
+                dep.add(configurationName, map)
+            } catch (InvalidUserDataException) {
+            }
+        }
+        return configurationName
+    }
+
+    @CompileStatic
+    private void addDependenciesToBinary(Project rootProject, DependencyConfig config, NativeBinarySpec binary) {
+        def component = binary.component
+
+        // Headers and sources have already been created
+
+        def headerConfigurationName = "${config.groupId}${config.artifactId}${config.headerClassifier}".toString()
+        headerConfigurationName = headerConfigurationName.replace('.', '')
+
+        def sourceConfigurationName = config.sourceClassifier
+        if (sourceConfigurationName != null) {
+            sourceConfigurationName = "${config.groupId}${config.artifactId}${sourceConfigurationName}".toString()
+            sourceConfigurationName = sourceConfigurationName.replace('.', '')
+        }
+
+        List<String> linkExcludes = config.linkExcludes
+
+        if (linkExcludes == null) {
+            linkExcludes = []
+        }
+
+        if (config.sharedConfigs != null && config.sharedConfigs.containsKey(component.name)) {
+            if (config.sharedConfigs.get(component.name).size() == 0 ||
+                    config.sharedConfigs.get(component.name).contains("${binary.targetPlatform.operatingSystem.name}:${binary.targetPlatform.architecture.name}".toString())) {
+                // Setup a shared dependency
+                String libConfigurationName = createDependency(rootProject, config, NativeUtils.getDependencyClassifier(binary, ''))
+                if (config.compileOnlyShared) {
+                    binary.lib(new SharedCompileOnlyDependencySet(binary, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject, linkExcludes))
+                } else {
+                    binary.lib(new SharedDependencySet(binary, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject, linkExcludes))
+                }
+                return
+            }
+        }
+        if (config.staticConfigs != null && config.staticConfigs.containsKey(component.name)) {
+            if (config.staticConfigs.get(component.name).size() == 0 ||
+                    config.staticConfigs.get(component.name).contains("${binary.targetPlatform.operatingSystem.name}:${binary.targetPlatform.architecture.name}".toString())) {
+                // Setup a static dependency
+                String libConfigurationName = createDependency(rootProject, config, NativeUtils.getDependencyClassifier(binary, 'static'))
+                binary.lib(new StaticDependencySet(binary, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject, linkExcludes))
+                return
+            }
+        }
+        if (config.headerOnlyConfigs != null && config.headerOnlyConfigs.containsKey(component.name)) {
+            if (config.headerOnlyConfigs.get(component.name).size() == 0 ||
+                    config.headerOnlyConfigs.get(component.name).contains("${binary.targetPlatform.operatingSystem.name}:${binary.targetPlatform.architecture.name}".toString())) {
+                binary.lib(new HeaderOnlyDependencySet(binary, headerConfigurationName, rootProject))
+            }
+        }
+    }
+
     @Validate
     @CompileStatic
     void setupDependencies(BinaryContainer binaries, DependencyConfigSpec configs,
@@ -143,84 +209,14 @@ class DependencyConfigRules extends RuleSource {
                 }
             }
 
-            for (BuildConfig buildConfig : buildConfigs) {
-                if (!(BuildConfigRulesBase.isConfigEnabled(buildConfig, currentProject))) {
-                    continue
-                }
-                rootProject.dependencies {
-                    def dep = (DependencyHandler) it
-                    def classifier = NativeUtils.getClassifier((BuildConfig) buildConfig)
-                    def map = [group: config.groupId, name: config.artifactId, version: config.version, classifier: classifier, ext: config.ext]
-                    def configurationName = "${config.groupId}${config.artifactId}${classifier}".toString()
-                    configurationName = configurationName.replace('.', '')
-                    try {
-                        rootProject.configurations.create(configurationName)
-                        dep.add(configurationName, map)
-                    } catch (InvalidUserDataException) {
-                    }
-
-                    classifier = classifier + 'debug'
-                    map = [group: config.groupId, name: config.artifactId, version: config.version, classifier: classifier, ext: config.ext]
-                    configurationName = "${config.groupId}${config.artifactId}${classifier}".toString()
-                    configurationName = configurationName.replace('.', '')
-                    try {
-                        rootProject.configurations.create(configurationName)
-                        dep.add(configurationName, map)
-                    } catch (InvalidUserDataException) {
-                    }
-                }
-            }
-
             def nativeBinaries = binaries.findAll { BuildConfigRulesBase.isNativeProject((BinarySpec) it) }
             for (Object oBinary : nativeBinaries) {
                 def binary = (NativeBinarySpec) oBinary
                 if (!binary.buildable) {
                     continue
                 }
-                def component = binary.component
+                addDependenciesToBinary(rootProject, config, binary)
 
-                def headerConfigurationName = "${config.groupId}${config.artifactId}${config.headerClassifier}".toString()
-                headerConfigurationName = headerConfigurationName.replace('.', '')
-
-                def sourceConfigurationName = config.sourceClassifier
-                if (sourceConfigurationName != null) {
-                    sourceConfigurationName = "${config.groupId}${config.artifactId}${sourceConfigurationName}".toString()
-                    sourceConfigurationName = sourceConfigurationName.replace('.', '')
-                }
-
-                String libConfigurationName = "${config.groupId}${config.artifactId}${NativeUtils.getClassifier(binary)}".toString()
-                libConfigurationName = libConfigurationName.replace('.', '')
-
-                List<String> linkExcludes = config.linkExcludes
-
-                if (linkExcludes == null) {
-                    linkExcludes = []
-                }
-
-                if (config.sharedConfigs != null && config.sharedConfigs.containsKey(component.name)) {
-                    if (config.sharedConfigs.get(component.name).size() == 0 ||
-                            config.sharedConfigs.get(component.name).contains("${binary.targetPlatform.operatingSystem.name}:${binary.targetPlatform.architecture.name}".toString())) {
-                        if (config.compileOnlyShared) {
-                            binary.lib(new SharedCompileOnlyDependencySet(binary, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject, linkExcludes))
-                        } else {
-                            binary.lib(new SharedDependencySet(binary, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject, linkExcludes))
-                        }
-                        continue
-                    }
-                }
-                if (config.staticConfigs != null && config.staticConfigs.containsKey(component.name)) {
-                    if (config.staticConfigs.get(component.name).size() == 0 ||
-                            config.staticConfigs.get(component.name).contains("${binary.targetPlatform.operatingSystem.name}:${binary.targetPlatform.architecture.name}".toString())) {
-                        binary.lib(new StaticDependencySet(binary, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject, linkExcludes))
-                        continue
-                    }
-                }
-                if (config.headerOnlyConfigs != null && config.headerOnlyConfigs.containsKey(component.name)) {
-                    if (config.headerOnlyConfigs.get(component.name).size() == 0 ||
-                            config.headerOnlyConfigs.get(component.name).contains("${binary.targetPlatform.operatingSystem.name}:${binary.targetPlatform.architecture.name}".toString())) {
-                        binary.lib(new HeaderOnlyDependencySet(binary, headerConfigurationName, rootProject))
-                    }
-                }
             }
         }
     }

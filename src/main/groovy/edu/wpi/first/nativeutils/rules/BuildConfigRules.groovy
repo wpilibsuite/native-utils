@@ -194,6 +194,10 @@ class BuildConfigRules extends RuleSource {
             if (!BuildConfigRulesBase.isConfigEnabled(config, project)) {
                 continue
             }
+            def stripBuildTypes = config.stripBuildTypes
+            if (stripBuildTypes == null) {
+                stripBuildTypes = []
+            }
             for (BinarySpec oBinary : binaries) {
                 if (!BuildConfigRulesBase.isNativeProject(oBinary)) {
                     continue
@@ -201,7 +205,7 @@ class BuildConfigRules extends RuleSource {
                 NativeBinarySpec binary = (NativeBinarySpec) oBinary
                 if (binary.targetPlatform.architecture.name == config.architecture
                         && binary.targetPlatform.operatingSystem.name == config.operatingSystem
-                        && ((config.debugStripBinaries && binary.buildType.name.contains('debug')) || (config.releaseStripBinaries && binary.buildType.name.contains('release')))
+                        && stripBuildTypes.contains(binary.buildType.name)
                         && binary.targetPlatform.operatingSystem.name != 'windows'
                         && binary instanceof SharedLibraryBinarySpec) {
                     def sBinary = (SharedLibraryBinarySpec) binary

@@ -136,15 +136,9 @@ interface BuildConfig extends Named {
 
     boolean getSkipTests()
 
-    @SuppressWarnings("GroovyUnusedDeclaration")
-    void setDebugStripBinaries(boolean strip)
+    void setStripBuildTypes(List<String> buildTypes)
 
-    boolean getDebugStripBinaries()
-
-    @SuppressWarnings("GroovyUnusedDeclaration")
-    void setReleaseStripBinaries(boolean strip)
-
-    boolean getReleaseStripBinaries()
+    List<String> getStripBuildTypes()
 
     @Unmanaged
     void setDetectPlatform(Closure<Boolean> closure)

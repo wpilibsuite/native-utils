@@ -5,8 +5,10 @@ import org.gradle.api.Project
 import org.gradle.internal.os.OperatingSystem
 import org.gradle.api.internal.project.ProjectIdentifier
 import org.gradle.nativeplatform.NativeBinarySpec
+import org.gradle.nativeplatform.NativeLibraryBinarySpec
 import org.gradle.nativeplatform.Tool
 import edu.wpi.first.nativeutils.configs.BuildConfig
+import org.gradle.nativeplatform.StaticLibraryBinarySpec
 import edu.wpi.first.nativeutils.rules.BuildConfigRulesBase
 import edu.wpi.first.nativeutils.configs.CrossBuildConfig
 import groovy.transform.CompileStatic
@@ -134,8 +136,44 @@ public class NativeUtils implements Plugin<Project> {
     @CompileStatic
     public static String getClassifier(NativeBinarySpec binary) {
         def classifierBase = binary.targetPlatform.operatingSystem.name + binary.targetPlatform.architecture.name
-        if (binary.buildType.name == 'debug') {
-            classifierBase += 'debug'
+        if (binary.buildType.name != 'release') {
+            classifierBase += binary.buildType.name
+        }
+        return classifierBase
+    }
+
+    /**
+     * Gets the base classifier for a binary. This does not include the static or build type flags
+     */
+    @CompileStatic
+    public static String getBaseClassifier(NativeLibraryBinarySpec binary) {
+        def classifierBase = binary.targetPlatform.operatingSystem.name + binary.targetPlatform.architecture.name
+        return classifierBase
+    }
+
+    /**
+     * Gets the classifier for a dependency, matching the build type of the binary
+     */
+    public static String getDependencyClassifier(NativeBinarySpec binary, String depTypeClassifier) {
+        def classifierBase = binary.targetPlatform.operatingSystem.name + binary.targetPlatform.architecture.name + depTypeClassifier
+        if (binary.buildType.name != 'release') {
+            classifierBase += binary.buildType.name
+        }
+        return classifierBase
+    }
+
+
+    /**
+     * Gets the artifact classifier for a specific binary to be published
+     */
+    @CompileStatic
+    public static String getPublishClassifier(NativeLibraryBinarySpec binary) {
+        def classifierBase = binary.targetPlatform.operatingSystem.name + binary.targetPlatform.architecture.name
+        if (binary instanceof StaticLibraryBinarySpec) {
+            classifierBase += 'static'
+        }
+        if (binary.buildType.name != 'release') {
+            classifierBase += binary.buildType.name
         }
         return classifierBase
     }
