@@ -29,6 +29,7 @@ public class SharedDependencySet extends WPINativeDependencySet {
                 matchers << "**/*${platformPath}/${dirPath}/*.pdb".toString()
             } else {
                 matchers << "**/*${platformPath}/${dirPath}/*.so.debug".toString()
+                matchers << "**/*${platformPath}/${dirPath}/*.so.*.debug".toString()
             }
 
             def debugFiles = m_libs.matching { PatternFilterable pat ->
@@ -54,6 +55,7 @@ public class SharedDependencySet extends WPINativeDependencySet {
                 matchers << "**/*${platformPath}/${dirPath}/*.so".toString()
                 matchers << "**/*${platformPath}/${dirPath}/*.so.*".toString()
                 excludes << "**/*${platformPath}/${dirPath}/*.so.debug".toString()
+                excludes << "**/*${platformPath}/${dirPath}/*.so.*.debug".toString()
             }
 
             def sharedFiles = m_libs.matching { PatternFilterable pat ->
