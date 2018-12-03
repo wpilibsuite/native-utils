@@ -313,10 +313,7 @@ class BuildConfigRules extends RuleSource {
             }
         }
 
-        println 'in create all install'
-
         project.tasks.named(installAllTaskName).configure { Task it->
-            println 'configuring task ' + it.name
             for (ComponentSpec oComponent : components) {
                 if (oComponent in NativeExecutableSpec) {
                     NativeExecutableSpec component = (NativeExecutableSpec) oComponent
@@ -324,15 +321,6 @@ class BuildConfigRules extends RuleSource {
                         def binary = (NativeExecutableBinarySpec)oBinary
                         def install = binary.tasks.install
                         it.dependsOn install
-
-                        // Handle binary debug files as well
-                        println install.name
-                        install.doLast {
-                            println 'in dolast'
-                            binary.libs.each {
-                                println it
-                            }
-                        }
                     }
                 }
             }
