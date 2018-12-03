@@ -17,53 +17,48 @@ public class SharedDependencySet extends WPINativeDependencySet {
 
     @CompileStatic
     @Override
-    protected FileCollection getFiles(boolean isRuntime, boolean isDebug) {
+    protected FileCollection getFiles(boolean isRuntime) {
         def platformPath = NativeUtils.getPlatformPath(m_binarySpec)
         def dirPath = 'shared'
 
-        if (isDebug) {
-            List<String> matchers = [];
-            List<String> excludes = [];
+        List<String> matchers = [];
+        List<String> excludes = [];
 
-            if (m_binarySpec.targetPlatform.operatingSystem.name == 'windows' && !isRuntime) {
-                matchers << "**/*${platformPath}/${dirPath}/*.pdb".toString()
-            } else {
-                matchers << "**/*${platformPath}/${dirPath}/*.so.debug".toString()
-                matchers << "**/*${platformPath}/${dirPath}/*.so.*.debug".toString()
-            }
-
-            def debugFiles = m_libs.matching { PatternFilterable pat ->
-                pat.include(matchers)
-                pat.exclude(excludes)
-            }
-
-            return m_project.files(debugFiles.files)
+        if (m_binarySpec.targetPlatform.operatingSystem.name == 'windows' && !isRuntime) {
+            matchers << "**/*${platformPath}/${dirPath}/*.pdb".toString()
         } else {
-            List<String> matchers = [];
-            List<String> excludes = [];
-
-            if (!isRuntime) {
-                excludes.addAll(m_linkExcludes)
-            }
-
-            if (m_binarySpec.targetPlatform.operatingSystem.name == 'windows' && !isRuntime) {
-                matchers << "**/*${platformPath}/${dirPath}/*.lib".toString()
-            } else if (m_binarySpec.targetPlatform.operatingSystem.name == 'windows') {
-                matchers << "**/*${platformPath}/${dirPath}/*.dll".toString()
-            } else {
-                matchers << "**/*${platformPath}/${dirPath}/*.dylib".toString()
-                matchers << "**/*${platformPath}/${dirPath}/*.so".toString()
-                matchers << "**/*${platformPath}/${dirPath}/*.so.*".toString()
-                excludes << "**/*${platformPath}/${dirPath}/*.so.debug".toString()
-                excludes << "**/*${platformPath}/${dirPath}/*.so.*.debug".toString()
-            }
-
-            def sharedFiles = m_libs.matching { PatternFilterable pat ->
-                pat.include(matchers)
-                pat.exclude(excludes)
-            }
-
-            return m_project.files(sharedFiles.files)
+            matchers << "**/*${platformPath}/${dirPath}/*.so.debug".toString()
+            matchers << "**/*${platformPath}/${dirPath}/*.so.*.debug".toString()
         }
+
+        def debugFiles = m_libs.matching { PatternFilterable pat ->
+            pat.include(matchers)
+            pat.exclude(excludes)
+        }
+        matchers = [];
+        excludes = [];
+
+        if (!isRuntime) {
+            excludes.addAll(m_linkExcludes)
+        }
+
+        if (m_binarySpec.targetPlatform.operatingSystem.name == 'windows' && !isRuntime) {
+            matchers << "**/*${platformPath}/${dirPath}/*.lib".toString()
+        } else if (m_binarySpec.targetPlatform.operatingSystem.name == 'windows') {
+            matchers << "**/*${platformPath}/${dirPath}/*.dll".toString()
+        } else {
+            matchers << "**/*${platformPath}/${dirPath}/*.dylib".toString()
+            matchers << "**/*${platformPath}/${dirPath}/*.so".toString()
+            matchers << "**/*${platformPath}/${dirPath}/*.so.*".toString()
+            excludes << "**/*${platformPath}/${dirPath}/*.so.debug".toString()
+            excludes << "**/*${platformPath}/${dirPath}/*.so.*.debug".toString()
+        }
+
+        def sharedFiles = m_libs.matching { PatternFilterable pat ->
+            pat.include(matchers)
+            pat.exclude(excludes)
+        }
+
+        return m_project.files(sharedFiles.files + debugFiles.files)
     }
 }

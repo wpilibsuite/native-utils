@@ -50,23 +50,18 @@ public abstract class WPINativeDependencySet implements NativeDependencySet {
         m_libs = libZip
     }
 
-    protected abstract FileCollection getFiles(boolean isRuntime, boolean isDebug)
+    protected abstract FileCollection getFiles(boolean isRuntime)
 
     @Override
     public FileCollection getLinkFiles() {
         resolveLibConfigs()
-        return getFiles(false, false)
+        return getFiles(false)
     }
 
     @Override
     public FileCollection getRuntimeFiles() {
         resolveLibConfigs()
-        return getFiles(true, false)
-    }
-
-    public FileCollection getDebugFiles() {
-        resolveLibConfigs()
-        return getFiles(true, true);
+        return getFiles(true)
     }
 
     private void resolveSourceConfigs() {

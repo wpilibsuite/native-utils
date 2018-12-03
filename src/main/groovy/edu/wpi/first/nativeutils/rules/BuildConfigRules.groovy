@@ -44,6 +44,7 @@ import edu.wpi.first.nativeutils.NativeUtils
 import edu.wpi.first.nativeutils.tasks.NativeInstallAll
 import org.gradle.nativeplatform.NativeExecutableBinarySpec
 import org.gradle.nativeplatform.tasks.AbstractLinkTask
+import org.gradle.nativeplatform.tasks.InstallExecutable
 import org.gradle.platform.base.ComponentSpec
 import org.gradle.nativeplatform.platform.NativePlatform
 import org.gradle.process.ExecSpec
@@ -251,6 +252,52 @@ class BuildConfigRules extends RuleSource {
         }
     }
 
+    private void handleDebugFiles(File inputFile, InstallExecutable install) {
+        def debugFile = new File(inputFile.absolutePath + '.debug')
+        if (debugFile.exists()) {
+            install.lib(debugFile)
+        } else {
+            def filePath = inputFile.parentFile.absolutePath
+            def fileName = inputFile.name;
+            def pos = fileName.lastIndexOf(".");
+            if (pos > 0 && pos < (fileName.length() - 1)) {
+                fileName = fileName.substring(0, pos);
+            }
+            debugFile = new File(filePath, fileName + '.pdb')
+            if (debugFile.exists()) {
+                install.lib(debugFile)
+            }
+        }
+    }
+
+    @CompileStatic
+    @Mutate
+    void setupCopyDebugFilesToInstall(ModelMap<Task> tasks, ComponentSpecContainer components, ProjectLayout projectLayout) {
+        def project = (Project) projectLayout.projectIdentifier
+
+         for (ComponentSpec oComponent : components) {
+            if (oComponent in NativeExecutableSpec) {
+                NativeExecutableSpec component = (NativeExecutableSpec) oComponent
+                for (BinarySpec oBinary : component.binaries) {
+                    def binary = (NativeExecutableBinarySpec)oBinary
+                    def install = (InstallExecutable)binary.tasks.install
+
+                    install.doFirst {
+                        binary.libs.each {
+                            it.runtimeFiles.each {
+                                handleDebugFiles(it, install)
+                            }
+                        }
+                        def exeFile = install.executableFile
+                        if (exeFile.isPresent() && exeFile.get().asFile.exists()) {
+                            handleDebugFiles(exeFile.get().asFile, install)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     @Mutate
     @CompileStatic
     void createInstallAllComponentsTask(ModelMap<Task> tasks, ComponentSpecContainer components, ProjectLayout projectLayout) {
@@ -266,13 +313,26 @@ class BuildConfigRules extends RuleSource {
             }
         }
 
+        println 'in create all install'
+
         project.tasks.named(installAllTaskName).configure { Task it->
+            println 'configuring task ' + it.name
             for (ComponentSpec oComponent : components) {
                 if (oComponent in NativeExecutableSpec) {
                     NativeExecutableSpec component = (NativeExecutableSpec) oComponent
-                    for (BinarySpec binary : component.binaries) {
-                        def install = ((NativeExecutableBinarySpec) binary).tasks.install
+                    for (BinarySpec oBinary : component.binaries) {
+                        def binary = (NativeExecutableBinarySpec)oBinary
+                        def install = binary.tasks.install
                         it.dependsOn install
+
+                        // Handle binary debug files as well
+                        println install.name
+                        install.doLast {
+                            println 'in dolast'
+                            binary.libs.each {
+                                println it
+                            }
+                        }
                     }
                 }
             }
