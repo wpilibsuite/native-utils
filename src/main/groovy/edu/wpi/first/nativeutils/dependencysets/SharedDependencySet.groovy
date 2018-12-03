@@ -59,6 +59,10 @@ public class SharedDependencySet extends WPINativeDependencySet {
             pat.exclude(excludes)
         }
 
-        return m_project.files(sharedFiles.files + debugFiles.files)
+        if (isRuntime) {
+            return m_project.files(sharedFiles.files + debugFiles.files)
+        } else {
+            return m_project.files(sharedFiles.files)
+        }
     }
 }

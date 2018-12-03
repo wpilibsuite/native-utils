@@ -60,6 +60,6 @@ public class SharedCompileOnlyDependencySet extends WPINativeDependencySet {
             pat.exclude(excludes)
         }
 
-        return m_project.files(sharedFiles.files + debugFiles)
+        return m_project.files(sharedFiles.files)
     }
 }
