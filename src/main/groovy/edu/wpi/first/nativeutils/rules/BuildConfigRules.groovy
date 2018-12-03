@@ -43,6 +43,7 @@ import edu.wpi.first.nativeutils.configs.*
 import edu.wpi.first.nativeutils.NativeUtils
 import edu.wpi.first.nativeutils.tasks.NativeInstallAll
 import org.gradle.nativeplatform.NativeExecutableBinarySpec
+import org.gradle.nativeplatform.tasks.AbstractLinkTask
 import org.gradle.platform.base.ComponentSpec
 import org.gradle.nativeplatform.platform.NativePlatform
 import org.gradle.process.ExecSpec
@@ -185,6 +186,10 @@ class BuildConfigRules extends RuleSource {
         }
     }
 
+    private AbstractLinkTask getLinkTaskForBinary(NativeBinarySpec binary) {
+        return (AbstractLinkTask) binary.tasks.link
+    }
+
     @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
     @Mutate
     @CompileStatic
@@ -207,9 +212,9 @@ class BuildConfigRules extends RuleSource {
                         && binary.targetPlatform.operatingSystem.name == config.operatingSystem
                         && stripBuildTypes.contains(binary.buildType.name)
                         && binary.targetPlatform.operatingSystem.name != 'windows'
-                        && binary instanceof SharedLibraryBinarySpec) {
-                    def sBinary = (SharedLibraryBinarySpec) binary
-                    def task = (LinkSharedLibrary) sBinary.tasks.link
+                        && (binary instanceof SharedLibraryBinarySpec
+                        || binary instanceof NativeExecutableBinarySpec)) {
+                    def task = getLinkTaskForBinary(binary)
                     def lockConfig = config
                     if (binary.targetPlatform.operatingSystem.name == 'osx') {
                         task.doLast {
