@@ -1,5 +1,12 @@
 package edu.wpi.first.nativeutils.rules
 
+import edu.wpi.first.nativeutils.configs.NativeBuildConfig
+import edu.wpi.first.nativeutils.configs.ToolchainPluginBuildConfig
+import edu.wpi.first.toolchain.GccToolChain
+import edu.wpi.first.toolchain.ToolchainDiscoverer
+import jaci.gradle.log.ETLogger
+import jaci.gradle.log.ETLoggerFactory
+import org.gradle.api.GradleException
 import org.gradle.internal.os.OperatingSystem
 import org.gradle.language.base.internal.ProjectLayout
 import org.gradle.api.Project
@@ -44,33 +51,31 @@ class BuildConfigRulesBase {
         existingToolChains.clear()
     }
 
-    @CompileStatic
     static boolean hasPrintedDebugMessage() {
         return printedDebugMessage.printedMessage;
     }
 
-    @CompileStatic
     static void setPrintedDebugMessage() {
         printedDebugMessage.printedMessage = true;
     }
 
-    @CompileStatic
     static String binTools(String tool, ProjectLayout projectLayout, BuildConfig config) {
-        def toolChainPath = NativeUtils.getToolChainPath(config, (Project) projectLayout.projectIdentifier)
-        def compilerPrefix = config.toolChainPrefix
-        if (compilerPrefix == null) compilerPrefix = ''
-        if (toolChainPath != null) return "${toolChainPath}/${compilerPrefix}${tool}"
-        return "${compilerPrefix}${tool}"
+        if (config instanceof CrossBuildConfig) {
+            def toolChainPath = NativeUtils.getToolChainPath(config, (Project) projectLayout.projectIdentifier)
+            def compilerPrefix = config.toolChainPrefix
+            if (compilerPrefix == null) compilerPrefix = ''
+            if (toolChainPath != null) return "${toolChainPath}/${compilerPrefix}${tool}"
+            return "${compilerPrefix}${tool}"
+        }
+        return tool;
     }
 
-    @CompileStatic
     static void addArgsToTool(Tool tool, args) {
         if (args != null) {
             tool.args.addAll((List<String>) args)
         }
     }
 
-    @CompileStatic
     static Class getCompilerFamily(String family) {
         switch (family) {
             case 'VisualCpp':
@@ -82,17 +87,10 @@ class BuildConfigRulesBase {
         }
     }
 
-    @CompileStatic
     static boolean isNativeProject(BinarySpec binary) {
         return binary instanceof NativeBinarySpec
     }
 
-    @CompileStatic
-    static boolean isCrossCompile(BuildConfig config) {
-        return config instanceof CrossBuildConfig
-    }
-
-    @CompileStatic
     static boolean isComponentEnabled(BuildConfig config, String componentName) {
         if (config.exclude == null || config.exclude.size() == 0) {
             return true
@@ -115,16 +113,27 @@ class BuildConfigRulesBase {
         ConfigEnables enable = new ConfigEnables()
         configEnabledMap.put(config, enable);
 
-        if (isCrossCompile(config) && NativeUtils.getCrossConfigEnabledCmdLine((CrossBuildConfig) config, project)) {
+
+
+        if (config instanceof CrossBuildConfig && NativeUtils.getCrossConfigEnabledCmdLine((CrossBuildConfig) config, project)) {
             enable.configEnabled = doesToolChainExist(config, project)
             return enable.configEnabled
+        } else if (config instanceof ToolchainPluginBuildConfig) {
+            enable.configEnabled = true
+            return enable.configEnabled
         }
-        if (!config.detectPlatform) {
+
+        if (!(config instanceof NativeBuildConfig)) {
+            enable.configEnabled = false;
+            return enable.configEnabled;
+        }
+        NativeBuildConfig nativeConfig = (NativeBuildConfig)config;
+        if (!nativeConfig.detectPlatform) {
             enable.configEnabled = false
             return enable.configEnabled
         }
 
-        def detect = config.detectPlatform
+        def detect = nativeConfig.detectPlatform
 
         enable.configEnabled = detect(config)
         return enable.configEnabled
@@ -134,7 +143,7 @@ class BuildConfigRulesBase {
 
     @CompileStatic
     static boolean doesToolChainExist(BuildConfig config, Project project) {
-        if (!isCrossCompile(config)) {
+        if (!(config instanceof CrossBuildConfig)) {
             return true;
         }
 

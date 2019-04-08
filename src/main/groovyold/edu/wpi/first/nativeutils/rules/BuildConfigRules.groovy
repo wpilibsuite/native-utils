@@ -1,5 +1,6 @@
 package edu.wpi.first.nativeutils.rules
 
+import edu.wpi.first.toolchain.GccToolChain
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -50,6 +51,7 @@ import org.gradle.nativeplatform.platform.NativePlatform
 import org.gradle.process.ExecSpec
 import groovy.transform.CompileStatic
 import groovy.transform.CompileDynamic
+import sun.security.krb5.Config
 
 @CompileStatic
 interface BuildConfigSpec extends ModelMap<BuildConfig> {}
@@ -75,9 +77,11 @@ class BuildConfigRules extends RuleSource {
     @CompileStatic
     void validateCompilerFamilyExists(BuildConfigSpec configs) {
         for (BuildConfig config : configs) {
-            assert config.compilerFamily == 'VisualCpp' ||
-                    config.compilerFamily == 'Gcc' ||
-                    config.compilerFamily == 'Clang'
+            if (config instanceof ConfigurableBuildConfig) {
+                assert config.compilerFamily == 'VisualCpp' ||
+                        config.compilerFamily == 'Gcc' ||
+                        config.compilerFamily == 'Clang'
+            }
         }
     }
 
@@ -87,36 +91,38 @@ class BuildConfigRules extends RuleSource {
     void validateOsExists(BuildConfigSpec configs) {
         def validOs = ['windows', 'osx', 'linux', 'unix']
         for (BuildConfig config : configs) {
-            assert validOs.contains(config.operatingSystem.toLowerCase())
+            if (config instanceof ConfigurableBuildConfig) {
+                assert validOs.contains(config.operatingSystem.toLowerCase())
+            }
         }
     }
 
-    @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
-    @Validate
-    @CompileStatic
-    void setTargetPlatforms(ComponentSpecContainer components, ProjectLayout projectLayout, BuildConfigSpec configs) {
-        def project = (Project) projectLayout.projectIdentifier
-        for (ComponentSpec oComponent : components) {
-            if (!(oComponent in TargetedNativeComponent)) {
-                continue
-            }
-            for (BuildConfig config : configs) {
-                if (!BuildConfigRulesBase.isConfigEnabled(config, project)) {
-                    continue
-                }
-                TargetedNativeComponent component = (TargetedNativeComponent) oComponent
-                if (config.include == null || config.include.size() == 0) {
-                    if (config.exclude == null || !config.exclude.contains(component.name)) {
-                        component.targetPlatform config.architecture
-                    }
-                } else {
-                    if (config.include.contains(component.name)) {
-                        component.targetPlatform config.architecture
-                    }
-                }
-            }
-        }
-    }
+    // @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
+    // @Validate
+    // @CompileStatic
+    // void setTargetPlatforms(ComponentSpecContainer components, ProjectLayout projectLayout, BuildConfigSpec configs) {
+    //     def project = (Project) projectLayout.projectIdentifier
+    //     for (ComponentSpec oComponent : components) {
+    //         if (!(oComponent in TargetedNativeComponent)) {
+    //             continue
+    //         }
+    //         for (BuildConfig config : configs) {
+    //             if (!BuildConfigRulesBase.isConfigEnabled(config, project)) {
+    //                 continue
+    //             }
+    //             TargetedNativeComponent component = (TargetedNativeComponent) oComponent
+    //             if (config.include == null || config.include.size() == 0) {
+    //                 if (config.exclude == null || !config.exclude.contains(component.name)) {
+    //                     component.targetPlatform config.operatingSystem + config.architecture
+    //                 }
+    //             } else {
+    //                 if (config.include.contains(component.name)) {
+    //                     component.targetPlatform config.operatingSystem + config.architecture
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
     @SuppressWarnings(["GroovyUnusedDeclaration", "GrMethodMayBeStatic"])
     @Mutate
@@ -137,15 +143,12 @@ class BuildConfigRules extends RuleSource {
     void disableCrossCompileGoogleTest(BinaryContainer binaries, BuildConfigSpec configs) {
         def crossCompileConfigs = []
         for (BuildConfig config : configs) {
-            if (!BuildConfigRulesBase.isCrossCompile(config)) {
-                continue
-            }
-            crossCompileConfigs << config.architecture
+            crossCompileConfigs << config.operatingSystem + config.architecture
         }
         if (!crossCompileConfigs.empty) {
             binaries.withType(GoogleTestTestSuiteBinarySpec) { oSpec ->
                 GoogleTestTestSuiteBinarySpec spec = (GoogleTestTestSuiteBinarySpec) oSpec
-                if (crossCompileConfigs.contains(spec.targetPlatform.architecture.name)) {
+                if (crossCompileConfigs.contains(spec.targetPlatform.operatingSystem.name + spec.targetPlatform.architecture.name)) {
                     setBuildableFalseDynamically(spec)
                 }
             }
@@ -161,12 +164,12 @@ class BuildConfigRules extends RuleSource {
             if (!config.skipTests) {
                 continue
             }
-            skipConfigs << config.architecture + ':' + config.operatingSystem
+            skipConfigs << config.architecture  + config.operatingSystem
         }
         if (!skipConfigs.empty) {
             binaries.withType(GoogleTestTestSuiteBinarySpec) { oSpec ->
                 GoogleTestTestSuiteBinarySpec spec = (GoogleTestTestSuiteBinarySpec) oSpec
-                def checkString = spec.targetPlatform.architecture.name + ':' + spec.targetPlatform.operatingSystem.name
+                def checkString = spec.targetPlatform.architecture.name + spec.targetPlatform.operatingSystem.name
                 if (skipConfigs.contains(checkString)) {
                     setBuildableFalseDynamically(spec)
                 }
@@ -196,10 +199,14 @@ class BuildConfigRules extends RuleSource {
     @CompileStatic
     void createStripTasks(ModelMap<Task> tasks, BinaryContainer binaries, ProjectLayout projectLayout, BuildConfigSpec configs) {
         def project = (Project) projectLayout.projectIdentifier
-        for (BuildConfig config : configs) {
-            if (!BuildConfigRulesBase.isConfigEnabled(config, project)) {
+        for (BuildConfig oConfig : configs) {
+            if (!BuildConfigRulesBase.isConfigEnabled(oConfig, project)) {
                 continue
             }
+            if (!(oConfig instanceof ConfigurableBuildConfig)) {
+                continue
+            }
+            ConfigurableBuildConfig config = (ConfigurableBuildConfig)oConfig
             def stripBuildTypes = config.stripBuildTypes
             if (stripBuildTypes == null) {
                 stripBuildTypes = []
@@ -310,6 +317,7 @@ class BuildConfigRules extends RuleSource {
                 def task = (NativeInstallAll)it
                 task.group = 'Install'
                 task.description = 'Install all executables from this project'
+                return
             }
         }
 
@@ -339,12 +347,15 @@ class BuildConfigRules extends RuleSource {
             if (!BuildConfigRulesBase.isConfigEnabled(config, project)) {
                 continue
             }
+            if (!(config instanceof ConfigurableBuildConfig)) {
+                continue
+            }
             if (config.architecture != null) {
-                platforms.create(config.architecture) { oPlatform ->
-                    NativePlatform platform = (NativePlatform) oPlatform
-                    platform.architecture config.architecture
-                    if (config.operatingSystem != null) {
-                        platform.operatingSystem config.operatingSystem
+                platforms.create(config.architecture) { NativePlatform platform ->
+                    ConfigurableBuildConfig c = (ConfigurableBuildConfig)config
+                    platform.architecture c.architecture
+                    if (c.operatingSystem != null) {
+                        platform.operatingSystem c.operatingSystem
                     }
                 }
             }
@@ -381,10 +392,18 @@ class BuildConfigRules extends RuleSource {
 
             BuildConfig config = null
             for (BuildConfig it : enabledConfigs) {
-                if (it.architecture == binary.targetPlatform.architecture.name &&
-                        BuildConfigRulesBase.getCompilerFamily(it.compilerFamily).isAssignableFrom(binary.toolChain.class)) {
-                    config = it
-                    break;
+                if (it instanceof ConfigurableBuildConfig) {
+                    if (it.architecture == binary.targetPlatform.architecture.name && it.operatingSystem == binary.targetPlatform.operatingSystem.name &&
+                            BuildConfigRulesBase.getCompilerFamily(it.compilerFamily).isAssignableFrom(binary.toolChain.class)) {
+                        config = it
+                        break;
+
+                    }
+                } else if (it instanceof ToolchainPluginBuildConfig) {
+                    if (it.operatingSystem + it.architecture == binary.targetPlatform.name) {
+                        config = it
+                        break
+                    }
                 }
             }
             if (config != null) {
@@ -429,10 +448,18 @@ class BuildConfigRules extends RuleSource {
 
             BuildConfig config = null
             for (BuildConfig it : enabledConfigs) {
-                if (it.architecture == binary.targetPlatform.architecture.name &&
-                        BuildConfigRulesBase.getCompilerFamily(it.compilerFamily).isAssignableFrom(binary.toolChain.class)) {
-                    config = it
-                    break;
+                if (it instanceof ConfigurableBuildConfig) {
+                    if (it.architecture == binary.targetPlatform.architecture.name && it.operatingSystem == binary.targetPlatform.operatingSystem.name &&
+                            BuildConfigRulesBase.getCompilerFamily(it.compilerFamily).isAssignableFrom(binary.toolChain.class)) {
+                        config = it
+                        break;
+
+                    }
+                } else if (it instanceof ToolchainPluginBuildConfig) {
+                    if (it.operatingSystem + it.architecture == binary.targetPlatform.name) {
+                        config = it
+                        break
+                    }
                 }
             }
             if (config != null) {
@@ -506,7 +533,7 @@ class BuildConfigRules extends RuleSource {
             if (component instanceof NativeLibrarySpec || component instanceof NativeExecutableSpec) {
                 for (BinarySpec binary : ((VariantComponentSpec) component).binaries) {
                     binary.tasks.withType(AbstractNativeSourceCompileTask) {
-                        def task = (AbstractNativeSourceCompileTask) it
+                        def task = (AbstractNativeSourceCompileTask)(Object)it
                         task.doLast {
                             BuildConfigRules.performWarningPrinting(task.name.toString(), project)
                         }
@@ -525,12 +552,12 @@ class BuildConfigRules extends RuleSource {
         }
 
         def vcppConfigs = configs.findAll {
-            BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) && it.compilerFamily == 'VisualCpp'
+            BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) && it instanceof ConfigurableBuildConfig && it.compilerFamily == 'VisualCpp'
         }
         if (vcppConfigs != null && !vcppConfigs.empty) {
             toolChains.create('visualCpp', VisualCpp.class) { t ->
                 t.eachPlatform { toolChain ->
-                    def config = vcppConfigs.find { it.architecture == toolChain.platform.architecture.name }
+                    def config = vcppConfigs.find { it.architecture == toolChain.platform.architecture.name && it.operatingSystem == toolChain.platform.operatingSystem.name }
                     if (config != null) {
                         if (config.toolChainPrefix != null) {
                             toolChain.cCompiler.executable = config.toolChainPrefix + toolChain.cCompiler.executable
@@ -575,12 +602,12 @@ class BuildConfigRules extends RuleSource {
         }
 
         def gccConfigs = configs.findAll {
-            BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) && it.compilerFamily == 'Gcc'
+            BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) && it instanceof ConfigurableBuildConfig && it.compilerFamily == 'Gcc'
         }
         if (gccConfigs != null && !gccConfigs.empty) {
             toolChains.create('gcc', Gcc.class) {
                 gccConfigs.each { config ->
-                    target(config.architecture) {
+                    target(config.operatingSystem + config.architecture) {
                         def gccToolPath = NativeUtils.getToolChainPath(config, projectLayout.projectIdentifier)
                         if (gccToolPath == null) {
                             gccToolPath = ""
@@ -629,12 +656,12 @@ class BuildConfigRules extends RuleSource {
         }
 
         def clangConfigs = configs.findAll {
-            BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) && it.compilerFamily == 'Clang'
+            BuildConfigRulesBase.isConfigEnabled(it, projectLayout.projectIdentifier) && it instanceof ConfigurableBuildConfig && it.compilerFamily == 'Clang'
         }
         if (clangConfigs != null && !clangConfigs.empty) {
             toolChains.create('clang', Clang.class) {
                 clangConfigs.each { config ->
-                    target(config.architecture) {
+                    target(config.operatingSystem + config.architecture) {
                         if (config.toolChainPrefix != null) {
                             cCompiler.executable = config.toolChainPrefix + cCompiler.executable
                             cppCompiler.executable = config.toolChainPrefix + cppCompiler.executable

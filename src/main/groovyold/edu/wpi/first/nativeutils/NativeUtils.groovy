@@ -74,7 +74,7 @@ public class NativeUtils implements Plugin<Project> {
      */
     @CompileStatic
     public static String getToolChainPath(BuildConfig config, Project project) {
-        if (!BuildConfigRulesBase.isCrossCompile(config)) {
+        if (!(config instanceof CrossBuildConfig)) {
             return null
         }
 
@@ -200,8 +200,10 @@ public class NativeUtils implements Plugin<Project> {
         }
 
         project.plugins.withType(NativeComponentPlugin) {
-            project.ext.BuildConfig = edu.wpi.first.nativeutils.configs.BuildConfig
-            project.ext.CrossBuildConfig = edu.wpi.first.nativeutils.configs.CrossBuildConfig
+            project.ext.BuildConfig = edu.wpi.first.nativeutils.configs.BuildConfig;
+            project.ext.CrossBuildConfig = edu.wpi.first.nativeutils.configs.CrossBuildConfig;
+            project.ext.NativeBuildConfig = edu.wpi.first.nativeutils.configs.NativeBuildConfig;
+            project.ext.ToolchainPluginBuildConfig = edu.wpi.first.nativeutils.configs.ToolchainPluginBuildConfig
 
             project.pluginManager.apply(edu.wpi.first.nativeutils.rules.BuildConfigRules)
 

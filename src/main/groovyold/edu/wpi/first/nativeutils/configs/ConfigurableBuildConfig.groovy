@@ -6,13 +6,9 @@ import groovy.transform.CompileStatic
 
 @Managed
 @CompileStatic
-interface CrossBuildConfig extends BuildConfig {
+interface ConfigurableBuildConfig extends BuildConfig {
     @SuppressWarnings("GroovyUnusedDeclaration")
-    void setToolChainPath(String path)
+    void setCompilerFamily(String family)
 
-    String getToolChainPath()
-
-    void setSkipByDefault(boolean skip)
-
-    boolean getSkipByDefault()
+    String getCompilerFamily()
 }

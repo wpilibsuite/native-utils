@@ -13,11 +13,6 @@ interface BuildConfig extends Named {
     String getArchitecture()
 
     @SuppressWarnings("GroovyUnusedDeclaration")
-    void setToolChainPrefix(String prefix)
-
-    String getToolChainPrefix()
-
-    @SuppressWarnings("GroovyUnusedDeclaration")
     void setOperatingSystem(String os)
 
     String getOperatingSystem()
@@ -117,11 +112,6 @@ interface BuildConfig extends Named {
     List<String> getLinkerArgs()
 
     @SuppressWarnings("GroovyUnusedDeclaration")
-    void setCompilerFamily(String family)
-
-    String getCompilerFamily()
-
-    @SuppressWarnings("GroovyUnusedDeclaration")
     void setExclude(List<String> toExclude)
 
     List<String> getExclude()
@@ -139,11 +129,4 @@ interface BuildConfig extends Named {
     void setStripBuildTypes(List<String> buildTypes)
 
     List<String> getStripBuildTypes()
-
-    @Unmanaged
-    void setDetectPlatform(Closure<Boolean> closure)
-
-    @Unmanaged
-    Closure<Boolean> getDetectPlatform()
-
 }
