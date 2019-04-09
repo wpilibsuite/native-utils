@@ -1,10 +1,9 @@
 package edu.wpi.first.nativeutils.rules;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.gradle.api.GradleException;
+import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.NamedDomainObjectFactory;
+import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.internal.reflect.Instantiator;
 import org.gradle.model.Defaults;
 import org.gradle.model.Model;
@@ -13,35 +12,37 @@ import org.gradle.model.RuleSource;
 import org.gradle.model.Validate;
 import org.gradle.nativeplatform.BuildTypeContainer;
 import org.gradle.nativeplatform.NativeBinarySpec;
+import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.platform.base.BinaryContainer;
 import org.gradle.platform.base.BinarySpec;
+import org.gradle.platform.base.PlatformContainer;
 
-import edu.wpi.first.nativeutils.configs.NativePlatformConfig;
+import edu.wpi.first.nativeutils.configs.ConfigurableCrossPlatformConfig;
 import edu.wpi.first.nativeutils.configs.PlatformConfig;
-import edu.wpi.first.nativeutils.configs.containers.ConfigurableCrossPlatformConfigContainer;
-import edu.wpi.first.nativeutils.configs.containers.CrossPlatformConfigContainer;
-import edu.wpi.first.nativeutils.configs.containers.DefaultNativePlatformConfigContainer;
-import edu.wpi.first.nativeutils.configs.containers.NativePlatformConfigContainer;
-import edu.wpi.first.nativeutils.configs.impl.DefaultNativePlatformConfig;
+import edu.wpi.first.nativeutils.configs.containers.DefaultPlatformConfigContainer;
+import edu.wpi.first.nativeutils.configs.containers.PlatformConfigContainer;
+import edu.wpi.first.nativeutils.configs.impl.DefaultPlatformConfig;
+import edu.wpi.first.toolchain.NativePlatforms;
 
 public class PlatformRules extends RuleSource {
   @Model
-  NativePlatformConfigContainer nativePlatformConfigs(Instantiator instantiator) {
-      return instantiator.newInstance(DefaultNativePlatformConfigContainer.class, instantiator);
+  PlatformConfigContainer platformConfigs(Instantiator instantiator) {
+    return instantiator.newInstance(DefaultPlatformConfigContainer.class, instantiator);
   }
 
   @Defaults
-  void registerFactory(NativePlatformConfigContainer platforms) {
-    NamedDomainObjectFactory<NativePlatformConfig> platformFactory = new NamedDomainObjectFactory<NativePlatformConfig>() {
+  void registerFactory(PlatformConfigContainer platforms) {
+    NamedDomainObjectFactory<PlatformConfig> platformFactory = new NamedDomainObjectFactory<PlatformConfig>() {
 
       @Override
-      public NativePlatformConfig create(String name) {
-        return new DefaultNativePlatformConfig(name);
+      public PlatformConfig create(String name) {
+        return new DefaultPlatformConfig(name);
       }
     };
 
-    platforms.registerFactory(NativePlatformConfig.class, platformFactory);
+    platforms.registerFactory(PlatformConfig.class, platformFactory);
   }
+
 
   private void validatePlatformPath(PlatformConfig config) {
     if (config.getPlatformPath() == null) {
@@ -50,21 +51,7 @@ public class PlatformRules extends RuleSource {
   }
 
   @Validate
-  void checkNativePlatformPath(NativePlatformConfigContainer container) {
-    for (PlatformConfig config : container) {
-      validatePlatformPath(config);
-    }
-  }
-
-  @Validate
-  void checkcCrossPlatformPath(ConfigurableCrossPlatformConfigContainer container) {
-    for (PlatformConfig config : container) {
-      validatePlatformPath(config);
-    }
-  }
-
-  @Validate
-  void checkCrossPlatformPath(CrossPlatformConfigContainer container) {
+  void checkPlatformPath(PlatformConfigContainer container) {
     for (PlatformConfig config : container) {
       validatePlatformPath(config);
     }
@@ -72,24 +59,42 @@ public class PlatformRules extends RuleSource {
 
   @Mutate
   void addBuildTypes(BuildTypeContainer buildTypes) {
-      buildTypes.maybeCreate("release");
-      buildTypes.maybeCreate("debug");
+    buildTypes.maybeCreate("release");
+    buildTypes.maybeCreate("debug");
+  }
+
+  @Mutate
+  void addExtraPlatforms(final ExtensionContainer extensionContainer, final PlatformContainer platforms) {
+    NativePlatform roborio = platforms.maybeCreate(NativePlatforms.roborio, NativePlatform.class);
+    roborio.architecture("arm");
+    roborio.operatingSystem("linux");
+
+    NativePlatform raspbian = platforms.maybeCreate(NativePlatforms.raspbian, NativePlatform.class);
+    raspbian.architecture("arm");
+    raspbian.operatingSystem("linux");
+
+    NativePlatform desktop = platforms.maybeCreate(NativePlatforms.desktop, NativePlatform.class);
+    desktop.architecture(NativePlatforms.desktopArch().replaceAll("-", "_"));
+
+    platforms.maybeCreate("windowsx86", NativePlatform.class);
+
+    NamedDomainObjectContainer<ConfigurableCrossPlatformConfig> crossContainer = (NamedDomainObjectContainer<ConfigurableCrossPlatformConfig>)extensionContainer.getByName("configurableCrossCompilers");
+    for (ConfigurableCrossPlatformConfig config : crossContainer) {
+      NativePlatform configedPlatform = platforms.maybeCreate(config.getOperatingSystem() + config.getArchitecture(), NativePlatform.class);
+      configedPlatform.architecture(config.getArchitecture());
+      configedPlatform.operatingSystem(config.getOperatingSystem());
+    }
   }
 
   @Validate
-  void setupArguments(BinaryContainer binaries, NativePlatformConfigContainer nativePlatforms, ConfigurableCrossPlatformConfigContainer configurableCrossPlatforms, CrossPlatformConfigContainer crossPlatforms) {
-    // Build a common map
-    Map<String, PlatformConfig> configMap = new HashMap<>();
-    configMap.putAll(nativePlatforms.getAsMap());
-    configMap.putAll(configurableCrossPlatforms.getAsMap());
-    configMap.putAll(crossPlatforms.getAsMap());
+  void setupArguments(BinaryContainer binaries, PlatformConfigContainer platforms) {
     for (BinarySpec oBinary : binaries) {
       if (!(oBinary instanceof NativeBinarySpec)) {
         continue;
       }
-      NativeBinarySpec binary = (NativeBinarySpec)oBinary;
+      NativeBinarySpec binary = (NativeBinarySpec) oBinary;
       String targetName = binary.getTargetPlatform().getName();
-      PlatformConfig config = configMap.get(targetName);
+      PlatformConfig config = platforms.findByName(targetName);
       if (config == null) {
         continue;
       }

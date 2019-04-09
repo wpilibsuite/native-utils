@@ -1,5 +1,17 @@
 package edu.wpi.first.nativeutils.configs;
 
-public interface ConfigurableCrossPlatformConfig extends PlatformConfig {
+import org.gradle.api.Named;
 
+public interface ConfigurableCrossPlatformConfig extends Named {
+  void setArchitecture(String arch);
+  String getArchitecture();
+
+  void setOperatingSystem(String os);
+  String getOperatingSystem();
+
+  void setCompilerPrefix(String prefix);
+  String getCompilerPrefix();
+
+  void setOptional(boolean optional);
+  boolean getOptional();
 }
