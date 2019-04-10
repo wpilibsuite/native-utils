@@ -11,6 +11,8 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.NativeBinarySpec;
+import org.gradle.nativeplatform.NativeLibraryBinarySpec;
+import org.gradle.nativeplatform.StaticLibraryBinarySpec;
 
 import edu.wpi.first.nativeutils.configs.CrossCompilerConfig;
 import edu.wpi.first.nativeutils.configs.DependencyConfig;
@@ -124,7 +126,7 @@ public class NativeUtilsExtension {
   public String getPlatformPath(NativeBinarySpec binary) {
     PlatformConfig platform = platformConfigs.findByName(binary.getTargetPlatform().getName());
     if (platform == null ) {
-      return binary.getTargetPlatform().getOperatingSystem().getName() + binary.getTargetPlatform().getArchitecture().getName();
+      return binary.getTargetPlatform().getOperatingSystem().getName() + "/" + binary.getTargetPlatform().getArchitecture().getName();
     }
     return platform.getPlatformPath();
   }
@@ -136,4 +138,15 @@ public class NativeUtilsExtension {
     }
     return classifierBase;
   }
+
+  public String getPublishClassifier(NativeLibraryBinarySpec binary) {
+    String classifierBase = binary.getTargetPlatform().getName();
+    if (binary instanceof StaticLibraryBinarySpec) {
+        classifierBase += "static";
+    }
+    if (!binary.getBuildType().getName().contains("release")) {
+        classifierBase += binary.getBuildType().getName();
+    }
+    return classifierBase;
+}
 }

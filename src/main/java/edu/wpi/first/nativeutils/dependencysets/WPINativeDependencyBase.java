@@ -39,7 +39,14 @@ public abstract class WPINativeDependencyBase implements NativeDependencySet {
     Dependency first = dependencies.iterator().next();
     File file = config.files(first).iterator().next();
 
-    String dirBase = Paths.get(m_project.getBuildDir().toString(), "extractedDependencies", name).toString();
+    File dirBase = Paths.get(m_project.getBuildDir().toString(), "extractedDependencies", name).toFile();
+
+    if (dirBase.exists()) {
+      extractedMap.put(name, dirBase);
+      return dirBase;
+    }
+
+
 
     m_project.delete(dirBase);
 
@@ -49,9 +56,8 @@ public abstract class WPINativeDependencyBase implements NativeDependencySet {
       copy.into(dirBase);
     });
 
-    File toRet = m_project.file(dirBase);
-    extractedMap.put(name, toRet);
-    return toRet;
+    extractedMap.put(name, dirBase);
+    return dirBase;
   }
 
   private void resolveHeaderConfigs() {

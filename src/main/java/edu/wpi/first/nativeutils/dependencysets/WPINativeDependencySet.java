@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileTree;
 import org.gradle.nativeplatform.NativeBinarySpec;
 
 import edu.wpi.first.nativeutils.NativeUtilsExtension;
@@ -12,7 +13,7 @@ public abstract class WPINativeDependencySet extends WPINativeDependencyBase {
     protected NativeBinarySpec m_binarySpec;
     protected NativeUtilsExtension m_nativeExtension;
     protected FileCollection m_source;
-    protected FileCollection m_libs;
+    protected FileTree m_libs;
     protected String m_libConfigName;
     protected String m_headerConfigName;
     protected String m_sourceConfigName;

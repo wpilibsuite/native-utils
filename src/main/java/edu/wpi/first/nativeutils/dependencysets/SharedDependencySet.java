@@ -33,7 +33,7 @@ public class SharedDependencySet extends WPINativeDependencySet {
         }
 
 
-        FileTree debugFiles = m_libs.getAsFileTree().matching(pat -> {
+        FileTree debugFiles = m_libs.matching(pat -> {
             pat.include(debugMatchers);
             pat.exclude(debugExcludes);
         });
@@ -57,7 +57,7 @@ public class SharedDependencySet extends WPINativeDependencySet {
             matchers.add("**/*" + platformPath + "/" + dirPath + "/*.so.*.debug");
         }
 
-        FileTree sharedFiles = m_libs.getAsFileTree().matching(pat -> {
+        FileTree sharedFiles = m_libs.matching(pat -> {
             pat.include(matchers);
             pat.exclude(excludes);
         });
