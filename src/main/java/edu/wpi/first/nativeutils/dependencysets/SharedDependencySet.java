@@ -1,18 +1,14 @@
 package edu.wpi.first.nativeutils.dependencysets;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.gradle.api.file.FileTree;
-import org.gradle.api.file.FileCollection;
 import org.gradle.api.Project;
-import org.gradle.nativeplatform.NativeDependencySet;
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.FileTree;
+import org.gradle.nativeplatform.NativeBinarySpec;
 
 import edu.wpi.first.nativeutils.NativeUtilsExtension;
-
-import org.gradle.api.tasks.util.PatternFilterable;
-import org.gradle.nativeplatform.NativeBinarySpec;
 
 
 public class SharedDependencySet extends WPINativeDependencySet {
