@@ -1,12 +1,6 @@
 package edu.wpi.first.nativeutils.rules;
 
-import org.gradle.api.GradleException;
-import org.gradle.api.NamedDomainObjectContainer;
-import org.gradle.api.NamedDomainObjectFactory;
 import org.gradle.api.plugins.ExtensionContainer;
-import org.gradle.internal.reflect.Instantiator;
-import org.gradle.model.Defaults;
-import org.gradle.model.Model;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
 import org.gradle.model.Validate;
@@ -17,45 +11,12 @@ import org.gradle.platform.base.BinaryContainer;
 import org.gradle.platform.base.BinarySpec;
 import org.gradle.platform.base.PlatformContainer;
 
-import edu.wpi.first.nativeutils.configs.ConfigurableCrossPlatformConfig;
+import edu.wpi.first.nativeutils.NativeUtilsExtension;
+import edu.wpi.first.nativeutils.configs.CrossCompilerConfig;
 import edu.wpi.first.nativeutils.configs.PlatformConfig;
-import edu.wpi.first.nativeutils.configs.containers.DefaultPlatformConfigContainer;
-import edu.wpi.first.nativeutils.configs.containers.PlatformConfigContainer;
-import edu.wpi.first.nativeutils.configs.impl.DefaultPlatformConfig;
 import edu.wpi.first.toolchain.NativePlatforms;
 
 public class PlatformRules extends RuleSource {
-  @Model
-  PlatformConfigContainer platformConfigs(Instantiator instantiator) {
-    return instantiator.newInstance(DefaultPlatformConfigContainer.class, instantiator);
-  }
-
-  @Defaults
-  void registerFactory(PlatformConfigContainer platforms) {
-    NamedDomainObjectFactory<PlatformConfig> platformFactory = new NamedDomainObjectFactory<PlatformConfig>() {
-
-      @Override
-      public PlatformConfig create(String name) {
-        return new DefaultPlatformConfig(name);
-      }
-    };
-
-    platforms.registerFactory(PlatformConfig.class, platformFactory);
-  }
-
-
-  private void validatePlatformPath(PlatformConfig config) {
-    if (config.getPlatformPath() == null) {
-      throw new GradleException("Platform Path cannot be null: " + config.getName());
-    }
-  }
-
-  @Validate
-  void checkPlatformPath(PlatformConfigContainer container) {
-    for (PlatformConfig config : container) {
-      validatePlatformPath(config);
-    }
-  }
 
   @Mutate
   void addBuildTypes(BuildTypeContainer buildTypes) {
@@ -78,23 +39,24 @@ public class PlatformRules extends RuleSource {
 
     platforms.maybeCreate("windowsx86", NativePlatform.class);
 
-    NamedDomainObjectContainer<ConfigurableCrossPlatformConfig> crossContainer = (NamedDomainObjectContainer<ConfigurableCrossPlatformConfig>)extensionContainer.getByName("configurableCrossCompilers");
-    for (ConfigurableCrossPlatformConfig config : crossContainer) {
-      NativePlatform configedPlatform = platforms.maybeCreate(config.getOperatingSystem() + config.getArchitecture(), NativePlatform.class);
+    NativeUtilsExtension extension = extensionContainer.getByType(NativeUtilsExtension.class);
+    for (CrossCompilerConfig config : extension.getConfigurableCrossCompilers()) {
+      NativePlatform configedPlatform = platforms.maybeCreate(config.getName(), NativePlatform.class);
       configedPlatform.architecture(config.getArchitecture());
       configedPlatform.operatingSystem(config.getOperatingSystem());
     }
   }
 
   @Validate
-  void setupArguments(BinaryContainer binaries, PlatformConfigContainer platforms) {
+  void setupArguments(BinaryContainer binaries, ExtensionContainer extensionContainer) {
+    NativeUtilsExtension extension = extensionContainer.getByType(NativeUtilsExtension.class);
     for (BinarySpec oBinary : binaries) {
       if (!(oBinary instanceof NativeBinarySpec)) {
         continue;
       }
       NativeBinarySpec binary = (NativeBinarySpec) oBinary;
       String targetName = binary.getTargetPlatform().getName();
-      PlatformConfig config = platforms.findByName(targetName);
+      PlatformConfig config = extension.getPlatformConfigs().findByName(targetName);
       if (config == null) {
         continue;
       }

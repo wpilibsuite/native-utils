@@ -2,7 +2,7 @@ package edu.wpi.first.nativeutils.configs;
 
 import org.gradle.api.Named;
 
-public interface ConfigurableCrossPlatformConfig extends Named {
+public interface CrossCompilerConfig extends Named {
   void setArchitecture(String arch);
   String getArchitecture();
 

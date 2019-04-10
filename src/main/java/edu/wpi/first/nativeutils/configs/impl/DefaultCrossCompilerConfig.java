@@ -2,9 +2,9 @@ package edu.wpi.first.nativeutils.configs.impl;
 
 import javax.inject.Inject;
 
-import edu.wpi.first.nativeutils.configs.ConfigurableCrossPlatformConfig;
+import edu.wpi.first.nativeutils.configs.CrossCompilerConfig;
 
-public class DefaultConfigurableCrossPlatformConfig implements ConfigurableCrossPlatformConfig {
+public class DefaultCrossCompilerConfig implements CrossCompilerConfig {
   private String name;
   private String architecture;
   private String operatingSystem;
@@ -12,7 +12,7 @@ public class DefaultConfigurableCrossPlatformConfig implements ConfigurableCross
   private boolean optional;
 
   @Inject
-  public DefaultConfigurableCrossPlatformConfig(String name) {
+  public DefaultCrossCompilerConfig(String name) {
     this.name = name;
   }
 

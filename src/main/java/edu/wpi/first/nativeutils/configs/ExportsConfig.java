@@ -1,14 +1,10 @@
 package edu.wpi.first.nativeutils.configs;
 
-import org.gradle.model.*;
-
-import groovy.lang.Closure;
-
 import java.util.List;
 
+import org.gradle.api.Action;
 import org.gradle.api.Named;
 
-@Managed
 public interface ExportsConfig extends Named {
     void setX86ExcludeSymbols(List<String> symbols);
 
@@ -22,15 +18,11 @@ public interface ExportsConfig extends Named {
 
     List<String> getExcludeBuildTypes();
 
-    @Unmanaged
-    void setX86SymbolFilter(Closure<List<String>> closure);
+    void setX86SymbolFilter(Action<List<String>> closure);
 
-    @Unmanaged
-    Closure<List<String>> getX86SymbolFilter();
+    Action<List<String>> getX86SymbolFilter();
 
-    @Unmanaged
-    void setX64SymbolFilter(Closure<List<String>> closure);
+    void setX64SymbolFilter(Action<List<String>> closure);
 
-    @Unmanaged
-    Closure<List<String>> getX64SymbolFilter();
+    Action<List<String>> getX64SymbolFilter();
 }

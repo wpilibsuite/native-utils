@@ -1,5 +1,7 @@
 package edu.wpi.first.nativeutils.configs.impl;
 
+import javax.inject.Inject;
+
 import edu.wpi.first.nativeutils.configs.CompilerArgsConfig;
 import edu.wpi.first.nativeutils.configs.PlatformConfig;
 
@@ -7,6 +9,7 @@ public class DefaultPlatformConfig implements PlatformConfig {
 
   private String name;
 
+  @Inject
   public DefaultPlatformConfig(String name) {
     this.name = name;
   }
