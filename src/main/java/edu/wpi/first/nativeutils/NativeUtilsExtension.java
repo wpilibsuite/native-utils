@@ -33,17 +33,13 @@ import jaci.gradle.nativedeps.DependencySpecExtension;
 
 public class NativeUtilsExtension {
   private final NamedDomainObjectContainer<CrossCompilerConfig> configurableCrossCompilers;
-  private final List<NamedDomainObjectContainer<CrossCompilerConfig>> configurableCrossCompilersList = new ArrayList<>();
 
   private final NamedDomainObjectContainer<PlatformConfig> platformConfigs;
-  private final List<NamedDomainObjectContainer<PlatformConfig>> platformConfigsList = new ArrayList<>();
 
   private final NamedDomainObjectContainer<ExportsConfig> exportsConfigs;
-  private final List<NamedDomainObjectContainer<ExportsConfig>> exportsConfigList = new ArrayList<>();
 
 
   private final NamedDomainObjectContainer<DependencyConfig> dependencyConfigs;
-  private final List<NamedDomainObjectContainer<DependencyConfig>> dependencyConfigsList = new ArrayList<>();
 
   private final Project project;
 
@@ -93,42 +89,38 @@ public class NativeUtilsExtension {
       }
     });
 
-    configurableCrossCompilersList.add(configurableCrossCompilers);
-    platformConfigsList.add(platformConfigs);
-    exportsConfigList.add(exportsConfigs);
-    dependencyConfigsList.add(dependencyConfigs);
   }
 
   public NamedDomainObjectContainer<CrossCompilerConfig> getConfigurableCrossCompilers() {
     return configurableCrossCompilers;
   }
 
-  void configurableCrossCompilers(final Action<NamedDomainObjectContainer<CrossCompilerConfig>> closure) {
-    project.configure(configurableCrossCompilersList, closure);
+  void configurableCrossCompilers(final Action<? super NamedDomainObjectContainer<CrossCompilerConfig>> closure) {
+    closure.execute(configurableCrossCompilers);
   }
 
   public NamedDomainObjectContainer<PlatformConfig> getPlatformConfigs() {
     return platformConfigs;
   }
 
-  void platformConfigs(final Action<NamedDomainObjectContainer<PlatformConfig>> closure) {
-    project.configure(platformConfigsList, closure);
+  void platformConfigs(final Action<? super NamedDomainObjectContainer<PlatformConfig>> closure) {
+    closure.execute(platformConfigs);
   }
 
   public NamedDomainObjectContainer<ExportsConfig> getExportsConfigs() {
     return exportsConfigs;
   }
 
-  void exportsConfigs(final Action<NamedDomainObjectContainer<ExportsConfig>> closure) {
-    project.configure(exportsConfigList, closure);
+  void exportsConfigs(final Action<? super NamedDomainObjectContainer<ExportsConfig>> closure) {
+    closure.execute(exportsConfigs);
   }
 
   public NamedDomainObjectContainer<DependencyConfig> getDependencyConfigs() {
     return dependencyConfigs;
   }
 
-  void dependencyConfigs(final Action<NamedDomainObjectContainer<DependencyConfig>> closure) {
-    project.configure(dependencyConfigsList, closure);
+  void dependencyConfigs(final Action<? super NamedDomainObjectContainer<DependencyConfig>> closure) {
+    closure.execute(dependencyConfigs);
   }
 
   public String getPlatformPath(NativeBinarySpec binary) {
@@ -181,5 +173,9 @@ public class NativeUtilsExtension {
 
   public void addPlatformToConfigure(String platform) {
     platformsToConfigure.add(platform);
+  }
+
+  public void configurePlatform(String name, Action<? super PlatformConfig> action) {
+    getPlatformConfigs().getByName(name, action);
   }
 }
