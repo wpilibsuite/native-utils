@@ -1,9 +1,6 @@
 package edu.wpi.first.nativeutils.rules;
 
-import java.util.List;
-
 import org.gradle.api.plugins.ExtensionContainer;
-import org.gradle.model.Finalize;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
 import org.gradle.model.Validate;
@@ -14,7 +11,6 @@ import org.gradle.platform.base.BinaryContainer;
 import org.gradle.platform.base.BinarySpec;
 import org.gradle.platform.base.ComponentSpecContainer;
 import org.gradle.platform.base.Platform;
-import org.gradle.platform.base.PlatformAwareComponentSpec;
 import org.gradle.platform.base.PlatformContainer;
 
 import edu.wpi.first.nativeutils.NativeUtilsExtension;

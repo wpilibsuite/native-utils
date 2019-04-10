@@ -11,11 +11,9 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.NativeBinarySpec;
-import org.gradle.nativeplatform.NativeComponentSpec;
 import org.gradle.nativeplatform.NativeLibraryBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
 import org.gradle.platform.base.PlatformAwareComponentSpec;
-import org.gradle.platform.base.PlatformContainer;
 import org.gradle.platform.base.VariantComponentSpec;
 
 import edu.wpi.first.nativeutils.configs.CrossCompilerConfig;
