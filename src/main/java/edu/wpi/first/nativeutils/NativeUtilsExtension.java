@@ -11,8 +11,12 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.NativeBinarySpec;
+import org.gradle.nativeplatform.NativeComponentSpec;
 import org.gradle.nativeplatform.NativeLibraryBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
+import org.gradle.platform.base.PlatformAwareComponentSpec;
+import org.gradle.platform.base.PlatformContainer;
+import org.gradle.platform.base.VariantComponentSpec;
 
 import edu.wpi.first.nativeutils.configs.CrossCompilerConfig;
 import edu.wpi.first.nativeutils.configs.DependencyConfig;
@@ -20,12 +24,14 @@ import edu.wpi.first.nativeutils.configs.ExportsConfig;
 import edu.wpi.first.nativeutils.configs.PlatformConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultCrossCompilerConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultDependencyConfig;
-import edu.wpi.first.nativeutils.configs.impl.DefaultPlatformConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultExportsConfig;
+import edu.wpi.first.nativeutils.configs.impl.DefaultPlatformConfig;
 import edu.wpi.first.toolchain.ToolchainDescriptor;
 import edu.wpi.first.toolchain.ToolchainDiscoverer;
 import edu.wpi.first.toolchain.ToolchainExtension;
 import edu.wpi.first.toolchain.ToolchainRegistrar;
+import jaci.gradle.nativedeps.DelegatedDependencySet;
+import jaci.gradle.nativedeps.DependencySpecExtension;
 
 public class NativeUtilsExtension {
   private final NamedDomainObjectContainer<CrossCompilerConfig> configurableCrossCompilers;
@@ -42,6 +48,10 @@ public class NativeUtilsExtension {
   private final List<NamedDomainObjectContainer<DependencyConfig>> dependencyConfigsList = new ArrayList<>();
 
   private final Project project;
+
+  private DependencySpecExtension dse = null;
+
+  private List<String> platformsToConfigure = new ArrayList<>();
 
   @Inject
   public NativeUtilsExtension(Project project, ToolchainExtension tcExt) {
@@ -148,5 +158,30 @@ public class NativeUtilsExtension {
         classifierBase += binary.getBuildType().getName();
     }
     return classifierBase;
-}
+  }
+
+  public void useLibrary(VariantComponentSpec component, boolean skipOnUnknown, String... libraries) {
+    component.getBinaries().withType(NativeBinarySpec.class).all(binary -> {
+      useLibrary((NativeBinarySpec)binary, skipOnUnknown, libraries);
+    });
+  }
+
+  public void useLibrary(NativeBinarySpec binary, boolean skipOnUnknown, String... libraries) {
+    if (dse == null) {
+      dse = project.getExtensions().getByType(DependencySpecExtension.class);
+    }
+    for (String library : libraries) {
+      binary.lib(new DelegatedDependencySet(library, binary, dse, skipOnUnknown));
+    }
+  }
+
+  public void useAllPlatforms(PlatformAwareComponentSpec component) {
+    for (String platform : platformsToConfigure) {
+      component.targetPlatform(platform);
+    }
+  }
+
+  public void addPlatformToConfigure(String platform) {
+    platformsToConfigure.add(platform);
+  }
 }

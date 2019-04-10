@@ -1,113 +1,145 @@
 package edu.wpi.first.nativeutils.rules;
 
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
 
-import org.gradle.api.Project;
-import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.plugins.ExtensionContainer;
-import org.gradle.language.base.internal.ProjectLayout;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
-import org.gradle.model.Validate;
-import org.gradle.nativeplatform.NativeBinarySpec;
-import org.gradle.nativeplatform.NativeComponentSpec;
+import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.platform.base.BinaryContainer;
-import org.gradle.platform.base.BinarySpec;
+import org.gradle.platform.base.Platform;
+import org.gradle.platform.base.PlatformContainer;
 
 import edu.wpi.first.nativeutils.NativeUtilsExtension;
 import edu.wpi.first.nativeutils.configs.DependencyConfig;
-import edu.wpi.first.nativeutils.dependencysets.SharedCompileOnlyDependencySet;
-import edu.wpi.first.nativeutils.dependencysets.SharedDependencySet;
-import edu.wpi.first.nativeutils.dependencysets.StaticDependencySet;
-import edu.wpi.first.nativeutils.dependencysets.HeaderOnlyDependencySet;
+import jaci.gradle.nativedeps.CombinedNativeLib;
+import jaci.gradle.nativedeps.NativeDepsSpec;
+import jaci.gradle.nativedeps.NativeLib;
 
 public class DependencyConfigRules extends RuleSource {
-
-  private String createDependency(Project rootProject, DependencyConfig config, String classifier) {
-    String configurationName = config.getGroupId() + config.getArtifactId() + classifier;// "${config.groupId}${config.artifactId}${classifier}".toString()
-    configurationName = configurationName.replace(".", "");
-    Map<String, String> depMap = new HashMap<>();
-    depMap.put("group", config.getGroupId());
-    depMap.put("name", config.getArtifactId());
-    depMap.put("version", config.getVersion());
-    depMap.put("classifier", classifier);
-    depMap.put("ext", config.getExt());
-    rootProject.getConfigurations().maybeCreate(configurationName);
-    rootProject.getDependencies().add(configurationName, depMap);
-    return configurationName;
+  private void setCommon(NativeLib lib) {
+    lib.setHeaderDirs(new ArrayList<>());
+    lib.setSourceDirs(new ArrayList<>());
+    lib.setStaticMatchers(new ArrayList<>());
+    ArrayList<String> debugMatchers = new ArrayList<>();
+    debugMatchers.add("**/*.pdb");
+    debugMatchers.add("**/*.so.debug");
+    debugMatchers.add("**/*.so.*.debug");
+    lib.setDebugMatchers(debugMatchers);
+    lib.setSharedMatchers(new ArrayList<>());
+    lib.setDynamicMatchers(new ArrayList<>());
   }
 
-  private void addDependenciesToBinary(Project rootProject, NativeUtilsExtension extension, DependencyConfig config, NativeBinarySpec binary) {
-    String componentName = binary.getComponent().getName();
-
-    // Headers and sources have already been created
-
-    String headerConfigurationName = config.getGroupId() + config.getArtifactId() + config.getHeaderClassifier();
-    headerConfigurationName = headerConfigurationName.replace(".", "");
-
-    String sourceConfigurationName = config.getSourceClassifier();
-    if (sourceConfigurationName != null) {
-      sourceConfigurationName = config.getGroupId() + config.getArtifactId() + sourceConfigurationName;
-      sourceConfigurationName = sourceConfigurationName.replace(".", "");
-    }
-
-    List<String> linkExcludes = config.getLinkExcludes();
-
-    List<String> sharedConfigs = config.getSharedConfigs().get(componentName);
-    if (sharedConfigs != null) {
-      if (sharedConfigs.isEmpty() || sharedConfigs.contains(binary.getTargetPlatform().getName())) {
-        String libConfigurationName = createDependency(rootProject, config, extension.getDependencyClassifier(binary, ""));
-        if (config.getCompileOnlyShared()) {
-          binary.lib(new SharedCompileOnlyDependencySet(binary, extension, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject, linkExcludes));
-        } else {
-          binary.lib(new SharedDependencySet(binary, extension, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject, linkExcludes));
-        }
-        return;
-      }
-    }
-
-    List<String> staticConfigs = config.getStaticConfigs().get(componentName);
-    if (staticConfigs != null) {
-      if (staticConfigs.isEmpty() || staticConfigs.contains(binary.getTargetPlatform().getName())) {
-        String libConfigurationName = createDependency(rootProject, config, extension.getDependencyClassifier(binary, ""));
-        binary.lib(new StaticDependencySet(binary, extension, headerConfigurationName, libConfigurationName, sourceConfigurationName, rootProject, linkExcludes));
-        return;
-      }
-    }
-
-    List<String> headerOnlyConfigs = config.getHeaderOnlyConfigs().get(componentName);
-    if (headerOnlyConfigs != null) {
-      if (headerOnlyConfigs.isEmpty() || headerOnlyConfigs.contains(binary.getTargetPlatform().getName())) {
-        binary.lib(new HeaderOnlyDependencySet(binary, headerConfigurationName, rootProject));
-        return;
-      }
-    }
-  }
-
-  @Validate
-  public void setupDependencies(BinaryContainer binaries, ExtensionContainer extensions, ProjectLayout projectLayout) {
-    Project currentProject = (Project)projectLayout.getProjectIdentifier();
-    Project rootProject = currentProject.getRootProject();
-
+  @Mutate
+  public void setupDependencies(NativeDepsSpec libs, BinaryContainer binaries, final PlatformContainer platformContainer, ExtensionContainer extensions) {
     NativeUtilsExtension extension = extensions.getByType(NativeUtilsExtension.class);
 
-    extension.getDependencyConfigs().stream().sorted(Comparator.comparing(DependencyConfig::getSortOrder)).forEach(config -> {
-      createDependency(rootProject, config, config.getHeaderClassifier());
+    NamedDomainObjectCollection<DependencyConfig> dependencies = extension.getDependencyConfigs();
 
-      if (config.getSourceClassifier() != null) {
-        createDependency(rootProject, config, config.getSourceClassifier());
+    ArrayList<String> allPlatforms = new ArrayList<>();
+
+    for (Platform platform : platformContainer) {
+      if (platform instanceof NativePlatform) {
+        allPlatforms.add(platform.getName());
+      }
+    }
+
+    String[] buildKinds = {"debug", ""};
+    List<String> sharedMatchers = Arrays.asList("**/*.so", "**/*.so.*", "**/*.dll");
+    List<String> sharedExcludes = Arrays.asList("**/*.so.debug", "**/*.so.*.debug");
+    List<String> staticMatchers = Arrays.asList("**/*.lib", "**/*.a");
+
+    for (DependencyConfig dependency : dependencies) {
+      String name = dependency.getName();
+      String config = "native_" + name;
+      String mavenBase = dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion() + ":";
+      String mavenSuffix = "@" + dependency.getExt();
+
+      libs.create(name + "_headers", NativeLib.class, lib -> {
+        setCommon(lib);
+        lib.setTargetPlatforms(allPlatforms);
+        lib.getHeaderDirs().add("");
+        lib.setLibraryName(name + "_headers");
+        lib.setMaven(mavenBase + dependency.getHeaderClassifier() + mavenSuffix);
+        lib.setConfiguration(config);
+      });
+
+      if (dependency.getSourceClassifier() != null) {
+        libs.create(name + "_sources", NativeLib.class, lib -> {
+          setCommon(lib);
+          lib.setTargetPlatforms(allPlatforms);
+          lib.getHeaderDirs().add("");
+          lib.setLibraryName(name + "_sources");
+          lib.setMaven(mavenBase + dependency.getSourceClassifier() + mavenSuffix);
+          lib.setConfiguration(config);
+        });
       }
 
-      for (BinarySpec oBinary : binaries) {
-        if (!(oBinary instanceof NativeBinarySpec)) continue;
-        NativeBinarySpec binary = (NativeBinarySpec)oBinary;
-        if (!binary.isBuildable()) continue;
-        addDependenciesToBinary(rootProject, extension, config, binary);
+      for (String buildKind : buildKinds) {
+        String buildType = buildKind.contains("debug") ? "debug" : "release";
+        String binaryConfig = config + buildType + "_";
+
+        for (String platform : dependency.getSharedPlatforms()) {
+          libs.create(name + "_shared_" + platform + buildType, NativeLib.class, lib -> {
+            setCommon(lib);
+            lib.setTargetPlatform(platform);
+            lib.setLibraryName(name + "_shared_binaries");
+            lib.setBuildType(buildType);
+            lib.setSharedMatchers(new ArrayList<>(sharedMatchers));
+            lib.setStaticMatchers(new ArrayList<>(staticMatchers));
+            lib.setSharedExcludes(new ArrayList<>(sharedExcludes));
+            if (dependency.getSharedUsedAtRuntime()) {
+              lib.setDynamicMatchers(new ArrayList<>(sharedMatchers));
+            }
+            lib.setMaven(mavenBase + platform + buildKind + mavenSuffix);
+            lib.setConfiguration(binaryConfig + "shared_" + platform);
+          });
+        }
+
+        for (String platform : dependency.getStaticPlatforms()) {
+          libs.create(name + "_static_" + platform + buildType, NativeLib.class, lib -> {
+            setCommon(lib);
+            lib.setTargetPlatform(platform);
+            lib.setLibraryName(name + "_static_binaries");
+            lib.setBuildType(buildType);
+            lib.setSharedMatchers(new ArrayList<>(sharedMatchers));
+            lib.setStaticMatchers(new ArrayList<>(staticMatchers));
+            lib.setSharedExcludes(new ArrayList<>(sharedExcludes));
+            lib.setMaven(mavenBase + platform + "static" + buildKind + mavenSuffix);
+            lib.setConfiguration(binaryConfig + "static_" + platform);
+          });
+        }
       }
-    });
+
+
+      libs.create(name + "_shared", CombinedNativeLib.class, lib -> {
+        List<String> combinedLibs = lib.getLibs();
+        combinedLibs.add(name + "_shared_binaries");
+        combinedLibs.add(name + "_headers");
+        if (dependency.getSourceClassifier() != null) {
+          combinedLibs.add(name + "_sources");
+        }
+
+        lib.getBuildTypes().add("debug");
+        lib.getBuildTypes().add("release");
+        lib.setTargetPlatforms(new ArrayList<>(dependency.getSharedPlatforms()));
+      });
+
+      libs.create(name + "_static", CombinedNativeLib.class, lib -> {
+        List<String> combinedLibs = lib.getLibs();
+        combinedLibs.add(name + "_static_binaries");
+        combinedLibs.add(name + "_headers");
+        if (dependency.getSourceClassifier() != null) {
+          combinedLibs.add(name + "_sources");
+        }
+
+        lib.getBuildTypes().add("debug");
+        lib.getBuildTypes().add("release");
+        lib.setTargetPlatforms(new ArrayList<>(dependency.getStaticPlatforms()));
+      });
+    }
   }
 }

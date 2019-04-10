@@ -1,9 +1,7 @@
 package edu.wpi.first.nativeutils.configs.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -17,15 +15,12 @@ public class DefaultDependencyConfig implements DependencyConfig {
 
   private String ext;
   private String version;
-  private int sortOrder;
-  private Map<String, List<String>> headerOnlyConfigs = new HashMap<>();
-  private Map<String, List<String>> sharedConfigs = new HashMap<>();
-  private Map<String, List<String>> staticConfigs = new HashMap<>();
 
-  private boolean compileOnlyShared;
+  private boolean sharedUsedAtRuntime;
+  private List<String> staticPlatforms = new ArrayList<>();
+  private List<String> sharedPlatforms = new ArrayList<>();
+
   private String name;
-
-  private List<String> linkExcludes = new ArrayList<>();
 
   @Inject
   public DefaultDependencyConfig(String name) {
@@ -121,86 +116,33 @@ public class DefaultDependencyConfig implements DependencyConfig {
   }
 
   /**
-   * @return the sortOrder
+   * @return the sharedUsedAtRuntime
    */
-  public int getSortOrder() {
-    return sortOrder;
+  public boolean getSharedUsedAtRuntime() {
+    return sharedUsedAtRuntime;
   }
 
   /**
-   * @param sortOrder the sortOrder to set
+   * @param sharedUsedAtRuntime the sharedUsedAtRuntime to set
    */
-  public void setSortOrder(int sortOrder) {
-    this.sortOrder = sortOrder;
+  public void setSharedUsedAtRuntime(boolean sharedUsedAtRuntime) {
+    this.sharedUsedAtRuntime = sharedUsedAtRuntime;
   }
 
   /**
-   * @return the headerOnlyConfigs
+   * @param name the name to set
    */
-  public Map<String, List<String>> getHeaderOnlyConfigs() {
-    return headerOnlyConfigs;
+  public void setName(String name) {
+    this.name = name;
   }
 
-  /**
-   * @param headerOnlyConfigs the headerOnlyConfigs to set
-   */
-  public void setHeaderOnlyConfigs(Map<String, List<String>> headerOnlyConfigs) {
-    this.headerOnlyConfigs = headerOnlyConfigs;
+  @Override
+  public List<String> getSharedPlatforms() {
+    return sharedPlatforms;
   }
 
-  /**
-   * @return the sharedConfigs
-   */
-  public Map<String, List<String>> getSharedConfigs() {
-    return sharedConfigs;
-  }
-
-  /**
-   * @param sharedConfigs the sharedConfigs to set
-   */
-  public void setSharedConfigs(Map<String, List<String>> sharedConfigs) {
-    this.sharedConfigs = sharedConfigs;
-  }
-
-  /**
-   * @return the staticConfigs
-   */
-  public Map<String, List<String>> getStaticConfigs() {
-    return staticConfigs;
-  }
-
-  /**
-   * @param staticConfigs the staticConfigs to set
-   */
-  public void setStaticConfigs(Map<String, List<String>> staticConfigs) {
-    this.staticConfigs = staticConfigs;
-  }
-
-  /**
-   * @return the compileOnlyShared
-   */
-  public boolean getCompileOnlyShared() {
-    return compileOnlyShared;
-  }
-
-  /**
-   * @param compileOnlyShared the compileOnlyShared to set
-   */
-  public void setCompileOnlyShared(boolean compileOnlyShared) {
-    this.compileOnlyShared = compileOnlyShared;
-  }
-
-  /**
-   * @return the linkExcludes
-   */
-  public List<String> getLinkExcludes() {
-    return linkExcludes;
-  }
-
-  /**
-   * @param linkExcludes the linkExcludes to set
-   */
-  public void setLinkExcludes(List<String> linkExcludes) {
-    this.linkExcludes = linkExcludes;
+  @Override
+  public List<String> getStaticPlatforms() {
+    return staticPlatforms;
   }
 }

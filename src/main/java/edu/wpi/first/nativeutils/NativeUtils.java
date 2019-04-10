@@ -10,12 +10,14 @@ import edu.wpi.first.nativeutils.rules.PlatformRules;
 import edu.wpi.first.nativeutils.tasks.ExportsGenerationTask;
 import edu.wpi.first.toolchain.ToolchainExtension;
 import edu.wpi.first.toolchain.ToolchainPlugin;
+import jaci.gradle.EmbeddedTools;
 
 public class NativeUtils implements Plugin<Project> {
   @Override
   public void apply(Project project) {
 
     project.getPluginManager().apply(ToolchainPlugin.class);
+    project.getPluginManager().apply(EmbeddedTools.class);
 
     ToolchainExtension tcExt = project.getExtensions().getByType(ToolchainExtension.class);
     tcExt.registerPlatforms = false;
@@ -23,9 +25,6 @@ public class NativeUtils implements Plugin<Project> {
     project.getPluginManager().apply(PlatformRules.class);
 
     project.getExtensions().create("nativeUtils", NativeUtilsExtension.class, project, tcExt);
-
-    project.getExtensions().add("usePlatform", new UsePlatformHandler());
-    project.getExtensions().add("useDesktop", new UseDesktopHandler(project));
 
     project.getExtensions().add(NativeUtils.class.getSimpleName(), NativeUtils.class.getName());
     project.getExtensions().add(ExportsConfig.class.getSimpleName(), ExportsConfig.class.getName());

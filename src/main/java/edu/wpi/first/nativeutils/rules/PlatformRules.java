@@ -1,6 +1,9 @@
 package edu.wpi.first.nativeutils.rules;
 
+import java.util.List;
+
 import org.gradle.api.plugins.ExtensionContainer;
+import org.gradle.model.Finalize;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
 import org.gradle.model.Validate;
@@ -9,6 +12,9 @@ import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.platform.base.BinaryContainer;
 import org.gradle.platform.base.BinarySpec;
+import org.gradle.platform.base.ComponentSpecContainer;
+import org.gradle.platform.base.Platform;
+import org.gradle.platform.base.PlatformAwareComponentSpec;
 import org.gradle.platform.base.PlatformContainer;
 
 import edu.wpi.first.nativeutils.NativeUtilsExtension;
@@ -44,6 +50,16 @@ public class PlatformRules extends RuleSource {
       NativePlatform configedPlatform = platforms.maybeCreate(config.getName(), NativePlatform.class);
       configedPlatform.architecture(config.getArchitecture());
       configedPlatform.operatingSystem(config.getOperatingSystem());
+    }
+  }
+
+
+  @Validate
+  void setuPlatforms(ComponentSpecContainer components, PlatformContainer platforms, ExtensionContainer extensions) {
+    NativeUtilsExtension extension = extensions.getByType(NativeUtilsExtension.class);
+
+    for (Platform platform : platforms) {
+      extension.addPlatformToConfigure(platform.getName());
     }
   }
 

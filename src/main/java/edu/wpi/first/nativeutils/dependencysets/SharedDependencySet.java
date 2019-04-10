@@ -53,8 +53,8 @@ public class SharedDependencySet extends WPINativeDependencySet {
             matchers.add("**/*" + platformPath + "/" + dirPath + "/*.dylib");
             matchers.add("**/*" + platformPath + "/" + dirPath + "/*.so");
             matchers.add("**/*" + platformPath + "/" + dirPath + "/*.so.*");
-            matchers.add("**/*" + platformPath + "/" + dirPath + "/*.so.debug");
-            matchers.add("**/*" + platformPath + "/" + dirPath + "/*.so.*.debug");
+            excludes.add("**/*" + platformPath + "/" + dirPath + "/*.so.debug");
+            excludes.add("**/*" + platformPath + "/" + dirPath + "/*.so.*.debug");
         }
 
         FileTree sharedFiles = m_libs.matching(pat -> {
