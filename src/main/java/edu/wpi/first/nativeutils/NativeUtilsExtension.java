@@ -10,11 +10,14 @@ import org.gradle.api.GradleException;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.internal.os.OperatingSystem;
+import org.gradle.nativeplatform.NativeBinarySpec;
 
 import edu.wpi.first.nativeutils.configs.CrossCompilerConfig;
+import edu.wpi.first.nativeutils.configs.DependencyConfig;
 import edu.wpi.first.nativeutils.configs.ExportsConfig;
 import edu.wpi.first.nativeutils.configs.PlatformConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultCrossCompilerConfig;
+import edu.wpi.first.nativeutils.configs.impl.DefaultDependencyConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPlatformConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultExportsConfig;
 import edu.wpi.first.toolchain.ToolchainDescriptor;
@@ -31,6 +34,11 @@ public class NativeUtilsExtension {
 
   private final NamedDomainObjectContainer<ExportsConfig> exportsConfigs;
   private final List<NamedDomainObjectContainer<ExportsConfig>> exportsConfigList = new ArrayList<>();
+
+
+  private final NamedDomainObjectContainer<DependencyConfig> dependencyConfigs;
+  private final List<NamedDomainObjectContainer<DependencyConfig>> dependencyConfigsList = new ArrayList<>();
+
   private final Project project;
 
   @Inject
@@ -42,6 +50,10 @@ public class NativeUtilsExtension {
 
     exportsConfigs = project.container(ExportsConfig.class, name -> {
       return project.getObjects().newInstance(DefaultExportsConfig.class, name);
+    });
+
+    dependencyConfigs = project.container(DependencyConfig.class, name -> {
+      return project.getObjects().newInstance(DefaultDependencyConfig.class, name);
     });
 
     configurableCrossCompilers.all(config -> {
@@ -74,6 +86,7 @@ public class NativeUtilsExtension {
     configurableCrossCompilersList.add(configurableCrossCompilers);
     platformConfigsList.add(platformConfigs);
     exportsConfigList.add(exportsConfigs);
+    dependencyConfigsList.add(dependencyConfigs);
   }
 
   public NamedDomainObjectContainer<CrossCompilerConfig> getConfigurableCrossCompilers() {
@@ -98,5 +111,29 @@ public class NativeUtilsExtension {
 
   void exportsConfigs(final Action<NamedDomainObjectContainer<ExportsConfig>> closure) {
     project.configure(exportsConfigList, closure);
+  }
+
+  public NamedDomainObjectContainer<DependencyConfig> getDependencyConfigs() {
+    return dependencyConfigs;
+  }
+
+  void dependencyConfigs(final Action<NamedDomainObjectContainer<DependencyConfig>> closure) {
+    project.configure(dependencyConfigsList, closure);
+  }
+
+  public String getPlatformPath(NativeBinarySpec binary) {
+    PlatformConfig platform = platformConfigs.findByName(binary.getTargetPlatform().getName());
+    if (platform == null ) {
+      return binary.getTargetPlatform().getOperatingSystem().getName() + binary.getTargetPlatform().getArchitecture().getName();
+    }
+    return platform.getPlatformPath();
+  }
+
+  public String getDependencyClassifier(NativeBinarySpec binary, String depTypeClassifier) {
+    String classifierBase = binary.getTargetPlatform().getName();
+    if (!binary.getBuildType().getName().equals("release")) {
+      classifierBase += binary.getBuildType().getName();
+    }
+    return classifierBase;
   }
 }

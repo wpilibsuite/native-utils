@@ -4,6 +4,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 
 import edu.wpi.first.nativeutils.configs.ExportsConfig;
+import edu.wpi.first.nativeutils.rules.DependencyConfigRules;
 import edu.wpi.first.nativeutils.rules.ExportsConfigRules;
 import edu.wpi.first.nativeutils.rules.PlatformRules;
 import edu.wpi.first.nativeutils.tasks.ExportsGenerationTask;
@@ -30,5 +31,7 @@ public class NativeUtils implements Plugin<Project> {
     project.getExtensions().add(ExportsConfig.class.getSimpleName(), ExportsConfig.class.getName());
     project.getExtensions().add(ExportsGenerationTask.class.getSimpleName(), ExportsGenerationTask.class.getName());
     project.getPluginManager().apply(ExportsConfigRules.class);
+
+    project.getPluginManager().apply(DependencyConfigRules.class);
   }
 }
