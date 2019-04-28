@@ -19,6 +19,7 @@ import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
 import org.gradle.model.Validate;
+import org.gradle.nativeplatform.BuildTypeContainer;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.NativeExecutableBinarySpec;
 import org.gradle.nativeplatform.SharedLibraryBinarySpec;
@@ -66,6 +67,16 @@ public class ToolchainRules extends RuleSource {
 
             desc.getRegistrar().register(options, toolChainRegistry, instantiator);
         });
+    }
+
+    @Mutate
+    void addBuildTypes(BuildTypeContainer buildTypes, final ExtensionContainer extContainer) {
+        final ToolchainExtension ext = extContainer.getByType(ToolchainExtension.class);
+
+        if (ext.registerBuildTypes) {
+            buildTypes.maybeCreate("release");
+            buildTypes.maybeCreate("debug");
+        }
     }
 
     @Mutate

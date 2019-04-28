@@ -9,35 +9,27 @@ import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
-import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.NativeLibraryBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
 import org.gradle.platform.base.PlatformAwareComponentSpec;
 import org.gradle.platform.base.VariantComponentSpec;
 
-import edu.wpi.first.nativeutils.configs.CrossCompilerConfig;
 import edu.wpi.first.nativeutils.configs.DependencyConfig;
 import edu.wpi.first.nativeutils.configs.ExportsConfig;
 import edu.wpi.first.nativeutils.configs.PlatformConfig;
-import edu.wpi.first.nativeutils.configs.impl.DefaultCrossCompilerConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultDependencyConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultExportsConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPlatformConfig;
-import edu.wpi.first.toolchain.ToolchainDescriptor;
-import edu.wpi.first.toolchain.ToolchainDiscoverer;
 import edu.wpi.first.toolchain.ToolchainExtension;
-import edu.wpi.first.toolchain.ToolchainRegistrar;
 import jaci.gradle.nativedeps.DelegatedDependencySet;
 import jaci.gradle.nativedeps.DependencySpecExtension;
 
 public class NativeUtilsExtension {
-  private final NamedDomainObjectContainer<CrossCompilerConfig> configurableCrossCompilers;
 
   private final NamedDomainObjectContainer<PlatformConfig> platformConfigs;
 
   private final NamedDomainObjectContainer<ExportsConfig> exportsConfigs;
-
 
   private final NamedDomainObjectContainer<DependencyConfig> dependencyConfigs;
 
@@ -50,9 +42,6 @@ public class NativeUtilsExtension {
   @Inject
   public NativeUtilsExtension(Project project, ToolchainExtension tcExt) {
     this.project = project;
-    configurableCrossCompilers = project.container(CrossCompilerConfig.class, name -> {
-      return project.getObjects().newInstance(DefaultCrossCompilerConfig.class, name);
-    });
 
     exportsConfigs = project.container(ExportsConfig.class, name -> {
       return project.getObjects().newInstance(DefaultExportsConfig.class, name);
@@ -60,21 +49,6 @@ public class NativeUtilsExtension {
 
     dependencyConfigs = project.container(DependencyConfig.class, name -> {
       return project.getObjects().newInstance(DefaultDependencyConfig.class, name);
-    });
-
-    configurableCrossCompilers.all(config -> {
-      ToolchainDescriptor descriptor = new ToolchainDescriptor(config.getName(), config.getName() + "ConfiguredGcc", new ToolchainRegistrar<ConfigurableGcc>(ConfigurableGcc.class, project));
-
-      tcExt.add(descriptor);
-
-      project.afterEvaluate(proj -> {
-        descriptor.setToolchainPlatforms(config.getOperatingSystem() + config.getArchitecture());
-        descriptor.setOptional(config.getOptional());
-        descriptor.getDiscoverers().addAll(ToolchainDiscoverer.forSystemPath(project, name -> {
-          String exeSuffix = OperatingSystem.current().isWindows() ? ".exe" : "";
-          return config.getCompilerPrefix() + name + exeSuffix;
-        }));
-      });
     });
 
     platformConfigs = project.container(PlatformConfig.class, name -> {
@@ -89,14 +63,6 @@ public class NativeUtilsExtension {
       }
     });
 
-  }
-
-  public NamedDomainObjectContainer<CrossCompilerConfig> getConfigurableCrossCompilers() {
-    return configurableCrossCompilers;
-  }
-
-  void configurableCrossCompilers(final Action<? super NamedDomainObjectContainer<CrossCompilerConfig>> closure) {
-    closure.execute(configurableCrossCompilers);
   }
 
   public NamedDomainObjectContainer<PlatformConfig> getPlatformConfigs() {

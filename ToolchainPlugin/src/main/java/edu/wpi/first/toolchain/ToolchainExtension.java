@@ -19,6 +19,7 @@ public class ToolchainExtension {
     private Project project;
 
     public boolean registerPlatforms = true;
+    public boolean registerBuildTypes = true;
 
     public ToolchainExtension(Project project) {
         this.project = project;
