@@ -2,25 +2,29 @@ package edu.wpi.first.toolchain;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.internal.os.OperatingSystem;
 
 public class InstallToolchainTask extends DefaultTask {
 
-    private ToolchainDescriptor desc;
+    private ToolchainDescriptorBase desc;
 
     public boolean requiresInstall() {
         return desc.discover() == null || getProject().hasProperty("toolchain-install-force");
     }
 
-    public void setDescriptor(ToolchainDescriptor desc) {
+    @Internal
+    public void setDescriptor(ToolchainDescriptorBase desc) {
         this.desc = desc;
     }
 
-    public ToolchainDescriptor getDescriptor() {
+    @Internal
+    public ToolchainDescriptorBase getDescriptor() {
         return desc;
     }
 
+    @Internal
     public String getDescriptorName() {
         return desc.getName();
     }
