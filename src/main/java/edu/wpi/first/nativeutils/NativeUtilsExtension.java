@@ -144,4 +144,26 @@ public class NativeUtilsExtension {
   public void configurePlatform(String name, Action<? super PlatformConfig> action) {
     getPlatformConfigs().getByName(name, action);
   }
+
+  public void usePlatformArguments(PlatformAwareComponentSpec component) {
+    component.getBinaries().all(oBinary -> {
+      if (!(oBinary instanceof NativeBinarySpec)) {
+        return;
+      }
+      NativeBinarySpec binary = (NativeBinarySpec) oBinary;
+      String targetName = binary.getTargetPlatform().getName();
+      PlatformConfig config = this.getPlatformConfigs().findByName(targetName);
+      if (config == null) {
+        return;
+      }
+
+      boolean isDebug = binary.getBuildType().getName().contains("debug");
+      config.getCppCompiler().apply(binary.getCppCompiler(), isDebug);
+      config.getLinker().apply(binary.getLinker(), isDebug);
+      config.getcCompiler().apply(binary.getcCompiler(), isDebug);
+      config.getAssembler().apply(binary.getAssembler(), isDebug);
+      config.getObjcppCompiler().apply(binary.getObjcppCompiler(), isDebug);
+      config.getObjcCompiler().apply(binary.getObjcCompiler(), isDebug);
+    });
+  }
 }

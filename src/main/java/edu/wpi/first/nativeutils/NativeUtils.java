@@ -20,7 +20,6 @@ public class NativeUtils implements Plugin<Project> {
     project.getPluginManager().apply(EmbeddedTools.class);
 
     ToolchainExtension tcExt = project.getExtensions().getByType(ToolchainExtension.class);
-    tcExt.registerPlatforms = false;
 
     project.getPluginManager().apply(PlatformRules.class);
 
