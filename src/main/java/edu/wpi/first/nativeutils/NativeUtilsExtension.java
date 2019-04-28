@@ -116,18 +116,33 @@ public class NativeUtilsExtension {
     return classifierBase;
   }
 
-  public void useLibrary(VariantComponentSpec component, boolean skipOnUnknown, String... libraries) {
+  public void useRequiredLibrary(VariantComponentSpec component, String... libraries) {
     component.getBinaries().withType(NativeBinarySpec.class).all(binary -> {
-      useLibrary((NativeBinarySpec)binary, skipOnUnknown, libraries);
+      useRequiredLibrary((NativeBinarySpec)binary, libraries);
     });
   }
 
-  public void useLibrary(NativeBinarySpec binary, boolean skipOnUnknown, String... libraries) {
+  public void useRequiredLibrary(NativeBinarySpec binary, String... libraries) {
     if (dse == null) {
       dse = project.getExtensions().getByType(DependencySpecExtension.class);
     }
     for (String library : libraries) {
-      binary.lib(new DelegatedDependencySet(library, binary, dse, skipOnUnknown));
+      binary.lib(new DelegatedDependencySet(library, binary, dse, false));
+    }
+  }
+
+  public void useOptionalLibrary(VariantComponentSpec component, String... libraries) {
+    component.getBinaries().withType(NativeBinarySpec.class).all(binary -> {
+      useOptionalLibrary((NativeBinarySpec)binary, libraries);
+    });
+  }
+
+  public void useOptionalLibrary(NativeBinarySpec binary, String... libraries) {
+    if (dse == null) {
+      dse = project.getExtensions().getByType(DependencySpecExtension.class);
+    }
+    for (String library : libraries) {
+      binary.lib(new DelegatedDependencySet(library, binary, dse, true));
     }
   }
 
@@ -145,13 +160,8 @@ public class NativeUtilsExtension {
     getPlatformConfigs().getByName(name, action);
   }
 
-  public void usePlatformArguments(PlatformAwareComponentSpec component) {
-    component.getBinaries().all(oBinary -> {
-      if (!(oBinary instanceof NativeBinarySpec)) {
-        return;
-      }
-      NativeBinarySpec binary = (NativeBinarySpec) oBinary;
-      String targetName = binary.getTargetPlatform().getName();
+  public void usePlatformArguments(NativeBinarySpec binary) {
+    String targetName = binary.getTargetPlatform().getName();
       PlatformConfig config = this.getPlatformConfigs().findByName(targetName);
       if (config == null) {
         return;
@@ -164,6 +174,12 @@ public class NativeUtilsExtension {
       config.getAssembler().apply(binary.getAssembler(), isDebug);
       config.getObjcppCompiler().apply(binary.getObjcppCompiler(), isDebug);
       config.getObjcCompiler().apply(binary.getObjcCompiler(), isDebug);
+  }
+
+  public void usePlatformArguments(PlatformAwareComponentSpec component) {
+
+    component.getBinaries().withType(NativeBinarySpec.class).all(binary -> {
+      usePlatformArguments(binary);
     });
   }
 }
