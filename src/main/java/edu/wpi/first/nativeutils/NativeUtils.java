@@ -7,6 +7,7 @@ import edu.wpi.first.nativeutils.configs.ExportsConfig;
 import edu.wpi.first.nativeutils.rules.DependencyConfigRules;
 import edu.wpi.first.nativeutils.rules.ExportsConfigRules;
 import edu.wpi.first.nativeutils.rules.PlatformRules;
+import edu.wpi.first.nativeutils.rules.PrivateExportsConfigRules;
 import edu.wpi.first.nativeutils.tasks.ExportsGenerationTask;
 import edu.wpi.first.toolchain.ToolchainExtension;
 import edu.wpi.first.toolchain.ToolchainPlugin;
@@ -29,6 +30,7 @@ public class NativeUtils implements Plugin<Project> {
     project.getExtensions().add(ExportsConfig.class.getSimpleName(), ExportsConfig.class.getName());
     project.getExtensions().add(ExportsGenerationTask.class.getSimpleName(), ExportsGenerationTask.class.getName());
     project.getPluginManager().apply(ExportsConfigRules.class);
+    project.getPluginManager().apply(PrivateExportsConfigRules.class);
 
     project.getPluginManager().apply(DependencyConfigRules.class);
   }

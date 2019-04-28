@@ -19,10 +19,12 @@ import edu.wpi.first.nativeutils.configs.CombinedDependencyConfig;
 import edu.wpi.first.nativeutils.configs.DependencyConfig;
 import edu.wpi.first.nativeutils.configs.ExportsConfig;
 import edu.wpi.first.nativeutils.configs.PlatformConfig;
+import edu.wpi.first.nativeutils.configs.PrivateExportsConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultCombinedDependencyConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultDependencyConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultExportsConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPlatformConfig;
+import edu.wpi.first.nativeutils.configs.impl.DefaultPrivateExportsConfig;
 import edu.wpi.first.toolchain.ToolchainExtension;
 import jaci.gradle.nativedeps.DelegatedDependencySet;
 import jaci.gradle.nativedeps.DependencySpecExtension;
@@ -36,6 +38,8 @@ public class NativeUtilsExtension {
   private final NamedDomainObjectContainer<DependencyConfig> dependencyConfigs;
 
   private final NamedDomainObjectContainer<CombinedDependencyConfig> combinedDependencyConfigs;
+
+  private final NamedDomainObjectContainer<PrivateExportsConfig> privateExportsConfigs;
 
   private final Project project;
 
@@ -61,6 +65,10 @@ public class NativeUtilsExtension {
 
     combinedDependencyConfigs = project.container(CombinedDependencyConfig.class, name -> {
       return project.getObjects().newInstance(DefaultCombinedDependencyConfig.class, name);
+    });
+
+    privateExportsConfigs = project.container(PrivateExportsConfig.class, name -> {
+      return project.getObjects().newInstance(DefaultPrivateExportsConfig.class, name);
     });
 
     project.afterEvaluate(proj -> {
@@ -103,6 +111,14 @@ public class NativeUtilsExtension {
 
   void combinedDependencyConfigs(final Action<? super NamedDomainObjectContainer<CombinedDependencyConfig>> closure) {
     closure.execute(combinedDependencyConfigs);
+  }
+
+  public NamedDomainObjectContainer<PrivateExportsConfig> getPrivateExportsConfigs() {
+    return privateExportsConfigs;
+  }
+
+  void privateExportsConfigs(final Action<? super NamedDomainObjectContainer<PrivateExportsConfig>> closure) {
+    closure.execute(privateExportsConfigs);
   }
 
   public String getPlatformPath(NativeBinarySpec binary) {
