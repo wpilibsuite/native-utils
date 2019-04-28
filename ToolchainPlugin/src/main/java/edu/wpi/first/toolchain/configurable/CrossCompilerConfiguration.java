@@ -2,7 +2,7 @@ package edu.wpi.first.toolchain.configurable;
 
 import org.gradle.api.Named;
 
-import edu.wpi.first.toolchain.ToolchainDescriptor;
+import edu.wpi.first.toolchain.ToolchainDescriptorBase;
 
 public interface CrossCompilerConfiguration extends Named {
   void setArchitecture(String arch);
@@ -17,6 +17,6 @@ public interface CrossCompilerConfiguration extends Named {
   void setOptional(boolean optional);
   boolean getOptional();
 
-  void setToolchainDescriptor(ToolchainDescriptor descriptor);
-  ToolchainDescriptor getToolchainDescriptor();
+  void setToolchainDescriptor(ToolchainDescriptorBase descriptor);
+  ToolchainDescriptorBase getToolchainDescriptor();
 }

@@ -1,6 +1,6 @@
 package edu.wpi.first.toolchain.configurable;
 
-import edu.wpi.first.toolchain.ToolchainDescriptor;
+import edu.wpi.first.toolchain.ToolchainDescriptorBase;
 
 public class DefaultCrossCompilerConfiguration implements CrossCompilerConfiguration {
   private final String name;
@@ -8,13 +8,13 @@ public class DefaultCrossCompilerConfiguration implements CrossCompilerConfigura
   private String operatingSystem;
   private String compilerPrefix;
   private boolean optional;
-  private ToolchainDescriptor descriptor;
+  private ToolchainDescriptorBase descriptor;
 
   public DefaultCrossCompilerConfiguration(String name) {
     this.name = name;
   }
 
-  public DefaultCrossCompilerConfiguration(String name, ToolchainDescriptor descriptor) {
+  public DefaultCrossCompilerConfiguration(String name, ToolchainDescriptorBase descriptor) {
     this.name = name;
     this.descriptor = descriptor;
   }
@@ -76,12 +76,12 @@ public class DefaultCrossCompilerConfiguration implements CrossCompilerConfigura
   }
 
   @Override
-  public void setToolchainDescriptor(ToolchainDescriptor optional) {
+  public void setToolchainDescriptor(ToolchainDescriptorBase optional) {
     this.descriptor = optional;
   }
 
   @Override
-  public ToolchainDescriptor getToolchainDescriptor() {
+  public ToolchainDescriptorBase getToolchainDescriptor() {
     return descriptor;
   }
 }
