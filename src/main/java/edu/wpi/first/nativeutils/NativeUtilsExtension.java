@@ -15,9 +15,11 @@ import org.gradle.nativeplatform.StaticLibraryBinarySpec;
 import org.gradle.platform.base.PlatformAwareComponentSpec;
 import org.gradle.platform.base.VariantComponentSpec;
 
+import edu.wpi.first.nativeutils.configs.CombinedDependencyConfig;
 import edu.wpi.first.nativeutils.configs.DependencyConfig;
 import edu.wpi.first.nativeutils.configs.ExportsConfig;
 import edu.wpi.first.nativeutils.configs.PlatformConfig;
+import edu.wpi.first.nativeutils.configs.impl.DefaultCombinedDependencyConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultDependencyConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultExportsConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPlatformConfig;
@@ -32,6 +34,8 @@ public class NativeUtilsExtension {
   private final NamedDomainObjectContainer<ExportsConfig> exportsConfigs;
 
   private final NamedDomainObjectContainer<DependencyConfig> dependencyConfigs;
+
+  private final NamedDomainObjectContainer<CombinedDependencyConfig> combinedDependencyConfigs;
 
   private final Project project;
 
@@ -53,6 +57,10 @@ public class NativeUtilsExtension {
 
     platformConfigs = project.container(PlatformConfig.class, name -> {
       return project.getObjects().newInstance(DefaultPlatformConfig.class, name);
+    });
+
+    combinedDependencyConfigs = project.container(CombinedDependencyConfig.class, name -> {
+      return project.getObjects().newInstance(DefaultCombinedDependencyConfig.class, name);
     });
 
     project.afterEvaluate(proj -> {
@@ -87,6 +95,14 @@ public class NativeUtilsExtension {
 
   void dependencyConfigs(final Action<? super NamedDomainObjectContainer<DependencyConfig>> closure) {
     closure.execute(dependencyConfigs);
+  }
+
+  public NamedDomainObjectContainer<CombinedDependencyConfig> getCombinedDependencyConfigs() {
+    return combinedDependencyConfigs;
+  }
+
+  void combinedDependencyConfigs(final Action<? super NamedDomainObjectContainer<CombinedDependencyConfig>> closure) {
+    closure.execute(combinedDependencyConfigs);
   }
 
   public String getPlatformPath(NativeBinarySpec binary) {
@@ -181,5 +197,9 @@ public class NativeUtilsExtension {
     component.getBinaries().withType(NativeBinarySpec.class).all(binary -> {
       usePlatformArguments(binary);
     });
+  }
+
+  public void applyWpi() {
+    project.getPluginManager().apply(WPINativeUtils.class);
   }
 }
