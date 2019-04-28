@@ -41,7 +41,7 @@ public class ToolchainPlugin implements Plugin<Project> {
             });
         });
 
-        ext.all((ToolchainDescriptorBase desc) -> {
+        ext.getToolchainDescriptors().all((ToolchainDescriptorBase desc) -> {
             project.getTasks().register(desc.getInstallTaskName(), InstallToolchainTask.class, (InstallToolchainTask t) -> {
                 t.setGroup("Toolchains");
                 t.setDescription("Install Toolchain for " + desc.getName() + " if installers are available.");
