@@ -5,7 +5,7 @@ import org.gradle.api.Project;
 
 import edu.wpi.first.toolchain.ToolchainExtension;
 
-public class WPINative implements Plugin<Project> {
+public class WPINativeUtils implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
@@ -16,7 +16,7 @@ public class WPINative implements Plugin<Project> {
 
     NativeUtilsExtension nativeExt = project.getExtensions().getByType(NativeUtilsExtension.class);
 
-    project.getExtensions().create("wpiNative", WPINativeExtension.class, nativeExt);
+    project.getExtensions().create("wpiNativeUtils", WPINativeUtilsExtension.class, nativeExt);
   }
 
 }
