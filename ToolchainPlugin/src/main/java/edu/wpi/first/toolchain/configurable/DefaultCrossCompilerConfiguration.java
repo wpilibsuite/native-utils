@@ -1,5 +1,7 @@
 package edu.wpi.first.toolchain.configurable;
 
+import javax.inject.Inject;
+
 import edu.wpi.first.toolchain.ToolchainDescriptorBase;
 
 public class DefaultCrossCompilerConfiguration implements CrossCompilerConfiguration {
@@ -10,6 +12,7 @@ public class DefaultCrossCompilerConfiguration implements CrossCompilerConfigura
   private boolean optional;
   private ToolchainDescriptorBase descriptor;
 
+  @Inject
   public DefaultCrossCompilerConfiguration(String name) {
     this.name = name;
   }

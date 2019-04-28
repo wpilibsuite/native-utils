@@ -143,3 +143,57 @@ nativeUtils.wpi.platforms.allPlatforms
 nativeUtils.wpi.defaultArguments.*
 
 ```
+
+## DS Documentation for Toolchain Builder
+
+```
+toolchainsPlugin {
+  // Register the platforms and build types with the model
+  // Default to true
+  registerPlatforms = true
+  registerBuildTypes = true
+
+  // Add the roborio compiler
+  withRoboRIO()
+  // Add the raspbian compiler
+  withRasbian()
+  // The above 2 are included with nativeUtils.addWpiNativeUtils()
+
+  crossCompilers {
+    linuxaarch64 {
+        architecture = "aarch64"
+        compilerPrefix = "arm-frc2019-linux-gnueabi-"
+        operatingSystem = "linux"
+        optional = false
+    }
+  }
+}
+```
+
+## Adding a non standard cross compiler
+
+Use the following to add a custom cross compiler, with the same args as the rio and raspbian
+
+```
+nativeUtils.addWpiNativeUtils() // Must be called before using nativeUtils.wpi.defaultArguments
+
+toolchainsPlugin.crossCompilers {
+    linuxaarch64 {
+        architecture = "aarch64"
+        compilerPrefix = "aarch64-linux-gnu-"
+        operatingSystem = "linux"
+        optional = false
+    }
+}
+
+nativeUtils.platformConfigs {
+    linuxaarch64 {
+        platformPath = "linux/aarch64"
+        cppCompiler.args.addAll(nativeUtils.wpi.defaultArguments.linuxCrossCompilerArgs);
+        cCompiler.args.addAll(nativeUtils.wpi.defaultArguments.linuxCrossCCompilerArgs);
+        linker.args.addAll(nativeUtils.wpi.defaultArguments.linuxCrossLinkerArgs);
+        cppCompiler.debugArgs.addAll(nativeUtils.wpi.defaultArguments.linuxCrossDebugCompilerArgs);
+        cppCompiler.releaseArgs.addAll(nativeUtils.wpi.defaultArguments.linuxCrossReleaseCompilerArgs);
+    }
+}
+```
