@@ -9,6 +9,7 @@ import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.NativeLibraryBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
@@ -45,30 +46,33 @@ public class NativeUtilsExtension {
 
   private DependencySpecExtension dse = null;
 
-  private List<String> platformsToConfigure = new ArrayList<>();
+  private final List<String> platformsToConfigure = new ArrayList<>();
+
+  private final ObjectFactory objectFactory;
 
   @Inject
   public NativeUtilsExtension(Project project, ToolchainExtension tcExt) {
     this.project = project;
+    this.objectFactory = project.getObjects();
 
     exportsConfigs = project.container(ExportsConfig.class, name -> {
-      return project.getObjects().newInstance(DefaultExportsConfig.class, name);
+      return objectFactory.newInstance(DefaultExportsConfig.class, name);
     });
 
     dependencyConfigs = project.container(DependencyConfig.class, name -> {
-      return project.getObjects().newInstance(DefaultDependencyConfig.class, name);
+      return objectFactory.newInstance(DefaultDependencyConfig.class, name);
     });
 
     platformConfigs = project.container(PlatformConfig.class, name -> {
-      return project.getObjects().newInstance(DefaultPlatformConfig.class, name);
+      return objectFactory.newInstance(DefaultPlatformConfig.class, name);
     });
 
     combinedDependencyConfigs = project.container(CombinedDependencyConfig.class, name -> {
-      return project.getObjects().newInstance(DefaultCombinedDependencyConfig.class, name);
+      return objectFactory.newInstance(DefaultCombinedDependencyConfig.class, name);
     });
 
     privateExportsConfigs = project.container(PrivateExportsConfig.class, name -> {
-      return project.getObjects().newInstance(DefaultPrivateExportsConfig.class, name);
+      return objectFactory.newInstance(DefaultPrivateExportsConfig.class, name);
     });
 
     project.afterEvaluate(proj -> {
@@ -129,8 +133,11 @@ public class NativeUtilsExtension {
     return platform.getPlatformPath();
   }
 
-  public String getDependencyClassifier(NativeBinarySpec binary, String depTypeClassifier) {
+  public String getDependencyClassifier(NativeBinarySpec binary, boolean isStaticDep) {
     String classifierBase = binary.getTargetPlatform().getName();
+    if (isStaticDep) {
+      classifierBase += "static";
+    }
     if (!binary.getBuildType().getName().equals("release")) {
       classifierBase += binary.getBuildType().getName();
     }
@@ -184,9 +191,11 @@ public class NativeUtilsExtension {
     }
   }
 
+  // Internal, used from the model to add the platforms
   public void addPlatformToConfigure(String platform) {
     platformsToConfigure.add(platform);
   }
+
 
   public void configurePlatform(String name, Action<? super PlatformConfig> action) {
     getPlatformConfigs().getByName(name, action);
@@ -215,7 +224,21 @@ public class NativeUtilsExtension {
     });
   }
 
-  public void applyWpi() {
+  public void addWpiNativeUtils() {
     project.getPluginManager().apply(WPINativeUtils.class);
+  }
+
+  private WPINativeUtilsExtension wpiNativeUtilsExtension;
+
+  void addWpiExtension() {
+    wpiNativeUtilsExtension = objectFactory.newInstance(WPINativeUtilsExtension.class, this);
+  }
+
+  public WPINativeUtilsExtension getWpi() {
+    return wpiNativeUtilsExtension;
+  }
+
+  public void wpi(Action<WPINativeUtilsExtension> action) {
+    action.execute(wpiNativeUtilsExtension);
   }
 }

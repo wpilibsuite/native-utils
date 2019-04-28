@@ -136,10 +136,6 @@ public class WPINativeUtilsExtension {
 
     }
 
-    public void configurePlatform(String name, Action<? super PlatformConfig> action) {
-        nativeExt.configurePlatform(name, action);
-    }
-
     public class DependencyVersions {
         public String wpiVersion;
         public String niLibVersion;

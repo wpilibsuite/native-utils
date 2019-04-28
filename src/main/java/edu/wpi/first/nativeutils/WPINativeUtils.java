@@ -16,7 +16,7 @@ public class WPINativeUtils implements Plugin<Project> {
 
     NativeUtilsExtension nativeExt = project.getExtensions().getByType(NativeUtilsExtension.class);
 
-    project.getExtensions().create("wpiNativeUtils", WPINativeUtilsExtension.class, nativeExt);
+    nativeExt.addWpiExtension();
   }
 
 }

@@ -1,3 +1,145 @@
-# Native Utils
+# Native Utils and Toolchain Plugin
 
 [![Build status](https://ci.appveyor.com/api/projects/status/ddcha99dx7cryd0r/branch/master?svg=true)](https://ci.appveyor.com/project/ThadHouse/native-utils/branch/master)
+
+## DSL Documentation for Native Utils
+
+```
+nativeUtils {
+  platformConfigs {
+    linuxathena {
+      // The platform path for archives. Must be set
+      platformPath = "linux/athena"
+
+      cppCompiler {
+        // Args for debug and release
+        args << ""
+        // Args for debug
+        debugArgs << ""
+        // Args for release
+        releaseArgs << ""
+      }
+      // These are identical to cppCompiler
+      linker {}
+      cCompiler {}
+      assembler {}
+      objcppCompiler {}
+      objcCompiler {}
+    }
+  }
+
+  // Windows specific functionality to export all symbols from a binary automatically
+  exportsConfigs {
+    libName {
+      x86ExcludeSymbols << ""
+      x64ExcludeSymbols << ""
+      excludeBuildTypes << ""
+      x86SymbolFilter = { symbols ->
+        symbols.removeIf({ !it.startsWith('HAL_') && !it.startsWith('HALSIM_') })
+      }
+      x64SymbolFilter = { symbols ->
+        symbols.removeIf({ !it.startsWith('HAL_') && !it.startsWith('HALSIM_') })
+      }
+    }
+  }
+  // Multi platform way to expose only a limited number of symbols
+  // Used to do private symbols. Can not cross libraries with exportsConfigs
+  privateExportsConfigs {
+    libName {
+      exportsFile = project.file("path/to/symbols/files")
+    }
+
+  }
+  // Add a dependency
+  dependencyConfigs {
+    libraryName {
+      groupId = ""
+      artifactId = ""
+      headerClassifier = ""
+      sourceClassifier = ""
+      ext = ""
+      version = ""
+      // If the shared dependencies are used at runtime, or just linking
+      // Defaults to true
+      sharedUsedAtRuntime = true
+      sharedPlatforms << ""
+      staticPlatforms << ""
+    }
+  }
+  // Add
+  combinedDependencyConfigs {
+    combinedName {
+      // The name to use from use*Library
+      libraryName = ""
+      // The platforms to apply to
+      targetPlatforms << ""
+      // The dependencies to combine
+      dependencies << ""
+    }
+  }
+}
+
+// Get the platform path for a binary
+nativeUtils.getPlatformPath(NativeBinarySpec binary)
+// Get the classifier for a dependency
+nativeUtils.getDependencyClassifier(NativeBinarySpec, boolean isStaticDependnecy)
+// Get the classifier for a published binary
+nativeUtils.getPublishClassifier(NativeLibraryBinarySpec)
+
+// Add libraries that are required to build, add to all binaries for a component
+nativeUtils.useRequiredLibrary(ComponentSpec, String... libraries)
+// Add libraries that are required to build, add to specific binary
+nativeUtils.useRequiredLibrary(BinarySpec, String.. libraries)
+
+// Add libraries that are optional, add to all binaries for a component
+nativeUtils.useOptionalLibrary(ComponentSpec, String... libraries)
+// Add libraries that are optional, add to specific binary
+nativeUtils.useOptionalLibrary(BinarySpec, String.. libraries)
+// The optional ones will be silently skipped
+
+// Add all native utils platforms to a component
+nativeUtils.useAllPlatforms(ComponentSpec)
+
+// Update a platform (see platformsConfig block above for documentation)
+// This can be used for adding or removing args.
+nativeUtils.configurePlatform("platformName") {
+}
+
+// Add all arguments for a platform to the binary
+nativeUtils.usePlatformArguments(NativeBinarySpec)
+
+// Add all arguments for a platform to all components of a binary
+nativeUtils.usePlatformArguments(NativeComponentSpec)
+
+// Add WPI extensions to Native Utils
+// See below for DSL of these extensions
+nativeUtils.addWpiNativeUtils()
+
+// This adds all the WPILib dependencies, along with combined deps for
+// wpilib and driver. They still need to manually be added to individual
+// components. These just add to the back end
+nativeUtils.wpi.configureDependencies {
+  // Thse are the 4 separate versions used for wpi
+  // deps. They should be kept in sync.
+  wpiVersion = ""
+  niLibVersion = ""
+  opencvVersion = ""
+  googleTestVersion = ""
+}
+
+// The 6 below get the string representation of the main platforms
+// For use comparing to binary.targetPlatform.name
+nativeUtils.wpi.platforms.roborio
+nativeUtils.wpi.platforms.raspbian
+nativeUtils.wpi.platforms.windowsx64
+nativeUtils.wpi.platforms.windowsx86
+nativeUtils.wpi.platforms.osxx64
+nativeUtils.wpi.platforms.linuxx64
+
+// An immutable list of all wpi platforms
+nativeUtils.wpi.platforms.allPlatforms
+
+// A bunch of lists of the default arguments for platforms.
+nativeUtils.wpi.defaultArguments.*
+
+```
