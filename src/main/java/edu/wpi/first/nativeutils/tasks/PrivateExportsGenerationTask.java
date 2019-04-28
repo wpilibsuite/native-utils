@@ -39,6 +39,7 @@ public class PrivateExportsGenerationTask extends DefaultTask {
     return exportsFile;
   }
 
+  @Internal
   public ListProperty<String> getExportsList() {
     return exportsList;
   }

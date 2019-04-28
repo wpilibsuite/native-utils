@@ -140,14 +140,28 @@ public class WPINativeUtilsExtension {
         nativeExt.configurePlatform(name, action);
     }
 
-    public void configureDependencies(String wpiVersion, String niLibVersion, String opencvVersion, String googleTestVersion) {
+    public class DependencyVersions {
+        public String wpiVersion;
+        public String niLibVersion;
+        public String opencvVersion;
+        public String googleTestVersion;
+    }
+
+    private DependencyVersions dependencyVersions;
+
+    public void configureDependencies(Action<DependencyVersions> dependencies) {
+        if (dependencyVersions != null) {
+            return;
+        }
+        dependencyVersions = new DependencyVersions();
+        dependencies.execute(dependencyVersions);
         nativeExt.dependencyConfigs(configs -> {
             configs.create("netcomm", c -> {
                 c.setGroupId("edu.wpi.first.ni-libraries");
                 c.setArtifactId("netcomm");
                 c.setHeaderClassifier("headers");
                 c.setExt("zip");
-                c.setVersion(niLibVersion);
+                c.setVersion(dependencyVersions.niLibVersion);
                 c.getSharedPlatforms().add(this.platforms.roborio);
             });
 
@@ -156,7 +170,7 @@ public class WPINativeUtilsExtension {
                 c.setArtifactId("chipobject");
                 c.setHeaderClassifier("headers");
                 c.setExt("zip");
-                c.setVersion(niLibVersion);
+                c.setVersion(dependencyVersions.niLibVersion);
                 c.getSharedPlatforms().add(this.platforms.roborio);
             });
 
@@ -166,7 +180,7 @@ public class WPINativeUtilsExtension {
                 c.setHeaderClassifier("headers");
                 c.setSourceClassifier("sources");
                 c.setExt("zip");
-                c.setVersion(wpiVersion);
+                c.setVersion(dependencyVersions.wpiVersion);
                 c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
                 c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
             });
@@ -177,7 +191,7 @@ public class WPINativeUtilsExtension {
                 c.setHeaderClassifier("headers");
                 c.setSourceClassifier("sources");
                 c.setExt("zip");
-                c.setVersion(wpiVersion);
+                c.setVersion(dependencyVersions.wpiVersion);
                 c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
                 c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
             });
@@ -188,7 +202,7 @@ public class WPINativeUtilsExtension {
                 c.setHeaderClassifier("headers");
                 c.setSourceClassifier("sources");
                 c.setExt("zip");
-                c.setVersion(wpiVersion);
+                c.setVersion(dependencyVersions.wpiVersion);
                 c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
                 c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
             });
@@ -199,7 +213,7 @@ public class WPINativeUtilsExtension {
                 c.setHeaderClassifier("headers");
                 c.setSourceClassifier("sources");
                 c.setExt("zip");
-                c.setVersion(wpiVersion);
+                c.setVersion(dependencyVersions.wpiVersion);
                 c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
                 c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
             });
@@ -210,7 +224,7 @@ public class WPINativeUtilsExtension {
                 c.setHeaderClassifier("headers");
                 c.setSourceClassifier("sources");
                 c.setExt("zip");
-                c.setVersion(wpiVersion);
+                c.setVersion(dependencyVersions.wpiVersion);
                 c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
                 c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
             });
@@ -221,7 +235,7 @@ public class WPINativeUtilsExtension {
                 c.setHeaderClassifier("headers");
                 c.setSourceClassifier("sources");
                 c.setExt("zip");
-                c.setVersion(wpiVersion);
+                c.setVersion(dependencyVersions.wpiVersion);
                 c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
                 c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
             });
@@ -232,7 +246,7 @@ public class WPINativeUtilsExtension {
                 c.setHeaderClassifier("headers");
                 c.setSourceClassifier("sources");
                 c.setExt("zip");
-                c.setVersion(opencvVersion);
+                c.setVersion(dependencyVersions.opencvVersion);
                 c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
                 c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
             });
@@ -243,7 +257,7 @@ public class WPINativeUtilsExtension {
                 c.setHeaderClassifier("headers");
                 c.setSourceClassifier("sources");
                 c.setExt("zip");
-                c.setVersion(googleTestVersion);
+                c.setVersion(dependencyVersions.googleTestVersion);
                 c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
                 c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
             });
