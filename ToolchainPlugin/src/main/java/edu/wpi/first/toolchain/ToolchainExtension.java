@@ -1,21 +1,56 @@
 package edu.wpi.first.toolchain;
 
-import edu.wpi.first.toolchain.raspbian.RaspbianToolchainPlugin;
-import edu.wpi.first.toolchain.roborio.RoboRioToolchainPlugin;
+import org.gradle.api.Action;
+import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
-import org.gradle.api.internal.DefaultNamedDomainObjectSet;
-import org.gradle.internal.reflect.DirectInstantiator;
+import org.gradle.internal.os.OperatingSystem;
 import org.gradle.util.TreeVisitor;
 
-public class ToolchainExtension extends DefaultNamedDomainObjectSet<ToolchainDescriptorBase> {
+import edu.wpi.first.toolchain.configurable.ConfigurableGcc;
+import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
+import edu.wpi.first.toolchain.configurable.DefaultCrossCompilerConfiguration;
+import edu.wpi.first.toolchain.raspbian.RaspbianToolchainPlugin;
+import edu.wpi.first.toolchain.roborio.RoboRioToolchainPlugin;
+
+public class ToolchainExtension {
+    private final NamedDomainObjectContainer<CrossCompilerConfiguration> crossCompilers;
+    private final NamedDomainObjectContainer<ToolchainDescriptorBase> toolchainDescriptors;
 
     private Project project;
 
     public boolean registerPlatforms = true;
 
     public ToolchainExtension(Project project) {
-        super(ToolchainDescriptorBase.class, DirectInstantiator.INSTANCE);
         this.project = project;
+
+        crossCompilers = project.container(CrossCompilerConfiguration.class, name -> {
+            return project.getObjects().newInstance(DefaultCrossCompilerConfiguration.class, name);
+        });
+
+        toolchainDescriptors = project.container(ToolchainDescriptorBase.class);
+
+        crossCompilers.all(config -> {
+            if (config.getToolchainDescriptor() == null) {
+                ToolchainDescriptor<ConfigurableGcc> descriptor = new ToolchainDescriptor<>(config.getName(),
+                        config.getName() + "ConfiguredGcc",
+                        new ToolchainRegistrar<ConfigurableGcc>(ConfigurableGcc.class, project));
+
+                toolchainDescriptors.add(descriptor);
+
+                project.afterEvaluate(proj -> {
+                    descriptor.setToolchainPlatforms(config.getOperatingSystem() + config.getArchitecture());
+                    descriptor.setOptional(config.getOptional());
+                    descriptor.getDiscoverers().addAll(ToolchainDiscoverer.forSystemPath(project, name -> {
+                        String exeSuffix = OperatingSystem.current().isWindows() ? ".exe" : "";
+                        return config.getCompilerPrefix() + name + exeSuffix;
+                    }));
+                });
+                config.setToolchainDescriptor(descriptor);
+            } else {
+                toolchainDescriptors.add(config.getToolchainDescriptor());
+            }
+        });
+
     }
 
     public void withRoboRIO() {
@@ -26,8 +61,24 @@ public class ToolchainExtension extends DefaultNamedDomainObjectSet<ToolchainDes
         project.getPluginManager().apply(RaspbianToolchainPlugin.class);
     }
 
+    public NamedDomainObjectContainer<ToolchainDescriptorBase> getToolchainDescriptors() {
+        return toolchainDescriptors;
+    }
+
+    void toolchainDescriptors(final Action<? super NamedDomainObjectContainer<ToolchainDescriptorBase>> closure) {
+        closure.execute(toolchainDescriptors);
+    }
+
+    public NamedDomainObjectContainer<CrossCompilerConfiguration> getCrossCompilers() {
+        return crossCompilers;
+    }
+
+    void crossCompilers(final Action<? super NamedDomainObjectContainer<CrossCompilerConfiguration>> closure) {
+        closure.execute(crossCompilers);
+    }
+
     public void explain(TreeVisitor<String> visitor) {
-        for (ToolchainDescriptorBase desc : this) {
+        for (ToolchainDescriptorBase desc : toolchainDescriptors) {
             visitor.node(desc.getName());
             visitor.startChildren();
             visitor.node("Selected: " + desc.discover().getName());
