@@ -80,6 +80,13 @@ public class ToolchainExtension {
 
     public void explain(TreeVisitor<String> visitor) {
         for (ToolchainDescriptorBase desc : toolchainDescriptors) {
+            if (desc == null || desc.discover() == null) {
+                visitor.node(desc.getName());
+                visitor.startChildren();
+                visitor.node("Not Found");
+                visitor.endChildren();
+                continue;
+            }
             visitor.node(desc.getName());
             visitor.startChildren();
             visitor.node("Selected: " + desc.discover().getName());
