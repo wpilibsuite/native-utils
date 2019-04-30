@@ -27,6 +27,10 @@ import edu.wpi.first.nativeutils.configs.impl.DefaultExportsConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPlatformConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPrivateExportsConfig;
 import edu.wpi.first.toolchain.ToolchainExtension;
+import edu.wpi.first.toolchain.bionic.BionicToolchainPlugin;
+import edu.wpi.first.toolchain.raspbian.RaspbianToolchainPlugin;
+import edu.wpi.first.toolchain.roborio.RoboRioToolchainPlugin;
+import edu.wpi.first.toolchain.xenial.XenialToolchainPlugin;
 import jaci.gradle.nativedeps.DelegatedDependencySet;
 import jaci.gradle.nativedeps.DependencySpecExtension;
 
@@ -241,4 +245,20 @@ public class NativeUtilsExtension {
   public void wpi(Action<WPINativeUtilsExtension> action) {
     action.execute(wpiNativeUtilsExtension);
   }
+
+  public void withRoboRIO() {
+    project.getPluginManager().apply(RoboRioToolchainPlugin.class);
+}
+
+public void withRaspbian() {
+    project.getPluginManager().apply(RaspbianToolchainPlugin.class);
+}
+
+public void withBionic() {
+    project.getPluginManager().apply(BionicToolchainPlugin.class);
+}
+
+public void withXenial() {
+    project.getPluginManager().apply(XenialToolchainPlugin.class);
+}
 }

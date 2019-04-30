@@ -6,6 +6,8 @@ public class NativePlatforms {
     public static final String desktop = desktopOS() + desktopArch();
     public static final String roborio = "linuxathena";
     public static final String raspbian = "linuxraspbian";
+    public static final String bionic = "linuxbionic";
+    public static final String xenial = "linuxxenial";
 
     public static String desktopArch() {
         String arch = System.getProperty("os.arch");
