@@ -13,7 +13,9 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.NativeLibraryBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
+import org.gradle.platform.base.Platform;
 import org.gradle.platform.base.PlatformAwareComponentSpec;
+import org.gradle.platform.base.PlatformContainer;
 import org.gradle.platform.base.VariantComponentSpec;
 
 import edu.wpi.first.nativeutils.configs.CombinedDependencyConfig;
@@ -199,9 +201,41 @@ public class NativeUtilsExtension {
     }
   }
 
+  public void usePlatform(PlatformAwareComponentSpec component, String platform) {
+    if (platformsToConfigure.contains(platform)) {
+      component.targetPlatform(platform);
+    }
+  }
+
   // Internal, used from the model to add the platforms
-  public void addPlatformToConfigure(String platform) {
-    platformsToConfigure.add(platform);
+  public void addPlatformsToConfigure(PlatformContainer platforms) {
+    List<String> tmpList = new ArrayList<>();
+    for (Platform platform : platforms) {
+      tmpList.add(platform.getName());
+    }
+    boolean skip = false;
+    boolean only = false;
+
+    for (int i = 0; i < tmpList.size(); i++) {
+      String platform = tmpList.get(i);
+      if (project.hasProperty("skip" + platform)) {
+        skip = true;
+        tmpList.remove(i);
+        continue;
+      }
+      if (project.hasProperty("only" + platform)) {
+        only = true;
+        platformsToConfigure.add(platform);
+      }
+    }
+
+    if (only && skip) {
+      throw new GradleException("Cannot work with both only's and skips");
+    }
+
+    if (!only) {
+      platformsToConfigure.addAll(tmpList);
+    }
   }
 
   public void configurePlatform(String name, Action<? super PlatformConfig> action) {
@@ -225,7 +259,6 @@ public class NativeUtilsExtension {
   }
 
   public void usePlatformArguments(PlatformAwareComponentSpec component) {
-
     component.getBinaries().withType(NativeBinarySpec.class).all(binary -> {
       usePlatformArguments(binary);
     });

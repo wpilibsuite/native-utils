@@ -4,7 +4,6 @@ import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.model.RuleSource;
 import org.gradle.model.Validate;
 import org.gradle.platform.base.ComponentSpecContainer;
-import org.gradle.platform.base.Platform;
 import org.gradle.platform.base.PlatformContainer;
 
 import edu.wpi.first.nativeutils.NativeUtilsExtension;
@@ -14,8 +13,6 @@ public class PlatformRules extends RuleSource {
   void setuPlatforms(ComponentSpecContainer components, PlatformContainer platforms, ExtensionContainer extensions) {
     NativeUtilsExtension extension = extensions.getByType(NativeUtilsExtension.class);
 
-    for (Platform platform : platforms) {
-      extension.addPlatformToConfigure(platform.getName());
-    }
+    extension.addPlatformsToConfigure(platforms);
   }
 }
