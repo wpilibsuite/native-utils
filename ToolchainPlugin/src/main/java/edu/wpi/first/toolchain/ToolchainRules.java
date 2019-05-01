@@ -91,7 +91,7 @@ public class ToolchainRules extends RuleSource {
             NativePlatform desktop = platforms.maybeCreate(NativePlatforms.desktop, NativePlatform.class);
             desktop.architecture(NativePlatforms.desktopArch().replaceAll("-", "_"));
 
-            if (OperatingSystem.current().isWindows()) {
+            if (OperatingSystem.current().isWindows() && NativePlatforms.desktopArch().equals("x86-64")) {
                 NativePlatform win32 = platforms.maybeCreate("windowsx86", NativePlatform.class);
                 win32.architecture("x86");
             }
