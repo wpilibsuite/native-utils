@@ -54,9 +54,12 @@ public class NativeUtilsExtension {
 
   private final ObjectFactory objectFactory;
 
+  private final ToolchainExtension tcExt;
+
   @Inject
   public NativeUtilsExtension(Project project, ToolchainExtension tcExt) {
     this.project = project;
+    this.tcExt = tcExt;
     this.objectFactory = project.getObjects();
 
     exportsConfigs = project.container(ExportsConfig.class, name -> {
@@ -131,8 +134,9 @@ public class NativeUtilsExtension {
 
   public String getPlatformPath(NativeBinarySpec binary) {
     PlatformConfig platform = platformConfigs.findByName(binary.getTargetPlatform().getName());
-    if (platform == null ) {
-      return binary.getTargetPlatform().getOperatingSystem().getName() + "/" + binary.getTargetPlatform().getArchitecture().getName();
+    if (platform == null) {
+      return binary.getTargetPlatform().getOperatingSystem().getName() + "/"
+          + binary.getTargetPlatform().getArchitecture().getName();
     }
     return platform.getPlatformPath();
   }
@@ -151,17 +155,17 @@ public class NativeUtilsExtension {
   public String getPublishClassifier(NativeLibraryBinarySpec binary) {
     String classifierBase = binary.getTargetPlatform().getName();
     if (binary instanceof StaticLibraryBinarySpec) {
-        classifierBase += "static";
+      classifierBase += "static";
     }
     if (!binary.getBuildType().getName().contains("release")) {
-        classifierBase += binary.getBuildType().getName();
+      classifierBase += binary.getBuildType().getName();
     }
     return classifierBase;
   }
 
   public void useRequiredLibrary(VariantComponentSpec component, String... libraries) {
     component.getBinaries().withType(NativeBinarySpec.class).all(binary -> {
-      useRequiredLibrary((NativeBinarySpec)binary, libraries);
+      useRequiredLibrary((NativeBinarySpec) binary, libraries);
     });
   }
 
@@ -176,7 +180,7 @@ public class NativeUtilsExtension {
 
   public void useOptionalLibrary(VariantComponentSpec component, String... libraries) {
     component.getBinaries().withType(NativeBinarySpec.class).all(binary -> {
-      useOptionalLibrary((NativeBinarySpec)binary, libraries);
+      useOptionalLibrary((NativeBinarySpec) binary, libraries);
     });
   }
 
@@ -200,25 +204,24 @@ public class NativeUtilsExtension {
     platformsToConfigure.add(platform);
   }
 
-
   public void configurePlatform(String name, Action<? super PlatformConfig> action) {
     getPlatformConfigs().getByName(name, action);
   }
 
   public void usePlatformArguments(NativeBinarySpec binary) {
     String targetName = binary.getTargetPlatform().getName();
-      PlatformConfig config = this.getPlatformConfigs().findByName(targetName);
-      if (config == null) {
-        return;
-      }
+    PlatformConfig config = this.getPlatformConfigs().findByName(targetName);
+    if (config == null) {
+      return;
+    }
 
-      boolean isDebug = binary.getBuildType().getName().contains("debug");
-      config.getCppCompiler().apply(binary.getCppCompiler(), isDebug);
-      config.getLinker().apply(binary.getLinker(), isDebug);
-      config.getcCompiler().apply(binary.getcCompiler(), isDebug);
-      config.getAssembler().apply(binary.getAssembler(), isDebug);
-      config.getObjcppCompiler().apply(binary.getObjcppCompiler(), isDebug);
-      config.getObjcCompiler().apply(binary.getObjcCompiler(), isDebug);
+    boolean isDebug = binary.getBuildType().getName().contains("debug");
+    config.getCppCompiler().apply(binary.getCppCompiler(), isDebug);
+    config.getLinker().apply(binary.getLinker(), isDebug);
+    config.getcCompiler().apply(binary.getcCompiler(), isDebug);
+    config.getAssembler().apply(binary.getAssembler(), isDebug);
+    config.getObjcppCompiler().apply(binary.getObjcppCompiler(), isDebug);
+    config.getObjcCompiler().apply(binary.getObjcCompiler(), isDebug);
   }
 
   public void usePlatformArguments(PlatformAwareComponentSpec component) {
@@ -248,17 +251,27 @@ public class NativeUtilsExtension {
 
   public void withRoboRIO() {
     project.getPluginManager().apply(RoboRioToolchainPlugin.class);
-}
+  }
 
-public void withRaspbian() {
+  public void withRaspbian() {
     project.getPluginManager().apply(RaspbianToolchainPlugin.class);
-}
+  }
 
-public void withBionic() {
+  public void withBionic() {
     project.getPluginManager().apply(BionicToolchainPlugin.class);
-}
+  }
 
-public void withXenial() {
+  public void withXenial() {
     project.getPluginManager().apply(XenialToolchainPlugin.class);
-}
+  }
+
+  public void excludeBinariesFromStrip(VariantComponentSpec component) {
+    component.getBinaries().withType(NativeBinarySpec.class).all(bin -> {
+      tcExt.addComponentPlatformToExcludeString(bin.getTargetPlatform().getName(), component.getName());
+    });
+  }
+
+  public void excludeBinaryFromStrip(NativeBinarySpec binary) {
+    tcExt.addComponentPlatformToExcludeString(binary.getTargetPlatform().getName(), binary.getComponent().getName());
+  }
 }

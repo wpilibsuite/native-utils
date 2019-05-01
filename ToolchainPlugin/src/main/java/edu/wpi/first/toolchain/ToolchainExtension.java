@@ -1,5 +1,10 @@
 package edu.wpi.first.toolchain;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
@@ -17,6 +22,7 @@ import edu.wpi.first.toolchain.xenial.XenialToolchainPlugin;
 public class ToolchainExtension {
     private final NamedDomainObjectContainer<CrossCompilerConfiguration> crossCompilers;
     private final NamedDomainObjectContainer<ToolchainDescriptorBase> toolchainDescriptors;
+    private final Map<String, List<String>> stripExcludeMap = new HashMap<>();
 
     private Project project;
 
@@ -86,6 +92,21 @@ public class ToolchainExtension {
 
     void crossCompilers(final Action<? super NamedDomainObjectContainer<CrossCompilerConfiguration>> closure) {
         closure.execute(crossCompilers);
+    }
+
+    public List<String> getExcludeComponentsForPlatform(String platform) {
+        return stripExcludeMap.get(platform);
+    }
+
+    public void addComponentPlatformToExcludeString(String platform, String component) {
+        List<String> components = stripExcludeMap.get(platform);
+        if (components == null) {
+            components = new ArrayList<>();
+            components.add(component);
+            stripExcludeMap.put(platform, components);
+            return;
+        }
+        components.add(component);
     }
 
     public void explain(TreeVisitor<String> visitor) {
