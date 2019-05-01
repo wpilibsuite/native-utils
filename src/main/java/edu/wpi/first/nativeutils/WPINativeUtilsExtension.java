@@ -71,9 +71,10 @@ public class WPINativeUtilsExtension {
         public String windowsx86 = "windowsx86";
         public String osxx64 = "osxx86-64";
         public String linuxx64 = "linuxx86-64";
-        public String aarch64bionic = "linuxaarch66bionic";
+        public String aarch64bionic = "linuxaarch64bionic";
+        public String aarch64xenial = "linuxaarch64xenial";
         public List<String> allPlatforms = Collections
-                .unmodifiableList(Arrays.asList(roborio, raspbian, bionic, windowsx64, windowsx86, osxx64, linuxx64));
+                .unmodifiableList(Arrays.asList(roborio, raspbian, aarch64bionic, aarch64xenial, windowsx64, windowsx86, osxx64, linuxx64));
         public List<String> all2019Platforms = Collections
                 .unmodifiableList(Arrays.asList(roborio, raspbian, windowsx64, windowsx86, osxx64, linuxx64));
     }
@@ -91,7 +92,8 @@ public class WPINativeUtilsExtension {
         PlatformConfig osxx86_64 = nativeExt.getPlatformConfigs().create(platforms.osxx64);
         PlatformConfig linuxathena = nativeExt.getPlatformConfigs().create(platforms.roborio);
         PlatformConfig linuxraspbian = nativeExt.getPlatformConfigs().create(platforms.raspbian);
-        PlatformConfig linuxbionic = nativeExt.getPlatformConfigs().create(platforms.bionic);
+        PlatformConfig linuxbionic = nativeExt.getPlatformConfigs().create(platforms.aarch64bionic);
+        PlatformConfig linuxxenial = nativeExt.getPlatformConfigs().create(platforms.aarch64xenial);
 
         linuxathena.setPlatformPath("linux/athena");
         linuxathena.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerArgs);
@@ -107,12 +109,19 @@ public class WPINativeUtilsExtension {
         linuxraspbian.getCppCompiler().getDebugArgs().addAll(defaultArguments.linuxCrossDebugCompilerArgs);
         linuxraspbian.getCppCompiler().getReleaseArgs().addAll(defaultArguments.linuxCrossReleaseCompilerArgs);
 
-        linuxbionic.setPlatformPath("linux/aarch66bionic");
+        linuxbionic.setPlatformPath("linux/aarch64bionic");
         linuxbionic.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerArgs);
         linuxbionic.getcCompiler().getArgs().addAll(defaultArguments.linuxCrossCCompilerArgs);
         linuxbionic.getLinker().getArgs().addAll(defaultArguments.linuxCrossLinkerArgs);
         linuxbionic.getCppCompiler().getDebugArgs().addAll(defaultArguments.linuxCrossDebugCompilerArgs);
         linuxbionic.getCppCompiler().getReleaseArgs().addAll(defaultArguments.linuxCrossReleaseCompilerArgs);
+
+        linuxxenial.setPlatformPath("linux/aarch64xenial");
+        linuxxenial.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerArgs);
+        linuxxenial.getcCompiler().getArgs().addAll(defaultArguments.linuxCrossCCompilerArgs);
+        linuxxenial.getLinker().getArgs().addAll(defaultArguments.linuxCrossLinkerArgs);
+        linuxxenial.getCppCompiler().getDebugArgs().addAll(defaultArguments.linuxCrossDebugCompilerArgs);
+        linuxxenial.getCppCompiler().getReleaseArgs().addAll(defaultArguments.linuxCrossReleaseCompilerArgs);
 
         windowsx86_64.setPlatformPath("windows/x86-64");
         windowsx86_64.getCppCompiler().getArgs().addAll(defaultArguments.windowsCompilerArgs);
