@@ -81,9 +81,11 @@ public class PrivateExportsGenerationTask extends DefaultTask {
     File toWrite = exportsFile.get().getAsFile();
     toWrite.getParentFile().mkdirs();
 
-    try (BufferedWriter writer = Files.newBufferedWriter(toWrite.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+    try (BufferedWriter writer = Files.newBufferedWriter(toWrite.toPath())) {
       writer.write("LIBRARY ");
       writer.write(libraryName.get());
+      writer.newLine();
+      writer.write("EXPORTS");
       writer.newLine();
       for (String export : exports) {
         writer.write("  ");
@@ -103,7 +105,7 @@ public class PrivateExportsGenerationTask extends DefaultTask {
     File toWrite = exportsFile.get().getAsFile();
     toWrite.getParentFile().mkdirs();
 
-    try (BufferedWriter writer = Files.newBufferedWriter(toWrite.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+    try (BufferedWriter writer = Files.newBufferedWriter(toWrite.toPath())) {
       writer.write(libraryName.get());
       writer.write(" {");
       writer.newLine();
