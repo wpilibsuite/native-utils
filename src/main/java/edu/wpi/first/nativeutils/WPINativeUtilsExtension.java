@@ -71,7 +71,7 @@ public class WPINativeUtilsExtension {
         public String windowsx86 = "windowsx86";
         public String osxx64 = "osxx86-64";
         public String linuxx64 = "linuxx86-64";
-        public String bionic = "linuxbionic";
+        public String aarch64bionic = "linuxaarch66bionic";
         public List<String> allPlatforms = Collections
                 .unmodifiableList(Arrays.asList(roborio, raspbian, bionic, windowsx64, windowsx86, osxx64, linuxx64));
         public List<String> all2019Platforms = Collections
@@ -107,7 +107,7 @@ public class WPINativeUtilsExtension {
         linuxraspbian.getCppCompiler().getDebugArgs().addAll(defaultArguments.linuxCrossDebugCompilerArgs);
         linuxraspbian.getCppCompiler().getReleaseArgs().addAll(defaultArguments.linuxCrossReleaseCompilerArgs);
 
-        linuxbionic.setPlatformPath("linux/bionic");
+        linuxbionic.setPlatformPath("linux/aarch66bionic");
         linuxbionic.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerArgs);
         linuxbionic.getcCompiler().getArgs().addAll(defaultArguments.linuxCrossCCompilerArgs);
         linuxbionic.getLinker().getArgs().addAll(defaultArguments.linuxCrossLinkerArgs);
