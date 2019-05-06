@@ -54,9 +54,6 @@ public class PrivateExportsConfigRules extends RuleSource {
         TaskProvider<PrivateExportsGenerationTask> exportsTask = project.getTasks().register(exportsTaskName, PrivateExportsGenerationTask.class, task -> {
           task.getSymbolsToExportFile().set(config.getExportsFile());
           task.getLibraryName().set(nativeComponent.getBaseName());
-
-
-
           if (binary.getTargetPlatform().getOperatingSystem().isWindows()) {
             task.setIsWindows(true);
             String exportsName = "exports.def";

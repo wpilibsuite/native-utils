@@ -67,9 +67,6 @@ public class PrivateExportsGenerationTask extends DefaultTask {
     exportsFile = factory.fileProperty();
     exportsList = factory.listProperty(String.class);
     libraryName = factory.property(String.class);
-
-    this.getInputs().file(symbolsToExportFile);
-    this.getOutputs().file(exportsFile);
   }
 
   private void executeWindows() throws IOException {

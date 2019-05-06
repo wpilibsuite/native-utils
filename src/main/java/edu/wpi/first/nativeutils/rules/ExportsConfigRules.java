@@ -2,10 +2,7 @@ package edu.wpi.first.nativeutils.rules;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,33 +55,7 @@ public class ExportsConfigRules extends RuleSource {
         try {
             rootProject.getTasks().named(extractGeneratorTaskName);
         } catch (UnknownTaskException notFound) {
-            rootProject.getTasks().register(extractGeneratorTaskName, ExtractDefFileGeneratorTask.class, task -> {
-                task.getOutputs().file(task.defFileGenerator);
-                task.defFileGenerator.set(rootProject.getLayout().getBuildDirectory().file("DefFileGenerator.exe"));
-                task.doLast(t -> {
-                    File file = task.defFileGenerator.getAsFile().get();
-                    InputStream is = ExportsConfigRules.class.getResourceAsStream("/DefFileGenerator.exe");
-                    OutputStream os = null;
-
-                    byte[] buffer = new byte[1024];
-                    int readBytes;
-                    try {
-                        os = new FileOutputStream(file);
-                        while ((readBytes = is.read(buffer)) != -1) {
-                            os.write(buffer, 0, readBytes);
-                        }
-                    } catch (IOException ex) {
-                    } finally {
-                        try {
-                            if (os != null) {
-                                os.close();
-                            }
-                            is.close();
-                        } catch (IOException ex) {
-                        }
-                    }
-                });
-            });
+            rootProject.getTasks().register(extractGeneratorTaskName, ExtractDefFileGeneratorTask.class, rootProject);
         }
 
         for (ComponentSpec component : components) {
