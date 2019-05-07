@@ -8,8 +8,8 @@ import java.util.Map;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
+import org.gradle.internal.logging.text.DiagnosticsVisitor;
 import org.gradle.internal.os.OperatingSystem;
-import org.gradle.util.TreeVisitor;
 
 import edu.wpi.first.toolchain.bionic.BionicToolchainPlugin;
 import edu.wpi.first.toolchain.configurable.ConfigurableGcc;
@@ -109,7 +109,7 @@ public class ToolchainExtension {
         components.add(component);
     }
 
-    public void explain(TreeVisitor<String> visitor) {
+    public void explain(DiagnosticsVisitor visitor) {
         for (ToolchainDescriptorBase desc : toolchainDescriptors) {
             if (desc == null || desc.discover() == null) {
                 visitor.node(desc.getName());

@@ -3,7 +3,7 @@ package edu.wpi.first.toolchain;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectSet;
-import org.gradle.util.TreeVisitor;
+import org.gradle.internal.logging.text.DiagnosticsVisitor;
 
 public interface ToolchainDescriptorBase extends Named {
 
@@ -13,7 +13,7 @@ public interface ToolchainDescriptorBase extends Named {
 
   public DomainObjectSet<AbstractToolchainInstaller> getInstallers();
 
-  public void explain(TreeVisitor<String> visitor);
+  public void explain(DiagnosticsVisitor visitor);
 
   public ToolchainDiscoverer discover();
 

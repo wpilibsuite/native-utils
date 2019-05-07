@@ -62,8 +62,8 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
         File frcHomeLoc = new File(new FrcHome(roborioExt.year).get(), "roborio");
         File installLoc = toolchainInstallLoc(roborioExt.year);
 
-        descriptor.getDiscoverers().add(new ToolchainDiscoverer("FRCHome", frcHomeLoc, this::composeTool));
-        descriptor.getDiscoverers().add(new ToolchainDiscoverer("GradleUserDir", installLoc, this::composeTool));
+        descriptor.getDiscoverers().add(ToolchainDiscoverer.create("FRCHome", frcHomeLoc, this::composeTool, project));
+        descriptor.getDiscoverers().add(ToolchainDiscoverer.create("GradleUserDir", installLoc, this::composeTool, project));
         descriptor.getDiscoverers().addAll(ToolchainDiscoverer.forSystemPath(project, this::composeTool));
 
         String installerSubdir = "frc" + roborioExt.year + "/roborio";

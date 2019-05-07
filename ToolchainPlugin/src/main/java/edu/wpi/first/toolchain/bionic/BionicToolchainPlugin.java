@@ -63,7 +63,7 @@ public class BionicToolchainPlugin implements Plugin<Project> {
         String bionicVersion = bionicExt.toolchainVersion.split("-")[0].toLowerCase();
         File installLoc = toolchainInstallLoc(bionicVersion);
 
-        descriptor.getDiscoverers().add(new ToolchainDiscoverer("GradleUserDir", installLoc, this::composeTool));
+        descriptor.getDiscoverers().add(ToolchainDiscoverer.create("GradleUserDir", installLoc, this::composeTool, project));
         descriptor.getDiscoverers().addAll(ToolchainDiscoverer.forSystemPath(project, this::composeTool));
 
         try {

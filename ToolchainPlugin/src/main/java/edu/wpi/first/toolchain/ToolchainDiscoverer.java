@@ -1,26 +1,29 @@
 package edu.wpi.first.toolchain;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
 import org.gradle.api.Named;
 import org.gradle.api.Project;
-import org.gradle.api.internal.file.FileResolver;
-import org.gradle.api.internal.file.IdentityFileResolver;
+import org.gradle.internal.logging.text.DiagnosticsVisitor;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.toolchain.internal.SystemLibraries;
 import org.gradle.nativeplatform.toolchain.internal.gcc.metadata.GccMetadata;
 import org.gradle.nativeplatform.toolchain.internal.gcc.metadata.GccMetadataProvider;
 import org.gradle.platform.base.internal.toolchain.SearchResult;
 import org.gradle.process.ExecSpec;
-import org.gradle.process.internal.DefaultExecActionFactory;
 import org.gradle.process.internal.ExecActionFactory;
-import org.gradle.util.TreeVisitor;
 import org.gradle.util.VersionNumber;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.util.*;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class ToolchainDiscoverer implements Named {
 
@@ -31,7 +34,12 @@ public class ToolchainDiscoverer implements Named {
     private String versionLo, versionHi;
     private Function<String, String> composer;
 
-    public ToolchainDiscoverer(String name, File rootDir, Function<String, String> composer) {
+    public static ToolchainDiscoverer create(String name, File rootDir, Function<String, String> composer, Project project) {
+        return project.getObjects().newInstance(ToolchainDiscoverer.class, name, rootDir, composer);
+    }
+
+    @Inject
+    public ToolchainDiscoverer(String name, File rootDir, Function<String, String> composer, ExecActionFactory execFactory) {
         this.name = name;
         this.rootDir = optFile(rootDir);
         this.versionLo = null;
@@ -39,8 +47,6 @@ public class ToolchainDiscoverer implements Named {
         this.composer = composer;
         this.metadataLazy = Optional.empty();
 
-        FileResolver fileResolver = new IdentityFileResolver();
-        ExecActionFactory execFactory = new DefaultExecActionFactory(fileResolver);
         this.metadataProvider = GccMetadataProvider.forGcc(execFactory);
     }
 
@@ -103,13 +109,13 @@ public class ToolchainDiscoverer implements Named {
         return rootDir();
     }
 
-    public Optional<GccMetadata> metadata(TreeVisitor<String> visitor) {
+    public Optional<GccMetadata> metadata(DiagnosticsVisitor visitor) {
         if (!metadataLazy.isPresent())
             metadataLazy = metadata(gccFile().orElse(null), visitor);
         return metadataLazy;
     }
 
-    public void explain(TreeVisitor<String> visitor) {
+    public void explain(DiagnosticsVisitor visitor) {
         visitor.node("Valid?: " + valid());
         visitor.node("Found?: " + exists());
         visitor.node("Version Range");
@@ -175,10 +181,12 @@ public class ToolchainDiscoverer implements Named {
         return name;
     }
 
-    private Optional<GccMetadata> metadata(File file, TreeVisitor<String> visitor) {
+    private Optional<GccMetadata> metadata(File file, DiagnosticsVisitor visitor) {
         if (file == null || !file.exists())
             return Optional.empty();
-        SearchResult<GccMetadata> searchresult = metadataProvider.getCompilerMetaData(file, new ArrayList<String>(), new ArrayList<File>());
+        SearchResult<GccMetadata> searchresult = metadataProvider.getCompilerMetaData(new ArrayList<File>(), compilerSpec -> {
+            compilerSpec.executable(file);
+        });
         if (visitor != null)
             searchresult.explain(visitor);
         return Optional.of(searchresult.getComponent());
@@ -205,7 +213,7 @@ public class ToolchainDiscoverer implements Named {
         List<ToolchainDiscoverer> disc = new ArrayList<>();
         int i = 0;
         for (File f : systemPath(project, composer)) {
-            disc.add(new ToolchainDiscoverer("Path" + (i++), f, composer));
+            disc.add(ToolchainDiscoverer.create("Path" + (i++), f, composer, project));
         }
         return disc;
     }
