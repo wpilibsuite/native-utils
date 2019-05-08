@@ -40,8 +40,10 @@ import edu.wpi.first.nativeutils.tasks.ExtractDefFileGeneratorTask;
 public class ExportsConfigRules extends RuleSource {
 
     @Mutate
-    void setupExports(ModelMap<Task> tasks, ExtensionContainer extensions, ProjectLayout projectLayout, ComponentSpecContainer components) {
-        NamedDomainObjectCollection<ExportsConfig> exports = extensions.getByType(NativeUtilsExtension.class).getExportsConfigs();
+    void setupExports(ModelMap<Task> tasks, ExtensionContainer extensions, ProjectLayout projectLayout,
+            ComponentSpecContainer components) {
+        NamedDomainObjectCollection<ExportsConfig> exports = extensions.getByType(NativeUtilsExtension.class)
+                .getExportsConfigs();
         if (!OperatingSystem.current().isWindows()) {
             return;
         }
@@ -61,26 +63,29 @@ public class ExportsConfigRules extends RuleSource {
             rootProject.getTasks().register(extractGeneratorTaskName, ExtractDefFileGeneratorTask.class, task -> {
                 task.getOutputs().file(task.defFileGenerator);
                 task.defFileGenerator.set(rootProject.getLayout().getBuildDirectory().file("DefFileGenerator.exe"));
-                task.doLast(t -> {
-                    File file = task.defFileGenerator.getAsFile().get();
-                    InputStream is = ExportsConfigRules.class.getResourceAsStream("/DefFileGenerator.exe");
-                    OutputStream os = null;
+                task.doLast(new Action<Task>() {
+                    @Override
+                    public void execute(Task t) {
+                        File file = task.defFileGenerator.getAsFile().get();
+                        InputStream is = ExportsConfigRules.class.getResourceAsStream("/DefFileGenerator.exe");
+                        OutputStream os = null;
 
-                    byte[] buffer = new byte[1024];
-                    int readBytes;
-                    try {
-                        os = new FileOutputStream(file);
-                        while ((readBytes = is.read(buffer)) != -1) {
-                            os.write(buffer, 0, readBytes);
-                        }
-                    } catch (IOException ex) {
-                    } finally {
+                        byte[] buffer = new byte[1024];
+                        int readBytes;
                         try {
-                            if (os != null) {
-                                os.close();
+                            os = new FileOutputStream(file);
+                            while ((readBytes = is.read(buffer)) != -1) {
+                                os.write(buffer, 0, readBytes);
                             }
-                            is.close();
                         } catch (IOException ex) {
+                        } finally {
+                            try {
+                                if (os != null) {
+                                    os.close();
+                                }
+                                is.close();
+                            } catch (IOException ex) {
+                            }
                         }
                     }
                 });
@@ -95,82 +100,91 @@ public class ExportsConfigRules extends RuleSource {
             if (component instanceof NativeLibrarySpec) {
                 for (BinarySpec oBinary : ((NativeLibrarySpec) component).getBinaries()) {
                     NativeBinarySpec binary = (NativeBinarySpec) oBinary;
-                    List<String> excludeBuildTypes = config.getExcludeBuildTypes() == null ? new ArrayList<>() : config.getExcludeBuildTypes();
-                    if (binary.getTargetPlatform().getOperatingSystem().isWindows() &&
-                            binary instanceof SharedLibraryBinarySpec &&
-                            !excludeBuildTypes.contains(binary.getBuildType().getName())) {
+                    List<String> excludeBuildTypes = config.getExcludeBuildTypes() == null ? new ArrayList<>()
+                            : config.getExcludeBuildTypes();
+                    if (binary.getTargetPlatform().getOperatingSystem().isWindows()
+                            && binary instanceof SharedLibraryBinarySpec
+                            && !excludeBuildTypes.contains(binary.getBuildType().getName())) {
                         SharedLibraryBinarySpec sBinary = (SharedLibraryBinarySpec) binary;
 
                         String exportsTaskName = "generateExports" + binary.getBuildTask().getName();
 
-                        TaskProvider<ExportsGenerationTask> exportsTask = project.getTasks().register(exportsTaskName, ExportsGenerationTask.class, task -> {
-                            task.getInputs().files(((AbstractLinkTask) sBinary.getTasks().getLink()).getSource());
-                            File tmpDir = project.file(project.getBuildDir() + "/tmp/" + exportsTaskName);
-                            File defFile = project.file(tmpDir.toString() + "/exports.def");
-                            sBinary.getLinker().args("/DEF:" + defFile.toString());
-                            sBinary.getTasks().getLink().getInputs().file(defFile);
-                            task.getOutputs().file(defFile);
-                            task.dependsOn(rootProject.getTasks().named(extractGeneratorTaskName));
+                        TaskProvider<ExportsGenerationTask> exportsTask = project.getTasks().register(exportsTaskName,
+                                ExportsGenerationTask.class, task -> {
+                                    task.getInputs()
+                                            .files(((AbstractLinkTask) sBinary.getTasks().getLink()).getSource());
+                                    File tmpDir = project.file(project.getBuildDir() + "/tmp/" + exportsTaskName);
+                                    File defFile = project.file(tmpDir.toString() + "/exports.def");
+                                    sBinary.getLinker().args("/DEF:" + defFile.toString());
+                                    sBinary.getTasks().getLink().getInputs().file(defFile);
+                                    task.getOutputs().file(defFile);
+                                    task.dependsOn(rootProject.getTasks().named(extractGeneratorTaskName));
 
-                            task.doLast(last -> {
-                                tmpDir.mkdirs();
-                                ExtractDefFileGeneratorTask extractTask = (ExtractDefFileGeneratorTask)rootProject.getTasks().named(extractGeneratorTaskName).get();
-                                String exeName = extractTask.defFileGenerator.getAsFile().get().toString();
-                                project.exec(exec -> {
-                                    exec.setExecutable(exeName);
-                                    exec.args(defFile);
-                                    exec.args(((AbstractLinkTask) sBinary.getTasks().getLink()).getSource());
-                                });
+                                    task.doLast(new Action<Task>() {
+                                        @Override
+                                        public void execute(Task last) {
+                                            tmpDir.mkdirs();
+                                            ExtractDefFileGeneratorTask extractTask = (ExtractDefFileGeneratorTask) rootProject
+                                                    .getTasks().named(extractGeneratorTaskName).get();
+                                            String exeName = extractTask.defFileGenerator.getAsFile().get().toString();
+                                            project.exec(exec -> {
+                                                exec.setExecutable(exeName);
+                                                exec.args(defFile);
+                                                exec.args(
+                                                        ((AbstractLinkTask) sBinary.getTasks().getLink()).getSource());
+                                            });
 
-                                final List<String> lines = new ArrayList<>();
-                                List<String> excludeSymbols;
-                                boolean isX86 = sBinary.getTargetPlatform().getArchitecture().getName().equals("x86");
-                                if (isX86) {
-                                    excludeSymbols = config.getX86ExcludeSymbols();
-                                } else {
-                                    excludeSymbols = config.getX64ExcludeSymbols();
-                                }
+                                            final List<String> lines = new ArrayList<>();
+                                            List<String> excludeSymbols;
+                                            boolean isX86 = sBinary.getTargetPlatform().getArchitecture().getName()
+                                                    .equals("x86");
+                                            if (isX86) {
+                                                excludeSymbols = config.getX86ExcludeSymbols();
+                                            } else {
+                                                excludeSymbols = config.getX64ExcludeSymbols();
+                                            }
 
-                                if (excludeSymbols == null) {
-                                    excludeSymbols = new ArrayList<>();
-                                }
-                                final List<String> exSymbols = excludeSymbols;
-                                try (Stream<String> stream = Files.lines(defFile.toPath())) {
-                                    stream.map(s -> s.trim()).forEach(line -> {
-                                        String symbol = line;
-                                        int space = line.indexOf(' ');
-                                        if (space != -1) {
-                                            symbol = symbol.substring(0, space);
-                                        }
-                                        if (!symbol.equals("EXPORTS") && !exSymbols.contains(symbol)) {
-                                            lines.add(symbol);
+                                            if (excludeSymbols == null) {
+                                                excludeSymbols = new ArrayList<>();
+                                            }
+                                            final List<String> exSymbols = excludeSymbols;
+                                            try (Stream<String> stream = Files.lines(defFile.toPath())) {
+                                                stream.map(s -> s.trim()).forEach(line -> {
+                                                    String symbol = line;
+                                                    int space = line.indexOf(' ');
+                                                    if (space != -1) {
+                                                        symbol = symbol.substring(0, space);
+                                                    }
+                                                    if (!symbol.equals("EXPORTS") && !exSymbols.contains(symbol)) {
+                                                        lines.add(symbol);
+                                                    }
+                                                });
+                                            } catch (IOException ex) {
+
+                                            }
+
+                                            if (isX86) {
+                                                Action<List<String>> symbolFilter = config.getX86SymbolFilter();
+                                                if (symbolFilter != null) {
+                                                    symbolFilter.execute(lines);
+                                                }
+                                            } else {
+                                                Action<List<String>> symbolFilter = config.getX64SymbolFilter();
+                                                if (symbolFilter != null) {
+                                                    symbolFilter.execute(lines);
+                                                }
+                                            }
+
+                                            try (BufferedWriter writer = Files.newBufferedWriter(defFile.toPath())) {
+                                                writer.append("EXPORTS").append('\n');
+                                                for (String line : lines) {
+                                                    writer.append(line).append('\n');
+                                                }
+                                            } catch (IOException ex) {
+                                            }
                                         }
                                     });
-                                } catch (IOException ex) {
-
-                                }
-
-                                if (isX86) {
-                                    Action<List<String>> symbolFilter = config.getX86SymbolFilter();
-                                    if (symbolFilter != null) {
-                                        symbolFilter.execute(lines);
-                                    }
-                                } else {
-                                    Action<List<String>> symbolFilter = config.getX64SymbolFilter();
-                                    if (symbolFilter != null) {
-                                        symbolFilter.execute(lines);
-                                    }
-                                }
-
-                                try (BufferedWriter writer = Files.newBufferedWriter(defFile.toPath())) {
-                                    writer.append("EXPORTS").append('\n');
-                                    for (String line : lines) {
-                                        writer.append(line).append('\n');
-                                    }
-                                } catch (IOException ex) {
-                                }
-                            });
-                        });
+                                });
 
                         sBinary.getTasks().withType(AbstractNativeSourceCompileTask.class).configureEach(it -> {
                             exportsTask.configure(t -> {
