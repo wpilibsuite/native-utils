@@ -281,94 +281,96 @@ public class WPINativeUtilsExtension {
                 c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
             });
         });
-        nativeExt.combinedDependencyConfigs(configs -> {
-            configs.create("wpilib_static_rio", c -> {
-                c.setLibraryName("wpilib_static");
-                c.getTargetPlatforms().add(this.platforms.roborio);
-                List<String> deps = c.getDependencies();
-                deps.add("wpilibc_static");
-                deps.add("cameraserver_static");
-                deps.add("cscore_static");
-                deps.add("opencv_static");
-                deps.add("ntcore_static");
-                deps.add("hal_static");
-                deps.add("wpiutil_static");
-                deps.add("chipobject_shared");
-                deps.add("netcomm_shared");
-            });
-            configs.create("driver_static_rio", c -> {
-                c.setLibraryName("driver_static");
-                List<String> deps = c.getDependencies();
-                c.getTargetPlatforms().add(this.platforms.roborio);
-                deps.add("hal_static");
-                deps.add("wpiutil_static");
-                deps.add("chipobject_shared");
-                deps.add("netcomm_shared");
-            });
-            configs.create("wpilib_shared_rio", c -> {
-                c.setLibraryName("wpilib_shared");
-                List<String> deps = c.getDependencies();
-                c.getTargetPlatforms().add(this.platforms.roborio);
-                deps.add("wpilibc_shared");
-                deps.add("cameraserver_shared");
-                deps.add("cscore_shared");
-                deps.add("opencv_shared");
-                deps.add("ntcore_shared");
-                deps.add("hal_shared");
-                deps.add("wpiutil_shared");
-                deps.add("chipobject_shared");
-                deps.add("netcomm_shared");
-            });
-            configs.create("driver_shared_rio", c -> {
-                c.setLibraryName("driver_shared");
-                List<String> deps = c.getDependencies();
-                c.getTargetPlatforms().add(this.platforms.roborio);
-                deps.add("hal_shared");
-                deps.add("wpiutil_shared");
-                deps.add("chipobject_shared");
-                deps.add("netcomm_shared");
-            });
-            List<String> platsWithoutRio = new ArrayList<>(this.platforms.all2019Platforms);
-            platsWithoutRio.remove(this.platforms.roborio);
+        if (!dependencyVersions.wpiVersion.equals("-1")) {
+            nativeExt.combinedDependencyConfigs(configs -> {
+                configs.create("wpilib_static_rio", c -> {
+                    c.setLibraryName("wpilib_static");
+                    c.getTargetPlatforms().add(this.platforms.roborio);
+                    List<String> deps = c.getDependencies();
+                    deps.add("wpilibc_static");
+                    deps.add("cameraserver_static");
+                    deps.add("cscore_static");
+                    deps.add("opencv_static");
+                    deps.add("ntcore_static");
+                    deps.add("hal_static");
+                    deps.add("wpiutil_static");
+                    deps.add("chipobject_shared");
+                    deps.add("netcomm_shared");
+                });
+                configs.create("driver_static_rio", c -> {
+                    c.setLibraryName("driver_static");
+                    List<String> deps = c.getDependencies();
+                    c.getTargetPlatforms().add(this.platforms.roborio);
+                    deps.add("hal_static");
+                    deps.add("wpiutil_static");
+                    deps.add("chipobject_shared");
+                    deps.add("netcomm_shared");
+                });
+                configs.create("wpilib_shared_rio", c -> {
+                    c.setLibraryName("wpilib_shared");
+                    List<String> deps = c.getDependencies();
+                    c.getTargetPlatforms().add(this.platforms.roborio);
+                    deps.add("wpilibc_shared");
+                    deps.add("cameraserver_shared");
+                    deps.add("cscore_shared");
+                    deps.add("opencv_shared");
+                    deps.add("ntcore_shared");
+                    deps.add("hal_shared");
+                    deps.add("wpiutil_shared");
+                    deps.add("chipobject_shared");
+                    deps.add("netcomm_shared");
+                });
+                configs.create("driver_shared_rio", c -> {
+                    c.setLibraryName("driver_shared");
+                    List<String> deps = c.getDependencies();
+                    c.getTargetPlatforms().add(this.platforms.roborio);
+                    deps.add("hal_shared");
+                    deps.add("wpiutil_shared");
+                    deps.add("chipobject_shared");
+                    deps.add("netcomm_shared");
+                });
+                List<String> platsWithoutRio = new ArrayList<>(this.platforms.all2019Platforms);
+                platsWithoutRio.remove(this.platforms.roborio);
 
-            configs.create("wpilib_static_dt", c -> {
-                c.setLibraryName("wpilib_static");
-                c.getTargetPlatforms().addAll(platsWithoutRio);
-                List<String> deps = c.getDependencies();
-                deps.add("wpilibc_static");
-                deps.add("cameraserver_static");
-                deps.add("cscore_static");
-                deps.add("opencv_static");
-                deps.add("ntcore_static");
-                deps.add("hal_static");
-                deps.add("wpiutil_static");
+                configs.create("wpilib_static_dt", c -> {
+                    c.setLibraryName("wpilib_static");
+                    c.getTargetPlatforms().addAll(platsWithoutRio);
+                    List<String> deps = c.getDependencies();
+                    deps.add("wpilibc_static");
+                    deps.add("cameraserver_static");
+                    deps.add("cscore_static");
+                    deps.add("opencv_static");
+                    deps.add("ntcore_static");
+                    deps.add("hal_static");
+                    deps.add("wpiutil_static");
+                });
+                configs.create("driver_static_dt", c -> {
+                    c.setLibraryName("driver_static");
+                    List<String> deps = c.getDependencies();
+                    c.getTargetPlatforms().addAll(platsWithoutRio);
+                    deps.add("hal_static");
+                    deps.add("wpiutil_static");
+                });
+                configs.create("wpilib_shared_dt", c -> {
+                    c.setLibraryName("wpilib_shared");
+                    List<String> deps = c.getDependencies();
+                    c.getTargetPlatforms().addAll(platsWithoutRio);
+                    deps.add("wpilibc_shared");
+                    deps.add("cameraserver_shared");
+                    deps.add("cscore_shared");
+                    deps.add("opencv_shared");
+                    deps.add("ntcore_shared");
+                    deps.add("hal_shared");
+                    deps.add("wpiutil_shared");
+                });
+                configs.create("driver_shared_dt", c -> {
+                    c.setLibraryName("driver_shared");
+                    List<String> deps = c.getDependencies();
+                    c.getTargetPlatforms().addAll(platsWithoutRio);
+                    deps.add("hal_shared");
+                    deps.add("wpiutil_shared");
+                });
             });
-            configs.create("driver_static_dt", c -> {
-                c.setLibraryName("driver_static");
-                List<String> deps = c.getDependencies();
-                c.getTargetPlatforms().addAll(platsWithoutRio);
-                deps.add("hal_static");
-                deps.add("wpiutil_static");
-            });
-            configs.create("wpilib_shared_dt", c -> {
-                c.setLibraryName("wpilib_shared");
-                List<String> deps = c.getDependencies();
-                c.getTargetPlatforms().addAll(platsWithoutRio);
-                deps.add("wpilibc_shared");
-                deps.add("cameraserver_shared");
-                deps.add("cscore_shared");
-                deps.add("opencv_shared");
-                deps.add("ntcore_shared");
-                deps.add("hal_shared");
-                deps.add("wpiutil_shared");
-            });
-            configs.create("driver_shared_dt", c -> {
-                c.setLibraryName("driver_shared");
-                List<String> deps = c.getDependencies();
-                c.getTargetPlatforms().addAll(platsWithoutRio);
-                deps.add("hal_shared");
-                deps.add("wpiutil_shared");
-            });
-        });
+        }
     }
 }
