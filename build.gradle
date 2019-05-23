@@ -52,6 +52,7 @@ gradlePlugin {
     plugins {
         NativeUtils {
             id = 'edu.wpi.first.NativeUtils'
+            displayName = 'NativeUtils'
             implementationClass = 'edu.wpi.first.nativeutils.NativeUtils'
         }
     }
