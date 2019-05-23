@@ -189,72 +189,75 @@ public class WPINativeUtilsExtension {
                 c.setVersion(dependencyVersions.niLibVersion);
                 c.getSharedPlatforms().add(this.platforms.roborio);
             });
+            
+            if (!dependencyVersions.wpiVersion.equals("-1")) {
 
-            configs.create("wpiutil", c -> {
-                c.setGroupId("edu.wpi.first.wpiutil");
-                c.setArtifactId("wpiutil-cpp");
-                c.setHeaderClassifier("headers");
-                c.setSourceClassifier("sources");
-                c.setExt("zip");
-                c.setVersion(dependencyVersions.wpiVersion);
-                c.getSharedPlatforms().addAll(this.platforms.all2019Platforms);
-                c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
-            });
+                configs.create("wpiutil", c -> {
+                    c.setGroupId("edu.wpi.first.wpiutil");
+                    c.setArtifactId("wpiutil-cpp");
+                    c.setHeaderClassifier("headers");
+                    c.setSourceClassifier("sources");
+                    c.setExt("zip");
+                    c.setVersion(dependencyVersions.wpiVersion);
+                    c.getSharedPlatforms().addAll(this.platforms.all2019Platforms);
+                    c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
+                });
 
-            configs.create("ntcore", c -> {
-                c.setGroupId("edu.wpi.first.ntcore");
-                c.setArtifactId("ntcore-cpp");
-                c.setHeaderClassifier("headers");
-                c.setSourceClassifier("sources");
-                c.setExt("zip");
-                c.setVersion(dependencyVersions.wpiVersion);
-                c.getSharedPlatforms().addAll(this.platforms.all2019Platforms);
-                c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
-            });
+                configs.create("ntcore", c -> {
+                    c.setGroupId("edu.wpi.first.ntcore");
+                    c.setArtifactId("ntcore-cpp");
+                    c.setHeaderClassifier("headers");
+                    c.setSourceClassifier("sources");
+                    c.setExt("zip");
+                    c.setVersion(dependencyVersions.wpiVersion);
+                    c.getSharedPlatforms().addAll(this.platforms.all2019Platforms);
+                    c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
+                });
 
-            configs.create("hal", c -> {
-                c.setGroupId("edu.wpi.first.hal");
-                c.setArtifactId("hal-cpp");
-                c.setHeaderClassifier("headers");
-                c.setSourceClassifier("sources");
-                c.setExt("zip");
-                c.setVersion(dependencyVersions.wpiVersion);
-                c.getSharedPlatforms().addAll(this.platforms.all2019Platforms);
-                c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
-            });
+                configs.create("hal", c -> {
+                    c.setGroupId("edu.wpi.first.hal");
+                    c.setArtifactId("hal-cpp");
+                    c.setHeaderClassifier("headers");
+                    c.setSourceClassifier("sources");
+                    c.setExt("zip");
+                    c.setVersion(dependencyVersions.wpiVersion);
+                    c.getSharedPlatforms().addAll(this.platforms.all2019Platforms);
+                    c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
+                });
 
-            configs.create("cscore", c -> {
-                c.setGroupId("edu.wpi.first.cscore");
-                c.setArtifactId("cscore-cpp");
-                c.setHeaderClassifier("headers");
-                c.setSourceClassifier("sources");
-                c.setExt("zip");
-                c.setVersion(dependencyVersions.wpiVersion);
-                c.getSharedPlatforms().addAll(this.platforms.all2019Platforms);
-                c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
-            });
+                configs.create("cscore", c -> {
+                    c.setGroupId("edu.wpi.first.cscore");
+                    c.setArtifactId("cscore-cpp");
+                    c.setHeaderClassifier("headers");
+                    c.setSourceClassifier("sources");
+                    c.setExt("zip");
+                    c.setVersion(dependencyVersions.wpiVersion);
+                    c.getSharedPlatforms().addAll(this.platforms.all2019Platforms);
+                    c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
+                });
 
-            configs.create("cameraserver", c -> {
-                c.setGroupId("edu.wpi.first.cameraserver");
-                c.setArtifactId("cameraserver-cpp");
-                c.setHeaderClassifier("headers");
-                c.setSourceClassifier("sources");
-                c.setExt("zip");
-                c.setVersion(dependencyVersions.wpiVersion);
-                c.getSharedPlatforms().addAll(this.platforms.all2019Platforms);
-                c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
-            });
+                configs.create("cameraserver", c -> {
+                    c.setGroupId("edu.wpi.first.cameraserver");
+                    c.setArtifactId("cameraserver-cpp");
+                    c.setHeaderClassifier("headers");
+                    c.setSourceClassifier("sources");
+                    c.setExt("zip");
+                    c.setVersion(dependencyVersions.wpiVersion);
+                    c.getSharedPlatforms().addAll(this.platforms.all2019Platforms);
+                    c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
+                });
 
-            configs.create("wpilibc", c -> {
-                c.setGroupId("edu.wpi.first.wpilibc");
-                c.setArtifactId("wpilibc-cpp");
-                c.setHeaderClassifier("headers");
-                c.setSourceClassifier("sources");
-                c.setExt("zip");
-                c.setVersion(dependencyVersions.wpiVersion);
-                c.getSharedPlatforms().addAll(this.platforms.all2019Platforms);
-                c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
-            });
+                configs.create("wpilibc", c -> {
+                    c.setGroupId("edu.wpi.first.wpilibc");
+                    c.setArtifactId("wpilibc-cpp");
+                    c.setHeaderClassifier("headers");
+                    c.setSourceClassifier("sources");
+                    c.setExt("zip");
+                    c.setVersion(dependencyVersions.wpiVersion);
+                    c.getSharedPlatforms().addAll(this.platforms.all2019Platforms);
+                    c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
+                });
+            }
 
             configs.create("opencv", c -> {
                 c.setGroupId("edu.wpi.first.thirdparty.frc2019.opencv");
