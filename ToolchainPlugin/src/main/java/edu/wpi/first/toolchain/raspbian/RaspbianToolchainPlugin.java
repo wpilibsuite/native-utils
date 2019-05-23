@@ -63,7 +63,7 @@ public class RaspbianToolchainPlugin implements Plugin<Project> {
         String raspbianVersion = raspbianExt.toolchainVersion.split("-")[0].toLowerCase();
         File installLoc = toolchainInstallLoc(raspbianVersion);
 
-        descriptor.getDiscoverers().add(new ToolchainDiscoverer("GradleUserDir", installLoc, this::composeTool));
+        descriptor.getDiscoverers().add(ToolchainDiscoverer.create("GradleUserDir", installLoc, this::composeTool, project));
         descriptor.getDiscoverers().addAll(ToolchainDiscoverer.forSystemPath(project, this::composeTool));
 
         try {

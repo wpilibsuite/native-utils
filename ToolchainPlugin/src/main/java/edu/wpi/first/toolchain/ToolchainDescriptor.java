@@ -2,10 +2,11 @@ package edu.wpi.first.toolchain;
 
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.NamedDomainObjectSet;
+import org.gradle.api.internal.CollectionCallbackActionDecorator;
 import org.gradle.api.internal.DefaultDomainObjectSet;
 import org.gradle.api.internal.DefaultNamedDomainObjectSet;
+import org.gradle.internal.logging.text.DiagnosticsVisitor;
 import org.gradle.internal.reflect.DirectInstantiator;
-import org.gradle.util.TreeVisitor;
 
 public class ToolchainDescriptor<T extends GccToolChain> implements ToolchainDescriptorBase {
 
@@ -25,7 +26,7 @@ public class ToolchainDescriptor<T extends GccToolChain> implements ToolchainDes
         this.registrar = registrar;
         this.toolchainName = toolchainName;
         this.discoverers = new DefaultNamedDomainObjectSet<ToolchainDiscoverer>(ToolchainDiscoverer.class, DirectInstantiator.INSTANCE);
-        this.installers = new DefaultDomainObjectSet<AbstractToolchainInstaller>(AbstractToolchainInstaller.class);
+        this.installers = new DefaultDomainObjectSet<AbstractToolchainInstaller>(AbstractToolchainInstaller.class, CollectionCallbackActionDecorator.NOOP);
     }
 
     @Override
@@ -54,7 +55,7 @@ public class ToolchainDescriptor<T extends GccToolChain> implements ToolchainDes
     }
 
     @Override
-    public void explain(TreeVisitor<String> visitor) {
+    public void explain(DiagnosticsVisitor visitor) {
         for (ToolchainDiscoverer discoverer : discoverers) {
             visitor.node(discoverer.getName());
             visitor.startChildren();

@@ -5,7 +5,7 @@ import jaci.gradle.log.ETLoggerFactory;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.internal.logging.text.StyledTextOutput;
-import org.gradle.internal.text.TreeFormatter;
+import org.gradle.internal.logging.text.TreeFormatter;
 import org.gradle.nativeplatform.toolchain.internal.gcc.AbstractGccCompatibleToolChain;
 
 public abstract class GccToolChain extends AbstractGccCompatibleToolChain {
