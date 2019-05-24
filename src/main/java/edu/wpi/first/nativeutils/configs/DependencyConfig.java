@@ -28,4 +28,6 @@ public interface DependencyConfig extends Named {
 
     List<String> getSharedPlatforms();
     List<String> getStaticPlatforms();
+    
+    List<String> getSharedExcludes();
 }

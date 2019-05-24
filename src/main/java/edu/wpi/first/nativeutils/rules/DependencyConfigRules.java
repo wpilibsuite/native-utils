@@ -100,6 +100,7 @@ public class DependencyConfigRules extends RuleSource {
             lib.setSharedMatchers(new ArrayList<>(sharedMatchers));
             lib.setStaticMatchers(new ArrayList<>(staticMatchers));
             lib.setSharedExcludes(new ArrayList<>(sharedExcludes));
+            lib.getSharedExcludes().addAll(dependency.getSharedExcludes());
             if (dependency.getSharedUsedAtRuntime()) {
               lib.setDynamicMatchers(new ArrayList<>(runtimeMatchers));
             }

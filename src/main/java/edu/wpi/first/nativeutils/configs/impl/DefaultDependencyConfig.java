@@ -19,6 +19,7 @@ public class DefaultDependencyConfig implements DependencyConfig {
   private boolean sharedUsedAtRuntime = true;
   private List<String> staticPlatforms = new ArrayList<>();
   private List<String> sharedPlatforms = new ArrayList<>();
+  private List<String> sharedExcludes = new ArrayList<>();
 
   private String name;
 
@@ -144,5 +145,10 @@ public class DefaultDependencyConfig implements DependencyConfig {
   @Override
   public List<String> getStaticPlatforms() {
     return staticPlatforms;
+  }
+  
+  @Override
+  public List<String> getSharedExcludes() {
+    return sharedExcludes;
   }
 }

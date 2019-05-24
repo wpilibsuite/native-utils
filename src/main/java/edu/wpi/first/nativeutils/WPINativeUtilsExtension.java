@@ -268,6 +268,7 @@ public class WPINativeUtilsExtension {
                 c.setSourceClassifier("sources");
                 c.setExt("zip");
                 c.setVersion(dependencyVersions.opencvVersion);
+                c.getSharedExcludes().add("**/*java*");
                 c.getSharedPlatforms().addAll(this.platforms.all2019Platforms);
                 c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
             });
