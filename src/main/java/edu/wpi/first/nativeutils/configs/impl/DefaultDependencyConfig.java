@@ -16,7 +16,7 @@ public class DefaultDependencyConfig implements DependencyConfig {
   private String ext;
   private String version;
 
-  private boolean sharedUsedAtRuntime;
+  private boolean sharedUsedAtRuntime = true;
   private List<String> staticPlatforms = new ArrayList<>();
   private List<String> sharedPlatforms = new ArrayList<>();
 

@@ -178,6 +178,7 @@ public class WPINativeUtilsExtension {
                 c.setHeaderClassifier("headers");
                 c.setExt("zip");
                 c.setVersion(dependencyVersions.niLibVersion);
+                c.setSharedUsedAtRuntime(false);
                 c.getSharedPlatforms().add(this.platforms.roborio);
             });
 
@@ -187,6 +188,7 @@ public class WPINativeUtilsExtension {
                 c.setHeaderClassifier("headers");
                 c.setExt("zip");
                 c.setVersion(dependencyVersions.niLibVersion);
+                c.setSharedUsedAtRuntime(false);
                 c.getSharedPlatforms().add(this.platforms.roborio);
             });
             
@@ -277,7 +279,6 @@ public class WPINativeUtilsExtension {
                 c.setSourceClassifier("sources");
                 c.setExt("zip");
                 c.setVersion(dependencyVersions.googleTestVersion);
-                c.getSharedPlatforms().addAll(this.platforms.all2019Platforms);
                 c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
             });
         });
