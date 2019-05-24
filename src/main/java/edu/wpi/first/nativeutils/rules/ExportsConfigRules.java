@@ -17,7 +17,6 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.UnknownTaskException;
 import org.gradle.api.plugins.ExtensionContainer;
-import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.language.base.internal.ProjectLayout;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
@@ -109,7 +108,7 @@ public class ExportsConfigRules extends RuleSource {
 
                         String exportsTaskName = "generateExports" + binary.getBuildTask().getName();
 
-                        TaskProvider<ExportsGenerationTask> exportsTask = project.getTasks().register(exportsTaskName,
+                        ExportsGenerationTask exportsTask = project.getTasks().create(exportsTaskName,
                                 ExportsGenerationTask.class, task -> {
                                     task.getInputs()
                                             .files(((AbstractLinkTask) sBinary.getTasks().getLink()).getSource());
@@ -186,18 +185,15 @@ public class ExportsConfigRules extends RuleSource {
                                     });
                                 });
 
+                        sBinary.getTasks().add(exportsTask);
                         sBinary.getTasks().withType(AbstractNativeSourceCompileTask.class).configureEach(it -> {
-                            exportsTask.configure(t -> {
-                                t.dependsOn(it);
-                            });
+                            exportsTask.dependsOn(it);
                         });
 
                         Task linkTask = sBinary.getTasks().getLink();
 
                         for (Object o : linkTask.getDependsOn()) {
-                            exportsTask.configure(t -> {
-                                t.dependsOn(o);
-                            });
+                            exportsTask.dependsOn(o);
                         }
                         linkTask.dependsOn(exportsTask);
                     }
