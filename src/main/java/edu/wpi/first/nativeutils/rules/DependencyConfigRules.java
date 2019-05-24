@@ -51,8 +51,8 @@ public class DependencyConfigRules extends RuleSource {
     }
 
     String[] buildKinds = { "debug", "" };
-    List<String> sharedMatchers = Arrays.asList("**/*.so", "**/*.so.*", "**/*.lib");
-    List<String> runtimeMatchers = Arrays.asList("**/*.so", "**/*.so.*", "**/*.dll");
+    List<String> sharedMatchers = Arrays.asList("**/*.so", "**/*.so.*", "**/*.dylib", "**/*.lib");
+    List<String> runtimeMatchers = Arrays.asList("**/*.so", "**/*.so.*", "**/*.dylib", "**/*.dll");
     List<String> sharedExcludes = Arrays.asList("**/*.so.debug", "**/*.so.*.debug");
     List<String> staticMatchers = Arrays.asList("**/*.lib", "**/*.a");
 
