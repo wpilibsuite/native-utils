@@ -1,6 +1,8 @@
 package edu.wpi.first.toolchain.xenial;
 
-public class XenialToolchainExtension {
+import edu.wpi.first.toolchain.ToolchainExtensionBase;
+
+public class XenialToolchainExtension extends ToolchainExtensionBase {
 
     public String versionLow = "5.5";
     public String versionHigh = "5.5";

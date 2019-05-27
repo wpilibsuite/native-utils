@@ -1,6 +1,8 @@
 package edu.wpi.first.toolchain.bionic;
 
-public class BionicToolchainExtension {
+import edu.wpi.first.toolchain.ToolchainExtensionBase;
+
+public class BionicToolchainExtension extends ToolchainExtensionBase {
 
     public String versionLow = "7.4";
     public String versionHigh = "7.4";

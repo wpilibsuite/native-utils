@@ -28,17 +28,15 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
 
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
 
-        ToolchainDescriptor<RoboRioGcc> descriptor = new ToolchainDescriptor<>(toolchainName, "roborioGcc", new ToolchainRegistrar<RoboRioGcc>(RoboRioGcc.class, project));
+        ToolchainDescriptor<RoboRioGcc> descriptor = new ToolchainDescriptor<>(toolchainName, "roborioGcc", new ToolchainRegistrar<RoboRioGcc>(RoboRioGcc.class, project), roborioExt.IsOptional());
         descriptor.setToolchainPlatforms(NativePlatforms.roborio);
-        descriptor.setOptional(false);
         descriptor.getDiscoverers().all((ToolchainDiscoverer disc) -> {
             disc.configureVersions(roborioExt.versionLow, roborioExt.versionHigh);
         });
 
-        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.roborio, descriptor);
+        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.roborio, roborioExt.IsOptional(), descriptor);
         configuration.setArchitecture("arm");
         configuration.setOperatingSystem("linux");
-        configuration.setOptional(false);
         configuration.setCompilerPrefix("");
 
         toolchainExt.getCrossCompilers().add(configuration);

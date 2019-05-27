@@ -42,13 +42,12 @@ public class ToolchainExtension {
             if (config.getToolchainDescriptor() == null) {
                 ToolchainDescriptor<ConfigurableGcc> descriptor = new ToolchainDescriptor<>(config.getName(),
                         config.getName() + "ConfiguredGcc",
-                        new ToolchainRegistrar<ConfigurableGcc>(ConfigurableGcc.class, project));
+                        new ToolchainRegistrar<ConfigurableGcc>(ConfigurableGcc.class, project), config.isOptional());
 
                 toolchainDescriptors.add(descriptor);
 
                 project.afterEvaluate(proj -> {
                     descriptor.setToolchainPlatforms(config.getOperatingSystem() + config.getArchitecture());
-                    descriptor.setOptional(config.getOptional());
                     descriptor.getDiscoverers().addAll(ToolchainDiscoverer.forSystemPath(project, name -> {
                         String exeSuffix = OperatingSystem.current().isWindows() ? ".exe" : "";
                         return config.getCompilerPrefix() + name + exeSuffix;
@@ -57,6 +56,7 @@ public class ToolchainExtension {
                 config.setToolchainDescriptor(descriptor);
             } else {
                 toolchainDescriptors.add(config.getToolchainDescriptor());
+
             }
         });
 

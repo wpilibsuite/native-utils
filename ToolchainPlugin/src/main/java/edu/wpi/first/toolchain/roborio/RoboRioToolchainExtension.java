@@ -1,6 +1,8 @@
 package edu.wpi.first.toolchain.roborio;
 
-public class RoboRioToolchainExtension {
+import edu.wpi.first.toolchain.ToolchainExtensionBase;
+
+public class RoboRioToolchainExtension extends ToolchainExtensionBase {
 
     public String versionLow = "6.3";
     public String versionHigh = "6.3";

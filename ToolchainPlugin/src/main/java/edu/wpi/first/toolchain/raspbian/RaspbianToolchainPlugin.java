@@ -28,17 +28,15 @@ public class RaspbianToolchainPlugin implements Plugin<Project> {
 
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
 
-        ToolchainDescriptor<RaspbianGcc> descriptor = new ToolchainDescriptor<>(toolchainName, "raspianGcc", new ToolchainRegistrar<RaspbianGcc>(RaspbianGcc.class, project));
+        ToolchainDescriptor<RaspbianGcc> descriptor = new ToolchainDescriptor<>(toolchainName, "raspianGcc", new ToolchainRegistrar<RaspbianGcc>(RaspbianGcc.class, project), raspbianExt.IsOptional());
         descriptor.setToolchainPlatforms(NativePlatforms.raspbian);
-        descriptor.setOptional(true);
         descriptor.getDiscoverers().all((ToolchainDiscoverer disc) -> {
             disc.configureVersions(raspbianExt.versionLow, raspbianExt.versionHigh);
         });
 
-        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.raspbian, descriptor);
+        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.raspbian, raspbianExt.IsOptional(), descriptor);
         configuration.setArchitecture("arm");
         configuration.setOperatingSystem("linux");
-        configuration.setOptional(true);
         configuration.setCompilerPrefix("");
 
         toolchainExt.getCrossCompilers().add(configuration);

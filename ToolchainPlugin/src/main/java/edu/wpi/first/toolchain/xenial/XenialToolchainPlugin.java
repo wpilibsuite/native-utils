@@ -28,17 +28,15 @@ public class XenialToolchainPlugin implements Plugin<Project> {
 
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
 
-        ToolchainDescriptor<XenialGcc> descriptor = new ToolchainDescriptor<>(toolchainName, "xenialGcc", new ToolchainRegistrar<XenialGcc>(XenialGcc.class, project));
+        ToolchainDescriptor<XenialGcc> descriptor = new ToolchainDescriptor<>(toolchainName, "xenialGcc", new ToolchainRegistrar<XenialGcc>(XenialGcc.class, project), xenialExt.IsOptional());
         descriptor.setToolchainPlatforms(NativePlatforms.xenial);
-        descriptor.setOptional(true);
         descriptor.getDiscoverers().all((ToolchainDiscoverer disc) -> {
             disc.configureVersions(xenialExt.versionLow, xenialExt.versionHigh);
         });
 
-        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.xenial, descriptor);
+        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.xenial, xenialExt.IsOptional(), descriptor);
         configuration.setArchitecture("aarch64");
         configuration.setOperatingSystem("linux");
-        configuration.setOptional(true);
         configuration.setCompilerPrefix("");
 
         toolchainExt.getCrossCompilers().add(configuration);

@@ -55,7 +55,7 @@ public abstract class GccToolChain extends AbstractGccCompatibleToolChain {
                     descriptor.explain(formatter);
                     logger.info(formatter.toString());
 
-                    boolean optional = descriptor.isOptional() || project.hasProperty("toolchain-optional-" + descriptor.getName());
+                    boolean optional = descriptor.isOptional().get() || project.hasProperty("toolchain-optional-" + descriptor.getName());
                     if (optional) {
                         logger.logStyle("Skipping builds for " + descriptor.getName() + " (toolchain is marked optional)", StyledTextOutput.Style.Description);
                     } else if (isUsed) {

@@ -28,17 +28,15 @@ public class BionicToolchainPlugin implements Plugin<Project> {
 
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
 
-        ToolchainDescriptor<BionicGcc> descriptor = new ToolchainDescriptor<>(toolchainName, "bionicGcc", new ToolchainRegistrar<BionicGcc>(BionicGcc.class, project));
+        ToolchainDescriptor<BionicGcc> descriptor = new ToolchainDescriptor<>(toolchainName, "bionicGcc", new ToolchainRegistrar<BionicGcc>(BionicGcc.class, project), bionicExt.IsOptional());
         descriptor.setToolchainPlatforms(NativePlatforms.bionic);
-        descriptor.setOptional(true);
         descriptor.getDiscoverers().all((ToolchainDiscoverer disc) -> {
             disc.configureVersions(bionicExt.versionLow, bionicExt.versionHigh);
         });
 
-        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.bionic, descriptor);
+        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.bionic, bionicExt.IsOptional(), descriptor);
         configuration.setArchitecture("aarch64");
         configuration.setOperatingSystem("linux");
-        configuration.setOptional(true);
         configuration.setCompilerPrefix("");
 
         toolchainExt.getCrossCompilers().add(configuration);
