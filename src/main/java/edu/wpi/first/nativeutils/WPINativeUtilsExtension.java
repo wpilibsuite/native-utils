@@ -3,7 +3,9 @@ package edu.wpi.first.nativeutils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -17,17 +19,23 @@ public class WPINativeUtilsExtension {
     public class DefaultArguments {
 
         public List<String> windowsCompilerArgs = Collections
-                .unmodifiableList(Arrays.asList("/EHsc", "/DNOMINMAX", "/Zi", "/FS", "/Zc:inline", "/MP4"));
+                .unmodifiableList(Arrays.asList("/EHsc", "/Zi", "/FS", "/Zc:inline", "/wd4244", "/wd4267", "/wd4146", "/wd4996", "/Zc:throwingNew", "/D_CRT_SECURE_NO_WARNINGS", "/std:c++17", "/permissive-"));
         public List<String> windowsCCompilerArgs = Collections
-                .unmodifiableList(Arrays.asList("/Zi", "/FS", "/Zc:inline"));
+                .unmodifiableList(Arrays.asList("/Zi", "/FS", "/Zc:inline", "/D_CRT_SECURE_NO_WARNINGS"));
         public List<String> windowsReleaseCompilerArgs = Collections.unmodifiableList(Arrays.asList("/O2", "/MD"));
         public List<String> windowsDebugCompilerArgs = Collections.unmodifiableList(Arrays.asList("/Od", "/MDd"));
         public List<String> windowsLinkerArgs = Collections.unmodifiableList(Arrays.asList("/DEBUG:FULL"));
         public List<String> windowsReleaseLinkerArgs = Collections
                 .unmodifiableList(Arrays.asList("/OPT:REF", "/OPT:ICF"));
 
+        public List<String> windowsWarningArgs = Collections.unmodifiableList(Arrays.asList("/W3"));
+        public List<String> windowsWarningsAsErrorsArgs = Collections.unmodifiableList(Arrays.asList("/WX"));
+
+        public List<String> unixWarningArgs = Collections.unmodifiableList(Arrays.asList("-Wall", "-Wextra"));
+        public List<String> unixWarningsAsErrorsArgs = Collections.unmodifiableList(Arrays.asList("-Werror"));
+
         public List<String> linuxCrossCompilerArgs = Collections.unmodifiableList(Arrays.asList("-std=c++14",
-                "-Wformat=2", "-Wall", "-Wextra", "-Werror", "-pedantic", "-Wno-psabi", "-g", "-Wno-unused-parameter",
+                "-Wformat=2", "-pedantic", "-Wno-psabi", "-g", "-Wno-unused-parameter",
                 "-Wno-error=deprecated-declarations", "-fPIC", "-rdynamic", "-pthread"));
         public List<String> linuxCrossCCompilerArgs = Collections
                 .unmodifiableList(Arrays.asList("-Wformat=2", "-Wall", "-Wextra", "-Werror", "-pedantic", "-Wno-psabi",
@@ -38,25 +46,25 @@ public class WPINativeUtilsExtension {
         public List<String> linuxCrossDebugCompilerArgs = Collections.unmodifiableList(Arrays.asList("-Og"));
 
         public List<String> linuxCompilerArgs = Collections.unmodifiableList(Arrays.asList("-std=c++14", "-Wformat=2",
-                "-Wall", "-Wextra", "-Werror", "-pedantic", "-Wno-psabi", "-g", "-Wno-unused-parameter",
+                 "-pedantic", "-Wno-psabi", "-g", "-Wno-unused-parameter",
                 "-Wno-error=deprecated-declarations", "-fPIC", "-rdynamic", "-pthread"));
         public List<String> linuxCCompilerArgs = Collections
-                .unmodifiableList(Arrays.asList("-Wformat=2", "-Wall", "-Wextra", "-Werror", "-pedantic", "-Wno-psabi",
+                .unmodifiableList(Arrays.asList("-Wformat=2", "-pedantic", "-Wno-psabi",
                         "-g", "-Wno-unused-parameter", "-fPIC", "-rdynamic", "-pthread"));
         public List<String> linuxLinkerArgs = Collections
                 .unmodifiableList(Arrays.asList("-rdynamic", "-pthread", "-ldl"));
         public List<String> linuxReleaseCompilerArgs = Collections.unmodifiableList(Arrays.asList("-O2"));
         public List<String> linuxDebugCompilerArgs = Collections.unmodifiableList(Arrays.asList("-O0"));
 
-        public List<String> macCompilerArgs = Collections.unmodifiableList(Arrays.asList("-std=c++14", "-Wall",
-                "-Wextra", "-Werror", "-pedantic-errors", "-fPIC", "-g", "-Wno-unused-parameter",
+        public List<String> macCompilerArgs = Collections.unmodifiableList(Arrays.asList("-std=c++14",
+                "-pedantic-errors", "-fPIC", "-g", "-Wno-unused-parameter",
                 "-Wno-error=deprecated-declarations", "-Wno-missing-field-initializers", "-Wno-unused-private-field",
                 "-Wno-unused-const-variable", "-pthread"));
         public List<String> macCCompilerArgs = Collections
-                .unmodifiableList(Arrays.asList("-Wall", "-Wextra", "-Werror", "-pedantic-errors", "-fPIC", "-g",
+                .unmodifiableList(Arrays.asList("-pedantic-errors", "-fPIC", "-g",
                         "-Wno-unused-parameter", "-Wno-missing-field-initializers", "-Wno-unused-private-field"));
         public List<String> macObjCppCompilerArgs = Collections.unmodifiableList(Arrays.asList("-std=c++14",
-                "-stdlib=libc++", "-fobjc-arc", "-g", "-fPIC", "-Wall", "-Wextra", "-Werror"));
+                "-stdlib=libc++", "-fobjc-arc", "-g", "-fPIC"));
         public List<String> macReleaseCompilerArgs = Collections.unmodifiableList(Arrays.asList("-O2"));
         public List<String> macDebugCompilerArgs = Collections.unmodifiableList(Arrays.asList("-O0"));
         public List<String> macLinkerArgs = Collections
@@ -82,18 +90,29 @@ public class WPINativeUtilsExtension {
     public Platforms platforms = new Platforms();
     public DefaultArguments defaultArguments = new DefaultArguments();
 
+    private Map<String, PlatformConfig> windowsPlatforms = new HashMap<>();
+    private Map<String, PlatformConfig> unixPlatforms = new HashMap<>();
+
     @Inject
     public WPINativeUtilsExtension(NativeUtilsExtension nativeExt) {
         this.nativeExt = nativeExt;
 
         PlatformConfig windowsx86_64 = nativeExt.getPlatformConfigs().create(platforms.windowsx64);
         PlatformConfig windowsx86 = nativeExt.getPlatformConfigs().create(platforms.windowsx86);
+        windowsPlatforms.put(platforms.windowsx64, windowsx86_64);
+        windowsPlatforms.put(platforms.windowsx86, windowsx86);
         PlatformConfig linuxx86_64 = nativeExt.getPlatformConfigs().create(platforms.linuxx64);
         PlatformConfig osxx86_64 = nativeExt.getPlatformConfigs().create(platforms.osxx64);
         PlatformConfig linuxathena = nativeExt.getPlatformConfigs().create(platforms.roborio);
         PlatformConfig linuxraspbian = nativeExt.getPlatformConfigs().create(platforms.raspbian);
         PlatformConfig linuxbionic = nativeExt.getPlatformConfigs().create(platforms.aarch64bionic);
         PlatformConfig linuxxenial = nativeExt.getPlatformConfigs().create(platforms.aarch64xenial);
+        unixPlatforms.put(platforms.linuxx64, linuxx86_64);
+        unixPlatforms.put(platforms.osxx64, osxx86_64);
+        unixPlatforms.put(platforms.raspbian, linuxraspbian);
+        unixPlatforms.put(platforms.roborio, linuxathena);
+        unixPlatforms.put(platforms.aarch64bionic, linuxbionic);
+        unixPlatforms.put(platforms.aarch64xenial, linuxxenial);
 
         linuxathena.setPlatformPath("linux/athena");
         linuxathena.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerArgs);
@@ -163,6 +182,66 @@ public class WPINativeUtilsExtension {
         public String googleTestVersion;
     }
 
+    private void addPlatformWarnings(String platform) {
+        PlatformConfig plat = windowsPlatforms.get(platform);
+        if (plat != null) {
+            plat.getCppCompiler().getArgs().addAll(defaultArguments.windowsWarningArgs);
+            plat.getcCompiler().getArgs().addAll(defaultArguments.windowsWarningArgs);
+            return;
+        }
+        plat = unixPlatforms.get(platform);
+        if (plat != null) {
+            plat.getCppCompiler().getArgs().addAll(defaultArguments.unixWarningArgs);
+            plat.getcCompiler().getArgs().addAll(defaultArguments.unixWarningArgs);
+            if (platform.equals(platforms.osxx64)) {
+                plat.getObjcppCompiler().getArgs().addAll(defaultArguments.unixWarningArgs);
+            }
+            return;
+        }
+    }
+
+    public void addWarnings(String... platforms) {
+        if (platforms.length == 0) {
+            for (String platform : this.platforms.allPlatforms) {
+                addPlatformWarnings(platform);
+            }
+        } else {
+            for (String platform : platforms) {
+                addPlatformWarnings(platform);
+            }
+        }
+    }
+
+    private void addPlatformWarningsAsErrors(String platform) {
+        PlatformConfig plat = windowsPlatforms.get(platform);
+        if (plat != null) {
+            plat.getCppCompiler().getArgs().addAll(defaultArguments.windowsWarningsAsErrorsArgs);
+            plat.getcCompiler().getArgs().addAll(defaultArguments.windowsWarningsAsErrorsArgs);
+            return;
+        }
+        plat = unixPlatforms.get(platform);
+        if (plat != null) {
+            plat.getCppCompiler().getArgs().addAll(defaultArguments.unixWarningsAsErrorsArgs);
+            plat.getcCompiler().getArgs().addAll(defaultArguments.unixWarningsAsErrorsArgs);
+            if (platform.equals(platforms.osxx64)) {
+                plat.getObjcppCompiler().getArgs().addAll(defaultArguments.unixWarningsAsErrorsArgs);
+            }
+            return;
+        }
+    }
+
+    public void addWarningsAsErrors(String... platforms) {
+        if (platforms.length == 0) {
+            for (String platform : this.platforms.allPlatforms) {
+                addPlatformWarningsAsErrors(platform);
+            }
+        } else {
+            for (String platform : platforms) {
+                addPlatformWarningsAsErrors(platform);
+            }
+        }
+    }
+
     private DependencyVersions dependencyVersions;
 
     public void configureDependencies(Action<DependencyVersions> dependencies) {
@@ -191,7 +270,7 @@ public class WPINativeUtilsExtension {
                 c.setSharedUsedAtRuntime(false);
                 c.getSharedPlatforms().add(this.platforms.roborio);
             });
-            
+
             if (!dependencyVersions.wpiVersion.equals("-1")) {
 
                 configs.create("wpiutil", c -> {

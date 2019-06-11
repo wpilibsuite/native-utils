@@ -142,6 +142,14 @@ nativeUtils.wpi.platforms.allPlatforms
 // A bunch of lists of the default arguments for platforms.
 nativeUtils.wpi.defaultArguments.*
 
+
+// Enable warnings for all platforms. Pass specific platforms in to enable them for just those platforms
+nativeUtils.wpi.addWarnings()
+
+// Enable warnings as errors for all platforms. Pass specific platforms in to enable them for just those platforms
+// Does not enable warnings, that is still handled by the call above.
+nativeUtils.wpi.addWarningsAsErrors()
+
 ```
 
 ## DS Documentation for Toolchain Builder
