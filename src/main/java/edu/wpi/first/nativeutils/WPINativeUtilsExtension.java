@@ -185,16 +185,16 @@ public class WPINativeUtilsExtension {
     private void addPlatformWarnings(String platform) {
         PlatformConfig plat = windowsPlatforms.get(platform);
         if (plat != null) {
-            plat.getCppCompiler().getArgs().addAll(defaultArguments.windowsWarningArgs);
-            plat.getcCompiler().getArgs().addAll(defaultArguments.windowsWarningArgs);
+            plat.getCppCompiler().getArgs().addAll(0, defaultArguments.windowsWarningArgs);
+            plat.getcCompiler().getArgs().addAll(0, defaultArguments.windowsWarningArgs);
             return;
         }
         plat = unixPlatforms.get(platform);
         if (plat != null) {
-            plat.getCppCompiler().getArgs().addAll(defaultArguments.unixWarningArgs);
-            plat.getcCompiler().getArgs().addAll(defaultArguments.unixWarningArgs);
+            plat.getCppCompiler().getArgs().addAll(0, defaultArguments.unixWarningArgs);
+            plat.getcCompiler().getArgs().addAll(0, defaultArguments.unixWarningArgs);
             if (platform.equals(platforms.osxx64)) {
-                plat.getObjcppCompiler().getArgs().addAll(defaultArguments.unixWarningArgs);
+                plat.getObjcppCompiler().getArgs().addAll(0, defaultArguments.unixWarningArgs);
             }
             return;
         }
@@ -215,16 +215,16 @@ public class WPINativeUtilsExtension {
     private void addPlatformWarningsAsErrors(String platform) {
         PlatformConfig plat = windowsPlatforms.get(platform);
         if (plat != null) {
-            plat.getCppCompiler().getArgs().addAll(defaultArguments.windowsWarningsAsErrorsArgs);
-            plat.getcCompiler().getArgs().addAll(defaultArguments.windowsWarningsAsErrorsArgs);
+            plat.getCppCompiler().getArgs().addAll(0, defaultArguments.windowsWarningsAsErrorsArgs);
+            plat.getcCompiler().getArgs().addAll(0, defaultArguments.windowsWarningsAsErrorsArgs);
             return;
         }
         plat = unixPlatforms.get(platform);
         if (plat != null) {
-            plat.getCppCompiler().getArgs().addAll(defaultArguments.unixWarningsAsErrorsArgs);
-            plat.getcCompiler().getArgs().addAll(defaultArguments.unixWarningsAsErrorsArgs);
+            plat.getCppCompiler().getArgs().addAll(0, defaultArguments.unixWarningsAsErrorsArgs);
+            plat.getcCompiler().getArgs().addAll(0, defaultArguments.unixWarningsAsErrorsArgs);
             if (platform.equals(platforms.osxx64)) {
-                plat.getObjcppCompiler().getArgs().addAll(defaultArguments.unixWarningsAsErrorsArgs);
+                plat.getObjcppCompiler().getArgs().addAll(0, defaultArguments.unixWarningsAsErrorsArgs);
             }
             return;
         }
