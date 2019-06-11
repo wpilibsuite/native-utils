@@ -72,7 +72,7 @@ public class DependencyConfigRules extends RuleSource {
         lib.getHeaderDirs().add("");
         lib.setLibraryName(name + "_headers");
         lib.setMaven(mavenBase + dependency.getHeaderClassifier() + mavenSuffix);
-        lib.setConfiguration(config);
+        lib.setConfiguration(config + "_headers");
       });
 
       if (dependency.getSourceClassifier() != null) {
@@ -82,7 +82,7 @@ public class DependencyConfigRules extends RuleSource {
           lib.getHeaderDirs().add("");
           lib.setLibraryName(name + "_sources");
           lib.setMaven(mavenBase + dependency.getSourceClassifier() + mavenSuffix);
-          lib.setConfiguration(config);
+          lib.setConfiguration(config + "_sources");
         });
       }
 
