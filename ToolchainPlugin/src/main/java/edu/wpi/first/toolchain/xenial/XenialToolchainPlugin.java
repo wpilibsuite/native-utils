@@ -7,6 +7,7 @@ import edu.wpi.first.toolchain.configurable.DefaultCrossCompilerConfiguration;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.provider.Property;
 import org.gradle.internal.os.OperatingSystem;
 
 import java.io.File;
@@ -28,17 +29,18 @@ public class XenialToolchainPlugin implements Plugin<Project> {
 
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
 
-        ToolchainDescriptor<XenialGcc> descriptor = new ToolchainDescriptor<>(toolchainName, "xenialGcc", new ToolchainRegistrar<XenialGcc>(XenialGcc.class, project));
+        Property<Boolean> optional = project.getObjects().property(Boolean.class);
+        optional.set(true);
+
+        ToolchainDescriptor<XenialGcc> descriptor = new ToolchainDescriptor<>(toolchainName, "xenialGcc", new ToolchainRegistrar<XenialGcc>(XenialGcc.class, project), optional);
         descriptor.setToolchainPlatforms(NativePlatforms.xenial);
-        descriptor.setOptional(true);
         descriptor.getDiscoverers().all((ToolchainDiscoverer disc) -> {
             disc.configureVersions(xenialExt.versionLow, xenialExt.versionHigh);
         });
 
-        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.xenial, descriptor);
+        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.xenial, descriptor, optional);
         configuration.setArchitecture("aarch64");
         configuration.setOperatingSystem("linux");
-        configuration.setOptional(true);
         configuration.setCompilerPrefix("");
 
         toolchainExt.getCrossCompilers().add(configuration);

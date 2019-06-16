@@ -18,6 +18,7 @@ import edu.wpi.first.toolchain.configurable.DefaultCrossCompilerConfiguration;
 import edu.wpi.first.toolchain.raspbian.RaspbianToolchainPlugin;
 import edu.wpi.first.toolchain.roborio.RoboRioToolchainPlugin;
 import edu.wpi.first.toolchain.xenial.XenialToolchainPlugin;
+import jaci.gradle.toolchains.ToolchainsPlugin.ToolchainUtilExtension;
 
 public class ToolchainExtension {
     private final NamedDomainObjectContainer<CrossCompilerConfiguration> crossCompilers;
@@ -42,13 +43,12 @@ public class ToolchainExtension {
             if (config.getToolchainDescriptor() == null) {
                 ToolchainDescriptor<ConfigurableGcc> descriptor = new ToolchainDescriptor<>(config.getName(),
                         config.getName() + "ConfiguredGcc",
-                        new ToolchainRegistrar<ConfigurableGcc>(ConfigurableGcc.class, project));
+                        new ToolchainRegistrar<ConfigurableGcc>(ConfigurableGcc.class, project), config.getOptional());
 
                 toolchainDescriptors.add(descriptor);
 
                 project.afterEvaluate(proj -> {
                     descriptor.setToolchainPlatforms(config.getOperatingSystem() + config.getArchitecture());
-                    descriptor.setOptional(config.getOptional());
                     descriptor.getDiscoverers().addAll(ToolchainDiscoverer.forSystemPath(project, name -> {
                         String exeSuffix = OperatingSystem.current().isWindows() ? ".exe" : "";
                         return config.getCompilerPrefix() + name + exeSuffix;
@@ -60,6 +60,14 @@ public class ToolchainExtension {
             }
         });
 
+    }
+
+    public void setSinglePrintPerPlatform() {
+        ToolchainPlugin.singlePrintPerPlatform = true;
+        ToolchainUtilExtension tcuExt = project.getExtensions().findByType(ToolchainUtilExtension.class);
+        if (tcuExt != null) {
+            tcuExt.setSkipBinaryToolchainMissingWarning(true);
+        }
     }
 
     public void withRoboRIO() {

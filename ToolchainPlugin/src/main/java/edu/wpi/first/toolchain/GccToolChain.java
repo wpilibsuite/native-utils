@@ -55,9 +55,12 @@ public abstract class GccToolChain extends AbstractGccCompatibleToolChain {
                     descriptor.explain(formatter);
                     logger.info(formatter.toString());
 
-                    boolean optional = descriptor.isOptional() || project.hasProperty("toolchain-optional-" + descriptor.getName());
+                    boolean optional = descriptor.getOptional().get() || project.hasProperty("toolchain-optional-" + descriptor.getName());
                     if (optional) {
-                        logger.logStyle("Skipping builds for " + descriptor.getName() + " (toolchain is marked optional)", StyledTextOutput.Style.Description);
+                        if (!ToolchainPlugin.singlePrintPerPlatform || !ToolchainPlugin.skippedPlatforms.contains(descriptor.getName())) {
+                            ToolchainPlugin.skippedPlatforms.add(descriptor.getName());
+                            logger.logStyle("Skipping builds for " + descriptor.getName() + " (toolchain is marked optional)", StyledTextOutput.Style.Description);
+                        }
                     } else if (isUsed) {
                         logger.logError("=============================");
                         logger.logErrorHead("No Toolchain Found for " + descriptor.getName());

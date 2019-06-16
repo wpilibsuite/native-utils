@@ -2,6 +2,9 @@ package edu.wpi.first.toolchain.configurable;
 
 import javax.inject.Inject;
 
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
+
 import edu.wpi.first.toolchain.ToolchainDescriptorBase;
 
 public class DefaultCrossCompilerConfiguration implements CrossCompilerConfiguration {
@@ -9,17 +12,19 @@ public class DefaultCrossCompilerConfiguration implements CrossCompilerConfigura
   private String architecture;
   private String operatingSystem;
   private String compilerPrefix;
-  private boolean optional;
+  private Property<Boolean> optional;
   private ToolchainDescriptorBase descriptor;
 
   @Inject
-  public DefaultCrossCompilerConfiguration(String name) {
+  public DefaultCrossCompilerConfiguration(String name, ObjectFactory factory) {
     this.name = name;
+    optional = factory.property(Boolean.class);
   }
 
-  public DefaultCrossCompilerConfiguration(String name, ToolchainDescriptorBase descriptor) {
+  public DefaultCrossCompilerConfiguration(String name, ToolchainDescriptorBase descriptor, Property<Boolean> optional) {
     this.name = name;
     this.descriptor = descriptor;
+    this.optional = optional;
   }
 
   public String getName() {
@@ -69,12 +74,7 @@ public class DefaultCrossCompilerConfiguration implements CrossCompilerConfigura
   }
 
   @Override
-  public void setOptional(boolean optional) {
-    this.optional = optional;
-  }
-
-  @Override
-  public boolean getOptional() {
+  public Property<Boolean> getOptional() {
     return optional;
   }
 

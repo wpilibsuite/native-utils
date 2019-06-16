@@ -8,10 +8,14 @@ import org.gradle.api.execution.TaskExecutionGraph;
 import org.gradle.internal.logging.text.TreeFormatter;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ToolchainPlugin implements Plugin<Project> {
+    static List<String> skippedPlatforms = new ArrayList<>();
+    static boolean singlePrintPerPlatform = false;
+
     // Necessary to have access to project.configurations and such in the RuleSource
     class ProjectWrapper {
         private Project project;
@@ -29,6 +33,11 @@ public class ToolchainPlugin implements Plugin<Project> {
     public void apply(Project project) {
         ext = project.getExtensions().create("toolchainsPlugin", ToolchainExtension.class, project);
         project.getExtensions().add("toolchainProjectWrapper", new ProjectWrapper(project));
+
+        project.getGradle().buildFinished(res -> {
+            skippedPlatforms.clear();
+            singlePrintPerPlatform = false;
+        });
 
         project.getTasks().register("explainToolchains", (Task t) -> {
             t.setGroup("Toolchains");

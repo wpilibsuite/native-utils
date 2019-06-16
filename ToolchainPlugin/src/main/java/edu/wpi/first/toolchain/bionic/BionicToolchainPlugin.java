@@ -7,6 +7,7 @@ import edu.wpi.first.toolchain.configurable.DefaultCrossCompilerConfiguration;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.provider.Property;
 import org.gradle.internal.os.OperatingSystem;
 
 import java.io.File;
@@ -28,17 +29,18 @@ public class BionicToolchainPlugin implements Plugin<Project> {
 
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
 
-        ToolchainDescriptor<BionicGcc> descriptor = new ToolchainDescriptor<>(toolchainName, "bionicGcc", new ToolchainRegistrar<BionicGcc>(BionicGcc.class, project));
+        Property<Boolean> optional = project.getObjects().property(Boolean.class);
+        optional.set(true);
+
+        ToolchainDescriptor<BionicGcc> descriptor = new ToolchainDescriptor<>(toolchainName, "bionicGcc", new ToolchainRegistrar<BionicGcc>(BionicGcc.class, project), optional);
         descriptor.setToolchainPlatforms(NativePlatforms.bionic);
-        descriptor.setOptional(true);
         descriptor.getDiscoverers().all((ToolchainDiscoverer disc) -> {
             disc.configureVersions(bionicExt.versionLow, bionicExt.versionHigh);
         });
 
-        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.bionic, descriptor);
+        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.bionic, descriptor, optional);
         configuration.setArchitecture("aarch64");
         configuration.setOperatingSystem("linux");
-        configuration.setOptional(true);
         configuration.setCompilerPrefix("");
 
         toolchainExt.getCrossCompilers().add(configuration);
