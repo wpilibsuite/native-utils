@@ -29,6 +29,7 @@ import edu.wpi.first.nativeutils.configs.impl.DefaultExportsConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPlatformConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPrivateExportsConfig;
 import edu.wpi.first.toolchain.ToolchainDescriptorBase;
+import edu.wpi.first.toolchain.NativePlatforms;
 import edu.wpi.first.toolchain.ToolchainExtension;
 import edu.wpi.first.toolchain.bionic.BionicToolchainPlugin;
 import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
@@ -259,7 +260,7 @@ public class NativeUtilsExtension {
       platformsToConfigure.addAll(tmpList);
     }
 
-    if (!project.hasProperty("buildwin32")) {
+    if (!project.hasProperty("buildwin32") && NativePlatforms.desktopArch().equals("x86-64")) {
       platformsToConfigure.remove("windowsx86");
     }
   }
