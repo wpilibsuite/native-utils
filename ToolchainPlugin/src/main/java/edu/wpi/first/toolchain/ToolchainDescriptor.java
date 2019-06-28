@@ -5,6 +5,7 @@ import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.internal.CollectionCallbackActionDecorator;
 import org.gradle.api.internal.DefaultDomainObjectSet;
 import org.gradle.api.internal.DefaultNamedDomainObjectSet;
+import org.gradle.api.provider.Property;
 import org.gradle.internal.logging.text.DiagnosticsVisitor;
 import org.gradle.internal.reflect.DirectInstantiator;
 
@@ -13,16 +14,16 @@ public class ToolchainDescriptor<T extends GccToolChain> implements ToolchainDes
     private String name;
     private String toolchainName;
     private String[] platforms;
-    private boolean optional;
+    private Property<Boolean> optional;
     private NamedDomainObjectSet<ToolchainDiscoverer> discoverers;
     private DomainObjectSet<AbstractToolchainInstaller> installers;
 
     private ToolchainRegistrar<T> registrar;
 
-    public ToolchainDescriptor(String name, String toolchainName, ToolchainRegistrar<T> registrar) {
+    public ToolchainDescriptor(String name, String toolchainName, ToolchainRegistrar<T> registrar, Property<Boolean> optional) {
         this.name = name;
         this.platforms = null;
-        this.optional = false;
+        this.optional = optional;
         this.registrar = registrar;
         this.toolchainName = toolchainName;
         this.discoverers = new DefaultNamedDomainObjectSet<ToolchainDiscoverer>(ToolchainDiscoverer.class, DirectInstantiator.INSTANCE);
@@ -65,13 +66,8 @@ public class ToolchainDescriptor<T extends GccToolChain> implements ToolchainDes
     }
 
     @Override
-    public boolean isOptional() {
+    public Property<Boolean> getOptional() {
         return optional;
-    }
-
-    @Override
-    public void setOptional(boolean optional) {
-        this.optional = optional;
     }
 
     @Override

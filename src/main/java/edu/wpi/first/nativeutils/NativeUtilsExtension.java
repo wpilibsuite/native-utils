@@ -28,9 +28,11 @@ import edu.wpi.first.nativeutils.configs.impl.DefaultDependencyConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultExportsConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPlatformConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPrivateExportsConfig;
+import edu.wpi.first.toolchain.ToolchainDescriptorBase;
 import edu.wpi.first.toolchain.NativePlatforms;
 import edu.wpi.first.toolchain.ToolchainExtension;
 import edu.wpi.first.toolchain.bionic.BionicToolchainPlugin;
+import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
 import edu.wpi.first.toolchain.raspbian.RaspbianToolchainPlugin;
 import edu.wpi.first.toolchain.roborio.RoboRioToolchainPlugin;
 import edu.wpi.first.toolchain.xenial.XenialToolchainPlugin;
@@ -93,6 +95,26 @@ public class NativeUtilsExtension {
       }
     });
 
+  }
+
+  public void setSinglePrintPerPlatform() {
+    tcExt.setSinglePrintPerPlatform();
+}
+
+  public NamedDomainObjectContainer<ToolchainDescriptorBase> getToolchainDescriptors() {
+    return tcExt.getToolchainDescriptors();
+  }
+
+  void toolchainDescriptors(final Action<? super NamedDomainObjectContainer<ToolchainDescriptorBase>> closure) {
+      closure.execute(tcExt.getToolchainDescriptors());
+  }
+
+  public NamedDomainObjectContainer<CrossCompilerConfiguration> getCrossCompilers() {
+    return tcExt.getCrossCompilers();
+  }
+
+  void crossCompilers(final Action<? super NamedDomainObjectContainer<CrossCompilerConfiguration>> closure) {
+    closure.execute(tcExt.getCrossCompilers());
   }
 
   public NamedDomainObjectContainer<PlatformConfig> getPlatformConfigs() {

@@ -7,6 +7,7 @@ import edu.wpi.first.toolchain.configurable.DefaultCrossCompilerConfiguration;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.provider.Property;
 import org.gradle.internal.os.OperatingSystem;
 
 import java.io.File;
@@ -28,17 +29,18 @@ public class RaspbianToolchainPlugin implements Plugin<Project> {
 
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
 
-        ToolchainDescriptor<RaspbianGcc> descriptor = new ToolchainDescriptor<>(toolchainName, "raspianGcc", new ToolchainRegistrar<RaspbianGcc>(RaspbianGcc.class, project));
+        Property<Boolean> optional = project.getObjects().property(Boolean.class);
+        optional.set(true);
+
+        ToolchainDescriptor<RaspbianGcc> descriptor = new ToolchainDescriptor<>(toolchainName, "raspianGcc", new ToolchainRegistrar<RaspbianGcc>(RaspbianGcc.class, project), optional);
         descriptor.setToolchainPlatforms(NativePlatforms.raspbian);
-        descriptor.setOptional(true);
         descriptor.getDiscoverers().all((ToolchainDiscoverer disc) -> {
             disc.configureVersions(raspbianExt.versionLow, raspbianExt.versionHigh);
         });
 
-        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.raspbian, descriptor);
+        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.raspbian, descriptor, optional);
         configuration.setArchitecture("arm");
         configuration.setOperatingSystem("linux");
-        configuration.setOptional(true);
         configuration.setCompilerPrefix("");
 
         toolchainExt.getCrossCompilers().add(configuration);

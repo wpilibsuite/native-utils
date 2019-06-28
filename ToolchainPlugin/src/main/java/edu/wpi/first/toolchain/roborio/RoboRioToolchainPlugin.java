@@ -7,6 +7,7 @@ import edu.wpi.first.toolchain.configurable.DefaultCrossCompilerConfiguration;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.provider.Property;
 import org.gradle.internal.os.OperatingSystem;
 
 import java.io.File;
@@ -28,17 +29,18 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
 
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
 
-        ToolchainDescriptor<RoboRioGcc> descriptor = new ToolchainDescriptor<>(toolchainName, "roborioGcc", new ToolchainRegistrar<RoboRioGcc>(RoboRioGcc.class, project));
+        Property<Boolean> optional = project.getObjects().property(Boolean.class);
+        optional.set(false);
+
+        ToolchainDescriptor<RoboRioGcc> descriptor = new ToolchainDescriptor<>(toolchainName, "roborioGcc", new ToolchainRegistrar<RoboRioGcc>(RoboRioGcc.class, project), optional);
         descriptor.setToolchainPlatforms(NativePlatforms.roborio);
-        descriptor.setOptional(false);
         descriptor.getDiscoverers().all((ToolchainDiscoverer disc) -> {
             disc.configureVersions(roborioExt.versionLow, roborioExt.versionHigh);
         });
 
-        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.roborio, descriptor);
+        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.roborio, descriptor, optional);
         configuration.setArchitecture("arm");
         configuration.setOperatingSystem("linux");
-        configuration.setOptional(false);
         configuration.setCompilerPrefix("");
 
         toolchainExt.getCrossCompilers().add(configuration);

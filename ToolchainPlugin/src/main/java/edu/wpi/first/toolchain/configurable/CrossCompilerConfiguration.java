@@ -1,6 +1,7 @@
 package edu.wpi.first.toolchain.configurable;
 
 import org.gradle.api.Named;
+import org.gradle.api.provider.Property;
 
 import edu.wpi.first.toolchain.ToolchainDescriptorBase;
 
@@ -14,8 +15,7 @@ public interface CrossCompilerConfiguration extends Named {
   void setCompilerPrefix(String prefix);
   String getCompilerPrefix();
 
-  void setOptional(boolean optional);
-  boolean getOptional();
+  Property<Boolean> getOptional();
 
   void setToolchainDescriptor(ToolchainDescriptorBase descriptor);
   ToolchainDescriptorBase getToolchainDescriptor();
