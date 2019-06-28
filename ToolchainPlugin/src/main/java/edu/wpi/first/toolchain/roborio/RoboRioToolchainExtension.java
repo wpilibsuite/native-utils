@@ -2,11 +2,11 @@ package edu.wpi.first.toolchain.roborio;
 
 public class RoboRioToolchainExtension {
 
-    public String versionLow = "6.3";
-    public String versionHigh = "6.3";
-    public String toolchainVersion = "2019-6.3.0";
-    public String toolchainTag = "v2019-3";
+    public String versionLow = "7.4";
+    public String versionHigh = "7.4";
+    public String toolchainVersion = "2020-7.4.0";
+    public String toolchainTag = "v2020-1";
 
-    public String year = "2019";
+    public String year = "2020";
 
 }
