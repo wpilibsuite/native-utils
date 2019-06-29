@@ -34,7 +34,7 @@ public class WPINativeUtilsExtension {
         public List<String> unixWarningArgs = Collections.unmodifiableList(Arrays.asList("-Wall", "-Wextra"));
         public List<String> unixWarningsAsErrorsArgs = Collections.unmodifiableList(Arrays.asList("-Werror"));
 
-        public List<String> linuxCrossCompilerArgs = Collections.unmodifiableList(Arrays.asList("-std=c++14",
+        public List<String> linuxCrossCompilerArgs = Collections.unmodifiableList(Arrays.asList("-std=c++17",
                 "-Wformat=2", "-pedantic", "-Wno-psabi", "-g", "-Wno-unused-parameter",
                 "-Wno-error=deprecated-declarations", "-fPIC", "-rdynamic", "-pthread"));
         public List<String> linuxCrossCCompilerArgs = Collections
@@ -45,7 +45,7 @@ public class WPINativeUtilsExtension {
         public List<String> linuxCrossReleaseCompilerArgs = Collections.unmodifiableList(Arrays.asList("-O2"));
         public List<String> linuxCrossDebugCompilerArgs = Collections.unmodifiableList(Arrays.asList("-Og"));
 
-        public List<String> linuxCompilerArgs = Collections.unmodifiableList(Arrays.asList("-std=c++14", "-Wformat=2",
+        public List<String> linuxCompilerArgs = Collections.unmodifiableList(Arrays.asList("-std=c++17", "-Wformat=2",
                  "-pedantic", "-Wno-psabi", "-g", "-Wno-unused-parameter",
                 "-Wno-error=deprecated-declarations", "-fPIC", "-rdynamic", "-pthread"));
         public List<String> linuxCCompilerArgs = Collections
@@ -56,14 +56,14 @@ public class WPINativeUtilsExtension {
         public List<String> linuxReleaseCompilerArgs = Collections.unmodifiableList(Arrays.asList("-O2"));
         public List<String> linuxDebugCompilerArgs = Collections.unmodifiableList(Arrays.asList("-O0"));
 
-        public List<String> macCompilerArgs = Collections.unmodifiableList(Arrays.asList("-std=c++14",
+        public List<String> macCompilerArgs = Collections.unmodifiableList(Arrays.asList("-std=c++17",
                 "-pedantic-errors", "-fPIC", "-g", "-Wno-unused-parameter",
                 "-Wno-error=deprecated-declarations", "-Wno-missing-field-initializers", "-Wno-unused-private-field",
                 "-Wno-unused-const-variable", "-pthread"));
         public List<String> macCCompilerArgs = Collections
                 .unmodifiableList(Arrays.asList("-pedantic-errors", "-fPIC", "-g",
                         "-Wno-unused-parameter", "-Wno-missing-field-initializers", "-Wno-unused-private-field"));
-        public List<String> macObjCppCompilerArgs = Collections.unmodifiableList(Arrays.asList("-std=c++14",
+        public List<String> macObjCppCompilerArgs = Collections.unmodifiableList(Arrays.asList("-std=c++17",
                 "-stdlib=libc++", "-fobjc-arc", "-g", "-fPIC"));
         public List<String> macReleaseCompilerArgs = Collections.unmodifiableList(Arrays.asList("-O2"));
         public List<String> macDebugCompilerArgs = Collections.unmodifiableList(Arrays.asList("-O0"));

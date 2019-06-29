@@ -92,7 +92,7 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
     }
 
     private URL toolchainDownloadUrl(String file) throws MalformedURLException {
-        return new URL("https://github.com/wpilibsuite/toolchain-builder/releases/download/" + roborioExt.toolchainTag + "/" + file);
+        return new URL("https://github.com/wpilibsuite/roborio-toolchain/releases/download/" + roborioExt.toolchainTag + "/" + file);
     }
 
 }
