@@ -236,13 +236,11 @@ public class NativeUtilsExtension {
     for (Platform platform : platforms) {
       tmpList.add(platform.getName());
     }
-    boolean skip = false;
     boolean only = false;
 
     for (int i = 0; i < tmpList.size(); i++) {
       String platform = tmpList.get(i);
       if (project.hasProperty("skip" + platform)) {
-        skip = true;
         tmpList.remove(i);
         i--;
         continue;
@@ -251,10 +249,6 @@ public class NativeUtilsExtension {
         only = true;
         platformsToConfigure.add(platform);
       }
-    }
-
-    if (only && skip) {
-      throw new GradleException("Cannot work with both only's and skips");
     }
 
     if (!only) {
