@@ -28,6 +28,8 @@ import org.gradle.nativeplatform.SharedLibraryBinarySpec;
 import org.gradle.nativeplatform.internal.CompilerOutputFileNamingSchemeFactory;
 import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
+import org.gradle.nativeplatform.test.googletest.GoogleTestTestSuiteBinarySpec;
+import org.gradle.nativeplatform.test.tasks.RunTestExecutable;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInternal;
@@ -83,6 +85,20 @@ public class ToolchainRules extends RuleSource {
         }
     }
 
+    @Validate
+    void disableCrossTests(BinaryContainer binaries, ExtensionContainer extContainer) {
+        final ToolchainExtension ext = extContainer.getByType(ToolchainExtension.class);
+
+        for (GoogleTestTestSuiteBinarySpec binary : binaries.withType(GoogleTestTestSuiteBinarySpec.class)) {
+            if (ext.getCrossCompilers().findByName(binary.getTargetPlatform().getName()) != null) {
+                for (RunTestExecutable runExe : binary.getTasks().withType(RunTestExecutable.class)) {
+                    runExe.onlyIf(t -> {
+                        return false;
+                    });
+                }
+            }
+        }
+    }
     @Mutate
     void addDefaultPlatforms(final ExtensionContainer extContainer, final PlatformContainer platforms) {
         final ToolchainExtension ext = extContainer.getByType(ToolchainExtension.class);
