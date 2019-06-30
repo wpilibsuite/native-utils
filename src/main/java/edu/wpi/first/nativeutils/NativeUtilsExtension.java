@@ -244,6 +244,7 @@ public class NativeUtilsExtension {
       if (project.hasProperty("skip" + platform)) {
         skip = true;
         tmpList.remove(i);
+        i--;
         continue;
       }
       if (project.hasProperty("only" + platform)) {
