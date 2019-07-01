@@ -19,11 +19,7 @@ compileGroovy {
 
 allprojects {
     group = "edu.wpi.first"
-<<<<<<< HEAD
     version = "2019.5.15"
-=======
-    version = "2020.0.3"
->>>>>>> 2f7d1eb... Remove check for only and skip
 
     if (project.hasProperty('publishVersion')) {
         version = project.publishVersion
