@@ -3,6 +3,7 @@ plugins {
     id 'java-gradle-plugin'
     id 'idea'
     id 'maven-publish'
+    id 'groovy'
     id 'java'
 }
 
@@ -18,6 +19,11 @@ dependencies {
     // but we do in GradleRIO
     compile 'jaci.gradle:EmbeddedTools:2019.6.16'
     compile 'de.undercouch:gradle-download-task:3.1.2'
+
+    testCompile('org.spockframework:spock-core:1.2-groovy-2.5') {
+        exclude group: 'org.codehaus.groovy'
+    }
+    testCompile gradleTestKit()
 }
 
 archivesBaseName = "Toolchain"
@@ -32,6 +38,12 @@ pluginBundle {
     vcsUrl = 'https://github.com/wpilibsuite/GradleRIO'
     description = 'FRC Toolchain Standalone Gradle Plugin'
     tags = ['frc', 'wpilib', 'gradlerio']
+}
+
+if (project.hasProperty('RunToolchainTests')) {
+    test {
+        environment "SPOCK_RUN_TOOLCHAINS", "true"
+    }
 }
 
 gradlePlugin {
