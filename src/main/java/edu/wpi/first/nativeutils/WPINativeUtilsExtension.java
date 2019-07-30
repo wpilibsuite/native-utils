@@ -41,7 +41,7 @@ public class WPINativeUtilsExtension {
                 .unmodifiableList(Arrays.asList("-Wformat=2", "-Wall", "-Wextra", "-Werror", "-pedantic", "-Wno-psabi",
                         "-g", "-Wno-unused-parameter", "-fPIC", "-rdynamic", "-pthread"));
         public List<String> linuxCrossLinkerArgs = Collections
-                .unmodifiableList(Arrays.asList("-rdynamic", "-pthread", "-ldl"));
+                .unmodifiableList(Arrays.asList("-rdynamic", "-pthread", "-ldl", "-latomic"));
         public List<String> linuxCrossReleaseCompilerArgs = Collections.unmodifiableList(Arrays.asList("-O2"));
         public List<String> linuxCrossDebugCompilerArgs = Collections.unmodifiableList(Arrays.asList("-Og"));
 
@@ -52,7 +52,7 @@ public class WPINativeUtilsExtension {
                 .unmodifiableList(Arrays.asList("-Wformat=2", "-pedantic", "-Wno-psabi",
                         "-g", "-Wno-unused-parameter", "-fPIC", "-rdynamic", "-pthread"));
         public List<String> linuxLinkerArgs = Collections
-                .unmodifiableList(Arrays.asList("-rdynamic", "-pthread", "-ldl"));
+                .unmodifiableList(Arrays.asList("-rdynamic", "-pthread", "-ldl", "-latomic"));
         public List<String> linuxReleaseCompilerArgs = Collections.unmodifiableList(Arrays.asList("-O2"));
         public List<String> linuxDebugCompilerArgs = Collections.unmodifiableList(Arrays.asList("-O0"));
 
