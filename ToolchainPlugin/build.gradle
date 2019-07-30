@@ -18,7 +18,7 @@ dependencies {
     // For some utility classes. We don't actually apply EmbeddedTools to the FRCToolchain,
     // but we do in GradleRIO
     compile 'jaci.gradle:EmbeddedTools:2019.6.16'
-    compile 'de.undercouch:gradle-download-task:3.1.2'
+    compile 'de.undercouch:gradle-download-task:4.0.0'
 
     testCompile('org.spockframework:spock-core:1.2-groovy-2.5') {
         exclude group: 'org.codehaus.groovy'
