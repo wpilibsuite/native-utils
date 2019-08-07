@@ -30,7 +30,7 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
 
         Property<Boolean> optional = project.getObjects().property(Boolean.class);
-        optional.set(false);
+        optional.set(true);
 
         ToolchainDescriptor<RoboRioGcc> descriptor = new ToolchainDescriptor<>(toolchainName, "roborioGcc", new ToolchainRegistrar<RoboRioGcc>(RoboRioGcc.class, project), optional);
         descriptor.setToolchainPlatforms(NativePlatforms.roborio);
