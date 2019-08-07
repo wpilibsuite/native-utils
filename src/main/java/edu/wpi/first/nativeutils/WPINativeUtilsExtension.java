@@ -364,6 +364,19 @@ public class WPINativeUtilsExtension {
         });
         if (!dependencyVersions.wpiVersion.equals("-1")) {
             nativeExt.combinedDependencyConfigs(configs -> {
+                configs.create("wpilib_jni_rio", c -> {
+                    c.setLibraryName("wpilib_jni");
+                    c.getTargetPlatforms().add(this.platforms.roborio);
+                    List<String> deps = c.getDependencies();
+                    deps.add("cscore_shared");
+                    deps.add("opencv_shared");
+                    deps.add("ntcore_shared");
+                    deps.add("hal_shared");
+                    deps.add("wpiutil_shared");
+                    deps.add("chipobject_shared");
+                    deps.add("netcomm_shared");
+                 });
+
                 configs.create("wpilib_static_rio", c -> {
                     c.setLibraryName("wpilib_static");
                     c.getTargetPlatforms().add(this.platforms.roborio);
@@ -412,6 +425,17 @@ public class WPINativeUtilsExtension {
                 });
                 List<String> platsWithoutRio = new ArrayList<>(this.platforms.all2019Platforms);
                 platsWithoutRio.remove(this.platforms.roborio);
+
+                configs.create("wpilib_jni_dt", c -> {
+                   c.setLibraryName("wpilib_jni");
+                   c.getTargetPlatforms().addAll(platsWithoutRio);
+                   List<String> deps = c.getDependencies();
+                   deps.add("cscore_shared");
+                   deps.add("opencv_shared");
+                   deps.add("ntcore_shared");
+                   deps.add("hal_shared");
+                   deps.add("wpiutil_shared");
+                });
 
                 configs.create("wpilib_static_dt", c -> {
                     c.setLibraryName("wpilib_static");
