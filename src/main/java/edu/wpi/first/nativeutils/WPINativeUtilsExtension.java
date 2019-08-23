@@ -83,8 +83,6 @@ public class WPINativeUtilsExtension {
         public String aarch64xenial = "linuxaarch64xenial";
         public List<String> allPlatforms = Collections
                 .unmodifiableList(Arrays.asList(roborio, raspbian, aarch64bionic, aarch64xenial, windowsx64, windowsx86, osxx64, linuxx64));
-        public List<String> all2019Platforms = Collections
-                .unmodifiableList(Arrays.asList(roborio, raspbian, windowsx64, windowsx86, osxx64, linuxx64));
     }
 
     public Platforms platforms = new Platforms();
@@ -280,8 +278,8 @@ public class WPINativeUtilsExtension {
                     c.setSourceClassifier("sources");
                     c.setExt("zip");
                     c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedPlatforms().addAll(this.platforms.all2019Platforms);
-                    c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
+                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
+                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
                 });
 
                 configs.create("ntcore", c -> {
@@ -291,8 +289,8 @@ public class WPINativeUtilsExtension {
                     c.setSourceClassifier("sources");
                     c.setExt("zip");
                     c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedPlatforms().addAll(this.platforms.all2019Platforms);
-                    c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
+                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
+                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
                 });
 
                 configs.create("hal", c -> {
@@ -302,8 +300,8 @@ public class WPINativeUtilsExtension {
                     c.setSourceClassifier("sources");
                     c.setExt("zip");
                     c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedPlatforms().addAll(this.platforms.all2019Platforms);
-                    c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
+                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
+                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
                 });
 
                 configs.create("cscore", c -> {
@@ -313,8 +311,8 @@ public class WPINativeUtilsExtension {
                     c.setSourceClassifier("sources");
                     c.setExt("zip");
                     c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedPlatforms().addAll(this.platforms.all2019Platforms);
-                    c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
+                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
+                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
                 });
 
                 configs.create("cameraserver", c -> {
@@ -324,8 +322,8 @@ public class WPINativeUtilsExtension {
                     c.setSourceClassifier("sources");
                     c.setExt("zip");
                     c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedPlatforms().addAll(this.platforms.all2019Platforms);
-                    c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
+                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
+                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
                 });
 
                 configs.create("wpilibc", c -> {
@@ -335,8 +333,8 @@ public class WPINativeUtilsExtension {
                     c.setSourceClassifier("sources");
                     c.setExt("zip");
                     c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedPlatforms().addAll(this.platforms.all2019Platforms);
-                    c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
+                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
+                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
                 });
             }
 
@@ -348,8 +346,8 @@ public class WPINativeUtilsExtension {
                 c.setExt("zip");
                 c.setVersion(dependencyVersions.opencvVersion);
                 c.getSharedExcludes().add("**/*java*");
-                c.getSharedPlatforms().addAll(this.platforms.all2019Platforms);
-                c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
+                c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
+                c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
             });
 
             configs.create("googletest", c -> {
@@ -359,7 +357,7 @@ public class WPINativeUtilsExtension {
                 c.setSourceClassifier("sources");
                 c.setExt("zip");
                 c.setVersion(dependencyVersions.googleTestVersion);
-                c.getStaticPlatforms().addAll(this.platforms.all2019Platforms);
+                c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
             });
         });
         if (!dependencyVersions.wpiVersion.equals("-1")) {
@@ -423,7 +421,7 @@ public class WPINativeUtilsExtension {
                     deps.add("chipobject_shared");
                     deps.add("netcomm_shared");
                 });
-                List<String> platsWithoutRio = new ArrayList<>(this.platforms.all2019Platforms);
+                List<String> platsWithoutRio = new ArrayList<>(this.platforms.allPlatforms);
                 platsWithoutRio.remove(this.platforms.roborio);
 
                 configs.create("wpilib_jni_dt", c -> {
