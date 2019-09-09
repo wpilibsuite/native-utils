@@ -18,11 +18,11 @@ public class FrcHome {
             if (publicFolder == null) {
                 publicFolder = "C:\\Users\\Public";
             }
-            baseFolder = new File(publicFolder);
+            baseFolder = new File(publicFolder, "wpilib");
         } else {
-            baseFolder = new File(System.getProperty("user.home"));
+            baseFolder = new File(System.getProperty("user.home"), "wpilib");
         }
-        this.frcFolder = new File(baseFolder, "frc" + year);
+        this.frcFolder = new File(baseFolder, year);
     }
 
     public File get() {
