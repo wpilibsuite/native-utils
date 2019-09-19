@@ -33,12 +33,12 @@ public class XenialToolchainPlugin implements Plugin<Project> {
         optional.set(true);
 
         ToolchainDescriptor<XenialGcc> descriptor = new ToolchainDescriptor<>(toolchainName, "xenialGcc", new ToolchainRegistrar<XenialGcc>(XenialGcc.class, project), optional);
-        descriptor.setToolchainPlatforms(NativePlatforms.xenial);
+        descriptor.setToolchainPlatforms(NativePlatforms.aarch64xenial);
         descriptor.getDiscoverers().all((ToolchainDiscoverer disc) -> {
             disc.configureVersions(xenialExt.versionLow, xenialExt.versionHigh);
         });
 
-        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.xenial, descriptor, optional);
+        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.aarch64xenial, descriptor, optional);
         configuration.setArchitecture("aarch64");
         configuration.setOperatingSystem("linux");
         configuration.setCompilerPrefix("");
