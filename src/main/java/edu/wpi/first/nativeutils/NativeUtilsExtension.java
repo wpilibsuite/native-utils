@@ -322,11 +322,11 @@ public class NativeUtilsExtension {
 
   public void excludeBinariesFromStrip(VariantComponentSpec component) {
     component.getBinaries().withType(NativeBinarySpec.class).all(bin -> {
-      tcExt.addComponentPlatformToExcludeString(bin.getTargetPlatform().getName(), component.getName());
+      tcExt.addStripExcludeComponentsForPlatform(bin.getTargetPlatform().getName(), component.getName());
     });
   }
 
   public void excludeBinaryFromStrip(NativeBinarySpec binary) {
-    tcExt.addComponentPlatformToExcludeString(binary.getTargetPlatform().getName(), binary.getComponent().getName());
+    tcExt.addStripExcludeComponentsForPlatform(binary.getTargetPlatform().getName(), binary.getComponent().getName());
   }
 }

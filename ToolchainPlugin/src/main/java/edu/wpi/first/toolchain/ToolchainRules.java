@@ -186,7 +186,7 @@ public class ToolchainRules extends RuleSource {
                 @Override
                 public void execute(Task task) {
                     List<String> excludeComponents = tcExt
-                            .getExcludeComponentsForPlatform(binary.getTargetPlatform().getName());
+                            .getStripExcludeComponentsForPlatform(binary.getTargetPlatform().getName());
                     if (excludeComponents != null && excludeComponents.contains(binary.getComponent().getName())) {
                         return;
                     }
