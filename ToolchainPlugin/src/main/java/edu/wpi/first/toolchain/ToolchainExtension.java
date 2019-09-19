@@ -102,11 +102,11 @@ public class ToolchainExtension {
         closure.execute(crossCompilers);
     }
 
-    public List<String> getExcludeComponentsForPlatform(String platform) {
+    public List<String> getStripExcludeComponentsForPlatform(String platform) {
         return stripExcludeMap.get(platform);
     }
 
-    public void addComponentPlatformToExcludeString(String platform, String component) {
+    public void addStripExcludeComponentsForPlatform(String platform, String component) {
         List<String> components = stripExcludeMap.get(platform);
         if (components == null) {
             components = new ArrayList<>();
