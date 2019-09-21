@@ -9,7 +9,6 @@ public class WPINativeUtils implements Plugin<Project> {
     project.getPluginManager().apply(NativeUtils.class);
 
     NativeUtilsExtension nativeExt = project.getExtensions().getByType(NativeUtilsExtension.class);
-    nativeExt.withRoboRIO();
 
     nativeExt.addWpiExtension();
   }
