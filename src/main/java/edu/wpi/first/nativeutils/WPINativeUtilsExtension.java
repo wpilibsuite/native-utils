@@ -38,7 +38,7 @@ public class WPINativeUtilsExtension {
                 "-Wformat=2", "-pedantic", "-Wno-psabi", "-g", "-Wno-unused-parameter",
                 "-Wno-error=deprecated-declarations", "-fPIC", "-rdynamic", "-pthread"));
         public List<String> linuxCrossCCompilerArgs = Collections
-                .unmodifiableList(Arrays.asList("-Wformat=2", "-Wall", "-Wextra", "-Werror", "-pedantic", "-Wno-psabi",
+                .unmodifiableList(Arrays.asList("-Wformat=2", "-pedantic", "-Wno-psabi",
                         "-g", "-Wno-unused-parameter", "-fPIC", "-rdynamic", "-pthread"));
         public List<String> linuxCrossLinkerArgs = Collections
                 .unmodifiableList(Arrays.asList("-rdynamic", "-pthread", "-ldl", "-latomic"));
@@ -57,11 +57,11 @@ public class WPINativeUtilsExtension {
         public List<String> linuxDebugCompilerArgs = Collections.unmodifiableList(Arrays.asList("-O0"));
 
         public List<String> macCompilerArgs = Collections.unmodifiableList(Arrays.asList("-std=c++17",
-                "-pedantic-errors", "-fPIC", "-g", "-Wno-unused-parameter",
+                "-pedantic", "-fPIC", "-g", "-Wno-unused-parameter",
                 "-Wno-error=deprecated-declarations", "-Wno-missing-field-initializers", "-Wno-unused-private-field",
                 "-Wno-unused-const-variable", "-pthread"));
         public List<String> macCCompilerArgs = Collections
-                .unmodifiableList(Arrays.asList("-pedantic-errors", "-fPIC", "-g",
+                .unmodifiableList(Arrays.asList("-pedantic", "-fPIC", "-g",
                         "-Wno-unused-parameter", "-Wno-missing-field-initializers", "-Wno-unused-private-field"));
         public List<String> macObjCppCompilerArgs = Collections.unmodifiableList(Arrays.asList("-std=c++17",
                 "-stdlib=libc++", "-fobjc-arc", "-g", "-fPIC"));
