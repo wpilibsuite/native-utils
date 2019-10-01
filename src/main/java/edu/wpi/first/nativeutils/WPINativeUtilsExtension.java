@@ -83,6 +83,8 @@ public class WPINativeUtilsExtension {
         public String aarch64xenial = "linuxaarch64xenial";
         public List<String> allPlatforms = Collections
                 .unmodifiableList(Arrays.asList(roborio, raspbian, aarch64bionic, aarch64xenial, windowsx64, windowsx86, osxx64, linuxx64));
+        public List<String> desktopPlatforms = Collections
+                .unmodifiableList(Arrays.asList(windowsx64, windowsx86, osxx64, linuxx64));
     }
 
     public Platforms platforms = new Platforms();
@@ -174,10 +176,11 @@ public class WPINativeUtilsExtension {
     }
 
     public class DependencyVersions {
-        public String wpiVersion;
-        public String niLibVersion;
-        public String opencvVersion;
-        public String googleTestVersion;
+        public String wpiVersion = "-1";
+        public String niLibVersion = "-1";
+        public String opencvVersion = "-1";
+        public String googleTestVersion = "-1";
+        public String imguiVersion = "-1";
     }
 
     private void addPlatformWarnings(String platform) {
@@ -358,6 +361,17 @@ public class WPINativeUtilsExtension {
                 c.setExt("zip");
                 c.setVersion(dependencyVersions.googleTestVersion);
                 c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
+            });
+
+            configs.create("imgui", c -> {
+                c.setGroupId("edu.wpi.first.thirdparty.frc2020");
+                c.setArtifactId("imgui");
+                c.setHeaderClassifier("headers");
+                c.setSourceClassifier("sources");
+                c.setExt("zip");
+                c.setVersion(dependencyVersions.imguiVersion);
+                c.getStaticPlatforms().addAll(this.platforms.desktopPlatforms);
+                c.getSharedPlatforms().addAll(this.platforms.desktopPlatforms);
             });
         });
         if (!dependencyVersions.wpiVersion.equals("-1")) {
