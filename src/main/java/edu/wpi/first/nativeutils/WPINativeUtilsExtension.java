@@ -380,8 +380,6 @@ public class WPINativeUtilsExtension {
                     c.setLibraryName("wpilib_jni");
                     c.getTargetPlatforms().add(this.platforms.roborio);
                     List<String> deps = c.getDependencies();
-                    deps.add("cscore_shared");
-                    deps.add("opencv_shared");
                     deps.add("ntcore_shared");
                     deps.add("hal_shared");
                     deps.add("wpiutil_shared");
@@ -394,9 +392,6 @@ public class WPINativeUtilsExtension {
                     c.getTargetPlatforms().add(this.platforms.roborio);
                     List<String> deps = c.getDependencies();
                     deps.add("wpilibc_static");
-                    deps.add("cameraserver_static");
-                    deps.add("cscore_static");
-                    deps.add("opencv_static");
                     deps.add("ntcore_static");
                     deps.add("hal_static");
                     deps.add("wpiutil_static");
@@ -417,9 +412,6 @@ public class WPINativeUtilsExtension {
                     List<String> deps = c.getDependencies();
                     c.getTargetPlatforms().add(this.platforms.roborio);
                     deps.add("wpilibc_shared");
-                    deps.add("cameraserver_shared");
-                    deps.add("cscore_shared");
-                    deps.add("opencv_shared");
                     deps.add("ntcore_shared");
                     deps.add("hal_shared");
                     deps.add("wpiutil_shared");
@@ -435,6 +427,41 @@ public class WPINativeUtilsExtension {
                     deps.add("chipobject_shared");
                     deps.add("netcomm_shared");
                 });
+
+                configs.create("vision_jni_shared", c -> {
+                    c.setLibraryName("vision_jni_shared");
+                    List<String> deps = c.getDependencies();
+                    c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
+                    deps.add("cscore_shared");
+                    deps.add("opencv_shared");
+                });
+
+                configs.create("vision_shared", c -> {
+                    c.setLibraryName("vision_shared");
+                    List<String> deps = c.getDependencies();
+                    c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
+                    deps.add("cameraserver_shared");
+                    deps.add("cscore_shared");
+                    deps.add("opencv_shared");
+                });
+
+                configs.create("vision_jni_static", c -> {
+                    c.setLibraryName("vision_jni_static");
+                    List<String> deps = c.getDependencies();
+                    c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
+                    deps.add("cscore_static");
+                    deps.add("opencv_static");
+                });
+
+                configs.create("vision_static", c -> {
+                    c.setLibraryName("vision_static");
+                    List<String> deps = c.getDependencies();
+                    c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
+                    deps.add("cameraserver_static");
+                    deps.add("cscore_static");
+                    deps.add("opencv_static");
+                });
+
                 List<String> platsWithoutRio = new ArrayList<>(this.platforms.allPlatforms);
                 platsWithoutRio.remove(this.platforms.roborio);
 
@@ -442,8 +469,6 @@ public class WPINativeUtilsExtension {
                    c.setLibraryName("wpilib_jni");
                    c.getTargetPlatforms().addAll(platsWithoutRio);
                    List<String> deps = c.getDependencies();
-                   deps.add("cscore_shared");
-                   deps.add("opencv_shared");
                    deps.add("ntcore_shared");
                    deps.add("hal_shared");
                    deps.add("wpiutil_shared");
@@ -454,9 +479,6 @@ public class WPINativeUtilsExtension {
                     c.getTargetPlatforms().addAll(platsWithoutRio);
                     List<String> deps = c.getDependencies();
                     deps.add("wpilibc_static");
-                    deps.add("cameraserver_static");
-                    deps.add("cscore_static");
-                    deps.add("opencv_static");
                     deps.add("ntcore_static");
                     deps.add("hal_static");
                     deps.add("wpiutil_static");
@@ -473,9 +495,6 @@ public class WPINativeUtilsExtension {
                     List<String> deps = c.getDependencies();
                     c.getTargetPlatforms().addAll(platsWithoutRio);
                     deps.add("wpilibc_shared");
-                    deps.add("cameraserver_shared");
-                    deps.add("cscore_shared");
-                    deps.add("opencv_shared");
                     deps.add("ntcore_shared");
                     deps.add("hal_shared");
                     deps.add("wpiutil_shared");
