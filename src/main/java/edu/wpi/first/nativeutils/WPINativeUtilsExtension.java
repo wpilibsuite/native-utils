@@ -348,6 +348,28 @@ public class WPINativeUtilsExtension {
                     c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
                     c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
                 });
+
+                configs.create("wpilib_new_commands", c -> {
+                    c.setGroupId("edu.wpi.first.wpilibNewCommands");
+                    c.setArtifactId("wpilibNewCommands-cpp");
+                    c.setHeaderClassifier("headers");
+                    c.setSourceClassifier("sources");
+                    c.setExt("zip");
+                    c.setVersion(dependencyVersions.wpiVersion);
+                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
+                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
+                });
+
+                configs.create("wpilib_old_commands", c -> {
+                    c.setGroupId("edu.wpi.first.wpilibOldCommands");
+                    c.setArtifactId("wpilibOldCommands-cpp");
+                    c.setHeaderClassifier("headers");
+                    c.setSourceClassifier("sources");
+                    c.setExt("zip");
+                    c.setVersion(dependencyVersions.wpiVersion);
+                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
+                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
+                });
             }
 
             configs.create("opencv", c -> {
