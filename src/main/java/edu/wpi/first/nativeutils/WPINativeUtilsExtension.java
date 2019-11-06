@@ -272,6 +272,15 @@ public class WPINativeUtilsExtension {
                 c.getSharedPlatforms().add(this.platforms.roborio);
             });
 
+            configs.create("ni_runtime", c -> {
+                c.setGroupId("edu.wpi.first.ni-libraries");
+                c.setArtifactId("runtime");
+                c.setExt("zip");
+                c.setVersion(dependencyVersions.niLibVersion);
+                c.setSharedUsedAtRuntime(false);
+                c.getSharedPlatforms().add(this.platforms.roborio);
+            });
+
             if (!dependencyVersions.wpiVersion.equals("-1")) {
 
                 configs.create("wpiutil", c -> {
