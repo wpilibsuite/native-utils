@@ -66,6 +66,7 @@ public class PrivateExportsConfigRules extends RuleSource {
             }));
             binary.getTasks().getLink().getInputs().file(task.getExportsFile());
           } else if (binary.getTargetPlatform().getOperatingSystem().isMacOsX()) {
+            task.setIsMac(true);
             String exportsName = "exports.txt";
             task.getExportsFile().set(task.getProject().file(task.getProject().getBuildDir() + "/tmp/" + task.getName() + "/" + exportsName));
             ((LinkSharedLibrary)binary.getTasks().getLink()).getLinkerArgs().addAll(project.provider(() -> {

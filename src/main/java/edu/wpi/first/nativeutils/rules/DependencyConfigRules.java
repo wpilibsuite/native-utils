@@ -67,14 +67,16 @@ public class DependencyConfigRules extends RuleSource {
       boolean createdShared = false;
       boolean createdStatic = false;
 
-      libs.create(name + "_headers", NativeLib.class, lib -> {
-        setCommon(lib);
-        lib.setTargetPlatforms(allPlatforms);
-        lib.getHeaderDirs().add("");
-        lib.setLibraryName(name + "_headers");
-        lib.setMaven(mavenBase + dependency.getHeaderClassifier() + mavenSuffix);
-        lib.setConfiguration(config + "_headers");
-      });
+      if (dependency.getHeaderClassifier() != null) {
+        libs.create(name + "_headers", NativeLib.class, lib -> {
+          setCommon(lib);
+          lib.setTargetPlatforms(allPlatforms);
+          lib.getHeaderDirs().add("");
+          lib.setLibraryName(name + "_headers");
+          lib.setMaven(mavenBase + dependency.getHeaderClassifier() + mavenSuffix);
+          lib.setConfiguration(config + "_headers");
+        });
+      }
 
       if (dependency.getSourceClassifier() != null) {
         libs.create(name + "_sources", NativeLib.class, lib -> {
@@ -131,7 +133,9 @@ public class DependencyConfigRules extends RuleSource {
         libs.create(name + "_shared", CombinedNativeLib.class, lib -> {
           List<String> combinedLibs = lib.getLibs();
           combinedLibs.add(name + "_shared_binaries");
-          combinedLibs.add(name + "_headers");
+          if (dependency.getHeaderClassifier() != null) {
+            combinedLibs.add(name + "_headers");
+          }
           if (dependency.getSourceClassifier() != null) {
             combinedLibs.add(name + "_sources");
           }
@@ -146,7 +150,9 @@ public class DependencyConfigRules extends RuleSource {
         libs.create(name + "_static", CombinedNativeLib.class, lib -> {
           List<String> combinedLibs = lib.getLibs();
           combinedLibs.add(name + "_static_binaries");
-          combinedLibs.add(name + "_headers");
+          if (dependency.getHeaderClassifier() != null) {
+            combinedLibs.add(name + "_headers");
+          }
           if (dependency.getSourceClassifier() != null) {
             combinedLibs.add(name + "_sources");
           }
