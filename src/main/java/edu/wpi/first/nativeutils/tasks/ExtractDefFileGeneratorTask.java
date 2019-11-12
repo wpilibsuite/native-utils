@@ -8,8 +8,12 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.OutputFile;
 
 public class ExtractDefFileGeneratorTask extends DefaultTask {
+  private RegularFileProperty defFileGenerator;
+
   @OutputFile
-  public RegularFileProperty defFileGenerator;
+  public RegularFileProperty getDefFileGenerator() {
+    return defFileGenerator;
+  }
 
   @Inject
   public ExtractDefFileGeneratorTask(ObjectFactory factory) {

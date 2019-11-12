@@ -60,12 +60,12 @@ public class ExportsConfigRules extends RuleSource {
             rootProject.getTasks().named(extractGeneratorTaskName);
         } catch (UnknownTaskException notFound) {
             rootProject.getTasks().register(extractGeneratorTaskName, ExtractDefFileGeneratorTask.class, task -> {
-                task.getOutputs().file(task.defFileGenerator);
-                task.defFileGenerator.set(rootProject.getLayout().getBuildDirectory().file("DefFileGenerator.exe"));
+                task.getOutputs().file(task.getDefFileGenerator());
+                task.getDefFileGenerator().set(rootProject.getLayout().getBuildDirectory().file("DefFileGenerator.exe"));
                 task.doLast(new Action<Task>() {
                     @Override
                     public void execute(Task t) {
-                        File file = task.defFileGenerator.getAsFile().get();
+                        File file = task.getDefFileGenerator().getAsFile().get();
                         InputStream is = ExportsConfigRules.class.getResourceAsStream("/DefFileGenerator.exe");
                         OutputStream os = null;
 
@@ -125,7 +125,7 @@ public class ExportsConfigRules extends RuleSource {
                                             tmpDir.mkdirs();
                                             ExtractDefFileGeneratorTask extractTask = (ExtractDefFileGeneratorTask) rootProject
                                                     .getTasks().named(extractGeneratorTaskName).get();
-                                            String exeName = extractTask.defFileGenerator.getAsFile().get().toString();
+                                            String exeName = extractTask.getDefFileGenerator().getAsFile().get().toString();
                                             project.exec(exec -> {
                                                 exec.setExecutable(exeName);
                                                 exec.args(defFile);

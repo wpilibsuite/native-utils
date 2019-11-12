@@ -429,6 +429,18 @@ public class WPINativeUtilsExtension {
                     deps.add("chipobject_shared");
                     deps.add("netcomm_shared");
                 });
+                configs.create("wpilib_executable_static_rio", c -> {
+                    c.setLibraryName("wpilib_executable_static");
+                    c.getTargetPlatforms().add(this.platforms.roborio);
+                    List<String> deps = c.getDependencies();
+                    deps.add("wpilibc_static");
+                    deps.add("ntcore_static");
+                    deps.add("hal_static");
+                    deps.add("wpiutil_static");
+                    deps.add("chipobject_shared");
+                    deps.add("netcomm_shared");
+                    deps.add("ni_runtime_shared");
+                });
                 configs.create("driver_static_rio", c -> {
                     c.setLibraryName("driver_static");
                     List<String> deps = c.getDependencies();
@@ -448,6 +460,18 @@ public class WPINativeUtilsExtension {
                     deps.add("wpiutil_shared");
                     deps.add("chipobject_shared");
                     deps.add("netcomm_shared");
+                });
+                configs.create("wpilib_executable_shared_rio", c -> {
+                    c.setLibraryName("wpilib_executable_shared");
+                    List<String> deps = c.getDependencies();
+                    c.getTargetPlatforms().add(this.platforms.roborio);
+                    deps.add("wpilibc_shared");
+                    deps.add("ntcore_shared");
+                    deps.add("hal_shared");
+                    deps.add("wpiutil_shared");
+                    deps.add("chipobject_shared");
+                    deps.add("netcomm_shared");
+                    deps.add("ni_runtime_shared");
                 });
                 configs.create("driver_shared_rio", c -> {
                     c.setLibraryName("driver_shared");
@@ -514,6 +538,15 @@ public class WPINativeUtilsExtension {
                     deps.add("hal_static");
                     deps.add("wpiutil_static");
                 });
+                configs.create("wpilib_executable_static_dt", c -> {
+                    c.setLibraryName("wpilib_executable_static");
+                    c.getTargetPlatforms().addAll(platsWithoutRio);
+                    List<String> deps = c.getDependencies();
+                    deps.add("wpilibc_static");
+                    deps.add("ntcore_static");
+                    deps.add("hal_static");
+                    deps.add("wpiutil_static");
+                });
                 configs.create("driver_static_dt", c -> {
                     c.setLibraryName("driver_static");
                     List<String> deps = c.getDependencies();
@@ -523,6 +556,15 @@ public class WPINativeUtilsExtension {
                 });
                 configs.create("wpilib_shared_dt", c -> {
                     c.setLibraryName("wpilib_shared");
+                    List<String> deps = c.getDependencies();
+                    c.getTargetPlatforms().addAll(platsWithoutRio);
+                    deps.add("wpilibc_shared");
+                    deps.add("ntcore_shared");
+                    deps.add("hal_shared");
+                    deps.add("wpiutil_shared");
+                });
+                configs.create("wpilib_executable_shared_dt", c -> {
+                    c.setLibraryName("wpilib_executable_shared");
                     List<String> deps = c.getDependencies();
                     c.getTargetPlatforms().addAll(platsWithoutRio);
                     deps.add("wpilibc_shared");

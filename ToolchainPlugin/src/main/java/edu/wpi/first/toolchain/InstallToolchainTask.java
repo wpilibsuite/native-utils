@@ -14,7 +14,6 @@ public class InstallToolchainTask extends DefaultTask {
         return desc.discover() == null || getProject().hasProperty("toolchain-install-force");
     }
 
-    @Internal
     public void setDescriptor(ToolchainDescriptorBase desc) {
         this.desc = desc;
     }

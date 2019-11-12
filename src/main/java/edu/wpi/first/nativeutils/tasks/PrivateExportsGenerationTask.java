@@ -52,11 +52,10 @@ public class PrivateExportsGenerationTask extends DefaultTask {
   private boolean isWindows = false;
   private boolean isMac = false;
 
-  @Internal
   public void setIsWindows(boolean set) {
     isWindows = set;
   }
-  @Internal
+
   public void setIsMac(boolean set) {
     isMac = set;
   }
