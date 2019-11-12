@@ -290,6 +290,7 @@ public class WPINativeUtilsExtension {
                     c.setSourceClassifier("sources");
                     c.setExt("zip");
                     c.setVersion(dependencyVersions.wpiVersion);
+                    c.getSharedExcludes().add("**/*jni*");
                     c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
                     c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
                 });
@@ -300,6 +301,7 @@ public class WPINativeUtilsExtension {
                     c.setHeaderClassifier("headers");
                     c.setSourceClassifier("sources");
                     c.setExt("zip");
+                    c.getSharedExcludes().add("**/*jni*");
                     c.setVersion(dependencyVersions.wpiVersion);
                     c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
                     c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
@@ -311,6 +313,7 @@ public class WPINativeUtilsExtension {
                     c.setHeaderClassifier("headers");
                     c.setSourceClassifier("sources");
                     c.setExt("zip");
+                    c.getSharedExcludes().add("**/*jni*");
                     c.setVersion(dependencyVersions.wpiVersion);
                     c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
                     c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
@@ -322,6 +325,7 @@ public class WPINativeUtilsExtension {
                     c.setHeaderClassifier("headers");
                     c.setSourceClassifier("sources");
                     c.setExt("zip");
+                    c.getSharedExcludes().add("**/*jni*");
                     c.setVersion(dependencyVersions.wpiVersion);
                     c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
                     c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
@@ -333,6 +337,7 @@ public class WPINativeUtilsExtension {
                     c.setHeaderClassifier("headers");
                     c.setSourceClassifier("sources");
                     c.setExt("zip");
+                    c.getSharedExcludes().add("**/*jni*");
                     c.setVersion(dependencyVersions.wpiVersion);
                     c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
                     c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
@@ -344,6 +349,7 @@ public class WPINativeUtilsExtension {
                     c.setHeaderClassifier("headers");
                     c.setSourceClassifier("sources");
                     c.setExt("zip");
+                    c.getSharedExcludes().add("**/*jni*");
                     c.setVersion(dependencyVersions.wpiVersion);
                     c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
                     c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
