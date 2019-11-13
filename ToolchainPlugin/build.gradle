@@ -17,7 +17,7 @@ repositories {
 dependencies {
     // For some utility classes. We don't actually apply EmbeddedTools to the FRCToolchain,
     // but we do in GradleRIO
-    api 'jaci.gradle:EmbeddedTools:2019.11.10'
+    api 'jaci.gradle:EmbeddedTools:2019.11.13'
     api 'de.undercouch:gradle-download-task:4.0.1'
 
     testImplementation('org.spockframework:spock-core:1.2-groovy-2.5') {
