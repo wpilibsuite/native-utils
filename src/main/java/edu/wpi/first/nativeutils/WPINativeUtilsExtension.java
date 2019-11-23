@@ -120,6 +120,8 @@ public class WPINativeUtilsExtension {
         linuxathena.getLinker().getArgs().addAll(defaultArguments.linuxCrossLinkerArgs);
         linuxathena.getCppCompiler().getDebugArgs().addAll(defaultArguments.linuxCrossDebugCompilerArgs);
         linuxathena.getCppCompiler().getReleaseArgs().addAll(defaultArguments.linuxCrossReleaseCompilerArgs);
+        linuxathena.getcCompiler().getDebugArgs().addAll(defaultArguments.linuxCrossDebugCompilerArgs);
+        linuxathena.getcCompiler().getReleaseArgs().addAll(defaultArguments.linuxCrossReleaseCompilerArgs);
 
         linuxraspbian.setPlatformPath("linux/raspbian");
         linuxraspbian.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerArgs);
@@ -127,6 +129,8 @@ public class WPINativeUtilsExtension {
         linuxraspbian.getLinker().getArgs().addAll(defaultArguments.linuxCrossLinkerArgs);
         linuxraspbian.getCppCompiler().getDebugArgs().addAll(defaultArguments.linuxCrossDebugCompilerArgs);
         linuxraspbian.getCppCompiler().getReleaseArgs().addAll(defaultArguments.linuxCrossReleaseCompilerArgs);
+        linuxraspbian.getcCompiler().getDebugArgs().addAll(defaultArguments.linuxCrossDebugCompilerArgs);
+        linuxraspbian.getcCompiler().getReleaseArgs().addAll(defaultArguments.linuxCrossReleaseCompilerArgs);
 
         linuxbionic.setPlatformPath("linux/aarch64bionic");
         linuxbionic.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerArgs);
@@ -134,6 +138,8 @@ public class WPINativeUtilsExtension {
         linuxbionic.getLinker().getArgs().addAll(defaultArguments.linuxCrossLinkerArgs);
         linuxbionic.getCppCompiler().getDebugArgs().addAll(defaultArguments.linuxCrossDebugCompilerArgs);
         linuxbionic.getCppCompiler().getReleaseArgs().addAll(defaultArguments.linuxCrossReleaseCompilerArgs);
+        linuxbionic.getcCompiler().getDebugArgs().addAll(defaultArguments.linuxCrossDebugCompilerArgs);
+        linuxbionic.getcCompiler().getReleaseArgs().addAll(defaultArguments.linuxCrossReleaseCompilerArgs);
 
         linuxxenial.setPlatformPath("linux/aarch64xenial");
         linuxxenial.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerArgs);
@@ -141,6 +147,8 @@ public class WPINativeUtilsExtension {
         linuxxenial.getLinker().getArgs().addAll(defaultArguments.linuxCrossLinkerArgs);
         linuxxenial.getCppCompiler().getDebugArgs().addAll(defaultArguments.linuxCrossDebugCompilerArgs);
         linuxxenial.getCppCompiler().getReleaseArgs().addAll(defaultArguments.linuxCrossReleaseCompilerArgs);
+        linuxxenial.getcCompiler().getDebugArgs().addAll(defaultArguments.linuxCrossDebugCompilerArgs);
+        linuxxenial.getcCompiler().getReleaseArgs().addAll(defaultArguments.linuxCrossReleaseCompilerArgs);
 
         windowsx86_64.setPlatformPath("windows/x86-64");
         windowsx86_64.getCppCompiler().getArgs().addAll(defaultArguments.windowsCompilerArgs);
@@ -149,6 +157,8 @@ public class WPINativeUtilsExtension {
         windowsx86_64.getLinker().getReleaseArgs().addAll(defaultArguments.windowsReleaseLinkerArgs);
         windowsx86_64.getCppCompiler().getDebugArgs().addAll(defaultArguments.windowsDebugCompilerArgs);
         windowsx86_64.getCppCompiler().getReleaseArgs().addAll(defaultArguments.windowsReleaseCompilerArgs);
+        windowsx86_64.getcCompiler().getDebugArgs().addAll(defaultArguments.windowsDebugCompilerArgs);
+        windowsx86_64.getcCompiler().getReleaseArgs().addAll(defaultArguments.windowsReleaseCompilerArgs);
 
         windowsx86.setPlatformPath("windows/x86");
         windowsx86.getCppCompiler().getArgs().addAll(defaultArguments.windowsCompilerArgs);
@@ -157,6 +167,8 @@ public class WPINativeUtilsExtension {
         windowsx86.getLinker().getReleaseArgs().addAll(defaultArguments.windowsReleaseLinkerArgs);
         windowsx86.getCppCompiler().getDebugArgs().addAll(defaultArguments.windowsDebugCompilerArgs);
         windowsx86.getCppCompiler().getReleaseArgs().addAll(defaultArguments.windowsReleaseCompilerArgs);
+        windowsx86.getcCompiler().getDebugArgs().addAll(defaultArguments.windowsDebugCompilerArgs);
+        windowsx86.getcCompiler().getReleaseArgs().addAll(defaultArguments.windowsReleaseCompilerArgs);
 
         linuxx86_64.setPlatformPath("linux/x86-64");
         linuxx86_64.getCppCompiler().getArgs().addAll(defaultArguments.linuxCompilerArgs);
@@ -164,6 +176,8 @@ public class WPINativeUtilsExtension {
         linuxx86_64.getLinker().getArgs().addAll(defaultArguments.linuxLinkerArgs);
         linuxx86_64.getCppCompiler().getDebugArgs().addAll(defaultArguments.linuxDebugCompilerArgs);
         linuxx86_64.getCppCompiler().getReleaseArgs().addAll(defaultArguments.linuxReleaseCompilerArgs);
+        linuxx86_64.getcCompiler().getDebugArgs().addAll(defaultArguments.linuxDebugCompilerArgs);
+        linuxx86_64.getcCompiler().getReleaseArgs().addAll(defaultArguments.linuxReleaseCompilerArgs);
 
         osxx86_64.setPlatformPath("osx/x86-64");
         osxx86_64.getCppCompiler().getArgs().addAll(defaultArguments.macCompilerArgs);
@@ -172,6 +186,15 @@ public class WPINativeUtilsExtension {
         osxx86_64.getCppCompiler().getDebugArgs().addAll(defaultArguments.macDebugCompilerArgs);
         osxx86_64.getCppCompiler().getReleaseArgs().addAll(defaultArguments.macReleaseCompilerArgs);
         osxx86_64.getObjcppCompiler().getArgs().addAll(defaultArguments.macObjCppCompilerArgs);
+
+        osxx86_64.getcCompiler().getDebugArgs().addAll(defaultArguments.macDebugCompilerArgs);
+        osxx86_64.getcCompiler().getReleaseArgs().addAll(defaultArguments.macReleaseCompilerArgs);
+
+        osxx86_64.getObjcppCompiler().getDebugArgs().addAll(defaultArguments.macDebugCompilerArgs);
+        osxx86_64.getObjcppCompiler().getReleaseArgs().addAll(defaultArguments.macReleaseCompilerArgs);
+
+        osxx86_64.getObjcCompiler().getDebugArgs().addAll(defaultArguments.macDebugCompilerArgs);
+        osxx86_64.getObjcCompiler().getReleaseArgs().addAll(defaultArguments.macReleaseCompilerArgs);
 
     }
 
