@@ -295,6 +295,16 @@ public class WPINativeUtilsExtension {
                 c.getSharedPlatforms().add(this.platforms.roborio);
             });
 
+            configs.create("visa", c -> {
+                c.setGroupId("edu.wpi.first.ni-libraries");
+                c.setArtifactId("visa");
+                c.setHeaderClassifier("headers");
+                c.setExt("zip");
+                c.setVersion(dependencyVersions.niLibVersion);
+                c.setSharedUsedAtRuntime(false);
+                c.getSharedPlatforms().add(this.platforms.roborio);
+            });
+
             configs.create("ni_runtime", c -> {
                 c.setGroupId("edu.wpi.first.ni-libraries");
                 c.setArtifactId("runtime");
@@ -445,6 +455,7 @@ public class WPINativeUtilsExtension {
                     deps.add("wpiutil_shared");
                     deps.add("chipobject_shared");
                     deps.add("netcomm_shared");
+                    deps.add("visa_shared");
                  });
 
                 configs.create("wpilib_static_rio", c -> {
@@ -457,6 +468,7 @@ public class WPINativeUtilsExtension {
                     deps.add("wpiutil_static");
                     deps.add("chipobject_shared");
                     deps.add("netcomm_shared");
+                    deps.add("visa_shared");
                 });
                 configs.create("wpilib_executable_static_rio", c -> {
                     c.setLibraryName("wpilib_executable_static");
@@ -468,6 +480,7 @@ public class WPINativeUtilsExtension {
                     deps.add("wpiutil_static");
                     deps.add("chipobject_shared");
                     deps.add("netcomm_shared");
+                    deps.add("visa_shared");
                     deps.add("ni_runtime_shared");
                 });
                 configs.create("driver_static_rio", c -> {
@@ -478,6 +491,7 @@ public class WPINativeUtilsExtension {
                     deps.add("wpiutil_static");
                     deps.add("chipobject_shared");
                     deps.add("netcomm_shared");
+                    deps.add("visa_shared");
                 });
                 configs.create("wpilib_shared_rio", c -> {
                     c.setLibraryName("wpilib_shared");
@@ -489,6 +503,7 @@ public class WPINativeUtilsExtension {
                     deps.add("wpiutil_shared");
                     deps.add("chipobject_shared");
                     deps.add("netcomm_shared");
+                    deps.add("visa_shared");
                 });
                 configs.create("wpilib_executable_shared_rio", c -> {
                     c.setLibraryName("wpilib_executable_shared");
@@ -500,6 +515,7 @@ public class WPINativeUtilsExtension {
                     deps.add("wpiutil_shared");
                     deps.add("chipobject_shared");
                     deps.add("netcomm_shared");
+                    deps.add("visa_shared");
                     deps.add("ni_runtime_shared");
                 });
                 configs.create("driver_shared_rio", c -> {
@@ -510,6 +526,7 @@ public class WPINativeUtilsExtension {
                     deps.add("wpiutil_shared");
                     deps.add("chipobject_shared");
                     deps.add("netcomm_shared");
+                    deps.add("visa_shared");
                 });
 
                 configs.create("vision_jni_shared", c -> {
