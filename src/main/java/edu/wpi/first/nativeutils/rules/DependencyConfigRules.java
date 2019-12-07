@@ -82,7 +82,7 @@ public class DependencyConfigRules extends RuleSource {
         libs.create(name + "_sources", NativeLib.class, lib -> {
           setCommon(lib);
           lib.setTargetPlatforms(allPlatforms);
-          lib.getHeaderDirs().add("");
+          lib.getSourceDirs().add("");
           lib.setLibraryName(name + "_sources");
           lib.setMaven(mavenBase + dependency.getSourceClassifier() + mavenSuffix);
           lib.setConfiguration(config + "_sources");
