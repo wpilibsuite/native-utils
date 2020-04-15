@@ -1,5 +1,5 @@
 plugins {
-    id "com.gradle.plugin-publish" version "0.10.0"
+    id "com.gradle.plugin-publish" version "0.11.0"
     id 'java-gradle-plugin'
     id 'maven-publish'
     id 'groovy'
@@ -24,7 +24,7 @@ compileGroovy {
 
 allprojects {
     group = "edu.wpi.first"
-    version = "2020.7.3"
+    version = "2020.7.4"
 
     if (project.hasProperty('publishVersion')) {
         version = project.publishVersion

@@ -268,6 +268,12 @@ public class WPINativeUtilsExtension {
 
     private DependencyVersions dependencyVersions;
 
+    private boolean skipRaspbianAsDesktop = false;
+
+    public void setSkipRaspbianAsDesktop(boolean skip) {
+        skipRaspbianAsDesktop = skip;
+    }
+
     public void configureDependencies(Action<DependencyVersions> dependencies) {
         if (dependencyVersions != null) {
             return;
@@ -565,6 +571,10 @@ public class WPINativeUtilsExtension {
 
                 List<String> platsWithoutRio = new ArrayList<>(this.platforms.allPlatforms);
                 platsWithoutRio.remove(this.platforms.roborio);
+
+                if (skipRaspbianAsDesktop) {
+                    platsWithoutRio.remove(this.platforms.raspbian);
+                }
 
                 configs.create("wpilib_jni_dt", c -> {
                    c.setLibraryName("wpilib_jni");
