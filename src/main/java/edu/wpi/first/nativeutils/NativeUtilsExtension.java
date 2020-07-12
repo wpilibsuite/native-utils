@@ -10,6 +10,7 @@ import org.gradle.api.GradleException;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.NativeLibraryBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
@@ -28,6 +29,7 @@ import edu.wpi.first.nativeutils.configs.impl.DefaultDependencyConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultExportsConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPlatformConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPrivateExportsConfig;
+import edu.wpi.first.nativeutils.rules.GitLinkRules;
 import edu.wpi.first.toolchain.ToolchainDescriptorBase;
 import edu.wpi.first.toolchain.NativePlatforms;
 import edu.wpi.first.toolchain.ToolchainExtension;
@@ -328,5 +330,11 @@ public class NativeUtilsExtension {
 
   public void excludeBinaryFromStrip(NativeBinarySpec binary) {
     tcExt.addStripExcludeComponentsForPlatform(binary.getTargetPlatform().getName(), binary.getComponent().getName());
+  }
+
+  public void enableGitLink() {
+    if (OperatingSystem.current().isWindows()) {
+      project.getPluginManager().apply(GitLinkRules.class);
+    }
   }
 }
