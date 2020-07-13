@@ -24,7 +24,7 @@ compileGroovy {
 
 allprojects {
     group = "edu.wpi.first"
-    version = "2020.8.2"
+    version = "2020.9.1"
 
     if (project.hasProperty('publishVersion')) {
         version = project.publishVersion
@@ -40,6 +40,8 @@ repositories {
 
 dependencies {
     api project(':ToolchainPlugin')
+    implementation 'org.ajoberstar.grgit:grgit-core:3.0.0'
+    implementation 'com.google.code.gson:gson:2.8.6'
 }
 
 tasks.withType(JavaCompile) {

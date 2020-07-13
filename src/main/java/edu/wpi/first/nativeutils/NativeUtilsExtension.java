@@ -1,5 +1,6 @@
 package edu.wpi.first.nativeutils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +10,9 @@ import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
+import org.gradle.api.UnknownTaskException;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.NativeLibraryBinarySpec;
@@ -30,8 +33,9 @@ import edu.wpi.first.nativeutils.configs.impl.DefaultExportsConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPlatformConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPrivateExportsConfig;
 import edu.wpi.first.nativeutils.rules.GitLinkRules;
-import edu.wpi.first.toolchain.ToolchainDescriptorBase;
+import edu.wpi.first.nativeutils.tasks.SourceLinkGenerationTask;
 import edu.wpi.first.toolchain.NativePlatforms;
+import edu.wpi.first.toolchain.ToolchainDescriptorBase;
 import edu.wpi.first.toolchain.ToolchainExtension;
 import edu.wpi.first.toolchain.bionic.BionicToolchainPlugin;
 import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
@@ -101,14 +105,14 @@ public class NativeUtilsExtension {
 
   public void setSinglePrintPerPlatform() {
     tcExt.setSinglePrintPerPlatform();
-}
+  }
 
   public NamedDomainObjectContainer<ToolchainDescriptorBase> getToolchainDescriptors() {
     return tcExt.getToolchainDescriptors();
   }
 
   void toolchainDescriptors(final Action<? super NamedDomainObjectContainer<ToolchainDescriptorBase>> closure) {
-      closure.execute(tcExt.getToolchainDescriptors());
+    closure.execute(tcExt.getToolchainDescriptors());
   }
 
   public NamedDomainObjectContainer<CrossCompilerConfiguration> getCrossCompilers() {
@@ -332,9 +336,45 @@ public class NativeUtilsExtension {
     tcExt.addStripExcludeComponentsForPlatform(binary.getTargetPlatform().getName(), binary.getComponent().getName());
   }
 
-  public void enableGitLink() {
+  private File getGitDir(File currentDir) {
+    if (new File(currentDir, ".git").exists()) {
+      return currentDir;
+    }
+
+    File parentFile = currentDir.getParentFile();
+
+    if (parentFile == null) {
+      return null;
+    }
+
+    return parentFile;
+  }
+
+  TaskProvider<SourceLinkGenerationTask> sourceLinkTask;
+
+  public TaskProvider<SourceLinkGenerationTask> getSourceLinkTask() {
+    return sourceLinkTask;
+  }
+
+  public void enableSourceLink() {
     if (OperatingSystem.current().isWindows()) {
-      project.getPluginManager().apply(GitLinkRules.class);
+      String extractTaskName = "generateSourceLinkFile";
+      try {
+        sourceLinkTask = project.getRootProject().getTasks().named(extractTaskName, SourceLinkGenerationTask.class);
+        project.getPluginManager().apply(GitLinkRules.class);
+      } catch (UnknownTaskException notfound) {
+        File gitDir = getGitDir(project.getRootProject().getRootDir());
+        if (gitDir == null) {
+          System.out.println("No .git directory was found in" + project.getRootProject().getRootDir().toString()
+              + "or any parent directories of that directory.");
+          System.out.println("SourceLink generation skipped");
+        } else {
+          sourceLinkTask = project.getRootProject().getTasks().register(extractTaskName, SourceLinkGenerationTask.class,
+              gitDir);
+
+          project.getPluginManager().apply(GitLinkRules.class);
+        }
+      }
     }
   }
 }

@@ -1,15 +1,27 @@
 package edu.wpi.first.nativeutils.rules;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectCollection;
+import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.plugins.ExtensionContainer;
+import org.gradle.api.tasks.Copy;
+import org.gradle.api.tasks.TaskProvider;
+import org.gradle.language.base.internal.ProjectLayout;
+import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
+import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
+import org.gradle.nativeplatform.StaticLibraryBinarySpec;
 import org.gradle.nativeplatform.platform.NativePlatform;
+import org.gradle.nativeplatform.tasks.CreateStaticLibrary;
 import org.gradle.platform.base.BinaryContainer;
+import org.gradle.platform.base.BinarySpec;
 import org.gradle.platform.base.Platform;
 import org.gradle.platform.base.PlatformContainer;
 
@@ -34,13 +46,91 @@ public class DependencyConfigRules extends RuleSource {
     lib.setDynamicMatchers(new ArrayList<>());
   }
 
+  private void staticLibraryPdbConfiguration(StaticLibraryBinarySpec staticLib, Project project,
+      NativeUtilsExtension ext) {
+    // Static libraries are special. Their pdb's are handled differently. To solve
+    // this, we need to special case some pdbs
+    // First, rename the output location
+    if (!staticLib.getTargetPlatform().getOperatingSystem().isWindows()) {
+      return;
+    }
+
+    Task lib = staticLib.getTasks().getCreateStaticLib();
+    if (lib instanceof CreateStaticLibrary) {
+      CreateStaticLibrary create = (CreateStaticLibrary) lib;
+      File libFile = create.getOutputFile().get().getAsFile();
+      File pdbRoot = libFile.getParentFile();
+      String libPath = libFile.getAbsolutePath();
+      libPath = libPath.substring(0, libPath.length() - 4);
+      String outputLocation = libPath + ".pdb";
+
+      String makePdbDirName = "makePdbDirFor" + staticLib.getBuildTask().getName();
+
+      TaskProvider<Task> mkdirTask = project.getTasks().register(makePdbDirName, new Action<Task>() {
+        @Override
+        public void execute(Task task) {
+          task.doLast(new Action<Task>() {
+            @Override
+            public void execute(Task arg0) {
+              pdbRoot.mkdirs();
+            }
+          });
+        }
+      });
+
+      String finalOutputLoc = outputLocation;
+
+      staticLib.getTasks().withType(AbstractNativeSourceCompileTask.class).configureEach(it -> {
+        it.dependsOn(mkdirTask);
+        it.getOutputs().file(finalOutputLoc);
+      });
+
+      outputLocation = "/Fd" + outputLocation;
+
+      staticLib.getCppCompiler().getArgs().add(outputLocation);
+      staticLib.getcCompiler().getArgs().add(outputLocation);
+
+      if (ext.getSourceLinkTask() != null) {
+        String copySourceLinkName = "copySourceLink" + staticLib.getBuildTask().getName();
+
+        TaskProvider<Copy> copyTask = project.getTasks().register(copySourceLinkName, Copy.class, new Action<Copy>() {
+          @Override
+          public void execute(Copy copy) {
+            copy.from(ext.getSourceLinkTask().get().getSourceLinkBaseFile());
+            copy.into(pdbRoot);
+          }
+        });
+        create.dependsOn(copyTask);
+      }
+    }
+  }
+
+  @Mutate
+  public void configureStaticPdbGeneration(ModelMap<Task> tasks, BinaryContainer binaries,
+      ExtensionContainer ext, ProjectLayout projectLayout) {
+    if (binaries == null) {
+      return;
+    }
+
+    Project project = (Project) projectLayout.getProjectIdentifier();
+
+    for (BinarySpec oBinary : binaries) {
+      if (!(oBinary instanceof StaticLibraryBinarySpec)) {
+        continue;
+      }
+      StaticLibraryBinarySpec binary = (StaticLibraryBinarySpec) oBinary;
+      staticLibraryPdbConfiguration(binary, project, ext.getByType(NativeUtilsExtension.class));
+    }
+  }
+
   @Mutate
   public void setupDependencies(NativeDepsSpec libs, BinaryContainer binaries,
       final PlatformContainer platformContainer, ExtensionContainer extensions) {
     NativeUtilsExtension extension = extensions.getByType(NativeUtilsExtension.class);
 
     NamedDomainObjectCollection<DependencyConfig> dependencies = extension.getDependencyConfigs();
-    NamedDomainObjectCollection<CombinedDependencyConfig> combinedDependencies = extension.getCombinedDependencyConfigs();
+    NamedDomainObjectCollection<CombinedDependencyConfig> combinedDependencies = extension
+        .getCombinedDependencyConfigs();
 
     ArrayList<String> allPlatforms = new ArrayList<>();
 

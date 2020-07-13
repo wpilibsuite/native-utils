@@ -16,7 +16,6 @@ import jaci.gradle.EmbeddedTools;
 public class NativeUtils implements Plugin<Project> {
   @Override
   public void apply(Project project) {
-
     project.getPluginManager().apply(ToolchainPlugin.class);
     project.getPluginManager().apply(EmbeddedTools.class);
 
