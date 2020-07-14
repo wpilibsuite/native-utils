@@ -92,14 +92,14 @@ public class DependencyConfigRules extends RuleSource {
       });
 
       staticLib.getTasks().withType(CppCompile.class).configureEach(it -> {
-        String pdbFile = new File(pdbRoot, it.getName()).getAbsolutePath();
+        String pdbFile = new File(pdbRoot, it.getName() + ".pdb").getAbsolutePath();
         it.getCompilerArgs().add("/Fd:" + pdbFile);
         it.dependsOn(mkdirTask);
         it.getOutputs().file(pdbFile);
       });
 
       staticLib.getTasks().withType(CCompile.class).configureEach(it -> {
-        String pdbFile = new File(pdbRoot, it.getName()).getAbsolutePath();
+        String pdbFile = new File(pdbRoot, it.getName() + ".pdb").getAbsolutePath();
         it.getCompilerArgs().add("/Fd:" + pdbFile);
         it.dependsOn(mkdirTask);
         it.getOutputs().file(pdbFile);
