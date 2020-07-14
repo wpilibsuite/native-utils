@@ -10,18 +10,25 @@ import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.plugins.ExtensionContainer;
+import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.Copy;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.internal.ProjectLayout;
+import org.gradle.language.c.tasks.CCompile;
+import org.gradle.language.cpp.tasks.CppCompile;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
+import org.gradle.nativeplatform.NativeExecutableBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
 import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.tasks.CreateStaticLibrary;
+import org.gradle.nativeplatform.tasks.InstallExecutable;
+import org.gradle.nativeplatform.test.NativeTestSuiteBinarySpec;
 import org.gradle.platform.base.BinaryContainer;
 import org.gradle.platform.base.BinarySpec;
+import org.gradle.platform.base.ComponentSpecContainer;
 import org.gradle.platform.base.Platform;
 import org.gradle.platform.base.PlatformContainer;
 
@@ -60,15 +67,21 @@ public class DependencyConfigRules extends RuleSource {
       CreateStaticLibrary create = (CreateStaticLibrary) lib;
       File libFile = create.getOutputFile().get().getAsFile();
       File pdbRoot = libFile.getParentFile();
-      String libPath = libFile.getAbsolutePath();
-      libPath = libPath.substring(0, libPath.length() - 4);
-      String outputLocation = libPath + ".pdb";
 
       String makePdbDirName = "makePdbDirFor" + staticLib.getBuildTask().getName();
 
       TaskProvider<Task> mkdirTask = project.getTasks().register(makePdbDirName, new Action<Task>() {
         @Override
         public void execute(Task task) {
+          task.getOutputs().upToDateWhen(new Spec<Task>() {
+
+            @Override
+            public boolean isSatisfiedBy(Task arg0) {
+              return pdbRoot.exists();
+            }
+
+          });
+
           task.doLast(new Action<Task>() {
             @Override
             public void execute(Task arg0) {
@@ -78,17 +91,19 @@ public class DependencyConfigRules extends RuleSource {
         }
       });
 
-      String finalOutputLoc = outputLocation;
-
-      staticLib.getTasks().withType(AbstractNativeSourceCompileTask.class).configureEach(it -> {
+      staticLib.getTasks().withType(CppCompile.class).configureEach(it -> {
+        String pdbFile = new File(pdbRoot, it.getName()).getAbsolutePath();
+        it.getCompilerArgs().add("/Fd:" + pdbFile);
         it.dependsOn(mkdirTask);
-        it.getOutputs().file(finalOutputLoc);
+        it.getOutputs().file(pdbFile);
       });
 
-      outputLocation = "/Fd" + outputLocation;
-
-      staticLib.getCppCompiler().getArgs().add(outputLocation);
-      staticLib.getcCompiler().getArgs().add(outputLocation);
+      staticLib.getTasks().withType(CCompile.class).configureEach(it -> {
+        String pdbFile = new File(pdbRoot, it.getName()).getAbsolutePath();
+        it.getCompilerArgs().add("/Fd:" + pdbFile);
+        it.dependsOn(mkdirTask);
+        it.getOutputs().file(pdbFile);
+      });
 
       if (ext.getSourceLinkTask() != null) {
         String copySourceLinkName = "copySourceLink" + staticLib.getBuildTask().getName();
@@ -120,6 +135,47 @@ public class DependencyConfigRules extends RuleSource {
       }
       StaticLibraryBinarySpec binary = (StaticLibraryBinarySpec) oBinary;
       staticLibraryPdbConfiguration(binary, project, ext.getByType(NativeUtilsExtension.class));
+    }
+  }
+
+  @Mutate
+  public void setupInstallPdbCopy(ModelMap<Task> tasks, BinaryContainer binaries, ComponentSpecContainer components) {
+    if (binaries == null) {
+      return;
+    }
+
+    for (BinarySpec oBinary : binaries) {
+      // Get install task
+      InstallExecutable installTask;
+      if (oBinary instanceof NativeExecutableBinarySpec) {
+        installTask = (InstallExecutable)((NativeExecutableBinarySpec.TasksCollection)oBinary.getTasks()).getInstall();
+      } else if (oBinary instanceof NativeTestSuiteBinarySpec) {
+        installTask = (InstallExecutable)((NativeTestSuiteBinarySpec.TasksCollection)oBinary.getTasks()).getInstall();
+      } else {
+        continue;
+      }
+
+      installTask.doFirst(new Action<Task>() {
+
+        @Override
+        public void execute(Task installTaskRaw) {
+          InstallExecutable installTask = (InstallExecutable)installTaskRaw;
+          List<File> filesToAdd = new ArrayList<>();
+          for(File file : installTask.getLibs()) {
+            if (file.exists()) {
+              String name = file.getName();
+              name = name.substring(0, name.length() - 3);
+              filesToAdd.add(new File(file.getParentFile(), name + "pdb"));
+            }
+          }
+          installTask.lib(filesToAdd);
+          // TODO Auto-generated method stub
+
+        }
+
+      });
+
+      installTask.getLibs();
     }
   }
 
