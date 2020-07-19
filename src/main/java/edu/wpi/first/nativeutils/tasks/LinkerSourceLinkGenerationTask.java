@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -72,8 +73,10 @@ public class LinkerSourceLinkGenerationTask extends DefaultTask {
             }
         }
         GsonBuilder builder = new GsonBuilder();
+        Map<String, Object> outputMap = new HashMap<>();
+        outputMap.put("documents", sortedMap);
         builder.setPrettyPrinting();
-        String json = builder.create().toJson(sortedMap);
+        String json = builder.create().toJson(outputMap);
         List<String> jsonList = new ArrayList<>();
         jsonList.add(json);
         Files.write(sourceLinkFile.get().getAsFile().toPath(), jsonList, Charset.defaultCharset(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);

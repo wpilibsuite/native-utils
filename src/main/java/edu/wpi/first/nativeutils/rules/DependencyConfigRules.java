@@ -168,14 +168,15 @@ public class DependencyConfigRules extends RuleSource {
               filesToAdd.add(new File(file.getParentFile(), name + "pdb"));
             }
           }
+          File toInstallFile = installTask.getExecutableFile().get().getAsFile();
+          String toInstallName = toInstallFile.getName();
+          toInstallName = toInstallName.substring(0, toInstallName.length() - 3);
+          System.out.println(toInstallFile);
+          System.out.println(toInstallName);
+          filesToAdd.add(new File(toInstallFile.getParentFile(), toInstallName + "pdb"));
           installTask.lib(filesToAdd);
-          // TODO Auto-generated method stub
-
         }
-
       });
-
-      installTask.getLibs();
     }
   }
 
