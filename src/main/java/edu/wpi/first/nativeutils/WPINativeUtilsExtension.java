@@ -207,6 +207,7 @@ public class WPINativeUtilsExtension {
         public String opencvVersion = "-1";
         public String googleTestVersion = "-1";
         public String imguiVersion = "-1";
+        public String wpimathVersion = "-1";
     }
 
     private void addPlatformReleaseSymbolGeneration(String platform) {
@@ -485,6 +486,17 @@ public class WPINativeUtilsExtension {
                 c.getStaticPlatforms().addAll(this.platforms.desktopPlatforms);
                 c.getSharedPlatforms().addAll(this.platforms.desktopPlatforms);
             });
+
+            configs.create("wpimath", c -> {
+                c.setGroupId("edu.wpi.first.math");
+                c.setArtifactId("wpimath-cpp");
+                c.setHeaderClassifier("headers");
+                c.setSourceClassifier("sources");
+                c.setExt("zip");
+                c.setVersion(dependencyVersions.wpimathVersion);
+                c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
+                c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
+            });
         });
         if (!dependencyVersions.wpiVersion.equals("-1")) {
             nativeExt.combinedDependencyConfigs(configs -> {
@@ -495,6 +507,7 @@ public class WPINativeUtilsExtension {
                     deps.add("ntcore_shared");
                     deps.add("hal_shared");
                     deps.add("wpiutil_shared");
+                    deps.add("wpimath_shared");
                     deps.add("chipobject_shared");
                     deps.add("netcomm_shared");
                     deps.add("visa_shared");
@@ -508,6 +521,7 @@ public class WPINativeUtilsExtension {
                     deps.add("ntcore_static");
                     deps.add("hal_static");
                     deps.add("wpiutil_static");
+                    deps.add("wpimath_static");
                     deps.add("chipobject_shared");
                     deps.add("netcomm_shared");
                     deps.add("visa_shared");
@@ -520,6 +534,7 @@ public class WPINativeUtilsExtension {
                     deps.add("ntcore_static");
                     deps.add("hal_static");
                     deps.add("wpiutil_static");
+                    deps.add("wpimath_static");
                     deps.add("chipobject_shared");
                     deps.add("netcomm_shared");
                     deps.add("visa_shared");
@@ -543,6 +558,7 @@ public class WPINativeUtilsExtension {
                     deps.add("ntcore_shared");
                     deps.add("hal_shared");
                     deps.add("wpiutil_shared");
+                    deps.add("wpimath_shared");
                     deps.add("chipobject_shared");
                     deps.add("netcomm_shared");
                     deps.add("visa_shared");
@@ -555,6 +571,7 @@ public class WPINativeUtilsExtension {
                     deps.add("ntcore_shared");
                     deps.add("hal_shared");
                     deps.add("wpiutil_shared");
+                    deps.add("wpimath_shared");
                     deps.add("chipobject_shared");
                     deps.add("netcomm_shared");
                     deps.add("visa_shared");
@@ -619,6 +636,7 @@ public class WPINativeUtilsExtension {
                     deps.add("ntcore_shared");
                     deps.add("hal_shared");
                     deps.add("wpiutil_shared");
+                    deps.add("wpimath_shared");
                 });
 
                 configs.create("wpilib_static_dt", c -> {
@@ -629,6 +647,7 @@ public class WPINativeUtilsExtension {
                     deps.add("ntcore_static");
                     deps.add("hal_static");
                     deps.add("wpiutil_static");
+                    deps.add("wpimath_static");
                 });
                 configs.create("wpilib_executable_static_dt", c -> {
                     c.setLibraryName("wpilib_executable_static");
@@ -638,6 +657,7 @@ public class WPINativeUtilsExtension {
                     deps.add("ntcore_static");
                     deps.add("hal_static");
                     deps.add("wpiutil_static");
+                    deps.add("wpimath_static");
                 });
                 configs.create("driver_static_dt", c -> {
                     c.setLibraryName("driver_static");
@@ -654,6 +674,7 @@ public class WPINativeUtilsExtension {
                     deps.add("ntcore_shared");
                     deps.add("hal_shared");
                     deps.add("wpiutil_shared");
+                    deps.add("wpimath_shared");
                 });
                 configs.create("wpilib_executable_shared_dt", c -> {
                     c.setLibraryName("wpilib_executable_shared");
@@ -663,6 +684,7 @@ public class WPINativeUtilsExtension {
                     deps.add("ntcore_shared");
                     deps.add("hal_shared");
                     deps.add("wpiutil_shared");
+                    deps.add("wpimath_shared");
                 });
                 configs.create("driver_shared_dt", c -> {
                     c.setLibraryName("driver_shared");
