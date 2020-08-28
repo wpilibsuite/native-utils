@@ -66,8 +66,10 @@ public class WPINativeUtilsExtension {
                         "-pthread"));
         public List<String> macCCompilerArgs = Collections.unmodifiableList(Arrays.asList("-pedantic", "-fPIC",
                 "-Wno-unused-parameter", "-Wno-missing-field-initializers", "-Wno-unused-private-field"));
-        public List<String> macObjCppCompilerArgs = Collections
-                .unmodifiableList(Arrays.asList("-std=c++17", "-stdlib=libc++", "-fobjc-arc", "-fPIC"));
+        public List<String> macObjcppCompilerArgs = Collections
+                .unmodifiableList(Arrays.asList("-std=c++17", "-stdlib=libc++", "-fobjc-weak", "-fobjc-arc", "-fPIC"));
+        public List<String> macObjcCompilerArgs = Collections
+                .unmodifiableList(Arrays.asList("-fobjc-weak", "-fobjc-arc", "-fPIC"));
         public List<String> macReleaseCompilerArgs = Collections.unmodifiableList(Arrays.asList("-O2"));
         public List<String> macDebugCompilerArgs = Collections.unmodifiableList(Arrays.asList("-O0"));
         public List<String> macLinkerArgs = Collections
@@ -139,7 +141,8 @@ public class WPINativeUtilsExtension {
         platform.getLinker().getArgs().addAll(defaultArguments.macLinkerArgs);
         platform.getCppCompiler().getDebugArgs().addAll(defaultArguments.macDebugCompilerArgs);
         platform.getCppCompiler().getReleaseArgs().addAll(defaultArguments.macReleaseCompilerArgs);
-        platform.getObjcppCompiler().getArgs().addAll(defaultArguments.macObjCppCompilerArgs);
+        platform.getObjcCompiler().getArgs().addAll(defaultArguments.macObjcCompilerArgs);
+        platform.getObjcppCompiler().getArgs().addAll(defaultArguments.macObjcppCompilerArgs);
 
         platform.getcCompiler().getDebugArgs().addAll(defaultArguments.macDebugCompilerArgs);
         platform.getcCompiler().getReleaseArgs().addAll(defaultArguments.macReleaseCompilerArgs);
