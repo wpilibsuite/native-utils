@@ -492,7 +492,7 @@ public class WPINativeUtilsExtension {
             });
 
             configs.create("wpimath", c -> {
-                c.setGroupId("edu.wpi.first.math");
+                c.setGroupId("edu.wpi.first.wpimath");
                 c.setArtifactId("wpimath-cpp");
                 c.setHeaderClassifier("headers");
                 c.setSourceClassifier("sources");
