@@ -1,6 +1,6 @@
 # Native Utils and Toolchain Plugin
 
-[![Build status](https://ci.appveyor.com/api/projects/status/ddcha99dx7cryd0r/branch/master?svg=true)](https://ci.appveyor.com/project/ThadHouse/native-utils/branch/master)
+[![Build Status](https://dev.azure.com/wpilib/BuildSupport/_apis/build/status/wpilibsuite.native-utils?branchName=master)](https://dev.azure.com/wpilib/BuildSupport/_build/latest?definitionId=22&branchName=master)
 
 ## DSL Documentation for Native Utils
 
@@ -119,12 +119,15 @@ nativeUtils.addWpiNativeUtils()
 // wpilib and driver. They still need to manually be added to individual
 // components. These just add to the back end
 nativeUtils.wpi.configureDependencies {
-  // Thse are the 4 separate versions used for wpi
+  // Thse are the 6 separate versions used for wpi
   // deps. They should be kept in sync.
   wpiVersion = ""
   niLibVersion = ""
   opencvVersion = ""
   googleTestVersion = ""
+  imguiVersion = ""
+  wpimathVersion = ""
+  
 }
 
 // The 6 below get the string representation of the main platforms
