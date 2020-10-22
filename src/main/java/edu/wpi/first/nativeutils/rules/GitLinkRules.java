@@ -1,6 +1,7 @@
 package edu.wpi.first.nativeutils.rules;
 
 import java.io.File;
+import java.util.Set;
 
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -38,6 +39,18 @@ public class GitLinkRules extends RuleSource {
       @Override
       public void execute(LinkerSourceLinkGenerationTask genTask) {
         genTask.dependsOn(rootGenTask);
+        Set<Object> linkDepends = linkTask.getDependsOn();
+
+        for (Object item : linkDepends) {
+          if (item instanceof TaskProvider) {
+            TaskProvider<?> tp = (TaskProvider<?>)item;
+            if (tp.getName().equals(genTask.getName())) {
+              continue;
+            }
+          }
+          genTask.dependsOn(item);
+        }
+
         genTask.getInputFiles().add(rootGenTask.get().getSourceLinkBaseFile().getAsFile());
         genTask.getInputFiles().addAll(linkTask.getLibs());
 
