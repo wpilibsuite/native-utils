@@ -61,7 +61,7 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
 
 
     public void populateDescriptor(ToolchainDescriptor<RoboRioGcc> descriptor) {
-        File frcHomeLoc = new File(new FrcHome(roborioExt.year).get(), "roborio");
+        File frcHomeLoc = new File(new FrcHome("2021alpha").get(), "roborio");
         File installLoc = toolchainInstallLoc(roborioExt.year);
 
         descriptor.getDiscoverers().add(ToolchainDiscoverer.create("FRCHome", frcHomeLoc, this::composeTool, project));

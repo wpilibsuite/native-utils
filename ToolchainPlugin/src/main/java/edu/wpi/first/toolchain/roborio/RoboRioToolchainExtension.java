@@ -7,6 +7,6 @@ public class RoboRioToolchainExtension {
     public String toolchainVersion = "2020-7.3.0";
     public String toolchainTag = "v2020-3";
 
-    public String year = "2021alpha";
+    public String year = "2020";
 
 }

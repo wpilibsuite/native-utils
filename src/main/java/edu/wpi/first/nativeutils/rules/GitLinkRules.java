@@ -29,7 +29,6 @@ public class GitLinkRules extends RuleSource {
 
 
   private void handleLinkedComponent(NativeBinarySpec binary, AbstractLinkTask linkTask, TaskProvider<SourceLinkGenerationTask> rootGenTask, Project project) {
-
     String sourceLinkName = "generateSourceLink" + binary.getBuildTask().getName();
 
     TaskProvider<LinkerSourceLinkGenerationTask> sourceGenTask = project.getTasks().register(sourceLinkName, LinkerSourceLinkGenerationTask.class);
@@ -39,25 +38,16 @@ public class GitLinkRules extends RuleSource {
       @Override
       public void execute(LinkerSourceLinkGenerationTask genTask) {
         genTask.dependsOn(rootGenTask);
-        Set<Object> linkDepends = linkTask.getDependsOn();
-
-        for (Object item : linkDepends) {
-          if (item instanceof TaskProvider) {
-            TaskProvider<?> tp = (TaskProvider<?>)item;
-            if (tp.getName().equals(genTask.getName())) {
-              continue;
-            }
-          }
-          genTask.dependsOn(item);
-        }
+        Set<Object> linkDepends = linkTask.getLibs().getFrom();
+        genTask.dependsOn(linkDepends);
 
         genTask.getInputFiles().add(rootGenTask.get().getSourceLinkBaseFile().getAsFile());
         genTask.getInputFiles().addAll(linkTask.getLibs());
 
         genTask.getSourceLinkFile().set(sourceLinkFile);
-
       }
     });
+
 
     linkTask.dependsOn(sourceGenTask);
     linkTask.getLinkerArgs().add("/SOURCELINK:" + sourceLinkFile.getAbsolutePath());
@@ -91,7 +81,7 @@ public class GitLinkRules extends RuleSource {
         continue;
       }
 
-      if (binary instanceof SharedLibraryBinarySpec && setupSourceLink) {
+      if (binary instanceof SharedLibraryBinarySpec) {
         SharedLibraryBinarySpec s = (SharedLibraryBinarySpec)binary;
         if (!s.getTargetPlatform().getOperatingSystem().isWindows()) {
           continue;
@@ -100,7 +90,7 @@ public class GitLinkRules extends RuleSource {
         if (l instanceof AbstractLinkTask) {
           handleLinkedComponent(s, (AbstractLinkTask)l, genTask, project);
         }
-      } else if (binary instanceof NativeExecutableBinarySpec && setupSourceLink) {
+      } else if (binary instanceof NativeExecutableBinarySpec) {
         NativeExecutableBinarySpec s = (NativeExecutableBinarySpec)binary;
         if (!s.getTargetPlatform().getOperatingSystem().isWindows()) {
           continue;
@@ -109,7 +99,7 @@ public class GitLinkRules extends RuleSource {
         if (l instanceof AbstractLinkTask) {
           handleLinkedComponent(s, (AbstractLinkTask)l, genTask, project);
         }
-      } else if (binary instanceof NativeTestSuiteBinarySpec && setupSourceLink) {
+      } else if (binary instanceof NativeTestSuiteBinarySpec) {
         NativeTestSuiteBinarySpec s = (NativeTestSuiteBinarySpec)binary;
         if (!s.getTargetPlatform().getOperatingSystem().isWindows()) {
           continue;
