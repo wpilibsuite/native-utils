@@ -16,7 +16,6 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.internal.ProjectLayout;
 import org.gradle.language.c.tasks.CCompile;
 import org.gradle.language.cpp.tasks.CppCompile;
-import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
 import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
@@ -171,8 +170,6 @@ public class DependencyConfigRules extends RuleSource {
           File toInstallFile = installTask.getExecutableFile().get().getAsFile();
           String toInstallName = toInstallFile.getName();
           toInstallName = toInstallName.substring(0, toInstallName.length() - 3);
-          System.out.println(toInstallFile);
-          System.out.println(toInstallName);
           filesToAdd.add(new File(toInstallFile.getParentFile(), toInstallName + "pdb"));
           installTask.lib(filesToAdd);
         }
