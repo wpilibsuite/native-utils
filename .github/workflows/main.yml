@@ -13,7 +13,7 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: 11
-    - name: Publish to Maven Local
+    - name: Build
       run: ./gradlew build -PRunToolchainTests
 
   publish:
