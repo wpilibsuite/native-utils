@@ -1,6 +1,6 @@
 # Native Utils and Toolchain Plugin
 
-[![Build Status](https://dev.azure.com/wpilib/BuildSupport/_apis/build/status/wpilibsuite.native-utils?branchName=master)](https://dev.azure.com/wpilib/BuildSupport/_build/latest?definitionId=22&branchName=master)
+![CI](https://github.com/wpilibsuite/native-utils/workflows/CI/badge.svg)
 
 ## DSL Documentation for Native Utils
 
