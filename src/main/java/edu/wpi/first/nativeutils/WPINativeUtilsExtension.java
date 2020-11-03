@@ -488,7 +488,6 @@ public class WPINativeUtilsExtension {
                 c.setExt("zip");
                 c.setVersion(dependencyVersions.imguiVersion);
                 c.getStaticPlatforms().addAll(this.platforms.desktopPlatforms);
-                c.getSharedPlatforms().addAll(this.platforms.desktopPlatforms);
             });
 
             configs.create("wpimath", c -> {
