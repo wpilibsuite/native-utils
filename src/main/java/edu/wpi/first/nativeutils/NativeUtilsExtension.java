@@ -183,7 +183,7 @@ public class NativeUtilsExtension {
     return classifierBase;
   }
 
-  public String getPublishClassifier(NativeLibraryBinarySpec binary) {
+  public String getPublishClassifier(NativeBinarySpec binary) {
     String classifierBase = binary.getTargetPlatform().getName();
     if (binary instanceof StaticLibraryBinarySpec) {
       classifierBase += "static";
