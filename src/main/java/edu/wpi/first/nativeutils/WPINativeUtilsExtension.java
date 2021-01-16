@@ -496,6 +496,7 @@ public class WPINativeUtilsExtension {
                 c.setHeaderClassifier("headers");
                 c.setSourceClassifier("sources");
                 c.setExt("zip");
+                c.getSharedExcludes().add("**/*jni*");
                 c.setVersion(dependencyVersions.wpimathVersion);
                 c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
                 c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
