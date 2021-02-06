@@ -10,8 +10,8 @@ import org.gradle.api.Task;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
-import jaci.gradle.log.ETLogger;
-import jaci.gradle.log.ETLoggerFactory;
+import edu.wpi.first.embeddedtools.log.ETLogger;
+import edu.wpi.first.embeddedtools.log.ETLoggerFactory;
 
 public class OrderedStripTask implements Action<Task> {
 
@@ -89,7 +89,7 @@ public class OrderedStripTask implements Action<Task> {
             if (performStripAll) {
                 project.exec((ex) -> {
                     ex.commandLine(strip, "--strip-all", "--discard-all", mainFileStr);
-                });   
+                });
             }
         }
     }

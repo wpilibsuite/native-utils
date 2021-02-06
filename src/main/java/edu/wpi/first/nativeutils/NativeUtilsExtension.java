@@ -15,13 +15,14 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.NativeBinarySpec;
-import org.gradle.nativeplatform.NativeLibraryBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
 import org.gradle.platform.base.Platform;
 import org.gradle.platform.base.PlatformAwareComponentSpec;
 import org.gradle.platform.base.PlatformContainer;
 import org.gradle.platform.base.VariantComponentSpec;
 
+import edu.wpi.first.embeddedtools.nativedeps.DelegatedDependencySet;
+import edu.wpi.first.embeddedtools.nativedeps.DependencySpecExtension;
 import edu.wpi.first.nativeutils.configs.CombinedDependencyConfig;
 import edu.wpi.first.nativeutils.configs.DependencyConfig;
 import edu.wpi.first.nativeutils.configs.ExportsConfig;
@@ -42,8 +43,6 @@ import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
 import edu.wpi.first.toolchain.raspbian.RaspbianToolchainPlugin;
 import edu.wpi.first.toolchain.roborio.RoboRioToolchainPlugin;
 import edu.wpi.first.toolchain.xenial.XenialToolchainPlugin;
-import jaci.gradle.nativedeps.DelegatedDependencySet;
-import jaci.gradle.nativedeps.DependencySpecExtension;
 
 public class NativeUtilsExtension {
 

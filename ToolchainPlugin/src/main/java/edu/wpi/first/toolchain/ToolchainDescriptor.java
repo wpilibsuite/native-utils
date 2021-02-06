@@ -26,7 +26,7 @@ public class ToolchainDescriptor<T extends GccToolChain> implements ToolchainDes
         this.optional = optional;
         this.registrar = registrar;
         this.toolchainName = toolchainName;
-        this.discoverers = new DefaultNamedDomainObjectSet<ToolchainDiscoverer>(ToolchainDiscoverer.class, DirectInstantiator.INSTANCE);
+        this.discoverers = new DefaultNamedDomainObjectSet<ToolchainDiscoverer>(ToolchainDiscoverer.class, DirectInstantiator.INSTANCE, CollectionCallbackActionDecorator.NOOP);
         this.installers = new DefaultDomainObjectSet<AbstractToolchainInstaller>(AbstractToolchainInstaller.class, CollectionCallbackActionDecorator.NOOP);
     }
 

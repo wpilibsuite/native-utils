@@ -7,20 +7,8 @@ plugins {
     id 'idea'
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-
-compileJava {
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
-}
-
-compileGroovy {
-    sourceCompatibility = '8'
-    targetCompatibility = '8'
-}
+sourceCompatibility = 11
+targetCompatibility = 11
 
 allprojects {
     group = "edu.wpi.first"
@@ -66,5 +54,5 @@ gradlePlugin {
 }
 
 wrapper {
-    gradleVersion = '6.0.1'
+    gradleVersion = '6.8.1'
 }

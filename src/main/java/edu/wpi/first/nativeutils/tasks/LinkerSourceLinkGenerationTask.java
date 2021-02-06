@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -18,6 +19,7 @@ import javax.inject.Inject;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.RegularFileProperty;
@@ -57,6 +59,7 @@ public class LinkerSourceLinkGenerationTask extends DefaultTask {
             }
         });
         Gson gson = new Gson();
+        Type mapType = new TypeToken<Map<String, String>>(){}.getType();
         // Read all
         for (File file : inputFiles.get()) {
             if (!file.getName().equals("SourceLink.json")) {
@@ -68,7 +71,7 @@ public class LinkerSourceLinkGenerationTask extends DefaultTask {
             }
 
             try (BufferedReader reader = Files.newBufferedReader(file.toPath())) {
-                Map<String, String> input = gson.fromJson(reader, Map.class);
+                Map<String, String> input = gson.fromJson(reader, mapType);
                 sortedMap.putAll(input);
             }
         }

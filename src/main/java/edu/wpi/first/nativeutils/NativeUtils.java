@@ -11,7 +11,7 @@ import edu.wpi.first.nativeutils.rules.PrivateExportsConfigRules;
 import edu.wpi.first.nativeutils.tasks.ExportsGenerationTask;
 import edu.wpi.first.toolchain.ToolchainExtension;
 import edu.wpi.first.toolchain.ToolchainPlugin;
-import jaci.gradle.EmbeddedTools;
+import edu.wpi.first.embeddedtools.EmbeddedTools;
 
 public class NativeUtils implements Plugin<Project> {
   @Override

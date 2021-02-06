@@ -34,9 +34,9 @@ import org.gradle.platform.base.PlatformContainer;
 import edu.wpi.first.nativeutils.NativeUtilsExtension;
 import edu.wpi.first.nativeutils.configs.CombinedDependencyConfig;
 import edu.wpi.first.nativeutils.configs.DependencyConfig;
-import jaci.gradle.nativedeps.CombinedNativeLib;
-import jaci.gradle.nativedeps.NativeDepsSpec;
-import jaci.gradle.nativedeps.NativeLib;
+import edu.wpi.first.embeddedtools.nativedeps.CombinedNativeLib;
+import edu.wpi.first.embeddedtools.nativedeps.NativeDepsSpec;
+import edu.wpi.first.embeddedtools.nativedeps.NativeLib;
 
 public class DependencyConfigRules extends RuleSource {
   private void setCommon(NativeLib lib) {
