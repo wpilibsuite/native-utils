@@ -2,6 +2,7 @@ package edu.wpi.first.nativeutils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -33,6 +34,10 @@ import edu.wpi.first.nativeutils.configs.impl.DefaultDependencyConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultExportsConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPlatformConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPrivateExportsConfig;
+import edu.wpi.first.nativeutils.configs.internal.NativeLibraryConfig;
+import edu.wpi.first.nativeutils.configs.internal.CombinedNativeLibraryConfig;
+import edu.wpi.first.nativeutils.configs.internal.DefaultCombinedNativeLibraryConfig;
+import edu.wpi.first.nativeutils.configs.internal.DefaultNativeLibraryConfig;
 import edu.wpi.first.nativeutils.rules.GitLinkRules;
 import edu.wpi.first.nativeutils.tasks.SourceLinkGenerationTask;
 import edu.wpi.first.toolchain.NativePlatforms;
@@ -55,6 +60,10 @@ public class NativeUtilsExtension {
   private final NamedDomainObjectContainer<CombinedDependencyConfig> combinedDependencyConfigs;
 
   private final NamedDomainObjectContainer<PrivateExportsConfig> privateExportsConfigs;
+
+  private final NamedDomainObjectContainer<NativeLibraryConfig> nativeLibraryConfigs;
+
+  private final NamedDomainObjectContainer<CombinedNativeLibraryConfig> combinedNativeLibraryConfigs;
 
   private final Project project;
 
@@ -92,6 +101,16 @@ public class NativeUtilsExtension {
       return objectFactory.newInstance(DefaultPrivateExportsConfig.class, name);
     });
 
+    nativeLibraryConfigs = project.container(NativeLibraryConfig.class, name -> {
+      return objectFactory.newInstance(DefaultNativeLibraryConfig.class, name);
+    });
+
+    combinedNativeLibraryConfigs = project.container(CombinedNativeLibraryConfig.class, name -> {
+      DefaultCombinedNativeLibraryConfig newInst = objectFactory.newInstance(DefaultCombinedNativeLibraryConfig.class, name);
+      newInst.setLibs(new ArrayList<>());
+      return newInst;
+    });
+
     project.afterEvaluate(proj -> {
       for (PlatformConfig config : platformConfigs) {
         if (config.getPlatformPath() == null) {
@@ -100,6 +119,156 @@ public class NativeUtilsExtension {
       }
     });
 
+    dependencyConfigs.all(this::handleNewDependency);
+    combinedDependencyConfigs.all(this::handleNewCombinedDependency);
+    nativeLibraryConfigs.all(this::handleNewNativeLibrary);
+  }
+
+  private void handleNewNativeLibrary(NativeLibraryConfig lib) {
+
+  }
+
+  private void handleNewCombinedDependency(CombinedDependencyConfig combined) {
+    String name = combined.getName();
+    String libraryName = combined.getLibraryName();
+    List<String> deps = combined.getDependencies();
+    List<String> targetPlatforms = combined.getTargetPlatforms();
+    combinedNativeLibraryConfigs.create(name, lib -> {
+      List<String> combinedLibs = lib.getLibs();
+      combinedLibs.addAll(deps);
+
+      lib.getBuildTypes().add("debug");
+      lib.getBuildTypes().add("release");
+      lib.setLibraryName(libraryName);
+      lib.setTargetPlatforms(new ArrayList<>(targetPlatforms));
+    });
+  }
+
+  String[] buildKinds = { "debug", "" };
+  List<String> sharedMatchers = Arrays.asList("**/*.so", "**/*.so.*", "**/*.dylib", "**/*.lib");
+  List<String> runtimeMatchers = Arrays.asList("**/*.so", "**/*.so.*", "**/*.dylib", "**/*.dll");
+  List<String> sharedExcludes = Arrays.asList("**/*.so.debug", "**/*.so.*.debug");
+  List<String> runtimeExcludes = Arrays.asList("**/*.so.debug", "**/*.so.*.debug");
+  List<String> staticMatchers = Arrays.asList("**/*.lib", "**/*.a");
+
+  private void setCommon(NativeLibraryConfig lib) {
+    lib.setHeaderDirs(new ArrayList<>());
+    lib.setSourceDirs(new ArrayList<>());
+    lib.setStaticMatchers(new ArrayList<>());
+    ArrayList<String> debugMatchers = new ArrayList<>();
+    debugMatchers.add("**/*.pdb");
+    debugMatchers.add("**/*.so.debug");
+    debugMatchers.add("**/*.so.*.debug");
+    lib.setDebugMatchers(debugMatchers);
+    lib.setSharedMatchers(new ArrayList<>());
+    lib.setDynamicMatchers(new ArrayList<>());
+  }
+
+  private void handleNewDependency(DependencyConfig dependency) {
+    String name = dependency.getName();
+    String config = "native_" + name;
+    String mavenBase = dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion()
+        + ":";
+    String mavenSuffix = "@" + dependency.getExt();
+
+    boolean createdShared = false;
+    boolean createdStatic = false;
+
+    if (dependency.getHeaderClassifier() != null) {
+      nativeLibraryConfigs.create(name + "_headers", lib -> {
+        setCommon(lib);
+        lib.setTargetPlatforms(List.of());
+        lib.getHeaderDirs().add("");
+        lib.setLibraryName(name + "_headers");
+        lib.setMaven(mavenBase + dependency.getHeaderClassifier() + mavenSuffix);
+        lib.setConfiguration(config + "_headers");
+      });
+    }
+
+    if (dependency.getSourceClassifier() != null) {
+      nativeLibraryConfigs.create(name + "_sources", lib -> {
+        setCommon(lib);
+        lib.setTargetPlatforms(List.of());
+        lib.getSourceDirs().add("");
+        lib.setLibraryName(name + "_sources");
+        lib.setMaven(mavenBase + dependency.getSourceClassifier() + mavenSuffix);
+        lib.setConfiguration(config + "_sources");
+      });
+    }
+
+    for (String buildKind : buildKinds) {
+      String buildType = buildKind.contains("debug") ? "debug" : "release";
+      String binaryConfig = config + buildType + "_";
+
+      for (String platform : dependency.getSharedPlatforms()) {
+        createdShared = true;
+        nativeLibraryConfigs.create(name + "_shared_" + platform + buildType, lib -> {
+          setCommon(lib);
+          lib.setTargetPlatform(platform);
+          lib.setLibraryName(name + "_shared_binaries");
+          lib.setBuildType(buildType);
+          lib.setSharedMatchers(new ArrayList<>(sharedMatchers));
+          lib.setStaticMatchers(new ArrayList<>(staticMatchers));
+          lib.setSharedExcludes(new ArrayList<>(sharedExcludes));
+          lib.getSharedExcludes().addAll(dependency.getSharedExcludes());
+          if (dependency.getSharedUsedAtRuntime()) {
+            lib.setDynamicMatchers(new ArrayList<>(runtimeMatchers));
+            lib.setDynamicExcludes(new ArrayList<>(runtimeExcludes));
+          }
+          lib.setMaven(mavenBase + platform + buildKind + mavenSuffix);
+          lib.setConfiguration(binaryConfig + "shared_" + platform);
+        });
+      }
+
+      for (String platform : dependency.getStaticPlatforms()) {
+        createdStatic = true;
+        nativeLibraryConfigs.create(name + "_static_" + platform + buildType, lib -> {
+          setCommon(lib);
+          lib.setTargetPlatform(platform);
+          lib.setLibraryName(name + "_static_binaries");
+          lib.setBuildType(buildType);
+          lib.setSharedMatchers(new ArrayList<>(sharedMatchers));
+          lib.setStaticMatchers(new ArrayList<>(staticMatchers));
+          lib.setSharedExcludes(new ArrayList<>(sharedExcludes));
+          lib.setMaven(mavenBase + platform + "static" + buildKind + mavenSuffix);
+          lib.setConfiguration(binaryConfig + "static_" + platform);
+        });
+      }
+
+      if (createdShared) {
+        combinedNativeLibraryConfigs.create(name + "_shared", lib -> {
+          List<String> combinedLibs = lib.getLibs();
+          combinedLibs.add(name + "_shared_binaries");
+          if (dependency.getHeaderClassifier() != null) {
+            combinedLibs.add(name + "_headers");
+          }
+          if (dependency.getSourceClassifier() != null) {
+            combinedLibs.add(name + "_sources");
+          }
+
+          lib.getBuildTypes().add("debug");
+          lib.getBuildTypes().add("release");
+          lib.setTargetPlatforms(new ArrayList<>(dependency.getSharedPlatforms()));
+        });
+      }
+
+      if (createdStatic) {
+        combinedNativeLibraryConfigs.create(name + "_static", lib -> {
+          List<String> combinedLibs = lib.getLibs();
+          combinedLibs.add(name + "_static_binaries");
+          if (dependency.getHeaderClassifier() != null) {
+            combinedLibs.add(name + "_headers");
+          }
+          if (dependency.getSourceClassifier() != null) {
+            combinedLibs.add(name + "_sources");
+          }
+
+          lib.getBuildTypes().add("debug");
+          lib.getBuildTypes().add("release");
+          lib.setTargetPlatforms(new ArrayList<>(dependency.getStaticPlatforms()));
+        });
+      }
+    }
   }
 
   public void setSinglePrintPerPlatform() {

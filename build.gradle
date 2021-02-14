@@ -30,6 +30,11 @@ dependencies {
     api project(':ToolchainPlugin')
     implementation 'org.ajoberstar.grgit:grgit-core:3.0.0'
     implementation 'com.google.code.gson:gson:2.8.6'
+
+    testImplementation('org.spockframework:spock-core:1.2-groovy-2.5') {
+        exclude group: 'org.codehaus.groovy'
+    }
+    testImplementation gradleTestKit()
 }
 
 tasks.withType(JavaCompile) {
