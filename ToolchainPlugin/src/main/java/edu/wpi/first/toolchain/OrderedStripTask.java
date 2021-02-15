@@ -10,8 +10,8 @@ import org.gradle.api.Task;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
-import edu.wpi.first.embeddedtools.log.ETLogger;
-import edu.wpi.first.embeddedtools.log.ETLoggerFactory;
+import edu.wpi.first.deployutils.log.ETLogger;
+import edu.wpi.first.deployutils.log.ETLoggerFactory;
 
 public class OrderedStripTask implements Action<Task> {
 

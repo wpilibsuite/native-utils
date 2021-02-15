@@ -1,7 +1,7 @@
 package edu.wpi.first.toolchain;
 
-import edu.wpi.first.embeddedtools.log.ETLogger;
-import edu.wpi.first.embeddedtools.log.ETLoggerFactory;
+import edu.wpi.first.deployutils.log.ETLogger;
+import edu.wpi.first.deployutils.log.ETLoggerFactory;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.internal.logging.text.StyledTextOutput;

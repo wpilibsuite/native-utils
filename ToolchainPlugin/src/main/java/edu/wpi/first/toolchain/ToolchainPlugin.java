@@ -1,6 +1,6 @@
 package edu.wpi.first.toolchain;
 
-import edu.wpi.first.embeddedtools.toolchains.ToolchainsPlugin;
+import edu.wpi.first.deployutils.toolchains.ToolchainsPlugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;

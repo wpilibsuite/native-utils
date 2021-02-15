@@ -19,7 +19,7 @@ import edu.wpi.first.toolchain.configurable.DefaultCrossCompilerConfiguration;
 import edu.wpi.first.toolchain.raspbian.RaspbianToolchainPlugin;
 import edu.wpi.first.toolchain.roborio.RoboRioToolchainPlugin;
 import edu.wpi.first.toolchain.xenial.XenialToolchainPlugin;
-import edu.wpi.first.embeddedtools.toolchains.ToolchainsPlugin.ToolchainUtilExtension;
+import edu.wpi.first.deployutils.toolchains.ToolchainsPlugin.ToolchainUtilExtension;
 
 public class ToolchainExtension {
     private final NamedDomainObjectContainer<CrossCompilerConfiguration> crossCompilers;

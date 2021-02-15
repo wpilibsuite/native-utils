@@ -4,10 +4,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectCollection;
+import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.plugins.ExtensionContainer;
@@ -17,12 +19,15 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.internal.ProjectLayout;
 import org.gradle.language.c.tasks.CCompile;
 import org.gradle.language.cpp.tasks.CppCompile;
+import org.gradle.model.Finalize;
 import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
+import org.gradle.model.Validate;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.NativeDependencySet;
 import org.gradle.nativeplatform.NativeExecutableBinarySpec;
+import org.gradle.nativeplatform.SharedLibraryBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
 import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
@@ -33,16 +38,21 @@ import org.gradle.platform.base.BinaryContainer;
 import org.gradle.platform.base.BinarySpec;
 import org.gradle.platform.base.BinaryTasks;
 import org.gradle.platform.base.ComponentSpecContainer;
+import org.gradle.platform.base.ComponentType;
 import org.gradle.platform.base.Platform;
 import org.gradle.platform.base.PlatformContainer;
+import org.gradle.platform.base.TypeBuilder;
 
 import edu.wpi.first.nativeutils.NativeUtilsExtension;
 import edu.wpi.first.nativeutils.configs.CombinedDependencyConfig;
 import edu.wpi.first.nativeutils.configs.DependencyConfig;
-import edu.wpi.first.embeddedtools.nativedeps.CombinedNativeLib;
-import edu.wpi.first.embeddedtools.nativedeps.DelegatedDependencySet;
-import edu.wpi.first.embeddedtools.nativedeps.NativeDepsSpec;
-import edu.wpi.first.embeddedtools.nativedeps.NativeLib;
+import edu.wpi.first.nativeutils.configs.internal.BaseLibraryDependencySet;
+import edu.wpi.first.nativeutils.configs.internal.CombinedLibraryDependencySet;
+import edu.wpi.first.nativeutils.configs.internal.NativeLibraryDependencySet;
+// import edu.wpi.first.deployutils.nativedeps.CombinedNativeLib;
+// import edu.wpi.first.deployutils.nativedeps.DelegatedDependencySet;
+// import edu.wpi.first.deployutils.nativedeps.NativeDepsSpec;
+// import edu.wpi.first.deployutils.nativedeps.NativeLib;
 
 public class DependencyConfigRules extends RuleSource {
   // private void setCommon(NativeLib lib) {
@@ -56,6 +66,12 @@ public class DependencyConfigRules extends RuleSource {
   //   lib.setDebugMatchers(debugMatchers);
   //   lib.setSharedMatchers(new ArrayList<>());
   //   lib.setDynamicMatchers(new ArrayList<>());
+  // }
+
+  // @ComponentType
+  // public void registerNativeBinarySpecExtension(TypeBuilder<NativeBinarySpec> builder) {
+  //   System.out.println("Registered extension");
+  //   builder.internalView(FrcNativeBinaryExtension.class).;
   // }
 
   private void staticLibraryPdbConfiguration(StaticLibraryBinarySpec staticLib, Project project,
@@ -171,26 +187,132 @@ public class DependencyConfigRules extends RuleSource {
     }
   }
 
-  @BinaryTasks
-  void addLinkerArgs(ModelMap<Task> tasks, final NativeBinarySpec binary) {
-      tasks.withType(AbstractLinkTask.class, task -> {
-          task.getLinkerArgs().addAll(
-              task.getProject().getProviders().provider(new Callable<List<String>>() {
-                  @Override
-                  public List<String> call() throws Exception {
-                      List<String> libs = new ArrayList<>();
-                      for (NativeDependencySet lib : binary.getLibs()) {
-                          if (lib instanceof DelegatedDependencySet) {
-                              DelegatedDependencySet set = (DelegatedDependencySet)lib;
-                              libs.addAll(set.getSystemLibs());
-                          }
-                      }
-                      return libs;
-                  }
-              })
-          );
-      });
+  public static class MissingDependencyException extends RuntimeException {
+    private static final long serialVersionUID = 7544142314181214949L;
+    private String dependencyName;
+    private NativeBinarySpec binary;
+
+    public String getDependencyName() {
+        return dependencyName;
+    }
+
+    public NativeBinarySpec getBinary() {
+        return binary;
+    }
+
+    public MissingDependencyException(String name, NativeBinarySpec binary) {
+        super("Cannot find delegated dependency: " + name + " for binary: " + binary);
+        this.dependencyName = name;
+        this.binary = binary;
+    }
   }
+
+  public static class UnknownDependencyTypeException extends RuntimeException {
+    private static final long serialVersionUID = -8267518769758741795L;
+    private final String dependencyName;
+    private final NativeBinarySpec binary;
+    private final BaseLibraryDependencySet set;
+
+    public String getDependencyName() {
+        return dependencyName;
+    }
+
+    public NativeBinarySpec getBinary() {
+        return binary;
+    }
+
+    public BaseLibraryDependencySet getSet() {
+      return set;
+    }
+
+    public UnknownDependencyTypeException(String name, NativeBinarySpec binary, BaseLibraryDependencySet set) {
+        super("Unknown type dependency: " + name + " for binary: " + binary);
+        this.dependencyName = name;
+        this.binary = binary;
+        this.set = set;
+    }
+  }
+
+  private void addDependency(String depName, NativeBinarySpec binary, FrcNativeBinaryExtension binaryExt, NamedDomainObjectSet<NativeUtilsExtension.NamedNativeDependencyList> sets, boolean allowOptional, List<String> systemLibs) {
+    // See if dependency exists in sets
+    NativeUtilsExtension.NamedNativeDependencyList depSet = sets.findByName(depName);
+    if (depSet == null) {
+      if (allowOptional && binaryExt.getOptionalDependencies().contains(depName)) {
+        return;
+      }
+      throw new MissingDependencyException(depName, binary);
+    }
+
+    BaseLibraryDependencySet baseSet = depSet.findAppliesTo(binary);
+    if (baseSet == null) {
+      if (allowOptional && binaryExt.getOptionalDependencies().contains(depName)) {
+        return;
+      }
+      throw new MissingDependencyException(depName, binary);
+    }
+
+
+    if (baseSet instanceof NativeLibraryDependencySet) {
+      systemLibs.addAll(((NativeLibraryDependencySet)baseSet).getSystemLibs());
+      binary.lib(baseSet);
+    } else if (baseSet instanceof CombinedLibraryDependencySet) {
+      CombinedLibraryDependencySet combined = (CombinedLibraryDependencySet)baseSet;
+      List<String> combinedLibs = combined.getLibs();
+      for (String libName : combinedLibs) {
+        addDependency(libName, binary, binaryExt, sets, false, systemLibs);
+      }
+    } else {
+      throw new UnknownDependencyTypeException(depName, binary, baseSet);
+    }
+  }
+
+  @Validate
+  public void configureFrcDependencies(BinaryContainer binaries, ExtensionContainer extensions) {
+    NativeUtilsExtension nue = extensions.getByType(NativeUtilsExtension.class);
+    NamedDomainObjectSet<NativeUtilsExtension.NamedNativeDependencyList> sets = nue.getNativeLibraryDependencySets();
+
+    for (NativeBinarySpec binary : binaries.withType(NativeBinarySpec.class)) {
+      FrcNativeBinaryExtension binaryExt = nue.getBinaryExtension(binary);
+      if (binaryExt == null) {
+        continue;
+      }
+      List<String> systemLibs = new ArrayList<>();
+      for (String depName : binaryExt.getDependencies()) {
+        addDependency(depName, binary, binaryExt, sets, true, systemLibs);
+      }
+      binary.getTasks().withType(AbstractLinkTask.class, task -> {
+        task.getLinkerArgs().addAll(
+            task.getProject().getProviders().provider(new Callable<List<String>>() {
+                @Override
+                public List<String> call() throws Exception {
+                    return systemLibs;
+                }
+            })
+        );
+      });
+    }
+  }
+
+  // @BinaryTasks
+  // public void addLinkerArgs(ModelMap<Task> tasks, final NativeBinarySpec binary) {
+  //     tasks.withType(AbstractLinkTask.class, task -> {
+  //         task.getLinkerArgs().addAll(
+  //             task.getProject().getProviders().provider(new Callable<List<String>>() {
+  //                 @Override
+  //                 public List<String> call() throws Exception {
+  //                     List<String> libs = new ArrayList<>();
+  //                     for (NativeDependencySet lib : binary.getLibs()) {
+  //                         if (lib instanceof NativeLibraryDependencySet) {
+  //                             NativeLibraryDependencySet set = (NativeLibraryDependencySet)lib;
+  //                             libs.addAll(set.getSystemLibs());
+  //                         }
+  //                     }
+  //                     return libs;
+  //                 }
+  //             })
+  //         );
+  //     });
+  // }
 
   // @Mutate
   // public void setupDependencies(NativeDepsSpec libs, BinaryContainer binaries,

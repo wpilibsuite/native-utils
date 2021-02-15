@@ -37,8 +37,8 @@ import org.gradle.platform.base.PlatformContainer;
 import org.gradle.process.internal.ExecActionFactory;
 
 import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
-import edu.wpi.first.embeddedtools.log.ETLogger;
-import edu.wpi.first.embeddedtools.log.ETLoggerFactory;
+import edu.wpi.first.deployutils.log.ETLogger;
+import edu.wpi.first.deployutils.log.ETLoggerFactory;
 
 public class ToolchainRules extends RuleSource {
 
