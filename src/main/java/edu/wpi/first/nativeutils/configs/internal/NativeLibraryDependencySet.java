@@ -107,11 +107,14 @@ public class NativeLibraryDependencySet extends BaseLibraryDependencySet impleme
 
     @Override
     public FileCollection getLinkFiles() {
-        if (!resolvedDebug) {
-            debugLibs.getFiles();
-            resolvedDebug = true;
-        }
-        return linkLibs;
+        Callable<FileCollection> cbl = () -> {
+            if (!resolvedDebug) {
+                debugLibs.getFiles();
+                resolvedDebug = true;
+            }
+            return linkLibs;
+        };
+        return project.files(cbl);
     }
 
     @Override
