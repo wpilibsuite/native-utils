@@ -1,5 +1,8 @@
 package edu.wpi.first.nativeutils;
 
+import static org.gradle.api.artifacts.type.ArtifactTypeDefinition.DIRECTORY_TYPE;
+import static org.gradle.api.artifacts.type.ArtifactTypeDefinition.ZIP_TYPE;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,9 +14,6 @@ import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
-import static org.gradle.api.artifacts.type.ArtifactTypeDefinition.DIRECTORY_TYPE;
-import static org.gradle.api.artifacts.type.ArtifactTypeDefinition.ZIP_TYPE;
-
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.Named;
@@ -22,8 +22,8 @@ import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.Project;
 import org.gradle.api.UnknownTaskException;
 import org.gradle.api.artifacts.ArtifactView;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ArtifactView.ViewConfiguration;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.transform.TransformParameters;
 import org.gradle.api.artifacts.transform.TransformSpec;
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition;
@@ -36,11 +36,8 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.util.PatternFilterable;
 import org.gradle.internal.os.OperatingSystem;
-import org.gradle.nativeplatform.BuildType;
-import org.gradle.nativeplatform.Flavor;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
-import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.platform.base.Platform;
 import org.gradle.platform.base.PlatformAwareComponentSpec;
 import org.gradle.platform.base.PlatformContainer;
@@ -60,16 +57,17 @@ import edu.wpi.first.nativeutils.configs.impl.DefaultDependencyConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultExportsConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPlatformConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPrivateExportsConfig;
-import edu.wpi.first.nativeutils.configs.internal.NativeLibraryConfig;
-import edu.wpi.first.nativeutils.configs.internal.NativeLibraryDependencySet;
 import edu.wpi.first.nativeutils.configs.internal.BaseLibraryDependencySet;
 import edu.wpi.first.nativeutils.configs.internal.BaseNativeLibraryConfig;
 import edu.wpi.first.nativeutils.configs.internal.CombinedLibraryDependencySet;
 import edu.wpi.first.nativeutils.configs.internal.CombinedNativeLibraryConfig;
 import edu.wpi.first.nativeutils.configs.internal.DefaultCombinedNativeLibraryConfig;
 import edu.wpi.first.nativeutils.configs.internal.DefaultNativeLibraryConfig;
+import edu.wpi.first.nativeutils.configs.internal.NativeLibraryConfig;
+import edu.wpi.first.nativeutils.configs.internal.NativeLibraryDependencySet;
 import edu.wpi.first.nativeutils.rules.FrcNativeBinaryExtension;
 import edu.wpi.first.nativeutils.rules.GitLinkRules;
+import edu.wpi.first.nativeutils.tasks.PrintNativeDependenciesTask;
 import edu.wpi.first.nativeutils.tasks.SourceLinkGenerationTask;
 import edu.wpi.first.nativeutils.utils.AfterAddNamedDomainObjectContainer;
 import edu.wpi.first.toolchain.NativePlatforms;
@@ -96,6 +94,8 @@ public class NativeUtilsExtension {
   private final NamedDomainObjectContainer<NativeLibraryConfig> nativeLibraryConfigs;
 
   private final NamedDomainObjectContainer<CombinedNativeLibraryConfig> combinedNativeLibraryConfigs;
+
+  private final TaskProvider<PrintNativeDependenciesTask> printNativeDependenciesTask;
 
   public static class NamedNativeDependencyList implements Named {
     private final String name;
@@ -177,13 +177,15 @@ public class NativeUtilsExtension {
 
   }
 
+  public TaskProvider<PrintNativeDependenciesTask> getPrintNativeDependenciesTask() {
+    return printNativeDependenciesTask;
+  }
+
   private final NamedDomainObjectContainer<NamedNativeDependencyList> nativeLibraryDependencySets;
 
   private final NamedDomainObjectContainer<FrcNativeBinaryExtension> nativeBinaryExt;
 
   private final Project project;
-
-  //private DependencySpecExtension dse = null;
 
   private final List<String> platformsToConfigure = new ArrayList<>();
 
@@ -244,6 +246,7 @@ public class NativeUtilsExtension {
       }
     });
 
+    printNativeDependenciesTask = project.getTasks().register("printNativeDependencyGraph", PrintNativeDependenciesTask.class);
 
     combinedDependencyConfigs.all(this::handleNewCombinedDependency);
     nativeLibraryConfigs.all(this::handleNewNativeLibrary);

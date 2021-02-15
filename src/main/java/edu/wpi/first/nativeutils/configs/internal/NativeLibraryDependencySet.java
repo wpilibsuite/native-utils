@@ -129,28 +129,6 @@ public class NativeLibraryDependencySet extends BaseLibraryDependencySet impleme
         return debugLibs;
     }
 
-    // public boolean appliesTo(Flavor flav, BuildType btype, NativePlatform plat) {
-    //     if (flavor != null && !flavor.equals(flav))
-    //         return false;
-    //     if (buildType != null && !buildType.equals(btype))
-    //         return false;
-    //     if (targetPlatform == null || !targetPlatform.equals(plat))
-    //         return false;
-
-    //     return true;
-    // }
-
-    // public boolean appliesTo(String flavorName, String buildTypeName, String platformName) {
-    //     if (flavors != null && !flavors.isEmpty() && !flavors.contains(flavorName))
-    //         return false;
-    //     if (buildTypes != null && !buildTypes.isEmpty() && !buildTypes.contains(buildTypeName))
-    //         return false;
-    //     if (targetPlatforms != null && !targetPlatforms.isEmpty() && !targetPlatforms.contains(platformName))
-    //         return false;
-
-    //     return true;
-    // }
-
     @Override
     public String toString() {
         return "ETNativeDepSet[" + getName() + "]";

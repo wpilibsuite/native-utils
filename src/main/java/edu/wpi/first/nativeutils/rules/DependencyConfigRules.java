@@ -2,14 +2,10 @@ package edu.wpi.first.nativeutils.rules;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.gradle.api.Action;
-import org.gradle.api.Named;
-import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -20,36 +16,23 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.internal.ProjectLayout;
 import org.gradle.language.c.tasks.CCompile;
 import org.gradle.language.cpp.tasks.CppCompile;
-import org.gradle.model.Finalize;
 import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
 import org.gradle.model.Validate;
 import org.gradle.nativeplatform.NativeBinarySpec;
-import org.gradle.nativeplatform.NativeDependencySet;
 import org.gradle.nativeplatform.NativeExecutableBinarySpec;
-import org.gradle.nativeplatform.SharedLibraryBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
-import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 import org.gradle.nativeplatform.tasks.CreateStaticLibrary;
 import org.gradle.nativeplatform.tasks.InstallExecutable;
 import org.gradle.nativeplatform.test.NativeTestSuiteBinarySpec;
 import org.gradle.platform.base.BinaryContainer;
 import org.gradle.platform.base.BinarySpec;
-import org.gradle.platform.base.BinaryTasks;
 import org.gradle.platform.base.ComponentSpecContainer;
-import org.gradle.platform.base.ComponentType;
-import org.gradle.platform.base.Platform;
-import org.gradle.platform.base.PlatformContainer;
-import org.gradle.platform.base.TypeBuilder;
 
 import edu.wpi.first.nativeutils.NativeUtilsExtension;
-import edu.wpi.first.nativeutils.NativeUtilsExtension.NamedNativeDependencyList;
-import edu.wpi.first.nativeutils.configs.CombinedDependencyConfig;
-import edu.wpi.first.nativeutils.configs.DependencyConfig;
 import edu.wpi.first.nativeutils.configs.internal.BaseLibraryDependencySet;
-import edu.wpi.first.nativeutils.configs.internal.BaseNativeLibraryConfig;
 import edu.wpi.first.nativeutils.configs.internal.CombinedLibraryDependencySet;
 import edu.wpi.first.nativeutils.configs.internal.NativeLibraryDependencySet;
 // import edu.wpi.first.deployutils.nativedeps.CombinedNativeLib;
@@ -299,35 +282,10 @@ public class DependencyConfigRules extends RuleSource {
     }
   }
 
-  private void printDependencies(String printBase, NamedNativeDependencyList depList, NamedDomainObjectSet<NativeUtilsExtension.NamedNativeDependencyList> sets) {
-    System.out.println(printBase + depList.getName());
-
-    for (BaseLibraryDependencySet base : depList.getDeps()) {
-
-      if (base instanceof CombinedLibraryDependencySet) {
-        CombinedLibraryDependencySet combined = (CombinedLibraryDependencySet)base;
-        for (String inner : combined.getLibs()) {
-          NamedNativeDependencyList innerDep = sets.findByName(inner);
-          if (innerDep == null) {
-            System.out.println(printBase + "    Missing dep " + inner);
-            continue;
-          }
-          printDependencies(printBase + "    ", innerDep, sets);
-        }
-      }
-    }
-  }
-
   @Validate
   public void configureFrcDependencies(BinaryContainer binaries, ExtensionContainer extensions) {
     NativeUtilsExtension nue = extensions.getByType(NativeUtilsExtension.class);
     NamedDomainObjectSet<NativeUtilsExtension.NamedNativeDependencyList> sets = nue.getNativeLibraryDependencySets();
-
-    for (NativeUtilsExtension.NamedNativeDependencyList setList : sets) {
-
-      // TODO move me to task
-      //printDependencies("", setList, sets);
-    }
 
     for (NativeBinarySpec binary : binaries.withType(NativeBinarySpec.class)) {
       FrcNativeBinaryExtension binaryExt = nue.getBinaryExtension(binary);

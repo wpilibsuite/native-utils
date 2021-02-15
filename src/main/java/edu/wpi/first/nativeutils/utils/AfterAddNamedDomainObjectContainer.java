@@ -80,6 +80,7 @@ public class AfterAddNamedDomainObjectContainer<T> extends DefaultNamedDomainObj
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public T create(String name, Closure configureClosure) {
         assertMutable("create(String, Closure)");
         return create(name, ConfigureUtil.configureUsing(configureClosure));
@@ -95,11 +96,13 @@ public class AfterAddNamedDomainObjectContainer<T> extends DefaultNamedDomainObj
         return object;
     }
 
+    @SuppressWarnings("rawtypes")
     protected ConfigureDelegate createConfigureDelegate(Closure configureClosure) {
         return new NamedDomainObjectContainerConfigureDelegate(configureClosure, this);
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public AfterAddNamedDomainObjectContainer<T> configure(Closure configureClosure) {
         ConfigureDelegate delegate = createConfigureDelegate(configureClosure);
         ConfigureUtil.configureSelf(configureClosure, this, delegate);
