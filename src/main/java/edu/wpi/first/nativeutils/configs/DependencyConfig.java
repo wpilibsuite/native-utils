@@ -1,6 +1,6 @@
 package edu.wpi.first.nativeutils.configs;
 
-import java.util.List;
+import java.util.Set;
 
 import org.gradle.api.Named;
 
@@ -26,8 +26,14 @@ public interface DependencyConfig extends Named {
     void setSharedUsedAtRuntime(boolean usedAtRuntime);
     boolean getSharedUsedAtRuntime();
 
-    List<String> getSharedPlatforms();
-    List<String> getStaticPlatforms();
-    
-    List<String> getSharedExcludes();
+    Set<String> getSharedPlatforms();
+    Set<String> getStaticPlatforms();
+
+    Set<String> getSharedExcludes();
+
+    boolean isSkipMissingPlatform();
+    void setSkipMissingPlatform(boolean skipMissingPlatform);
+
+    boolean isSkipCombinedDependency();
+    void setSkipCombinedDependency(boolean skipCombinedDependency);
 }

@@ -3,6 +3,7 @@ package edu.wpi.first.nativeutils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -99,6 +100,7 @@ public class NativeUtilsExtension {
   public static class NamedNativeDependencyList implements Named {
     private final String name;
     private final List<BaseLibraryDependencySet> deps = new ArrayList<>();
+    private boolean skipMissingPlatform;
 
     @Override
     public String getName() {
@@ -109,9 +111,55 @@ public class NativeUtilsExtension {
       return deps;
     }
 
+    public boolean isSkipMissingPlatform() {
+      return skipMissingPlatform;
+    }
+
+    public void setSkipMissingPlatform(boolean skipMissingPlatform) {
+      this.skipMissingPlatform = skipMissingPlatform;
+    }
+
     @Inject
     public NamedNativeDependencyList(String name) {
       this.name = name;
+    }
+
+    public void printDependencies() {
+      for (BaseLibraryDependencySet set : deps) {
+        System.out.println("Dep " + set.getName());
+        var buildTypes = set.getBuildTypes();
+        if (buildTypes == null) {
+          System.out.println("  Build Type is Null");
+        } else {
+          System.out.print("    BuildTypes: [");
+          for (String bt : buildTypes) {
+            System.out.print(bt + ", ");
+          }
+          System.out.println("]");
+        }
+
+        var flavors = set.getFlavors();
+        if (flavors == null) {
+          System.out.println("  Flavors is Null");
+        } else {
+          System.out.print("    Flavors: [");
+          for (String bt : flavors) {
+            System.out.print(bt + ", ");
+          }
+          System.out.println("]");
+        }
+
+        var platforms = set.getTargetPlatforms();
+        if (platforms == null) {
+          System.out.println("  Platforms is Null");
+        } else {
+          System.out.print("    Platforms: [");
+          for (String bt : platforms) {
+            System.out.print(bt + ", ");
+          }
+          System.out.println("]");
+        }
+      }
     }
 
     public BaseLibraryDependencySet findAppliesTo(NativeBinarySpec binary) {
@@ -177,7 +225,6 @@ public class NativeUtilsExtension {
       DefaultCombinedNativeLibraryConfig newInst = objectFactory.newInstance(DefaultCombinedNativeLibraryConfig.class,
           name);
       newInst.setLibs(new ArrayList<>());
-      newInst.setBuildTypes(new ArrayList<>());
       return newInst;
     });
 
@@ -213,7 +260,12 @@ public class NativeUtilsExtension {
     String libName = lib.getLibraryName() == null ? uniqName : lib.getLibraryName();
 
     CombinedLibraryDependencySet dep = new CombinedLibraryDependencySet(uniqName, lib.getLibs(), getPlatforms(lib), getFlavors(lib), getBuildTypes(lib));
-    nativeLibraryDependencySets.maybeCreate(libName).getDeps().add(dep);
+    NamedNativeDependencyList nativeDep = nativeLibraryDependencySets.maybeCreate(libName);
+    if (!lib.isSkipMissingPlatform() && nativeDep.isSkipMissingPlatform()) {
+      throw new GradleException("Unusable configuration of dependency skipping");
+    }
+    nativeDep.setSkipMissingPlatform(lib.isSkipMissingPlatform());
+    nativeDep.getDeps().add(dep);
   }
 
   private void handleNewNativeLibrary(NativeLibraryConfig lib) {
@@ -238,27 +290,33 @@ public class NativeUtilsExtension {
         dynamicFiles, debugFiles, lib.getSystemLibs() == null ? new ArrayList<>() : lib.getSystemLibs(),
         getPlatforms(lib), getFlavors(lib), getBuildTypes(lib)
     );
-    nativeLibraryDependencySets.maybeCreate(libName).getDeps().add(depSet);
+
+    NamedNativeDependencyList nativeDep = nativeLibraryDependencySets.maybeCreate(libName);
+    if (!lib.isSkipMissingPlatform() && nativeDep.isSkipMissingPlatform()) {
+      throw new GradleException("Unusable configuration of dependency skipping single dep");
+    }
+    nativeDep.setSkipMissingPlatform(lib.isSkipMissingPlatform());
+    nativeDep.getDeps().add(depSet);
   }
 
-  private static List<String> getFlavors(BaseNativeLibraryConfig lib) {
+  private static Set<String> getFlavors(BaseNativeLibraryConfig lib) {
     if (lib.getFlavor() == null && (lib.getFlavors() == null || lib.getFlavors().isEmpty()))
-        return List.of();
-    List<String> fl = lib.getFlavors() == null ? List.of(lib.getFlavor()) : lib.getFlavors();
+        return Set.of();
+    Set<String> fl = lib.getFlavors() == null ? Set.of(lib.getFlavor()) : lib.getFlavors();
     return fl;
 }
 
-private static List<String> getBuildTypes(BaseNativeLibraryConfig lib) {
+private static Set<String> getBuildTypes(BaseNativeLibraryConfig lib) {
     if (lib.getBuildType() == null && (lib.getBuildTypes() == null || lib.getBuildTypes().isEmpty()))
-        return List.of();
-    List<String> fl = lib.getBuildTypes() == null ? List.of(lib.getBuildType()) : lib.getBuildTypes();
+        return Set.of();
+    Set<String> fl = lib.getBuildTypes() == null ? Set.of(lib.getBuildType()) : lib.getBuildTypes();
     return fl;
 }
 
-private static List<String> getPlatforms(BaseNativeLibraryConfig lib) {
+private static Set<String> getPlatforms(BaseNativeLibraryConfig lib) {
     if (lib.getTargetPlatform() == null && (lib.getTargetPlatforms() == null || lib.getTargetPlatforms().isEmpty()))
-        return List.of();
-    List<String> fl = lib.getTargetPlatforms() == null ? List.of(lib.getTargetPlatform()) : lib.getTargetPlatforms();
+        return Set.of();
+    Set<String> fl = lib.getTargetPlatforms() == null ? Set.of(lib.getTargetPlatform()) : lib.getTargetPlatforms();
     return fl;
 }
 
@@ -342,15 +400,13 @@ private static List<String> getPlatforms(BaseNativeLibraryConfig lib) {
     String name = combined.getName();
     String libraryName = combined.getLibraryName();
     List<String> deps = combined.getDependencies();
-    List<String> targetPlatforms = combined.getTargetPlatforms();
+    Set<String> targetPlatforms = combined.getTargetPlatforms();
     combinedNativeLibraryConfigs.create(name, lib -> {
       List<String> combinedLibs = lib.getLibs();
       combinedLibs.addAll(deps);
 
-      lib.getBuildTypes().add("debug");
-      lib.getBuildTypes().add("release");
       lib.setLibraryName(libraryName);
-      lib.setTargetPlatforms(new ArrayList<>(targetPlatforms));
+      lib.setTargetPlatforms(new HashSet<>(targetPlatforms));
     });
   }
 
@@ -379,6 +435,7 @@ private static List<String> getPlatforms(BaseNativeLibraryConfig lib) {
     String config = "native_" + name;
     String mavenBase = dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion() + ":";
     String mavenSuffix = "@" + dependency.getExt();
+    boolean skipMissingPlatform = dependency.isSkipMissingPlatform();
 
     boolean createdShared = false;
     boolean createdStatic = false;
@@ -386,7 +443,7 @@ private static List<String> getPlatforms(BaseNativeLibraryConfig lib) {
     if (dependency.getHeaderClassifier() != null) {
       nativeLibraryConfigs.create(name + "_headers", lib -> {
         setCommon(lib);
-        lib.setTargetPlatforms(List.of());
+        lib.setTargetPlatforms(Set.of());
         lib.getHeaderDirs().add("");
         lib.setLibraryName(name + "_headers");
         lib.setMaven(mavenBase + dependency.getHeaderClassifier() + mavenSuffix);
@@ -397,7 +454,7 @@ private static List<String> getPlatforms(BaseNativeLibraryConfig lib) {
     if (dependency.getSourceClassifier() != null) {
       nativeLibraryConfigs.create(name + "_sources", lib -> {
         setCommon(lib);
-        lib.setTargetPlatforms(List.of());
+        lib.setTargetPlatforms(Set.of());
         lib.getSourceDirs().add("");
         lib.setLibraryName(name + "_sources");
         lib.setMaven(mavenBase + dependency.getSourceClassifier() + mavenSuffix);
@@ -424,6 +481,7 @@ private static List<String> getPlatforms(BaseNativeLibraryConfig lib) {
             lib.setDynamicMatchers(new ArrayList<>(runtimeMatchers));
             lib.setDynamicExcludes(new ArrayList<>(runtimeExcludes));
           }
+          lib.setSkipMissingPlatform(skipMissingPlatform);
           lib.setMaven(mavenBase + platform + buildKind + mavenSuffix);
           lib.setConfiguration(binaryConfig + "shared_" + platform);
         });
@@ -439,13 +497,14 @@ private static List<String> getPlatforms(BaseNativeLibraryConfig lib) {
           lib.setSharedMatchers(new ArrayList<>(sharedMatchers));
           lib.setStaticMatchers(new ArrayList<>(staticMatchers));
           lib.setSharedExcludes(new ArrayList<>(sharedExcludes));
+          lib.setSkipMissingPlatform(skipMissingPlatform);
           lib.setMaven(mavenBase + platform + "static" + buildKind + mavenSuffix);
           lib.setConfiguration(binaryConfig + "static_" + platform);
         });
       }
     }
 
-    if (createdShared) {
+    if (createdShared && !dependency.isSkipCombinedDependency()) {
       combinedNativeLibraryConfigs.create(name + "_shared", lib -> {
         List<String> combinedLibs = lib.getLibs();
         combinedLibs.add(name + "_shared_binaries");
@@ -456,13 +515,12 @@ private static List<String> getPlatforms(BaseNativeLibraryConfig lib) {
           combinedLibs.add(name + "_sources");
         }
 
-        lib.getBuildTypes().add("debug");
-        lib.getBuildTypes().add("release");
-        lib.setTargetPlatforms(new ArrayList<>(dependency.getSharedPlatforms()));
+        lib.setSkipMissingPlatform(skipMissingPlatform);
+        lib.setTargetPlatforms(new HashSet<>(dependency.getSharedPlatforms()));
       });
     }
 
-    if (createdStatic) {
+    if (createdStatic && !dependency.isSkipCombinedDependency()) {
       combinedNativeLibraryConfigs.create(name + "_static", lib -> {
         List<String> combinedLibs = lib.getLibs();
         combinedLibs.add(name + "_static_binaries");
@@ -473,9 +531,8 @@ private static List<String> getPlatforms(BaseNativeLibraryConfig lib) {
           combinedLibs.add(name + "_sources");
         }
 
-        lib.getBuildTypes().add("debug");
-        lib.getBuildTypes().add("release");
-        lib.setTargetPlatforms(new ArrayList<>(dependency.getStaticPlatforms()));
+        lib.setSkipMissingPlatform(skipMissingPlatform);
+        lib.setTargetPlatforms(new HashSet<>(dependency.getStaticPlatforms()));
       });
     }
   }

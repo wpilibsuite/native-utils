@@ -1,6 +1,6 @@
 package edu.wpi.first.nativeutils.configs.internal;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -19,15 +19,15 @@ public abstract class BaseLibraryDependencySet implements Named {
         return name;
     }
 
-    public abstract List<String> getFlavors();
-    public abstract List<String> getBuildTypes();
-    public abstract List<String> getTargetPlatforms();
+    public abstract Set<String> getFlavors();
+    public abstract Set<String> getBuildTypes();
+    public abstract Set<String> getTargetPlatforms();
 
 
     public boolean appliesTo(String flavorName, String buildTypeName, String platformName) {
-        List<String> flavors = getFlavors();
-        List<String> targetPlatforms = getTargetPlatforms();
-        List<String> buildTypes = getBuildTypes();
+        Set<String> flavors = getFlavors();
+        Set<String> targetPlatforms = getTargetPlatforms();
+        Set<String> buildTypes = getBuildTypes();
         if (flavors != null && !flavors.isEmpty() && !flavors.contains(flavorName))
             return false;
         if (buildTypes != null && !buildTypes.isEmpty() && !buildTypes.contains(buildTypeName))

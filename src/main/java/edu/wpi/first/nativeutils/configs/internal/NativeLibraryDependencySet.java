@@ -20,9 +20,9 @@ public class NativeLibraryDependencySet extends BaseLibraryDependencySet impleme
     private final FileCollection  linkLibs, dynamicLibs, debugLibs;
     private final IDirectoryTree  headers, sources;
     private final List<String>    systemLibs;
-    private final List<String>  targetPlatforms;
-    private final List<String>          flavors;
-    private final List<String>       buildTypes;
+    private final Set<String>  targetPlatforms;
+    private final Set<String>          flavors;
+    private final Set<String>       buildTypes;
 
     public Project getProject() {
         return project;
@@ -57,17 +57,17 @@ public class NativeLibraryDependencySet extends BaseLibraryDependencySet impleme
     }
 
     @Override
-    public List<String> getTargetPlatforms() {
+    public Set<String> getTargetPlatforms() {
         return targetPlatforms;
     }
 
     @Override
-    public List<String> getFlavors() {
+    public Set<String> getFlavors() {
         return flavors;
     }
 
     @Override
-    public List<String> getBuildTypes() {
+    public Set<String> getBuildTypes() {
         return buildTypes;
     }
 
@@ -76,8 +76,8 @@ public class NativeLibraryDependencySet extends BaseLibraryDependencySet impleme
                           IDirectoryTree headers, IDirectoryTree sources,
                           FileCollection linkLibs, FileCollection dynamicLibs,
                           FileCollection debugLibs, List<String> systemLibs,
-                          List<String> targetPlatforms, List<String> flavors,
-                          List<String> buildTypes) {
+                          Set<String> targetPlatforms, Set<String> flavors,
+                          Set<String> buildTypes) {
         super(name);
         this.project = project;
 

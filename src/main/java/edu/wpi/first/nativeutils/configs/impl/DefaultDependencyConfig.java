@@ -1,7 +1,9 @@
 package edu.wpi.first.nativeutils.configs.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -12,14 +14,16 @@ public class DefaultDependencyConfig implements DependencyConfig {
   private String artifactId;
   private String headerClassifier;
   private String sourceClassifier;
+  private boolean skipMissingPlatform = false;
+  private boolean skipCombinedDependency = false;
 
   private String ext;
   private String version;
 
   private boolean sharedUsedAtRuntime = true;
-  private List<String> staticPlatforms = new ArrayList<>();
-  private List<String> sharedPlatforms = new ArrayList<>();
-  private List<String> sharedExcludes = new ArrayList<>();
+  private Set<String> staticPlatforms = new HashSet<>();
+  private Set<String> sharedPlatforms = new HashSet<>();
+  private Set<String> sharedExcludes = new HashSet<>();
 
   private String name;
 
@@ -138,17 +142,37 @@ public class DefaultDependencyConfig implements DependencyConfig {
   }
 
   @Override
-  public List<String> getSharedPlatforms() {
+  public Set<String> getSharedPlatforms() {
     return sharedPlatforms;
   }
 
   @Override
-  public List<String> getStaticPlatforms() {
+  public Set<String> getStaticPlatforms() {
     return staticPlatforms;
   }
-  
+
   @Override
-  public List<String> getSharedExcludes() {
+  public Set<String> getSharedExcludes() {
     return sharedExcludes;
+  }
+
+  @Override
+  public boolean isSkipMissingPlatform() {
+    return skipMissingPlatform;
+  }
+
+  @Override
+  public void setSkipMissingPlatform(boolean skipMissingPlatform) {
+    this.skipMissingPlatform = skipMissingPlatform;
+  }
+
+  @Override
+  public boolean isSkipCombinedDependency() {
+    return skipCombinedDependency;
+  }
+
+  @Override
+  public void setSkipCombinedDependency(boolean skipCombinedDependency) {
+    this.skipCombinedDependency = skipCombinedDependency;
   }
 }

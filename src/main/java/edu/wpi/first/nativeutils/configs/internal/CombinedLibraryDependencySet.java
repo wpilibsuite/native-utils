@@ -1,15 +1,17 @@
 package edu.wpi.first.nativeutils.configs.internal;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class CombinedLibraryDependencySet extends BaseLibraryDependencySet {
     private final List<String> libs;
-    private final List<String> platforms;
-    private final List<String> flavors;
-    private final List<String> buildTypes;
+    private final Set<String> platforms;
+    private final Set<String> flavors;
+    private final Set<String> buildTypes;
 
-    public CombinedLibraryDependencySet(String name, List<String> libs, List<String> platforms, List<String> flavors,
-            List<String> buildTypes) {
+    public CombinedLibraryDependencySet(String name, List<String> libs, Set<String> platforms, Set<String> flavors,
+    Set<String> buildTypes) {
         super(name);
         this.libs = libs;
         this.platforms = platforms;
@@ -22,17 +24,17 @@ public class CombinedLibraryDependencySet extends BaseLibraryDependencySet {
     }
 
     @Override
-    public List<String> getFlavors() {
+    public Set<String> getFlavors() {
         return flavors;
     }
 
     @Override
-    public List<String> getBuildTypes() {
+    public Set<String> getBuildTypes() {
         return buildTypes;
     }
 
     @Override
-    public List<String> getTargetPlatforms() {
+    public Set<String> getTargetPlatforms() {
         return platforms;
     }
 }

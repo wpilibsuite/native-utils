@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.gradle.api.Action;
+import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.Project;
@@ -44,9 +45,11 @@ import org.gradle.platform.base.PlatformContainer;
 import org.gradle.platform.base.TypeBuilder;
 
 import edu.wpi.first.nativeutils.NativeUtilsExtension;
+import edu.wpi.first.nativeutils.NativeUtilsExtension.NamedNativeDependencyList;
 import edu.wpi.first.nativeutils.configs.CombinedDependencyConfig;
 import edu.wpi.first.nativeutils.configs.DependencyConfig;
 import edu.wpi.first.nativeutils.configs.internal.BaseLibraryDependencySet;
+import edu.wpi.first.nativeutils.configs.internal.BaseNativeLibraryConfig;
 import edu.wpi.first.nativeutils.configs.internal.CombinedLibraryDependencySet;
 import edu.wpi.first.nativeutils.configs.internal.NativeLibraryDependencySet;
 // import edu.wpi.first.deployutils.nativedeps.CombinedNativeLib;
@@ -207,6 +210,33 @@ public class DependencyConfigRules extends RuleSource {
     }
   }
 
+  public static class MissingDependencyVariantException extends RuntimeException {
+    private static final long serialVersionUID = 8310485024553364349L;
+    private String dependencyName;
+    private NativeBinarySpec binary;
+    private final NativeUtilsExtension.NamedNativeDependencyList namedDep;
+
+    public String getDependencyName() {
+        return dependencyName;
+    }
+
+    public NativeBinarySpec getBinary() {
+        return binary;
+    }
+
+    public NativeUtilsExtension.NamedNativeDependencyList getNamedDep() {
+      return namedDep;
+    }
+
+    public MissingDependencyVariantException(String name, NativeBinarySpec binary, NativeUtilsExtension.NamedNativeDependencyList namedDep) {
+        super("Cannot find delegated dependency with proper variant: " + name + " for binary: " + binary);
+        this.dependencyName = name;
+        this.binary = binary;
+        this.namedDep = namedDep;
+        namedDep.printDependencies();
+    }
+  }
+
   public static class UnknownDependencyTypeException extends RuntimeException {
     private static final long serialVersionUID = -8267518769758741795L;
     private final String dependencyName;
@@ -245,10 +275,13 @@ public class DependencyConfigRules extends RuleSource {
 
     BaseLibraryDependencySet baseSet = depSet.findAppliesTo(binary);
     if (baseSet == null) {
+      if (depSet.isSkipMissingPlatform()) {
+        return;
+      }
       if (allowOptional && binaryExt.getOptionalDependencies().contains(depName)) {
         return;
       }
-      throw new MissingDependencyException(depName, binary);
+      throw new MissingDependencyVariantException(depName, binary, depSet);
     }
 
 
@@ -266,10 +299,35 @@ public class DependencyConfigRules extends RuleSource {
     }
   }
 
+  private void printDependencies(String printBase, NamedNativeDependencyList depList, NamedDomainObjectSet<NativeUtilsExtension.NamedNativeDependencyList> sets) {
+    System.out.println(printBase + depList.getName());
+
+    for (BaseLibraryDependencySet base : depList.getDeps()) {
+
+      if (base instanceof CombinedLibraryDependencySet) {
+        CombinedLibraryDependencySet combined = (CombinedLibraryDependencySet)base;
+        for (String inner : combined.getLibs()) {
+          NamedNativeDependencyList innerDep = sets.findByName(inner);
+          if (innerDep == null) {
+            System.out.println(printBase + "    Missing dep " + inner);
+            continue;
+          }
+          printDependencies(printBase + "    ", innerDep, sets);
+        }
+      }
+    }
+  }
+
   @Validate
   public void configureFrcDependencies(BinaryContainer binaries, ExtensionContainer extensions) {
     NativeUtilsExtension nue = extensions.getByType(NativeUtilsExtension.class);
     NamedDomainObjectSet<NativeUtilsExtension.NamedNativeDependencyList> sets = nue.getNativeLibraryDependencySets();
+
+    for (NativeUtilsExtension.NamedNativeDependencyList setList : sets) {
+
+      // TODO move me to task
+      //printDependencies("", setList, sets);
+    }
 
     for (NativeBinarySpec binary : binaries.withType(NativeBinarySpec.class)) {
       FrcNativeBinaryExtension binaryExt = nue.getBinaryExtension(binary);
