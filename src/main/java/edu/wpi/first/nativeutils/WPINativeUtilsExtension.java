@@ -10,8 +10,12 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.gradle.api.Action;
+import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 
 import edu.wpi.first.nativeutils.configs.PlatformConfig;
+import edu.wpi.first.nativeutils.dependencies.configs.NativeDependency;
+import edu.wpi.first.nativeutils.dependencies.configs.NativeDependencyContainer;
+import edu.wpi.first.nativeutils.dependencies.configs.WPIMavenDependency;
 
 public class WPINativeUtilsExtension {
     private NativeUtilsExtension nativeExt;
@@ -180,28 +184,28 @@ public class WPINativeUtilsExtension {
         unixPlatforms.put(platforms.aarch64bionic, linuxbionic);
         unixPlatforms.put(platforms.aarch64xenial, linuxxenial);
 
-        linuxathena.setPlatformPath("linux/athena");
+        linuxathena.getPlatformPath().set("linux/athena");
         addLinuxCrossArgs(linuxathena);
 
-        linuxraspbian.setPlatformPath("linux/raspbian");
+        linuxraspbian.getPlatformPath().set("linux/raspbian");
         addLinuxCrossArgs(linuxraspbian);
 
-        linuxbionic.setPlatformPath("linux/aarch64bionic");
+        linuxbionic.getPlatformPath().set("linux/aarch64bionic");
         addLinuxCrossArgs(linuxbionic);
 
-        linuxxenial.setPlatformPath("linux/aarch64xenial");
+        linuxxenial.getPlatformPath().set("linux/aarch64xenial");
         addLinuxCrossArgs(linuxxenial);
 
-        windowsx86_64.setPlatformPath("windows/x86-64");
+        windowsx86_64.getPlatformPath().set("windows/x86-64");
         addWindowsArgs(windowsx86_64);
 
-        windowsx86.setPlatformPath("windows/x86");
+        windowsx86.getPlatformPath().set("windows/x86");
         addWindowsArgs(windowsx86);
 
-        linuxx86_64.setPlatformPath("linux/x86-64");
+        linuxx86_64.getPlatformPath().set("linux/x86-64");
         addLinuxArgs(linuxx86_64);
 
-        osxx86_64.setPlatformPath("osx/x86-64");
+        osxx86_64.getPlatformPath().set("osx/x86-64");
         addMacArgs(osxx86_64);
     }
 
@@ -321,383 +325,383 @@ public class WPINativeUtilsExtension {
         }
         dependencyVersions = new DependencyVersions();
         dependencies.execute(dependencyVersions);
-        nativeExt.dependencyConfigs(configs -> {
-            configs.create("netcomm", c -> {
-                c.setGroupId("edu.wpi.first.ni-libraries");
-                c.setArtifactId("netcomm");
-                c.setHeaderClassifier("headers");
-                c.setExt("zip");
-                c.setVersion(dependencyVersions.niLibVersion);
-                c.setSharedUsedAtRuntime(false);
-                c.getSharedPlatforms().add(this.platforms.roborio);
-            });
-
-            configs.create("chipobject", c -> {
-                c.setGroupId("edu.wpi.first.ni-libraries");
-                c.setArtifactId("chipobject");
-                c.setHeaderClassifier("headers");
-                c.setExt("zip");
-                c.setVersion(dependencyVersions.niLibVersion);
-                c.setSharedUsedAtRuntime(false);
-                c.getSharedPlatforms().add(this.platforms.roborio);
-            });
-
-            configs.create("visa", c -> {
-                c.setGroupId("edu.wpi.first.ni-libraries");
-                c.setArtifactId("visa");
-                c.setHeaderClassifier("headers");
-                c.setExt("zip");
-                c.setVersion(dependencyVersions.niLibVersion);
-                c.setSharedUsedAtRuntime(false);
-                c.getSharedPlatforms().add(this.platforms.roborio);
-            });
-
-            configs.create("ni_runtime", c -> {
-                c.setGroupId("edu.wpi.first.ni-libraries");
-                c.setArtifactId("runtime");
-                c.setExt("zip");
-                c.setVersion(dependencyVersions.niLibVersion);
-                c.setSharedUsedAtRuntime(false);
-                c.getSharedPlatforms().add(this.platforms.roborio);
-            });
-
-            if (!dependencyVersions.wpiVersion.equals("-1")) {
-
-                configs.create("wpiutil", c -> {
-                    c.setGroupId("edu.wpi.first.wpiutil");
-                    c.setArtifactId("wpiutil-cpp");
-                    c.setHeaderClassifier("headers");
-                    c.setSourceClassifier("sources");
-                    c.setExt("zip");
-                    c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedExcludes().add("**/*jni*");
-                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
-                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-                });
-
-                configs.create("ntcore", c -> {
-                    c.setGroupId("edu.wpi.first.ntcore");
-                    c.setArtifactId("ntcore-cpp");
-                    c.setHeaderClassifier("headers");
-                    c.setSourceClassifier("sources");
-                    c.setExt("zip");
-                    c.getSharedExcludes().add("**/*jni*");
-                    c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
-                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-                });
-
-                configs.create("hal", c -> {
-                    c.setGroupId("edu.wpi.first.hal");
-                    c.setArtifactId("hal-cpp");
-                    c.setHeaderClassifier("headers");
-                    c.setSourceClassifier("sources");
-                    c.setExt("zip");
-                    c.getSharedExcludes().add("**/*jni*");
-                    c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
-                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-                });
-
-                configs.create("cscore", c -> {
-                    c.setGroupId("edu.wpi.first.cscore");
-                    c.setArtifactId("cscore-cpp");
-                    c.setHeaderClassifier("headers");
-                    c.setSourceClassifier("sources");
-                    c.setExt("zip");
-                    c.getSharedExcludes().add("**/*jni*");
-                    c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
-                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-                });
-
-                configs.create("cameraserver", c -> {
-                    c.setGroupId("edu.wpi.first.cameraserver");
-                    c.setArtifactId("cameraserver-cpp");
-                    c.setHeaderClassifier("headers");
-                    c.setSourceClassifier("sources");
-                    c.setExt("zip");
-                    c.getSharedExcludes().add("**/*jni*");
-                    c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
-                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-                });
-
-                configs.create("wpilibc", c -> {
-                    c.setGroupId("edu.wpi.first.wpilibc");
-                    c.setArtifactId("wpilibc-cpp");
-                    c.setHeaderClassifier("headers");
-                    c.setSourceClassifier("sources");
-                    c.setExt("zip");
-                    c.getSharedExcludes().add("**/*jni*");
-                    c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
-                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-                });
-
-                configs.create("wpilib_new_commands", c -> {
-                    c.setGroupId("edu.wpi.first.wpilibNewCommands");
-                    c.setArtifactId("wpilibNewCommands-cpp");
-                    c.setHeaderClassifier("headers");
-                    c.setSourceClassifier("sources");
-                    c.setExt("zip");
-                    c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
-                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-                });
-
-                configs.create("wpilib_old_commands", c -> {
-                    c.setGroupId("edu.wpi.first.wpilibOldCommands");
-                    c.setArtifactId("wpilibOldCommands-cpp");
-                    c.setHeaderClassifier("headers");
-                    c.setSourceClassifier("sources");
-                    c.setExt("zip");
-                    c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
-                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-                });
-            }
-
-            configs.create("opencv", c -> {
-                c.setGroupId("edu.wpi.first.thirdparty.frc2021.opencv");
-                c.setArtifactId("opencv-cpp");
-                c.setHeaderClassifier("headers");
-                c.setSourceClassifier("sources");
-                c.setExt("zip");
-                c.setVersion(dependencyVersions.opencvVersion);
-                c.getSharedExcludes().add("**/*java*");
-                c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
-                c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-            });
-
-            configs.create("googletest", c -> {
-                c.setGroupId("edu.wpi.first.thirdparty.frc2021");
-                c.setArtifactId("googletest");
-                c.setHeaderClassifier("headers");
-                c.setSourceClassifier("sources");
-                c.setExt("zip");
-                c.setVersion(dependencyVersions.googleTestVersion);
-                c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-            });
-
-            configs.create("imgui", c -> {
-                c.setGroupId("edu.wpi.first.thirdparty.frc2021");
-                c.setArtifactId("imgui");
-                c.setHeaderClassifier("headers");
-                c.setSourceClassifier("sources");
-                c.setExt("zip");
-                c.setVersion(dependencyVersions.imguiVersion);
-                c.getStaticPlatforms().addAll(this.platforms.desktopPlatforms);
-            });
-
-            configs.create("wpimath", c -> {
-                c.setGroupId("edu.wpi.first.wpimath");
-                c.setArtifactId("wpimath-cpp");
-                c.setHeaderClassifier("headers");
-                c.setSourceClassifier("sources");
-                c.setExt("zip");
-                c.getSharedExcludes().add("**/*jni*");
-                c.setVersion(dependencyVersions.wpimathVersion);
-                c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-                c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
-            });
+        ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs = nativeExt.getNativeDependencyContainer();
+        configs.register("netcomm", WPIMavenDependency.class, c -> {
+            c.getGroupId().set("edu.wpi.first.ni-libraries");
+            c.getArtifactId().set("netcomm");
+            c.getHeaderClassifier().set("headers");
+            c.getExt().set("zip");
+            c.getVersion().set(dependencyVersions.niLibVersion);
+            c.getSharedUsedAtRuntime().set(false);
+            c.getSharedPlatforms().add(this.platforms.roborio);
         });
-        if (!dependencyVersions.wpiVersion.equals("-1")) {
-            nativeExt.combinedDependencyConfigs(configs -> {
-                configs.create("wpilib_jni_rio", c -> {
-                    c.setLibraryName("wpilib_jni");
-                    c.getTargetPlatforms().add(this.platforms.roborio);
-                    List<String> deps = c.getDependencies();
-                    deps.add("ntcore_shared");
-                    deps.add("hal_shared");
-                    deps.add("wpiutil_shared");
-                    deps.add("wpimath_shared");
-                    deps.add("chipobject_shared");
-                    deps.add("netcomm_shared");
-                    deps.add("visa_shared");
-                });
 
-                configs.create("wpilib_static_rio", c -> {
-                    c.setLibraryName("wpilib_static");
-                    c.getTargetPlatforms().add(this.platforms.roborio);
-                    List<String> deps = c.getDependencies();
-                    deps.add("wpilibc_static");
-                    deps.add("ntcore_static");
-                    deps.add("hal_static");
-                    deps.add("wpiutil_static");
-                    deps.add("wpimath_static");
-                    deps.add("chipobject_shared");
-                    deps.add("netcomm_shared");
-                    deps.add("visa_shared");
-                });
-                configs.create("wpilib_executable_static_rio", c -> {
-                    c.setLibraryName("wpilib_executable_static");
-                    c.getTargetPlatforms().add(this.platforms.roborio);
-                    List<String> deps = c.getDependencies();
-                    deps.add("wpilibc_static");
-                    deps.add("ntcore_static");
-                    deps.add("hal_static");
-                    deps.add("wpiutil_static");
-                    deps.add("wpimath_static");
-                    deps.add("chipobject_shared");
-                    deps.add("netcomm_shared");
-                    deps.add("visa_shared");
-                    deps.add("ni_runtime_shared");
-                });
-                configs.create("driver_static_rio", c -> {
-                    c.setLibraryName("driver_static");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().add(this.platforms.roborio);
-                    deps.add("hal_static");
-                    deps.add("wpiutil_static");
-                    deps.add("chipobject_shared");
-                    deps.add("netcomm_shared");
-                    deps.add("visa_shared");
-                });
-                configs.create("wpilib_shared_rio", c -> {
-                    c.setLibraryName("wpilib_shared");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().add(this.platforms.roborio);
-                    deps.add("wpilibc_shared");
-                    deps.add("ntcore_shared");
-                    deps.add("hal_shared");
-                    deps.add("wpiutil_shared");
-                    deps.add("wpimath_shared");
-                    deps.add("chipobject_shared");
-                    deps.add("netcomm_shared");
-                    deps.add("visa_shared");
-                });
-                configs.create("wpilib_executable_shared_rio", c -> {
-                    c.setLibraryName("wpilib_executable_shared");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().add(this.platforms.roborio);
-                    deps.add("wpilibc_shared");
-                    deps.add("ntcore_shared");
-                    deps.add("hal_shared");
-                    deps.add("wpiutil_shared");
-                    deps.add("wpimath_shared");
-                    deps.add("chipobject_shared");
-                    deps.add("netcomm_shared");
-                    deps.add("visa_shared");
-                    deps.add("ni_runtime_shared");
-                });
-                configs.create("driver_shared_rio", c -> {
-                    c.setLibraryName("driver_shared");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().add(this.platforms.roborio);
-                    deps.add("hal_shared");
-                    deps.add("wpiutil_shared");
-                    deps.add("chipobject_shared");
-                    deps.add("netcomm_shared");
-                    deps.add("visa_shared");
-                });
+        //     configs.create("chipobject", c -> {
+        //         c.setGroupId("edu.wpi.first.ni-libraries");
+        //         c.setArtifactId("chipobject");
+        //         c.setHeaderClassifier("headers");
+        //         c.setExt("zip");
+        //         c.setVersion(dependencyVersions.niLibVersion);
+        //         c.setSharedUsedAtRuntime(false);
+        //         c.getSharedPlatforms().add(this.platforms.roborio);
+        //     });
 
-                configs.create("vision_jni_shared", c -> {
-                    c.setLibraryName("vision_jni_shared");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
-                    deps.add("cscore_shared");
-                    deps.add("opencv_shared");
-                });
+        //     configs.create("visa", c -> {
+        //         c.setGroupId("edu.wpi.first.ni-libraries");
+        //         c.setArtifactId("visa");
+        //         c.setHeaderClassifier("headers");
+        //         c.setExt("zip");
+        //         c.setVersion(dependencyVersions.niLibVersion);
+        //         c.setSharedUsedAtRuntime(false);
+        //         c.getSharedPlatforms().add(this.platforms.roborio);
+        //     });
 
-                configs.create("vision_shared", c -> {
-                    c.setLibraryName("vision_shared");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
-                    deps.add("cameraserver_shared");
-                    deps.add("cscore_shared");
-                    deps.add("opencv_shared");
-                });
+        //     configs.create("ni_runtime", c -> {
+        //         c.setGroupId("edu.wpi.first.ni-libraries");
+        //         c.setArtifactId("runtime");
+        //         c.setExt("zip");
+        //         c.setVersion(dependencyVersions.niLibVersion);
+        //         c.setSharedUsedAtRuntime(false);
+        //         c.getSharedPlatforms().add(this.platforms.roborio);
+        //     });
 
-                configs.create("vision_jni_static", c -> {
-                    c.setLibraryName("vision_jni_static");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
-                    deps.add("cscore_static");
-                    deps.add("opencv_static");
-                });
+        //     if (!dependencyVersions.wpiVersion.equals("-1")) {
 
-                configs.create("vision_static", c -> {
-                    c.setLibraryName("vision_static");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
-                    deps.add("cameraserver_static");
-                    deps.add("cscore_static");
-                    deps.add("opencv_static");
-                });
+        //         configs.create("wpiutil", c -> {
+        //             c.setGroupId("edu.wpi.first.wpiutil");
+        //             c.setArtifactId("wpiutil-cpp");
+        //             c.setHeaderClassifier("headers");
+        //             c.setSourceClassifier("sources");
+        //             c.setExt("zip");
+        //             c.setVersion(dependencyVersions.wpiVersion);
+        //             c.getSharedExcludes().add("**/*jni*");
+        //             c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
+        //             c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
+        //         });
 
-                List<String> platsWithoutRio = new ArrayList<>(this.platforms.allPlatforms);
-                platsWithoutRio.remove(this.platforms.roborio);
+        //         configs.create("ntcore", c -> {
+        //             c.setGroupId("edu.wpi.first.ntcore");
+        //             c.setArtifactId("ntcore-cpp");
+        //             c.setHeaderClassifier("headers");
+        //             c.setSourceClassifier("sources");
+        //             c.setExt("zip");
+        //             c.getSharedExcludes().add("**/*jni*");
+        //             c.setVersion(dependencyVersions.wpiVersion);
+        //             c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
+        //             c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
+        //         });
 
-                if (skipRaspbianAsDesktop) {
-                    platsWithoutRio.remove(this.platforms.raspbian);
-                }
+        //         configs.create("hal", c -> {
+        //             c.setGroupId("edu.wpi.first.hal");
+        //             c.setArtifactId("hal-cpp");
+        //             c.setHeaderClassifier("headers");
+        //             c.setSourceClassifier("sources");
+        //             c.setExt("zip");
+        //             c.getSharedExcludes().add("**/*jni*");
+        //             c.setVersion(dependencyVersions.wpiVersion);
+        //             c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
+        //             c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
+        //         });
 
-                configs.create("wpilib_jni_dt", c -> {
-                    c.setLibraryName("wpilib_jni");
-                    c.getTargetPlatforms().addAll(platsWithoutRio);
-                    List<String> deps = c.getDependencies();
-                    deps.add("ntcore_shared");
-                    deps.add("hal_shared");
-                    deps.add("wpiutil_shared");
-                    deps.add("wpimath_shared");
-                });
+        //         configs.create("cscore", c -> {
+        //             c.setGroupId("edu.wpi.first.cscore");
+        //             c.setArtifactId("cscore-cpp");
+        //             c.setHeaderClassifier("headers");
+        //             c.setSourceClassifier("sources");
+        //             c.setExt("zip");
+        //             c.getSharedExcludes().add("**/*jni*");
+        //             c.setVersion(dependencyVersions.wpiVersion);
+        //             c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
+        //             c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
+        //         });
 
-                configs.create("wpilib_static_dt", c -> {
-                    c.setLibraryName("wpilib_static");
-                    c.getTargetPlatforms().addAll(platsWithoutRio);
-                    List<String> deps = c.getDependencies();
-                    deps.add("wpilibc_static");
-                    deps.add("ntcore_static");
-                    deps.add("hal_static");
-                    deps.add("wpiutil_static");
-                    deps.add("wpimath_static");
-                });
-                configs.create("wpilib_executable_static_dt", c -> {
-                    c.setLibraryName("wpilib_executable_static");
-                    c.getTargetPlatforms().addAll(platsWithoutRio);
-                    List<String> deps = c.getDependencies();
-                    deps.add("wpilibc_static");
-                    deps.add("ntcore_static");
-                    deps.add("hal_static");
-                    deps.add("wpiutil_static");
-                    deps.add("wpimath_static");
-                });
-                configs.create("driver_static_dt", c -> {
-                    c.setLibraryName("driver_static");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().addAll(platsWithoutRio);
-                    deps.add("hal_static");
-                    deps.add("wpiutil_static");
-                });
-                configs.create("wpilib_shared_dt", c -> {
-                    c.setLibraryName("wpilib_shared");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().addAll(platsWithoutRio);
-                    deps.add("wpilibc_shared");
-                    deps.add("ntcore_shared");
-                    deps.add("hal_shared");
-                    deps.add("wpiutil_shared");
-                    deps.add("wpimath_shared");
-                });
-                configs.create("wpilib_executable_shared_dt", c -> {
-                    c.setLibraryName("wpilib_executable_shared");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().addAll(platsWithoutRio);
-                    deps.add("wpilibc_shared");
-                    deps.add("ntcore_shared");
-                    deps.add("hal_shared");
-                    deps.add("wpiutil_shared");
-                    deps.add("wpimath_shared");
-                });
-                configs.create("driver_shared_dt", c -> {
-                    c.setLibraryName("driver_shared");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().addAll(platsWithoutRio);
-                    deps.add("hal_shared");
-                    deps.add("wpiutil_shared");
-                });
-            });
-        }
+        //         configs.create("cameraserver", c -> {
+        //             c.setGroupId("edu.wpi.first.cameraserver");
+        //             c.setArtifactId("cameraserver-cpp");
+        //             c.setHeaderClassifier("headers");
+        //             c.setSourceClassifier("sources");
+        //             c.setExt("zip");
+        //             c.getSharedExcludes().add("**/*jni*");
+        //             c.setVersion(dependencyVersions.wpiVersion);
+        //             c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
+        //             c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
+        //         });
+
+        //         configs.create("wpilibc", c -> {
+        //             c.setGroupId("edu.wpi.first.wpilibc");
+        //             c.setArtifactId("wpilibc-cpp");
+        //             c.setHeaderClassifier("headers");
+        //             c.setSourceClassifier("sources");
+        //             c.setExt("zip");
+        //             c.getSharedExcludes().add("**/*jni*");
+        //             c.setVersion(dependencyVersions.wpiVersion);
+        //             c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
+        //             c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
+        //         });
+
+        //         configs.create("wpilib_new_commands", c -> {
+        //             c.setGroupId("edu.wpi.first.wpilibNewCommands");
+        //             c.setArtifactId("wpilibNewCommands-cpp");
+        //             c.setHeaderClassifier("headers");
+        //             c.setSourceClassifier("sources");
+        //             c.setExt("zip");
+        //             c.setVersion(dependencyVersions.wpiVersion);
+        //             c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
+        //             c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
+        //         });
+
+        //         configs.create("wpilib_old_commands", c -> {
+        //             c.setGroupId("edu.wpi.first.wpilibOldCommands");
+        //             c.setArtifactId("wpilibOldCommands-cpp");
+        //             c.setHeaderClassifier("headers");
+        //             c.setSourceClassifier("sources");
+        //             c.setExt("zip");
+        //             c.setVersion(dependencyVersions.wpiVersion);
+        //             c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
+        //             c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
+        //         });
+        //     }
+
+        //     configs.create("opencv", c -> {
+        //         c.setGroupId("edu.wpi.first.thirdparty.frc2021.opencv");
+        //         c.setArtifactId("opencv-cpp");
+        //         c.setHeaderClassifier("headers");
+        //         c.setSourceClassifier("sources");
+        //         c.setExt("zip");
+        //         c.setVersion(dependencyVersions.opencvVersion);
+        //         c.getSharedExcludes().add("**/*java*");
+        //         c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
+        //         c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
+        //     });
+
+        //     configs.create("googletest", c -> {
+        //         c.setGroupId("edu.wpi.first.thirdparty.frc2021");
+        //         c.setArtifactId("googletest");
+        //         c.setHeaderClassifier("headers");
+        //         c.setSourceClassifier("sources");
+        //         c.setExt("zip");
+        //         c.setVersion(dependencyVersions.googleTestVersion);
+        //         c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
+        //     });
+
+        //     configs.create("imgui", c -> {
+        //         c.setGroupId("edu.wpi.first.thirdparty.frc2021");
+        //         c.setArtifactId("imgui");
+        //         c.setHeaderClassifier("headers");
+        //         c.setSourceClassifier("sources");
+        //         c.setExt("zip");
+        //         c.setVersion(dependencyVersions.imguiVersion);
+        //         c.getStaticPlatforms().addAll(this.platforms.desktopPlatforms);
+        //     });
+
+        //     configs.create("wpimath", c -> {
+        //         c.setGroupId("edu.wpi.first.wpimath");
+        //         c.setArtifactId("wpimath-cpp");
+        //         c.setHeaderClassifier("headers");
+        //         c.setSourceClassifier("sources");
+        //         c.setExt("zip");
+        //         c.getSharedExcludes().add("**/*jni*");
+        //         c.setVersion(dependencyVersions.wpimathVersion);
+        //         c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
+        //         c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
+        //     });
+        // });
+        // if (!dependencyVersions.wpiVersion.equals("-1")) {
+        //     nativeExt.combinedDependencyConfigs(configs -> {
+        //         configs.create("wpilib_jni_rio", c -> {
+        //             c.setLibraryName("wpilib_jni");
+        //             c.getTargetPlatforms().add(this.platforms.roborio);
+        //             List<String> deps = c.getDependencies();
+        //             deps.add("ntcore_shared");
+        //             deps.add("hal_shared");
+        //             deps.add("wpiutil_shared");
+        //             deps.add("wpimath_shared");
+        //             deps.add("chipobject_shared");
+        //             deps.add("netcomm_shared");
+        //             deps.add("visa_shared");
+        //         });
+
+        //         configs.create("wpilib_static_rio", c -> {
+        //             c.setLibraryName("wpilib_static");
+        //             c.getTargetPlatforms().add(this.platforms.roborio);
+        //             List<String> deps = c.getDependencies();
+        //             deps.add("wpilibc_static");
+        //             deps.add("ntcore_static");
+        //             deps.add("hal_static");
+        //             deps.add("wpiutil_static");
+        //             deps.add("wpimath_static");
+        //             deps.add("chipobject_shared");
+        //             deps.add("netcomm_shared");
+        //             deps.add("visa_shared");
+        //         });
+        //         configs.create("wpilib_executable_static_rio", c -> {
+        //             c.setLibraryName("wpilib_executable_static");
+        //             c.getTargetPlatforms().add(this.platforms.roborio);
+        //             List<String> deps = c.getDependencies();
+        //             deps.add("wpilibc_static");
+        //             deps.add("ntcore_static");
+        //             deps.add("hal_static");
+        //             deps.add("wpiutil_static");
+        //             deps.add("wpimath_static");
+        //             deps.add("chipobject_shared");
+        //             deps.add("netcomm_shared");
+        //             deps.add("visa_shared");
+        //             deps.add("ni_runtime_shared");
+        //         });
+        //         configs.create("driver_static_rio", c -> {
+        //             c.setLibraryName("driver_static");
+        //             List<String> deps = c.getDependencies();
+        //             c.getTargetPlatforms().add(this.platforms.roborio);
+        //             deps.add("hal_static");
+        //             deps.add("wpiutil_static");
+        //             deps.add("chipobject_shared");
+        //             deps.add("netcomm_shared");
+        //             deps.add("visa_shared");
+        //         });
+        //         configs.create("wpilib_shared_rio", c -> {
+        //             c.setLibraryName("wpilib_shared");
+        //             List<String> deps = c.getDependencies();
+        //             c.getTargetPlatforms().add(this.platforms.roborio);
+        //             deps.add("wpilibc_shared");
+        //             deps.add("ntcore_shared");
+        //             deps.add("hal_shared");
+        //             deps.add("wpiutil_shared");
+        //             deps.add("wpimath_shared");
+        //             deps.add("chipobject_shared");
+        //             deps.add("netcomm_shared");
+        //             deps.add("visa_shared");
+        //         });
+        //         configs.create("wpilib_executable_shared_rio", c -> {
+        //             c.setLibraryName("wpilib_executable_shared");
+        //             List<String> deps = c.getDependencies();
+        //             c.getTargetPlatforms().add(this.platforms.roborio);
+        //             deps.add("wpilibc_shared");
+        //             deps.add("ntcore_shared");
+        //             deps.add("hal_shared");
+        //             deps.add("wpiutil_shared");
+        //             deps.add("wpimath_shared");
+        //             deps.add("chipobject_shared");
+        //             deps.add("netcomm_shared");
+        //             deps.add("visa_shared");
+        //             deps.add("ni_runtime_shared");
+        //         });
+        //         configs.create("driver_shared_rio", c -> {
+        //             c.setLibraryName("driver_shared");
+        //             List<String> deps = c.getDependencies();
+        //             c.getTargetPlatforms().add(this.platforms.roborio);
+        //             deps.add("hal_shared");
+        //             deps.add("wpiutil_shared");
+        //             deps.add("chipobject_shared");
+        //             deps.add("netcomm_shared");
+        //             deps.add("visa_shared");
+        //         });
+
+        //         configs.create("vision_jni_shared", c -> {
+        //             c.setLibraryName("vision_jni_shared");
+        //             List<String> deps = c.getDependencies();
+        //             c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
+        //             deps.add("cscore_shared");
+        //             deps.add("opencv_shared");
+        //         });
+
+        //         configs.create("vision_shared", c -> {
+        //             c.setLibraryName("vision_shared");
+        //             List<String> deps = c.getDependencies();
+        //             c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
+        //             deps.add("cameraserver_shared");
+        //             deps.add("cscore_shared");
+        //             deps.add("opencv_shared");
+        //         });
+
+        //         configs.create("vision_jni_static", c -> {
+        //             c.setLibraryName("vision_jni_static");
+        //             List<String> deps = c.getDependencies();
+        //             c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
+        //             deps.add("cscore_static");
+        //             deps.add("opencv_static");
+        //         });
+
+        //         configs.create("vision_static", c -> {
+        //             c.setLibraryName("vision_static");
+        //             List<String> deps = c.getDependencies();
+        //             c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
+        //             deps.add("cameraserver_static");
+        //             deps.add("cscore_static");
+        //             deps.add("opencv_static");
+        //         });
+
+        //         List<String> platsWithoutRio = new ArrayList<>(this.platforms.allPlatforms);
+        //         platsWithoutRio.remove(this.platforms.roborio);
+
+        //         if (skipRaspbianAsDesktop) {
+        //             platsWithoutRio.remove(this.platforms.raspbian);
+        //         }
+
+        //         configs.create("wpilib_jni_dt", c -> {
+        //             c.setLibraryName("wpilib_jni");
+        //             c.getTargetPlatforms().addAll(platsWithoutRio);
+        //             List<String> deps = c.getDependencies();
+        //             deps.add("ntcore_shared");
+        //             deps.add("hal_shared");
+        //             deps.add("wpiutil_shared");
+        //             deps.add("wpimath_shared");
+        //         });
+
+        //         configs.create("wpilib_static_dt", c -> {
+        //             c.setLibraryName("wpilib_static");
+        //             c.getTargetPlatforms().addAll(platsWithoutRio);
+        //             List<String> deps = c.getDependencies();
+        //             deps.add("wpilibc_static");
+        //             deps.add("ntcore_static");
+        //             deps.add("hal_static");
+        //             deps.add("wpiutil_static");
+        //             deps.add("wpimath_static");
+        //         });
+        //         configs.create("wpilib_executable_static_dt", c -> {
+        //             c.setLibraryName("wpilib_executable_static");
+        //             c.getTargetPlatforms().addAll(platsWithoutRio);
+        //             List<String> deps = c.getDependencies();
+        //             deps.add("wpilibc_static");
+        //             deps.add("ntcore_static");
+        //             deps.add("hal_static");
+        //             deps.add("wpiutil_static");
+        //             deps.add("wpimath_static");
+        //         });
+        //         configs.create("driver_static_dt", c -> {
+        //             c.setLibraryName("driver_static");
+        //             List<String> deps = c.getDependencies();
+        //             c.getTargetPlatforms().addAll(platsWithoutRio);
+        //             deps.add("hal_static");
+        //             deps.add("wpiutil_static");
+        //         });
+        //         configs.create("wpilib_shared_dt", c -> {
+        //             c.setLibraryName("wpilib_shared");
+        //             List<String> deps = c.getDependencies();
+        //             c.getTargetPlatforms().addAll(platsWithoutRio);
+        //             deps.add("wpilibc_shared");
+        //             deps.add("ntcore_shared");
+        //             deps.add("hal_shared");
+        //             deps.add("wpiutil_shared");
+        //             deps.add("wpimath_shared");
+        //         });
+        //         configs.create("wpilib_executable_shared_dt", c -> {
+        //             c.setLibraryName("wpilib_executable_shared");
+        //             List<String> deps = c.getDependencies();
+        //             c.getTargetPlatforms().addAll(platsWithoutRio);
+        //             deps.add("wpilibc_shared");
+        //             deps.add("ntcore_shared");
+        //             deps.add("hal_shared");
+        //             deps.add("wpiutil_shared");
+        //             deps.add("wpimath_shared");
+        //         });
+        //         configs.create("driver_shared_dt", c -> {
+        //             c.setLibraryName("driver_shared");
+        //             List<String> deps = c.getDependencies();
+        //             c.getTargetPlatforms().addAll(platsWithoutRio);
+        //             deps.add("hal_shared");
+        //             deps.add("wpiutil_shared");
+        //         });
+        //     });
+        // }
     }
 }

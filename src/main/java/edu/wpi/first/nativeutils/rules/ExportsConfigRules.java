@@ -99,8 +99,7 @@ public class ExportsConfigRules extends RuleSource {
             if (component instanceof NativeLibrarySpec) {
                 for (BinarySpec oBinary : ((NativeLibrarySpec) component).getBinaries()) {
                     NativeBinarySpec binary = (NativeBinarySpec) oBinary;
-                    List<String> excludeBuildTypes = config.getExcludeBuildTypes() == null ? new ArrayList<>()
-                            : config.getExcludeBuildTypes();
+                    List<String> excludeBuildTypes = config.getExcludeBuildTypes().get();
                     if (binary.getTargetPlatform().getOperatingSystem().isWindows()
                             && binary instanceof SharedLibraryBinarySpec
                             && !excludeBuildTypes.contains(binary.getBuildType().getName())) {
@@ -138,9 +137,9 @@ public class ExportsConfigRules extends RuleSource {
                                             boolean isX86 = sBinary.getTargetPlatform().getArchitecture().getName()
                                                     .equals("x86");
                                             if (isX86) {
-                                                excludeSymbols = config.getX86ExcludeSymbols();
+                                                excludeSymbols = config.getX86ExcludeSymbols().get();
                                             } else {
-                                                excludeSymbols = config.getX64ExcludeSymbols();
+                                                excludeSymbols = config.getX64ExcludeSymbols().get();
                                             }
 
                                             if (excludeSymbols == null) {
@@ -163,12 +162,12 @@ public class ExportsConfigRules extends RuleSource {
                                             }
 
                                             if (isX86) {
-                                                Action<List<String>> symbolFilter = config.getX86SymbolFilter();
+                                                Action<List<String>> symbolFilter = config.getX86SymbolFilter().getOrElse(null);
                                                 if (symbolFilter != null) {
                                                     symbolFilter.execute(lines);
                                                 }
                                             } else {
-                                                Action<List<String>> symbolFilter = config.getX64SymbolFilter();
+                                                Action<List<String>> symbolFilter = config.getX64SymbolFilter().getOrElse(null);
                                                 if (symbolFilter != null) {
                                                     symbolFilter.execute(lines);
                                                 }

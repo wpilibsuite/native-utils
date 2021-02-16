@@ -5,13 +5,10 @@ import java.util.List;
 import org.gradle.nativeplatform.Tool;
 
 public interface CompilerArgsConfig {
-  void setArgs(List<String> args);
   List<String> getArgs();
 
-  void setDebugArgs(List<String> args);
   List<String> getDebugArgs();
 
-  void setReleaseArgs(List<String> args);
   List<String> getReleaseArgs();
 
   default void apply(Tool tool, boolean isDebug) {

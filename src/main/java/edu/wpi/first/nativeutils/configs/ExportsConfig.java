@@ -4,25 +4,17 @@ import java.util.List;
 
 import org.gradle.api.Action;
 import org.gradle.api.Named;
+import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
 
 public interface ExportsConfig extends Named {
-    void setX86ExcludeSymbols(List<String> symbols);
+    ListProperty<String> getX86ExcludeSymbols();
 
-    List<String> getX86ExcludeSymbols();
+    ListProperty<String> getX64ExcludeSymbols();
 
-    void setX64ExcludeSymbols(List<String> symbols);
+    ListProperty<String> getExcludeBuildTypes();
 
-    List<String> getX64ExcludeSymbols();
+    Property<Action<List<String>>> getX86SymbolFilter();
 
-    void setExcludeBuildTypes(List<String> excludes);
-
-    List<String> getExcludeBuildTypes();
-
-    void setX86SymbolFilter(Action<List<String>> closure);
-
-    Action<List<String>> getX86SymbolFilter();
-
-    void setX64SymbolFilter(Action<List<String>> closure);
-
-    Action<List<String>> getX64SymbolFilter();
+    Property<Action<List<String>>> getX64SymbolFilter();
 }

@@ -2,19 +2,24 @@ package edu.wpi.first.nativeutils.configs.impl;
 
 import javax.inject.Inject;
 
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
+
 import edu.wpi.first.nativeutils.configs.CompilerArgsConfig;
 import edu.wpi.first.nativeutils.configs.PlatformConfig;
 
 public class DefaultPlatformConfig implements PlatformConfig {
 
-  private String name;
+  private final String name;
 
   @Inject
-  public DefaultPlatformConfig(String name) {
+  public DefaultPlatformConfig(String name, ObjectFactory objects) {
     this.name = name;
+    this.platformPath = objects.property(String.class);
+    this.platformPath.finalizeValueOnRead();
   }
 
-  private String platformPath = null;
+  private final Property<String> platformPath;
 
   private CompilerArgsConfig cppCompiler = new DefaultCompilerArgsConfig();
   private CompilerArgsConfig linker = new DefaultCompilerArgsConfig();
@@ -26,15 +31,8 @@ public class DefaultPlatformConfig implements PlatformConfig {
   /**
    * @return the platformPath
    */
-  public String getPlatformPath() {
+  public Property<String> getPlatformPath() {
     return platformPath;
-  }
-
-  /**
-   * @param platformPath the platformPath to set
-   */
-  public void setPlatformPath(String platformPath) {
-    this.platformPath = platformPath;
   }
 
   /**
@@ -45,24 +43,10 @@ public class DefaultPlatformConfig implements PlatformConfig {
   }
 
   /**
-   * @param cppCompiler the cppCompiler to set
-   */
-  public void setCppCompiler(CompilerArgsConfig cppCompiler) {
-    this.cppCompiler = cppCompiler;
-  }
-
-  /**
    * @return the linker
    */
   public CompilerArgsConfig getLinker() {
     return linker;
-  }
-
-  /**
-   * @param linker the linker to set
-   */
-  public void setLinker(CompilerArgsConfig linker) {
-    this.linker = linker;
   }
 
   /**
@@ -73,24 +57,10 @@ public class DefaultPlatformConfig implements PlatformConfig {
   }
 
   /**
-   * @param cCompiler the cCompiler to set
-   */
-  public void setcCompiler(CompilerArgsConfig cCompiler) {
-    this.cCompiler = cCompiler;
-  }
-
-  /**
    * @return the assembler
    */
   public CompilerArgsConfig getAssembler() {
     return assembler;
-  }
-
-  /**
-   * @param assembler the assembler to set
-   */
-  public void setAssembler(CompilerArgsConfig assembler) {
-    this.assembler = assembler;
   }
 
   /**
@@ -101,24 +71,10 @@ public class DefaultPlatformConfig implements PlatformConfig {
   }
 
   /**
-   * @param objCCompiler the objCCompiler to set
-   */
-  public void setObjcCompiler(CompilerArgsConfig objCCompiler) {
-    this.objCCompiler = objCCompiler;
-  }
-
-  /**
    * @return the objCppCompiler
    */
   public CompilerArgsConfig getObjcppCompiler() {
     return objCppCompiler;
-  }
-
-  /**
-   * @param objCppCompiler the objCppCompiler to set
-   */
-  public void setObjcppCompiler(CompilerArgsConfig objCppCompiler) {
-    this.objCppCompiler = objCppCompiler;
   }
 
   @Override

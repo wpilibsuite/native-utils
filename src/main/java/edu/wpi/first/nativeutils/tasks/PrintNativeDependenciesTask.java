@@ -7,9 +7,9 @@ import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.tasks.TaskAction;
 
 import edu.wpi.first.nativeutils.NativeUtilsExtension;
-import edu.wpi.first.nativeutils.NativeUtilsExtension.NamedNativeDependencyList;
-import edu.wpi.first.nativeutils.configs.internal.BaseLibraryDependencySet;
-import edu.wpi.first.nativeutils.configs.internal.CombinedLibraryDependencySet;
+//import edu.wpi.first.nativeutils.NativeUtilsExtension.NamedNativeDependencyList;
+// import edu.wpi.first.nativeutils.configs.internal.BaseLibraryDependencySet;
+// import edu.wpi.first.nativeutils.configs.internal.CombinedLibraryDependencySet;
 
 public class PrintNativeDependenciesTask extends DefaultTask {
 
@@ -19,34 +19,34 @@ public class PrintNativeDependenciesTask extends DefaultTask {
         setDescription("Prints the native dependency graph");
     }
 
-    @TaskAction
-    public void execute() {
-        NativeUtilsExtension nue = getProject().getExtensions().getByType(NativeUtilsExtension.class);
-        NamedDomainObjectSet<NativeUtilsExtension.NamedNativeDependencyList> sets = nue
-                .getNativeLibraryDependencySets();
+    // @TaskAction
+    // public void execute() {
+    //     NativeUtilsExtension nue = getProject().getExtensions().getByType(NativeUtilsExtension.class);
+    //     NamedDomainObjectSet<NativeUtilsExtension.NamedNativeDependencyList> sets = nue
+    //             .getNativeLibraryDependencySets();
 
-        for (NativeUtilsExtension.NamedNativeDependencyList setList : sets) {
-            printDependencies("", setList, sets);
-        }
-    }
+    //     for (NativeUtilsExtension.NamedNativeDependencyList setList : sets) {
+    //         printDependencies("", setList, sets);
+    //     }
+    // }
 
-    private void printDependencies(String printBase, NamedNativeDependencyList depList,
-            NamedDomainObjectSet<NativeUtilsExtension.NamedNativeDependencyList> sets) {
-        System.out.println(printBase + depList.getName());
+    // private void printDependencies(String printBase, NamedNativeDependencyList depList,
+    //         NamedDomainObjectSet<NativeUtilsExtension.NamedNativeDependencyList> sets) {
+    //     System.out.println(printBase + depList.getName());
 
-        for (BaseLibraryDependencySet base : depList.getDeps()) {
+    //     for (BaseLibraryDependencySet base : depList.getDeps()) {
 
-            if (base instanceof CombinedLibraryDependencySet) {
-                CombinedLibraryDependencySet combined = (CombinedLibraryDependencySet) base;
-                for (String inner : combined.getLibs()) {
-                    NamedNativeDependencyList innerDep = sets.findByName(inner);
-                    if (innerDep == null) {
-                        System.out.println(printBase + "    Missing dep " + inner);
-                        continue;
-                    }
-                    printDependencies(printBase + "    ", innerDep, sets);
-                }
-            }
-        }
-    }
+    //         if (base instanceof CombinedLibraryDependencySet) {
+    //             CombinedLibraryDependencySet combined = (CombinedLibraryDependencySet) base;
+    //             for (String inner : combined.getLibs()) {
+    //                 NamedNativeDependencyList innerDep = sets.findByName(inner);
+    //                 if (innerDep == null) {
+    //                     System.out.println(printBase + "    Missing dep " + inner);
+    //                     continue;
+    //                 }
+    //                 printDependencies(printBase + "    ", innerDep, sets);
+    //             }
+    //         }
+    //     }
+    // }
 }

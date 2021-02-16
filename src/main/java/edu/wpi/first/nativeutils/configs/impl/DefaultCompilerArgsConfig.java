@@ -13,42 +13,24 @@ public class DefaultCompilerArgsConfig implements CompilerArgsConfig {
   /**
    * @return the args
    */
+  @Override
   public List<String> getArgs() {
     return args;
   }
 
   /**
-   * @param args the args to set
-   */
-  public void setArgs(List<String> args) {
-    this.args = args;
-  }
-
-  /**
    * @return the debugArgs
    */
+  @Override
   public List<String> getDebugArgs() {
     return debugArgs;
   }
 
   /**
-   * @param debugArgs the debugArgs to set
-   */
-  public void setDebugArgs(List<String> debugArgs) {
-    this.debugArgs = debugArgs;
-  }
-
-  /**
    * @return the releaseArgs
    */
+  @Override
   public List<String> getReleaseArgs() {
     return releaseArgs;
-  }
-
-  /**
-   * @param releaseArgs the releaseArgs to set
-   */
-  public void setReleaseArgs(List<String> releaseArgs) {
-    this.releaseArgs = releaseArgs;
   }
 }

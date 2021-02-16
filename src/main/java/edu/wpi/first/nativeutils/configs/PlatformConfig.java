@@ -1,10 +1,10 @@
 package edu.wpi.first.nativeutils.configs;
 
 import org.gradle.api.Named;
+import org.gradle.api.provider.Property;
 
 public interface PlatformConfig extends Named {
-  void setPlatformPath(String platformPath);
-  String getPlatformPath();
+  Property<String> getPlatformPath();
 
   CompilerArgsConfig getCppCompiler();
   CompilerArgsConfig getLinker();

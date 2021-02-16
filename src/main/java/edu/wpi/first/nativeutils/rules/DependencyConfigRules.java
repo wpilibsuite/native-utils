@@ -32,9 +32,9 @@ import org.gradle.platform.base.BinarySpec;
 import org.gradle.platform.base.ComponentSpecContainer;
 
 import edu.wpi.first.nativeutils.NativeUtilsExtension;
-import edu.wpi.first.nativeutils.configs.internal.BaseLibraryDependencySet;
-import edu.wpi.first.nativeutils.configs.internal.CombinedLibraryDependencySet;
-import edu.wpi.first.nativeutils.configs.internal.NativeLibraryDependencySet;
+// import edu.wpi.first.nativeutils.configs.internal.BaseLibraryDependencySet;
+// import edu.wpi.first.nativeutils.configs.internal.CombinedLibraryDependencySet;
+// import edu.wpi.first.nativeutils.configs.internal.NativeLibraryDependencySet;
 // import edu.wpi.first.deployutils.nativedeps.CombinedNativeLib;
 // import edu.wpi.first.deployutils.nativedeps.DelegatedDependencySet;
 // import edu.wpi.first.deployutils.nativedeps.NativeDepsSpec;
@@ -173,141 +173,141 @@ public class DependencyConfigRules extends RuleSource {
     }
   }
 
-  public static class MissingDependencyException extends RuntimeException {
-    private static final long serialVersionUID = 7544142314181214949L;
-    private String dependencyName;
-    private NativeBinarySpec binary;
+  // public static class MissingDependencyException extends RuntimeException {
+  //   private static final long serialVersionUID = 7544142314181214949L;
+  //   private String dependencyName;
+  //   private NativeBinarySpec binary;
 
-    public String getDependencyName() {
-        return dependencyName;
-    }
+  //   public String getDependencyName() {
+  //       return dependencyName;
+  //   }
 
-    public NativeBinarySpec getBinary() {
-        return binary;
-    }
+  //   public NativeBinarySpec getBinary() {
+  //       return binary;
+  //   }
 
-    public MissingDependencyException(String name, NativeBinarySpec binary) {
-        super("Cannot find delegated dependency: " + name + " for binary: " + binary);
-        this.dependencyName = name;
-        this.binary = binary;
-    }
-  }
+  //   public MissingDependencyException(String name, NativeBinarySpec binary) {
+  //       super("Cannot find delegated dependency: " + name + " for binary: " + binary);
+  //       this.dependencyName = name;
+  //       this.binary = binary;
+  //   }
+  // }
 
-  public static class MissingDependencyVariantException extends RuntimeException {
-    private static final long serialVersionUID = 8310485024553364349L;
-    private String dependencyName;
-    private NativeBinarySpec binary;
-    private final NativeUtilsExtension.NamedNativeDependencyList namedDep;
+  // public static class MissingDependencyVariantException extends RuntimeException {
+  //   private static final long serialVersionUID = 8310485024553364349L;
+  //   private String dependencyName;
+  //   private NativeBinarySpec binary;
+  //   private final NativeUtilsExtension.NamedNativeDependencyList namedDep;
 
-    public String getDependencyName() {
-        return dependencyName;
-    }
+  //   public String getDependencyName() {
+  //       return dependencyName;
+  //   }
 
-    public NativeBinarySpec getBinary() {
-        return binary;
-    }
+  //   public NativeBinarySpec getBinary() {
+  //       return binary;
+  //   }
 
-    public NativeUtilsExtension.NamedNativeDependencyList getNamedDep() {
-      return namedDep;
-    }
+  //   public NativeUtilsExtension.NamedNativeDependencyList getNamedDep() {
+  //     return namedDep;
+  //   }
 
-    public MissingDependencyVariantException(String name, NativeBinarySpec binary, NativeUtilsExtension.NamedNativeDependencyList namedDep) {
-        super("Cannot find delegated dependency with proper variant: " + name + " for binary: " + binary);
-        this.dependencyName = name;
-        this.binary = binary;
-        this.namedDep = namedDep;
-        namedDep.printDependencies();
-    }
-  }
+  //   public MissingDependencyVariantException(String name, NativeBinarySpec binary, NativeUtilsExtension.NamedNativeDependencyList namedDep) {
+  //       super("Cannot find delegated dependency with proper variant: " + name + " for binary: " + binary);
+  //       this.dependencyName = name;
+  //       this.binary = binary;
+  //       this.namedDep = namedDep;
+  //       namedDep.printDependencies();
+  //   }
+  // }
 
-  public static class UnknownDependencyTypeException extends RuntimeException {
-    private static final long serialVersionUID = -8267518769758741795L;
-    private final String dependencyName;
-    private final NativeBinarySpec binary;
-    private final BaseLibraryDependencySet set;
+  // public static class UnknownDependencyTypeException extends RuntimeException {
+  //   private static final long serialVersionUID = -8267518769758741795L;
+  //   private final String dependencyName;
+  //   private final NativeBinarySpec binary;
+  //   private final BaseLibraryDependencySet set;
 
-    public String getDependencyName() {
-        return dependencyName;
-    }
+  //   public String getDependencyName() {
+  //       return dependencyName;
+  //   }
 
-    public NativeBinarySpec getBinary() {
-        return binary;
-    }
+  //   public NativeBinarySpec getBinary() {
+  //       return binary;
+  //   }
 
-    public BaseLibraryDependencySet getSet() {
-      return set;
-    }
+  //   public BaseLibraryDependencySet getSet() {
+  //     return set;
+  //   }
 
-    public UnknownDependencyTypeException(String name, NativeBinarySpec binary, BaseLibraryDependencySet set) {
-        super("Unknown type dependency: " + name + " for binary: " + binary);
-        this.dependencyName = name;
-        this.binary = binary;
-        this.set = set;
-    }
-  }
+  //   public UnknownDependencyTypeException(String name, NativeBinarySpec binary, BaseLibraryDependencySet set) {
+  //       super("Unknown type dependency: " + name + " for binary: " + binary);
+  //       this.dependencyName = name;
+  //       this.binary = binary;
+  //       this.set = set;
+  //   }
+  // }
 
-  private void addDependency(String depName, NativeBinarySpec binary, FrcNativeBinaryExtension binaryExt, NamedDomainObjectSet<NativeUtilsExtension.NamedNativeDependencyList> sets, boolean allowOptional, List<String> systemLibs) {
-    // See if dependency exists in sets
-    NativeUtilsExtension.NamedNativeDependencyList depSet = sets.findByName(depName);
-    if (depSet == null) {
-      if (allowOptional && binaryExt.getOptionalDependencies().contains(depName)) {
-        return;
-      }
-      throw new MissingDependencyException(depName, binary);
-    }
+  // private void addDependency(String depName, NativeBinarySpec binary, FrcNativeBinaryExtension binaryExt, NamedDomainObjectSet<NativeUtilsExtension.NamedNativeDependencyList> sets, boolean allowOptional, List<String> systemLibs) {
+  //   // See if dependency exists in sets
+  //   NativeUtilsExtension.NamedNativeDependencyList depSet = sets.findByName(depName);
+  //   if (depSet == null) {
+  //     if (allowOptional && binaryExt.getOptionalDependencies().contains(depName)) {
+  //       return;
+  //     }
+  //     throw new MissingDependencyException(depName, binary);
+  //   }
 
-    BaseLibraryDependencySet baseSet = depSet.findAppliesTo(binary);
-    if (baseSet == null) {
-      if (depSet.isSkipMissingPlatform()) {
-        return;
-      }
-      if (allowOptional && binaryExt.getOptionalDependencies().contains(depName)) {
-        return;
-      }
-      throw new MissingDependencyVariantException(depName, binary, depSet);
-    }
+  //   BaseLibraryDependencySet baseSet = depSet.findAppliesTo(binary);
+  //   if (baseSet == null) {
+  //     if (depSet.isSkipMissingPlatform()) {
+  //       return;
+  //     }
+  //     if (allowOptional && binaryExt.getOptionalDependencies().contains(depName)) {
+  //       return;
+  //     }
+  //     throw new MissingDependencyVariantException(depName, binary, depSet);
+  //   }
 
 
-    if (baseSet instanceof NativeLibraryDependencySet) {
-      systemLibs.addAll(((NativeLibraryDependencySet)baseSet).getSystemLibs());
-      binary.lib(baseSet);
-    } else if (baseSet instanceof CombinedLibraryDependencySet) {
-      CombinedLibraryDependencySet combined = (CombinedLibraryDependencySet)baseSet;
-      List<String> combinedLibs = combined.getLibs();
-      for (String libName : combinedLibs) {
-        addDependency(libName, binary, binaryExt, sets, false, systemLibs);
-      }
-    } else {
-      throw new UnknownDependencyTypeException(depName, binary, baseSet);
-    }
-  }
+  //   if (baseSet instanceof NativeLibraryDependencySet) {
+  //     systemLibs.addAll(((NativeLibraryDependencySet)baseSet).getSystemLibs());
+  //     binary.lib(baseSet);
+  //   } else if (baseSet instanceof CombinedLibraryDependencySet) {
+  //     CombinedLibraryDependencySet combined = (CombinedLibraryDependencySet)baseSet;
+  //     List<String> combinedLibs = combined.getLibs();
+  //     for (String libName : combinedLibs) {
+  //       addDependency(libName, binary, binaryExt, sets, false, systemLibs);
+  //     }
+  //   } else {
+  //     throw new UnknownDependencyTypeException(depName, binary, baseSet);
+  //   }
+  // }
 
-  @Validate
-  public void configureFrcDependencies(BinaryContainer binaries, ExtensionContainer extensions) {
-    NativeUtilsExtension nue = extensions.getByType(NativeUtilsExtension.class);
-    NamedDomainObjectSet<NativeUtilsExtension.NamedNativeDependencyList> sets = nue.getNativeLibraryDependencySets();
+  // @Validate
+  // public void configureFrcDependencies(BinaryContainer binaries, ExtensionContainer extensions) {
+  //   NativeUtilsExtension nue = extensions.getByType(NativeUtilsExtension.class);
+  //   NamedDomainObjectSet<NativeUtilsExtension.NamedNativeDependencyList> sets = nue.getNativeLibraryDependencySets();
 
-    for (NativeBinarySpec binary : binaries.withType(NativeBinarySpec.class)) {
-      FrcNativeBinaryExtension binaryExt = nue.getBinaryExtension(binary);
-      if (binaryExt == null) {
-        continue;
-      }
-      List<String> systemLibs = new ArrayList<>();
-      for (String depName : binaryExt.getDependencies()) {
-        addDependency(depName, binary, binaryExt, sets, true, systemLibs);
-      }
-      binary.getTasks().withType(AbstractLinkTask.class, task -> {
-        task.getLinkerArgs().addAll(
-            task.getProject().getProviders().provider(new Callable<List<String>>() {
-                @Override
-                public List<String> call() throws Exception {
-                    return systemLibs;
-                }
-            })
-        );
-      });
-    }
-  }
+  //   for (NativeBinarySpec binary : binaries.withType(NativeBinarySpec.class)) {
+  //     FrcNativeBinaryExtension binaryExt = nue.getBinaryExtension(binary);
+  //     if (binaryExt == null) {
+  //       continue;
+  //     }
+  //     List<String> systemLibs = new ArrayList<>();
+  //     for (String depName : binaryExt.getDependencies()) {
+  //       addDependency(depName, binary, binaryExt, sets, true, systemLibs);
+  //     }
+  //     binary.getTasks().withType(AbstractLinkTask.class, task -> {
+  //       task.getLinkerArgs().addAll(
+  //           task.getProject().getProviders().provider(new Callable<List<String>>() {
+  //               @Override
+  //               public List<String> call() throws Exception {
+  //                   return systemLibs;
+  //               }
+  //           })
+  //       );
+  //     });
+  //   }
+  // }
 
   // @BinaryTasks
   // public void addLinkerArgs(ModelMap<Task> tasks, final NativeBinarySpec binary) {
