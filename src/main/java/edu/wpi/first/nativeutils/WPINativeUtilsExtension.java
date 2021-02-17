@@ -369,7 +369,7 @@ public class WPINativeUtilsExtension {
         configs.register("wpilib_executable_shared", CombinedNativeDependency.class, c -> {
             c.getDependencies().add("netcomm");
             c.getDependencies().add("chipobject");
-            c.getDependencies().add("ni_runtime");
+            c.getDependencies().add("visa");
             c.getDependencies().add("ni_runtime");
         });
 
