@@ -336,34 +336,34 @@ public class WPINativeUtilsExtension {
             c.getSharedPlatforms().add(this.platforms.roborio);
         });
 
-        //     configs.create("chipobject", c -> {
-        //         c.setGroupId("edu.wpi.first.ni-libraries");
-        //         c.setArtifactId("chipobject");
-        //         c.setHeaderClassifier("headers");
-        //         c.setExt("zip");
-        //         c.setVersion(dependencyVersions.niLibVersion);
-        //         c.setSharedUsedAtRuntime(false);
-        //         c.getSharedPlatforms().add(this.platforms.roborio);
-        //     });
+        configs.register("chipobject", WPIMavenDependency.class, c -> {
+            c.getGroupId().set("edu.wpi.first.ni-libraries");
+            c.getArtifactId().set("chipobject");
+            c.getHeaderClassifier().set("headers");
+            c.getExt().set("zip");
+            c.getVersion().set(dependencyVersions.niLibVersion);
+            c.getSharedUsedAtRuntime().set(false);
+            c.getSharedPlatforms().add(this.platforms.roborio);
+        });
 
-        //     configs.create("visa", c -> {
-        //         c.setGroupId("edu.wpi.first.ni-libraries");
-        //         c.setArtifactId("visa");
-        //         c.setHeaderClassifier("headers");
-        //         c.setExt("zip");
-        //         c.setVersion(dependencyVersions.niLibVersion);
-        //         c.setSharedUsedAtRuntime(false);
-        //         c.getSharedPlatforms().add(this.platforms.roborio);
-        //     });
+        configs.register("visa", WPIMavenDependency.class, c -> {
+            c.getGroupId().set("edu.wpi.first.ni-libraries");
+            c.getArtifactId().set("visa");
+            c.getHeaderClassifier().set("headers");
+            c.getExt().set("zip");
+            c.getVersion().set(dependencyVersions.niLibVersion);
+            c.getSharedUsedAtRuntime().set(false);
+            c.getSharedPlatforms().add(this.platforms.roborio);
+        });
 
-        //     configs.create("ni_runtime", c -> {
-        //         c.setGroupId("edu.wpi.first.ni-libraries");
-        //         c.setArtifactId("runtime");
-        //         c.setExt("zip");
-        //         c.setVersion(dependencyVersions.niLibVersion);
-        //         c.setSharedUsedAtRuntime(false);
-        //         c.getSharedPlatforms().add(this.platforms.roborio);
-        //     });
+        configs.register("ni_runtime", WPIMavenDependency.class, c -> {
+            c.getGroupId().set("edu.wpi.first.ni-libraries");
+            c.getArtifactId().set("runtime");
+            c.getExt().set("zip");
+            c.getVersion().set(dependencyVersions.niLibVersion);
+            c.getSharedUsedAtRuntime().set(false);
+            c.getSharedPlatforms().add(this.platforms.roborio);
+        });
 
         //     if (!dependencyVersions.wpiVersion.equals("-1")) {
 

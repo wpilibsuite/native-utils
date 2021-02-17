@@ -2,9 +2,10 @@ package edu.wpi.first.nativeutils.dependencies.configs;
 
 import org.gradle.api.Named;
 import org.gradle.nativeplatform.NativeBinarySpec;
-import org.gradle.nativeplatform.NativeDependencySet;
+
+import edu.wpi.first.nativeutils.dependencies.ResolvedNativeDependency;
 
 public interface NativeDependency extends Named {
-    NativeDependencySet getNativeDependencySet(NativeBinarySpec binary);
+    ResolvedNativeDependency resolveNativeDependency(NativeBinarySpec binary);
     boolean appliesTo(NativeBinarySpec binary);
 }

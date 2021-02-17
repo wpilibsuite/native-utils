@@ -57,6 +57,7 @@ import edu.wpi.first.nativeutils.configs.PrivateExportsConfig;
 // import edu.wpi.first.nativeutils.configs.impl.DefaultDependencyConfig;
 // import edu.wpi.first.nativeutils.configs.impl.DefaultExportsConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPlatformConfig;
+import edu.wpi.first.nativeutils.dependencies.DelegatedDependencySet;
 import edu.wpi.first.nativeutils.dependencies.configs.NativeDependency;
 import edu.wpi.first.nativeutils.dependencies.configs.NativeDependencyContainer;
 import edu.wpi.first.nativeutils.dependencies.configs.WPIMavenDependency;
@@ -69,7 +70,7 @@ import edu.wpi.first.nativeutils.dependencies.configs.WPIMavenDependency;
 // import edu.wpi.first.nativeutils.configs.internal.DefaultNativeLibraryConfig;
 // import edu.wpi.first.nativeutils.configs.internal.NativeLibraryConfig;
 // import edu.wpi.first.nativeutils.configs.internal.NativeLibraryDependencySet;
-import edu.wpi.first.nativeutils.rules.FrcNativeBinaryExtension;
+// import edu.wpi.first.nativeutils.rules.FrcNativeBinaryExtension;
 import edu.wpi.first.nativeutils.rules.GitLinkRules;
 import edu.wpi.first.nativeutils.tasks.PrintNativeDependenciesTask;
 import edu.wpi.first.nativeutils.tasks.SourceLinkGenerationTask;
@@ -90,6 +91,9 @@ public class NativeUtilsExtension {
   private final NamedDomainObjectContainer<ExportsConfig> exportsConfigs;
 
   private final ExtensiblePolymorphicDomainObjectContainer<NativeDependency> dependencyContainer;
+
+  // private final NamedDomainObjectContainer<DelegatedDependencySet> delegatedDependencyContainer;
+  // private final NamedDomainObjectContainer<DelegatedDependencySet> optionalDelegatedDependencyContainer;
 
   // private final NamedDomainObjectContainer<DependencyConfig> dependencyConfigs;
 
@@ -187,9 +191,13 @@ public class NativeUtilsExtension {
     return printNativeDependenciesTask;
   }
 
+  // public NamedDomainObjectContainer<DelegatedDependencySet> getDelegatedDependencyContainer() {
+  //   return delegatedDependencyContainer;
+  // }
+
   // private final NamedDomainObjectContainer<NamedNativeDependencyList> nativeLibraryDependencySets;
 
-  private final NamedDomainObjectContainer<FrcNativeBinaryExtension> nativeBinaryExt;
+  // private final NamedDomainObjectContainer<FrcNativeBinaryExtension> nativeBinaryExt;
 
   private final Project project;
 
@@ -213,6 +221,16 @@ public class NativeUtilsExtension {
     dependencyContainer.registerFactory(WPIMavenDependency.class, name -> {
       return objectFactory.newInstance(WPIMavenDependency.class, name, project);
     });
+
+    // delegatedDependencyContainer = objectFactory.domainObjectContainer(DelegatedDependencySet.class, name -> {
+    //   return objectFactory.newInstance(DelegatedDependencySet.class, name, dependencyContainer, true);
+    // });
+
+    // optionalDelegatedDependencyContainer = objectFactory.domainObjectContainer(DelegatedDependencySet.class, name -> {
+    //   return objectFactory.newInstance(DelegatedDependencySet.class, name, dependencyContainer, false);
+    // });
+
+
 
     // dependencyConfigs = new AfterAddNamedDomainObjectContainer<>(DependencyConfig.class, name -> {
     //   return objectFactory.newInstance(DefaultDependencyConfig.class, name);
@@ -245,9 +263,9 @@ public class NativeUtilsExtension {
     //   return objectFactory.newInstance(NamedNativeDependencyList.class, name);
     // });
 
-    nativeBinaryExt = new AfterAddNamedDomainObjectContainer<>(FrcNativeBinaryExtension.class, name -> {
-      return objectFactory.newInstance(FrcNativeBinaryExtension.class, name);
-    });
+    // nativeBinaryExt = new AfterAddNamedDomainObjectContainer<>(FrcNativeBinaryExtension.class, name -> {
+    //   return objectFactory.newInstance(FrcNativeBinaryExtension.class, name);
+    // });
 
     project.afterEvaluate(proj -> {
       for (PlatformConfig config : platformConfigs) {
@@ -662,8 +680,13 @@ public class NativeUtilsExtension {
   }
 
   public void useRequiredLibrary(NativeBinarySpec binary, String... libraries) {
-    FrcNativeBinaryExtension frcBin = nativeBinaryExt.maybeCreate(binary.getName());
-    frcBin.getDependencies().addAll(Arrays.asList(libraries));
+    for (String library : libraries) {
+      DelegatedDependencySet dds = objectFactory.newInstance(DelegatedDependencySet.class, library, dependencyContainer, true, binary);
+      binary.lib(dds);
+    }
+
+    // FrcNativeBinaryExtension frcBin = nativeBinaryExt.maybeCreate(binary.getName());
+    // frcBin.getDependencies().addAll(Arrays.asList(libraries));
   }
 
   public void useOptionalLibrary(VariantComponentSpec component, String... libraries) {
@@ -672,14 +695,15 @@ public class NativeUtilsExtension {
     });
   }
 
-  public FrcNativeBinaryExtension getBinaryExtension(NativeBinarySpec binary) {
-    return nativeBinaryExt.findByName(binary.getName());
-  }
+  // public FrcNativeBinaryExtension getBinaryExtension(NativeBinarySpec binary) {
+  //   return nativeBinaryExt.findByName(binary.getName());
+  // }
 
   public void useOptionalLibrary(NativeBinarySpec binary, String... libraries) {
-    FrcNativeBinaryExtension frcBin = nativeBinaryExt.maybeCreate(binary.getName());
-    frcBin.getDependencies().addAll(Arrays.asList(libraries));
-    frcBin.getOptionalDependencies().addAll(Arrays.asList(libraries));
+    for (String library : libraries) {
+      DelegatedDependencySet dds = objectFactory.newInstance(DelegatedDependencySet.class, library, dependencyContainer, false, binary);
+      binary.lib(dds);
+    }
   }
 
   public void useAllPlatforms(PlatformAwareComponentSpec component) {
