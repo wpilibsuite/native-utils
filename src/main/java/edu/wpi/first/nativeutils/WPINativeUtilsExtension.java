@@ -13,6 +13,7 @@ import org.gradle.api.Action;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 
 import edu.wpi.first.nativeutils.configs.PlatformConfig;
+import edu.wpi.first.nativeutils.dependencies.configs.CombinedNativeDependency;
 import edu.wpi.first.nativeutils.dependencies.configs.NativeDependency;
 import edu.wpi.first.nativeutils.dependencies.configs.NativeDependencyContainer;
 import edu.wpi.first.nativeutils.dependencies.configs.WPIMavenDependency;
@@ -363,6 +364,13 @@ public class WPINativeUtilsExtension {
             c.getVersion().set(dependencyVersions.niLibVersion);
             c.getSharedUsedAtRuntime().set(false);
             c.getSharedPlatforms().add(this.platforms.roborio);
+        });
+
+        configs.register("wpilib_executable_shared", CombinedNativeDependency.class, c -> {
+            c.getDependencies().add("netcomm");
+            c.getDependencies().add("chipobject");
+            c.getDependencies().add("ni_runtime");
+            c.getDependencies().add("ni_runtime");
         });
 
         //     if (!dependencyVersions.wpiVersion.equals("-1")) {

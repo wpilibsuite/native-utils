@@ -58,6 +58,7 @@ import edu.wpi.first.nativeutils.configs.PrivateExportsConfig;
 // import edu.wpi.first.nativeutils.configs.impl.DefaultExportsConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPlatformConfig;
 import edu.wpi.first.nativeutils.dependencies.DelegatedDependencySet;
+import edu.wpi.first.nativeutils.dependencies.configs.CombinedNativeDependency;
 import edu.wpi.first.nativeutils.dependencies.configs.NativeDependency;
 import edu.wpi.first.nativeutils.dependencies.configs.NativeDependencyContainer;
 import edu.wpi.first.nativeutils.dependencies.configs.WPIMavenDependency;
@@ -220,6 +221,10 @@ public class NativeUtilsExtension {
     dependencyContainer = objectFactory.polymorphicDomainObjectContainer(NativeDependency.class);
     dependencyContainer.registerFactory(WPIMavenDependency.class, name -> {
       return objectFactory.newInstance(WPIMavenDependency.class, name, project);
+    });
+
+    dependencyContainer.registerFactory(CombinedNativeDependency.class, name -> {
+      return objectFactory.newInstance(CombinedNativeDependency.class, name, dependencyContainer);
     });
 
     // delegatedDependencyContainer = objectFactory.domainObjectContainer(DelegatedDependencySet.class, name -> {
