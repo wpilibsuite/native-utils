@@ -13,13 +13,13 @@ import org.gradle.nativeplatform.NativeBinarySpec;
 
 import edu.wpi.first.nativeutils.dependencies.ResolvedNativeDependency;
 
-public abstract class CombinedNativeDependency implements NativeDependency {
+public abstract class CombinedIgnoreMissingPlatformNativeDependency implements NativeDependency {
 
     private final String name;
     private final NamedDomainObjectCollection<NativeDependency> dependencyCollection;
 
     @Inject
-    public CombinedNativeDependency(String name, NamedDomainObjectCollection<NativeDependency> dependencyCollection) {
+    public CombinedIgnoreMissingPlatformNativeDependency(String name, NamedDomainObjectCollection<NativeDependency> dependencyCollection) {
         this.name = name;
         this.dependencyCollection = dependencyCollection;
     }
@@ -40,17 +40,17 @@ public abstract class CombinedNativeDependency implements NativeDependency {
     public ResolvedNativeDependency resolveNativeDependency(NativeBinarySpec binary) {
         Map<String, List<String>> dependencies = getDependencies().get();
 
-        List<String> depsForPlatform = dependencies.getOrDefault(binary.getTargetPlatform().getName(), null);
-        if (depsForPlatform == null) {
-            return null;
-        }
-
         ProjectLayout projectLayout = getProjectLayout();
 
         FileCollection includeRoots = projectLayout.files();
         FileCollection sourceRoots = projectLayout.files();
         FileCollection linkFiles = projectLayout.files();
         FileCollection runtimeFiles = projectLayout.files();
+
+        List<String> depsForPlatform = dependencies.getOrDefault(binary.getTargetPlatform().getName(), null);
+        if (depsForPlatform == null) {
+            return new ResolvedNativeDependency(includeRoots, sourceRoots, linkFiles, runtimeFiles);
+        }
 
         for (String dep : depsForPlatform) {
             ResolvedNativeDependency resolved = dependencyCollection.getByName(dep).resolveNativeDependency(binary);

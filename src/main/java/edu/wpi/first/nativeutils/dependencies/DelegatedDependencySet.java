@@ -67,6 +67,20 @@ public class DelegatedDependencySet implements NativeDependencySet, Named {
         }
 
         ResolvedNativeDependency resolvedDep = resolvedDependency.resolveNativeDependency(binary);
+
+        if (resolvedDep == null) {
+            if (required) {
+                // TODO better exceptions
+                throw new GradleException("Missing Dependency " + resolvedDependency.getName());
+            }
+            ProjectLayout layout = getProjectLayout();
+            includeRoots = layout.files();
+            sourceRoots = layout.files();
+            linkFiles = layout.files();
+            runtimeFiles = layout.files();
+            return;
+        }
+
         includeRoots = resolvedDep.getIncludeRoots();
         sourceRoots = resolvedDep.getSourceRoots();
         linkFiles = resolvedDep.getLinkFiles();

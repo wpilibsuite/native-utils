@@ -7,5 +7,4 @@ import edu.wpi.first.nativeutils.dependencies.ResolvedNativeDependency;
 
 public interface NativeDependency extends Named {
     ResolvedNativeDependency resolveNativeDependency(NativeBinarySpec binary);
-    boolean appliesTo(NativeBinarySpec binary);
 }

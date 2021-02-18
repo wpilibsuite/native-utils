@@ -58,10 +58,14 @@ import edu.wpi.first.nativeutils.configs.PrivateExportsConfig;
 // import edu.wpi.first.nativeutils.configs.impl.DefaultExportsConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPlatformConfig;
 import edu.wpi.first.nativeutils.dependencies.DelegatedDependencySet;
+import edu.wpi.first.nativeutils.dependencies.configs.AllPlatformsCombinedNativeDependency;
+import edu.wpi.first.nativeutils.dependencies.configs.CombinedIgnoreMissingPlatformNativeDependency;
 import edu.wpi.first.nativeutils.dependencies.configs.CombinedNativeDependency;
 import edu.wpi.first.nativeutils.dependencies.configs.NativeDependency;
 import edu.wpi.first.nativeutils.dependencies.configs.NativeDependencyContainer;
 import edu.wpi.first.nativeutils.dependencies.configs.WPIMavenDependency;
+import edu.wpi.first.nativeutils.dependencies.configs.WPISharedMavenDependency;
+import edu.wpi.first.nativeutils.dependencies.configs.WPIStaticMavenDependency;
 // import edu.wpi.first.nativeutils.configs.impl.DefaultPrivateExportsConfig;
 // import edu.wpi.first.nativeutils.configs.internal.BaseLibraryDependencySet;
 // import edu.wpi.first.nativeutils.configs.internal.BaseNativeLibraryConfig;
@@ -219,8 +223,20 @@ public class NativeUtilsExtension {
     });
 
     dependencyContainer = objectFactory.polymorphicDomainObjectContainer(NativeDependency.class);
-    dependencyContainer.registerFactory(WPIMavenDependency.class, name -> {
-      return objectFactory.newInstance(WPIMavenDependency.class, name, project);
+    dependencyContainer.registerFactory(WPIStaticMavenDependency.class, name -> {
+      return objectFactory.newInstance(WPIStaticMavenDependency.class, name, project);
+    });
+
+    dependencyContainer.registerFactory(WPISharedMavenDependency.class, name -> {
+      return objectFactory.newInstance(WPISharedMavenDependency.class, name, project);
+    });
+
+    dependencyContainer.registerFactory(CombinedIgnoreMissingPlatformNativeDependency.class, name -> {
+      return objectFactory.newInstance(CombinedIgnoreMissingPlatformNativeDependency.class, name, dependencyContainer);
+    });
+
+    dependencyContainer.registerFactory(AllPlatformsCombinedNativeDependency.class, name -> {
+      return objectFactory.newInstance(AllPlatformsCombinedNativeDependency.class, name, dependencyContainer);
     });
 
     dependencyContainer.registerFactory(CombinedNativeDependency.class, name -> {
