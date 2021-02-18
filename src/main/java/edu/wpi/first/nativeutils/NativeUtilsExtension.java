@@ -55,7 +55,7 @@ import edu.wpi.first.nativeutils.configs.PlatformConfig;
 import edu.wpi.first.nativeutils.configs.PrivateExportsConfig;
 // import edu.wpi.first.nativeutils.configs.impl.DefaultCombinedDependencyConfig;
 // import edu.wpi.first.nativeutils.configs.impl.DefaultDependencyConfig;
-// import edu.wpi.first.nativeutils.configs.impl.DefaultExportsConfig;
+import edu.wpi.first.nativeutils.configs.impl.DefaultExportsConfig;
 import edu.wpi.first.nativeutils.configs.impl.DefaultPlatformConfig;
 import edu.wpi.first.nativeutils.dependencies.DelegatedDependencySet;
 import edu.wpi.first.nativeutils.dependencies.configs.AllPlatformsCombinedNativeDependency;
@@ -219,7 +219,7 @@ public class NativeUtilsExtension {
     this.objectFactory = project.getObjects();
 
     exportsConfigs = new AfterAddNamedDomainObjectContainer<>(ExportsConfig.class, name -> {
-      return objectFactory.newInstance(ExportsConfig.class, name);
+      return objectFactory.newInstance(DefaultExportsConfig.class, name);
     });
 
     dependencyContainer = objectFactory.polymorphicDomainObjectContainer(NativeDependency.class);
@@ -635,9 +635,9 @@ public class NativeUtilsExtension {
     return exportsConfigs;
   }
 
-  void exportsConfigs(final Action<? super NamedDomainObjectContainer<ExportsConfig>> closure) {
-    closure.execute(exportsConfigs);
-  }
+  // void exportsConfigs(final Action<? super NamedDomainObjectContainer<ExportsConfig>> closure) {
+  //   closure.execute(exportsConfigs);
+  // }
 
   // public NamedDomainObjectContainer<DependencyConfig> getDependencyConfigs() {
   //   return dependencyConfigs;
