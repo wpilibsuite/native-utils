@@ -132,9 +132,7 @@ public class ExportsConfigRules extends RuleSource {
                                         });
 
                                 exportsTask.configure(task -> {
-                                    System.out.println("Inside2");
                                     for (Object o : linkTask.getDependsOn()) {
-                                        System.out.println("Inside");
                                         if (exportsTask == o) {
                                             continue;
                                         }

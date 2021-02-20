@@ -140,6 +140,12 @@ public class DependencyConfigRules extends RuleSource {
           (Project) projectLayout.getProjectIdentifier(), ext.getByType(NativeUtilsExtension.class));
       }
 
+      if (oBinary instanceof NativeBinarySpec) {
+        if (!((NativeBinarySpec)oBinary).getTargetPlatform().getOperatingSystem().isWindows()) {
+          continue;
+        }
+      }
+
       // Get install task
       InstallExecutable installTask;
       if (oBinary instanceof NativeExecutableBinarySpec) {

@@ -19,7 +19,7 @@ import edu.wpi.first.toolchain.configurable.DefaultCrossCompilerConfiguration;
 import edu.wpi.first.toolchain.raspbian.RaspbianToolchainPlugin;
 import edu.wpi.first.toolchain.roborio.RoboRioToolchainPlugin;
 import edu.wpi.first.toolchain.xenial.XenialToolchainPlugin;
-import edu.wpi.first.deployutils.toolchains.ToolchainsPlugin.ToolchainUtilExtension;
+//import edu.wpi.first.deployutils.toolchains.ToolchainsPlugin.ToolchainUtilExtension;
 
 public class ToolchainExtension {
     private final NamedDomainObjectContainer<CrossCompilerConfiguration> crossCompilers;
@@ -69,13 +69,13 @@ public class ToolchainExtension {
         return linkTaskMap;
     }
 
-    public void setSinglePrintPerPlatform() {
-        ToolchainPlugin.singlePrintPerPlatform = true;
-        ToolchainUtilExtension tcuExt = project.getExtensions().findByType(ToolchainUtilExtension.class);
-        if (tcuExt != null) {
-            tcuExt.setSkipBinaryToolchainMissingWarning(true);
-        }
-    }
+    // public void setSinglePrintPerPlatform() {
+    //     ToolchainPlugin.singlePrintPerPlatform = true;
+    //     ToolchainUtilExtension tcuExt = project.getExtensions().findByType(ToolchainUtilExtension.class);
+    //     if (tcuExt != null) {
+    //         tcuExt.setSkipBinaryToolchainMissingWarning(true);
+    //     }
+    // }
 
     public void withRoboRIO() {
         project.getPluginManager().apply(RoboRioToolchainPlugin.class);

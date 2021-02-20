@@ -44,8 +44,8 @@ import org.gradle.platform.base.PlatformAwareComponentSpec;
 import org.gradle.platform.base.PlatformContainer;
 import org.gradle.platform.base.VariantComponentSpec;
 
-import edu.wpi.first.deployutils.files.DefaultDirectoryTree;
-import edu.wpi.first.deployutils.files.IDirectoryTree;
+//import edu.wpi.first.deployutils.files.DefaultDirectoryTree;
+//import edu.wpi.first.deployutils.files.IDirectoryTree;
 //import edu.wpi.first.deployutils.nativedeps.DelegatedDependencySet;
 //import edu.wpi.first.deployutils.nativedeps.DependencySpecExtension;
 // import edu.wpi.first.nativeutils.configs.CombinedDependencyConfig;
@@ -603,9 +603,9 @@ public class NativeUtilsExtension {
 //     }
 //   }
 
-  public void setSinglePrintPerPlatform() {
-    tcExt.setSinglePrintPerPlatform();
-  }
+  // public void setSinglePrintPerPlatform() {
+  //   tcExt.setSinglePrintPerPlatform();
+  // }
 
   public NamedDomainObjectContainer<ToolchainDescriptorBase> getToolchainDescriptors() {
     return tcExt.getToolchainDescriptors();
