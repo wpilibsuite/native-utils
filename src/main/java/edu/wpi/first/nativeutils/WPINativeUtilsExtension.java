@@ -328,7 +328,7 @@ public class WPINativeUtilsExtension {
             c.getVersion().set(version);
             c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
         });
-        configs.register(name + "static", WPIStaticMavenDependency.class, c -> {
+        configs.register(name + "_static", WPIStaticMavenDependency.class, c -> {
             c.getGroupId().set(groupId);
             c.getArtifactId().set(artifactId);
             c.getHeaderClassifier().set("headers");
@@ -341,7 +341,7 @@ public class WPINativeUtilsExtension {
 
     private void registerStaticOnlyStandardDependency(ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs,
             String name, String groupId, String artifactId, Property<String> version) {
-        configs.register(name + "static", WPIStaticMavenDependency.class, c -> {
+        configs.register(name + "_static", WPIStaticMavenDependency.class, c -> {
             c.getGroupId().set(groupId);
             c.getArtifactId().set(artifactId);
             c.getHeaderClassifier().set("headers");
