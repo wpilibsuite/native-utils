@@ -1,41 +1,19 @@
 package edu.wpi.first.nativeutils;
 
-import static org.gradle.api.artifacts.type.ArtifactTypeDefinition.DIRECTORY_TYPE;
-import static org.gradle.api.artifacts.type.ArtifactTypeDefinition.ZIP_TYPE;
-
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
 import org.gradle.api.Action;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.GradleException;
-import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectContainer;
-import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.Project;
 import org.gradle.api.UnknownTaskException;
-import org.gradle.api.artifacts.ArtifactView;
-import org.gradle.api.artifacts.ArtifactView.ViewConfiguration;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.transform.TransformParameters;
-import org.gradle.api.artifacts.transform.TransformSpec;
-import org.gradle.api.artifacts.type.ArtifactTypeDefinition;
-import org.gradle.api.attributes.AttributeContainer;
-import org.gradle.api.file.FileCollection;
-import org.gradle.api.file.FileTree;
-import org.gradle.api.internal.artifacts.ArtifactAttributes;
-import org.gradle.api.internal.artifacts.transform.UnzipTransform;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskProvider;
-import org.gradle.api.tasks.util.PatternFilterable;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
@@ -62,24 +40,13 @@ import edu.wpi.first.nativeutils.dependencies.configs.AllPlatformsCombinedNative
 import edu.wpi.first.nativeutils.dependencies.configs.CombinedIgnoreMissingPlatformNativeDependency;
 import edu.wpi.first.nativeutils.dependencies.configs.CombinedNativeDependency;
 import edu.wpi.first.nativeutils.dependencies.configs.NativeDependency;
-import edu.wpi.first.nativeutils.dependencies.configs.NativeDependencyContainer;
-import edu.wpi.first.nativeutils.dependencies.configs.WPIMavenDependency;
 import edu.wpi.first.nativeutils.dependencies.configs.WPISharedMavenDependency;
 import edu.wpi.first.nativeutils.dependencies.configs.WPIStaticMavenDependency;
 // import edu.wpi.first.nativeutils.configs.impl.DefaultPrivateExportsConfig;
-// import edu.wpi.first.nativeutils.configs.internal.BaseLibraryDependencySet;
-// import edu.wpi.first.nativeutils.configs.internal.BaseNativeLibraryConfig;
-// import edu.wpi.first.nativeutils.configs.internal.CombinedLibraryDependencySet;
-// import edu.wpi.first.nativeutils.configs.internal.CombinedNativeLibraryConfig;
-// import edu.wpi.first.nativeutils.configs.internal.DefaultCombinedNativeLibraryConfig;
-// import edu.wpi.first.nativeutils.configs.internal.DefaultNativeLibraryConfig;
-// import edu.wpi.first.nativeutils.configs.internal.NativeLibraryConfig;
-// import edu.wpi.first.nativeutils.configs.internal.NativeLibraryDependencySet;
 // import edu.wpi.first.nativeutils.rules.FrcNativeBinaryExtension;
 import edu.wpi.first.nativeutils.rules.GitLinkRules;
 import edu.wpi.first.nativeutils.tasks.PrintNativeDependenciesTask;
 import edu.wpi.first.nativeutils.tasks.SourceLinkGenerationTask;
-import edu.wpi.first.nativeutils.utils.AfterAddNamedDomainObjectContainer;
 import edu.wpi.first.toolchain.NativePlatforms;
 import edu.wpi.first.toolchain.ToolchainDescriptorBase;
 import edu.wpi.first.toolchain.ToolchainExtension;
@@ -218,7 +185,7 @@ public class NativeUtilsExtension {
     this.tcExt = tcExt;
     this.objectFactory = project.getObjects();
 
-    exportsConfigs = new AfterAddNamedDomainObjectContainer<>(ExportsConfig.class, name -> {
+    exportsConfigs = objectFactory.domainObjectContainer(ExportsConfig.class, name -> {
       return objectFactory.newInstance(DefaultExportsConfig.class, name);
     });
 
@@ -257,7 +224,7 @@ public class NativeUtilsExtension {
     //   return objectFactory.newInstance(DefaultDependencyConfig.class, name);
     // });
 
-    platformConfigs = new AfterAddNamedDomainObjectContainer<>(PlatformConfig.class, name -> {
+    platformConfigs = objectFactory.domainObjectContainer(PlatformConfig.class, name -> {
       return (PlatformConfig)objectFactory.newInstance(DefaultPlatformConfig.class, name);
     });
 
@@ -265,7 +232,7 @@ public class NativeUtilsExtension {
     //   return objectFactory.newInstance(DefaultCombinedDependencyConfig.class, name);
     // });
 
-    privateExportsConfigs = new AfterAddNamedDomainObjectContainer<>(PrivateExportsConfig.class, name -> {
+    privateExportsConfigs = objectFactory.domainObjectContainer(PrivateExportsConfig.class, name -> {
       return objectFactory.newInstance(PrivateExportsConfig.class, name);
     });
 
@@ -298,14 +265,14 @@ public class NativeUtilsExtension {
 
     printNativeDependenciesTask = project.getTasks().register("printNativeDependencyGraph", PrintNativeDependenciesTask.class);
 
-    project.getDependencies().registerTransform(UnzipTransform.class,
-        new Action<TransformSpec<TransformParameters.None>>() {
-          @Override
-          public void execute(TransformSpec<TransformParameters.None> variantTransform) {
-            variantTransform.getFrom().attribute(ArtifactAttributes.ARTIFACT_FORMAT, ZIP_TYPE);
-            variantTransform.getTo().attribute(ArtifactAttributes.ARTIFACT_FORMAT, DIRECTORY_TYPE);
-          }
-        });
+    // project.getDependencies().registerTransform(UnzipTransform.class,
+    //     new Action<TransformSpec<TransformParameters.None>>() {
+    //       @Override
+    //       public void execute(TransformSpec<TransformParameters.None> variantTransform) {
+    //         variantTransform.getFrom().attribute(ArtifactAttributes.ARTIFACT_FORMAT, ZIP_TYPE);
+    //         variantTransform.getTo().attribute(ArtifactAttributes.ARTIFACT_FORMAT, DIRECTORY_TYPE);
+    //       }
+    //     });
 
     // combinedDependencyConfigs.all(this::handleNewCombinedDependency);
     // nativeLibraryConfigs.all(this::handleNewNativeLibrary);

@@ -9,19 +9,16 @@ import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
 
-import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ArtifactView;
-import org.gradle.api.artifacts.ArtifactView.ViewConfiguration;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.type.ArtifactTypeDefinition;
-import org.gradle.api.attributes.AttributeContainer;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.internal.artifacts.ArtifactAttributes;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.util.PatternFilterable;
 import org.gradle.api.tasks.util.PatternSet;
+
+import edu.wpi.first.nativeutils.NativeUtils;
 
 public abstract class WPIMavenDependency implements NativeDependency {
     private final String name;
@@ -44,7 +41,8 @@ public abstract class WPIMavenDependency implements NativeDependency {
         return project.files(cbl);
     }
 
-    protected FileCollection getArtifactFiles(String targetPlatform, String buildType, List<String> matches, List<String> excludes) {
+    protected FileCollection getArtifactFiles(String targetPlatform, String buildType, List<String> matches,
+            List<String> excludes) {
         buildType = buildType.equalsIgnoreCase("debug") ? "debug" : "";
         ArtifactView view = getViewForArtifact(targetPlatform + buildType);
         PatternFilterable filterable = new PatternSet();
@@ -65,18 +63,15 @@ public abstract class WPIMavenDependency implements NativeDependency {
         String dep = getGroupId().get() + ":" + getArtifactId().get() + ":" + getVersion().get() + ":" + classifier
                 + "@" + getExt().get();
         project.getDependencies().add(configName, dep);
-        view = cfg.getIncoming().artifactView(new Action<ViewConfiguration>() {
-            @Override
-            public void execute(ViewConfiguration viewConfiguration) {
-                viewConfiguration.attributes(new Action<AttributeContainer>() {
-                    @Override
-                    public void execute(AttributeContainer attributeContainer) {
-                        attributeContainer.attribute(ArtifactAttributes.ARTIFACT_FORMAT,
-                                ArtifactTypeDefinition.DIRECTORY_TYPE);
-                    }
-                });
-            }
+
+        cfg.setCanBeConsumed(false);
+        view = cfg.getIncoming().artifactView(viewConfiguration -> {
+            viewConfiguration.attributes(attributeContainer -> {
+                attributeContainer.attribute(NativeUtils.NATIVE_ARTIFACT_FORMAT,
+                        NativeUtils.NATIVE_ARTIFACT_DIRECTORY_TYPE);
+            });
         });
+
         classifierViewMap.put(classifier, view);
         return view;
     }

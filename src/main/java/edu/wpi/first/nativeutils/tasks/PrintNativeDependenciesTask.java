@@ -8,8 +8,6 @@ import org.gradle.api.tasks.TaskAction;
 
 import edu.wpi.first.nativeutils.NativeUtilsExtension;
 //import edu.wpi.first.nativeutils.NativeUtilsExtension.NamedNativeDependencyList;
-// import edu.wpi.first.nativeutils.configs.internal.BaseLibraryDependencySet;
-// import edu.wpi.first.nativeutils.configs.internal.CombinedLibraryDependencySet;
 
 public class PrintNativeDependenciesTask extends DefaultTask {
 

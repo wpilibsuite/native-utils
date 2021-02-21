@@ -1,15 +1,11 @@
 package edu.wpi.first.nativeutils.rules;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectCollection;
@@ -21,20 +17,13 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.language.base.internal.ProjectLayout;
 import org.gradle.language.nativeplatform.tasks.AbstractNativeSourceCompileTask;
-import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
-import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.NativeLibrarySpec;
 import org.gradle.nativeplatform.SharedLibraryBinarySpec;
-import org.gradle.nativeplatform.internal.AbstractNativeLibraryBinarySpec;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
-import org.gradle.platform.base.BinarySpec;
-import org.gradle.platform.base.ComponentSpec;
 import org.gradle.platform.base.ComponentSpecContainer;
-import org.gradle.platform.base.binary.BaseBinarySpec;
 
-import de.undercouch.gradle.tasks.download.org.apache.commons.codec.binary.StringUtils;
 import edu.wpi.first.nativeutils.NativeUtilsExtension;
 import edu.wpi.first.nativeutils.configs.ExportsConfig;
 import edu.wpi.first.nativeutils.tasks.ExportsGenerationTask;
