@@ -3,18 +3,16 @@ package edu.wpi.first.nativeutils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.attributes.Attribute;
-import org.gradle.api.attributes.Usage;
-import org.gradle.api.model.ObjectFactory;
 
+import edu.wpi.first.deployutils.DeployUtils;
 import edu.wpi.first.nativeutils.configs.ExportsConfig;
-import edu.wpi.first.nativeutils.rules.PdbRules;
 import edu.wpi.first.nativeutils.rules.ExportsConfigRules;
+import edu.wpi.first.nativeutils.rules.PdbRules;
 import edu.wpi.first.nativeutils.rules.PlatformRules;
 import edu.wpi.first.nativeutils.rules.PrivateExportsConfigRules;
 import edu.wpi.first.nativeutils.tasks.ExportsGenerationTask;
 import edu.wpi.first.toolchain.ToolchainExtension;
 import edu.wpi.first.toolchain.ToolchainPlugin;
-import edu.wpi.first.deployutils.DeployUtils;
 
 public class NativeUtils implements Plugin<Project> {
   public static final Attribute<String> NATIVE_ARTIFACT_FORMAT = Attribute.of("artifactType", String.class);
