@@ -7,7 +7,7 @@ import org.gradle.api.attributes.Usage;
 import org.gradle.api.model.ObjectFactory;
 
 import edu.wpi.first.nativeutils.configs.ExportsConfig;
-import edu.wpi.first.nativeutils.rules.DependencyConfigRules;
+import edu.wpi.first.nativeutils.rules.PdbRules;
 import edu.wpi.first.nativeutils.rules.ExportsConfigRules;
 import edu.wpi.first.nativeutils.rules.PlatformRules;
 import edu.wpi.first.nativeutils.rules.PrivateExportsConfigRules;
@@ -44,6 +44,6 @@ public class NativeUtils implements Plugin<Project> {
     project.getPluginManager().apply(ExportsConfigRules.class);
     project.getPluginManager().apply(PrivateExportsConfigRules.class);
 
-    project.getPluginManager().apply(DependencyConfigRules.class);
+    project.getPluginManager().apply(PdbRules.class);
   }
 }
