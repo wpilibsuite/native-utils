@@ -29,7 +29,9 @@ public class GitLinkRules extends RuleSource {
       return;
     }
 
-    handleLinkedComponent(binary, (AbstractLinkTask)binary.getTasks().getLink(), binary.getBuildTask().getProject().getTasks().named("generateSourceLinkFile", SourceLinkGenerationTask.class), binary.getBuildTask().getProject());
+    binary.getTasks().withType(AbstractLinkTask.class, link -> {
+      handleLinkedComponent(binary, link, binary.getBuildTask().getProject().getTasks().named("generateSourceLinkFile", SourceLinkGenerationTask.class), binary.getBuildTask().getProject());
+    });
   }
 
   @BinaryTasks
@@ -37,7 +39,9 @@ public class GitLinkRules extends RuleSource {
     if (!binary.getTargetPlatform().getOperatingSystem().isWindows()) {
       return;
     }
-    handleLinkedComponent(binary, (AbstractLinkTask)binary.getTasks().getLink(), binary.getBuildTask().getProject().getTasks().named("generateSourceLinkFile", SourceLinkGenerationTask.class), binary.getBuildTask().getProject());
+    binary.getTasks().withType(AbstractLinkTask.class, link -> {
+      handleLinkedComponent(binary, link, binary.getBuildTask().getProject().getTasks().named("generateSourceLinkFile", SourceLinkGenerationTask.class), binary.getBuildTask().getProject());
+    });
   }
 
   private void handleLinkedComponent(NativeBinarySpecInternal binary, AbstractLinkTask linkTask, TaskProvider<SourceLinkGenerationTask> rootGenTask, Project project) {
