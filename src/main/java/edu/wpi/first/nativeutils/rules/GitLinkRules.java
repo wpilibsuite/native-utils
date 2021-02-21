@@ -2,113 +2,63 @@ package edu.wpi.first.nativeutils.rules;
 
 import java.io.File;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
-import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.tasks.TaskProvider;
-import org.gradle.internal.os.OperatingSystem;
-import org.gradle.language.base.internal.ProjectLayout;
 import org.gradle.model.ModelMap;
-import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.NativeExecutableBinarySpec;
 import org.gradle.nativeplatform.SharedLibraryBinarySpec;
+import org.gradle.nativeplatform.internal.NativeBinarySpecInternal;
+import org.gradle.nativeplatform.internal.NativeExecutableBinarySpecInternal;
+import org.gradle.nativeplatform.internal.SharedLibraryBinarySpecInternal;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
-import org.gradle.nativeplatform.test.NativeTestSuiteBinarySpec;
-import org.gradle.platform.base.BinaryContainer;
-import org.gradle.platform.base.BinarySpec;
+import org.gradle.platform.base.BinaryTasks;
 
-import edu.wpi.first.nativeutils.NativeUtilsExtension;
 import edu.wpi.first.nativeutils.tasks.LinkerSourceLinkGenerationTask;
 import edu.wpi.first.nativeutils.tasks.SourceLinkGenerationTask;
 
 public class GitLinkRules extends RuleSource {
 
+  @BinaryTasks
+  public void createSourceLinkSharedBinaryTasks(ModelMap<Task> tasks, SharedLibraryBinarySpecInternal binary) {
+    if (!binary.getTargetPlatform().getOperatingSystem().isWindows()) {
+      return;
+    }
 
-  private void handleLinkedComponent(NativeBinarySpec binary, AbstractLinkTask linkTask, TaskProvider<SourceLinkGenerationTask> rootGenTask, Project project) {
-    String sourceLinkName = "generateSourceLink" + binary.getBuildTask().getName();
+    handleLinkedComponent(binary, (AbstractLinkTask)binary.getTasks().getLink(), binary.getBuildTask().getProject().getTasks().named("generateSourceLinkFile", SourceLinkGenerationTask.class), binary.getBuildTask().getProject());
+  }
+
+  @BinaryTasks
+  public void createSourceLinkExecutableTasks(ModelMap<Task> tasks, NativeExecutableBinarySpecInternal binary) {
+    if (!binary.getTargetPlatform().getOperatingSystem().isWindows()) {
+      return;
+    }
+    handleLinkedComponent(binary, (AbstractLinkTask)binary.getTasks().getLink(), binary.getBuildTask().getProject().getTasks().named("generateSourceLinkFile", SourceLinkGenerationTask.class), binary.getBuildTask().getProject());
+  }
+
+  private void handleLinkedComponent(NativeBinarySpecInternal binary, AbstractLinkTask linkTask, TaskProvider<SourceLinkGenerationTask> rootGenTask, Project project) {
+    String sourceLinkName = binary.getNamingScheme().getTaskName("generateSourceLinkFile");
 
     TaskProvider<LinkerSourceLinkGenerationTask> sourceGenTask = project.getTasks().register(sourceLinkName, LinkerSourceLinkGenerationTask.class);
     File tmpDir = project.file(project.getBuildDir() + "/tmp/" + sourceLinkName);
     File sourceLinkFile = project.file(tmpDir.toString() + "/SourceLink.json");
-    sourceGenTask.configure(new Action<LinkerSourceLinkGenerationTask>() {
-      @Override
-      public void execute(LinkerSourceLinkGenerationTask genTask) {
+    sourceGenTask.configure(genTask -> {
         genTask.dependsOn(rootGenTask);
-        Set<Object> linkDepends = linkTask.getLibs().getFrom();
+        Callable<Set<Object>> linkDepends = () -> linkTask.getLibs().getFrom();
         genTask.dependsOn(linkDepends);
 
         genTask.getInputFiles().add(rootGenTask.get().getSourceLinkBaseFile().getAsFile());
-        genTask.getInputFiles().addAll(linkTask.getLibs());
+
+        genTask.getInputFiles().addAll(project.getProviders().provider(() -> linkTask.getLibs()));
 
         genTask.getSourceLinkFile().set(sourceLinkFile);
-      }
     });
-
 
     linkTask.dependsOn(sourceGenTask);
     linkTask.getLinkerArgs().add("/SOURCELINK:" + sourceLinkFile.getAbsolutePath());
-  }
-
-  @Mutate
-  void setupGitLink(ModelMap<Task> tasks, BinaryContainer binaries, ExtensionContainer extensions, ProjectLayout projectLayout) {
-    if (binaries == null) {
-      return;
-    }
-
-    if (!OperatingSystem.current().isWindows()) {
-      // It's impossible for this to run on non windows
-      return;
-    }
-
-    Project project = (Project)projectLayout.getProjectIdentifier();
-
-    NativeUtilsExtension ext = extensions.getByType(NativeUtilsExtension.class);
-    TaskProvider<SourceLinkGenerationTask> genTask = ext.getSourceLinkTask();
-    boolean setupSourceLink = genTask != null;
-
-    if (!setupSourceLink) {
-      // Return if neither is to be set up
-      return;
-    }
-
-    for (BinarySpec binary : binaries) {
-      // Find the Link task
-      if (!binary.isBuildable()) {
-        continue;
-      }
-
-      if (binary instanceof SharedLibraryBinarySpec) {
-        SharedLibraryBinarySpec s = (SharedLibraryBinarySpec)binary;
-        if (!s.getTargetPlatform().getOperatingSystem().isWindows()) {
-          continue;
-        }
-        Task l = s.getTasks().getLink();
-        if (l instanceof AbstractLinkTask) {
-          handleLinkedComponent(s, (AbstractLinkTask)l, genTask, project);
-        }
-      } else if (binary instanceof NativeExecutableBinarySpec) {
-        NativeExecutableBinarySpec s = (NativeExecutableBinarySpec)binary;
-        if (!s.getTargetPlatform().getOperatingSystem().isWindows()) {
-          continue;
-        }
-        Task l = s.getTasks().getLink();
-        if (l instanceof AbstractLinkTask) {
-          handleLinkedComponent(s, (AbstractLinkTask)l, genTask, project);
-        }
-      } else if (binary instanceof NativeTestSuiteBinarySpec) {
-        NativeTestSuiteBinarySpec s = (NativeTestSuiteBinarySpec)binary;
-        if (!s.getTargetPlatform().getOperatingSystem().isWindows()) {
-          continue;
-        }
-        Task l = s.getTasks().getLink();
-        if (l instanceof AbstractLinkTask) {
-          handleLinkedComponent(s, (AbstractLinkTask)l, genTask, project);
-        }
-      }
-    }
   }
 }

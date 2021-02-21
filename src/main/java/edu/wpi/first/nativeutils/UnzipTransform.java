@@ -23,6 +23,8 @@ import java.util.zip.ZipInputStream;
  */
 public interface UnzipTransform extends TransformAction<TransformParameters.None> {
 
+    // TODO see if we can get incremental to work
+
     @InputArtifact
     Provider<FileSystemLocation> getZippedFile();
 

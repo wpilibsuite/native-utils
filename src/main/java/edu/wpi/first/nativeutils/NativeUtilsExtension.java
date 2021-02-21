@@ -817,7 +817,7 @@ public class NativeUtilsExtension {
       return null;
     }
 
-    return parentFile;
+    return getGitDir(parentFile);
   }
 
   TaskProvider<SourceLinkGenerationTask> sourceLinkTask;
