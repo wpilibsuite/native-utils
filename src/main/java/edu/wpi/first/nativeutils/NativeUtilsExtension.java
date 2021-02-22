@@ -1,6 +1,5 @@
 package edu.wpi.first.nativeutils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +10,6 @@ import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.GradleException;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
-import org.gradle.api.UnknownTaskException;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.os.OperatingSystem;
@@ -28,25 +26,24 @@ import org.gradle.platform.base.VariantComponentSpec;
 //import edu.wpi.first.deployutils.nativedeps.DependencySpecExtension;
 // import edu.wpi.first.nativeutils.configs.CombinedDependencyConfig;
 // import edu.wpi.first.nativeutils.configs.DependencyConfig;
-import edu.wpi.first.nativeutils.configs.ExportsConfig;
-import edu.wpi.first.nativeutils.configs.PlatformConfig;
-import edu.wpi.first.nativeutils.configs.PrivateExportsConfig;
 // import edu.wpi.first.nativeutils.configs.impl.DefaultCombinedDependencyConfig;
 // import edu.wpi.first.nativeutils.configs.impl.DefaultDependencyConfig;
-import edu.wpi.first.nativeutils.configs.impl.DefaultExportsConfig;
-import edu.wpi.first.nativeutils.configs.impl.DefaultPlatformConfig;
 import edu.wpi.first.nativeutils.dependencies.DelegatedDependencySet;
-import edu.wpi.first.nativeutils.dependencies.configs.AllPlatformsCombinedNativeDependency;
-import edu.wpi.first.nativeutils.dependencies.configs.CombinedIgnoreMissingPlatformNativeDependency;
-import edu.wpi.first.nativeutils.dependencies.configs.CombinedNativeDependency;
-import edu.wpi.first.nativeutils.dependencies.configs.NativeDependency;
-import edu.wpi.first.nativeutils.dependencies.configs.WPISharedMavenDependency;
-import edu.wpi.first.nativeutils.dependencies.configs.WPIStaticMavenDependency;
+import edu.wpi.first.nativeutils.dependencies.AllPlatformsCombinedNativeDependency;
+import edu.wpi.first.nativeutils.dependencies.CombinedIgnoreMissingPlatformNativeDependency;
+import edu.wpi.first.nativeutils.dependencies.CombinedNativeDependency;
+import edu.wpi.first.nativeutils.dependencies.NativeDependency;
+import edu.wpi.first.nativeutils.dependencies.WPISharedMavenDependency;
+import edu.wpi.first.nativeutils.dependencies.WPIStaticMavenDependency;
+import edu.wpi.first.nativeutils.exports.DefaultExportsConfig;
+import edu.wpi.first.nativeutils.exports.ExportsConfig;
+import edu.wpi.first.nativeutils.exports.PrivateExportsConfig;
+import edu.wpi.first.nativeutils.platforms.DefaultPlatformConfig;
+import edu.wpi.first.nativeutils.platforms.PlatformConfig;
 // import edu.wpi.first.nativeutils.configs.impl.DefaultPrivateExportsConfig;
 // import edu.wpi.first.nativeutils.rules.FrcNativeBinaryExtension;
-import edu.wpi.first.nativeutils.rules.GitLinkRules;
+import edu.wpi.first.nativeutils.sourcelink.SourceLinkPlugin;
 import edu.wpi.first.nativeutils.tasks.PrintNativeDependenciesTask;
-import edu.wpi.first.nativeutils.tasks.SourceLinkGenerationTask;
 import edu.wpi.first.toolchain.NativePlatforms;
 import edu.wpi.first.toolchain.ToolchainDescriptorBase;
 import edu.wpi.first.toolchain.ToolchainExtension;
@@ -806,45 +803,9 @@ public class NativeUtilsExtension {
     tcExt.addStripExcludeComponentsForPlatform(binary.getTargetPlatform().getName(), binary.getComponent().getName());
   }
 
-  private File getGitDir(File currentDir) {
-    if (new File(currentDir, ".git").exists()) {
-      return currentDir;
-    }
-
-    File parentFile = currentDir.getParentFile();
-
-    if (parentFile == null) {
-      return null;
-    }
-
-    return getGitDir(parentFile);
-  }
-
-  TaskProvider<SourceLinkGenerationTask> sourceLinkTask;
-
-  public TaskProvider<SourceLinkGenerationTask> getSourceLinkTask() {
-    return sourceLinkTask;
-  }
-
   public void enableSourceLink() {
     if (OperatingSystem.current().isWindows()) {
-      String extractTaskName = "generateSourceLinkFile";
-      try {
-        sourceLinkTask = project.getRootProject().getTasks().named(extractTaskName, SourceLinkGenerationTask.class);
-        project.getPluginManager().apply(GitLinkRules.class);
-      } catch (UnknownTaskException notfound) {
-        File gitDir = getGitDir(project.getRootProject().getRootDir());
-        if (gitDir == null) {
-          System.out.println("No .git directory was found in" + project.getRootProject().getRootDir().toString()
-              + "or any parent directories of that directory.");
-          System.out.println("SourceLink generation skipped");
-        } else {
-          sourceLinkTask = project.getRootProject().getTasks().register(extractTaskName, SourceLinkGenerationTask.class,
-              gitDir);
-
-          project.getPluginManager().apply(GitLinkRules.class);
-        }
-      }
+      project.getPluginManager().apply(SourceLinkPlugin.class);
     }
   }
 }

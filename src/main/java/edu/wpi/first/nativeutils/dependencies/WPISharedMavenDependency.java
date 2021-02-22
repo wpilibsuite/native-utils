@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.dependencies.configs;
+package edu.wpi.first.nativeutils.dependencies;
 
 import java.util.HashMap;
 import java.util.List;
@@ -11,8 +11,6 @@ import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Property;
 import org.gradle.nativeplatform.NativeBinarySpec;
-
-import edu.wpi.first.nativeutils.dependencies.ResolvedNativeDependency;
 
 public abstract class WPISharedMavenDependency extends WPIMavenDependency {
     private static final List<String> sharedMatchers = List.of("**/*.so", "**/*.so.*", "**/*.dylib", "**/*.lib");

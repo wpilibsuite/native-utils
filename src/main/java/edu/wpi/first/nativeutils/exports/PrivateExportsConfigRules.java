@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.rules;
+package edu.wpi.first.nativeutils.exports;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -21,8 +21,6 @@ import org.gradle.platform.base.ComponentSpec;
 import org.gradle.platform.base.ComponentSpecContainer;
 
 import edu.wpi.first.nativeutils.NativeUtilsExtension;
-import edu.wpi.first.nativeutils.configs.PrivateExportsConfig;
-import edu.wpi.first.nativeutils.tasks.PrivateExportsGenerationTask;
 import edu.wpi.first.toolchain.GccToolChain;
 import edu.wpi.first.toolchain.OrderedStripTask;
 import edu.wpi.first.toolchain.ToolchainExtension;

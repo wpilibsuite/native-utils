@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.tasks;
+package edu.wpi.first.nativeutils.exports;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -8,21 +8,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
-
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.nativeplatform.SharedLibraryBinarySpec;
 import org.gradle.process.ExecSpec;
-
-import edu.wpi.first.nativeutils.configs.ExportsConfig;
 
 public abstract class ExportsGenerationTask extends DefaultTask implements Action<ExecSpec> {
 

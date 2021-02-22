@@ -12,12 +12,12 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 
-import edu.wpi.first.nativeutils.configs.PlatformConfig;
-import edu.wpi.first.nativeutils.dependencies.configs.AllPlatformsCombinedNativeDependency;
-import edu.wpi.first.nativeutils.dependencies.configs.CombinedIgnoreMissingPlatformNativeDependency;
-import edu.wpi.first.nativeutils.dependencies.configs.NativeDependency;
-import edu.wpi.first.nativeutils.dependencies.configs.WPISharedMavenDependency;
-import edu.wpi.first.nativeutils.dependencies.configs.WPIStaticMavenDependency;
+import edu.wpi.first.nativeutils.platforms.PlatformConfig;
+import edu.wpi.first.nativeutils.dependencies.AllPlatformsCombinedNativeDependency;
+import edu.wpi.first.nativeutils.dependencies.CombinedIgnoreMissingPlatformNativeDependency;
+import edu.wpi.first.nativeutils.dependencies.NativeDependency;
+import edu.wpi.first.nativeutils.dependencies.WPISharedMavenDependency;
+import edu.wpi.first.nativeutils.dependencies.WPIStaticMavenDependency;
 
 public class WPINativeUtilsExtension {
     private NativeUtilsExtension nativeExt;

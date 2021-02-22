@@ -1,30 +1,26 @@
-package edu.wpi.first.nativeutils.dependencies.configs;
+package edu.wpi.first.nativeutils.dependencies;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
 import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.ProjectLayout;
-import org.gradle.api.provider.MapProperty;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.nativeplatform.NativeBinarySpec;
 
-import edu.wpi.first.nativeutils.dependencies.ResolvedNativeDependency;
-
-public abstract class CombinedIgnoreMissingPlatformNativeDependency implements NativeDependency {
-
+public abstract class AllPlatformsCombinedNativeDependency implements NativeDependency {
     private final String name;
     private final NamedDomainObjectCollection<NativeDependency> dependencyCollection;
 
     @Inject
-    public CombinedIgnoreMissingPlatformNativeDependency(String name, NamedDomainObjectCollection<NativeDependency> dependencyCollection) {
+    public AllPlatformsCombinedNativeDependency(String name, NamedDomainObjectCollection<NativeDependency> dependencyCollection) {
         this.name = name;
         this.dependencyCollection = dependencyCollection;
     }
 
-    public abstract MapProperty<String, List<String>> getDependencies();
+    public abstract ListProperty<String> getDependencies();
 
     @Inject
     public ProjectLayout getProjectLayout() {
@@ -38,7 +34,7 @@ public abstract class CombinedIgnoreMissingPlatformNativeDependency implements N
 
     @Override
     public ResolvedNativeDependency resolveNativeDependency(NativeBinarySpec binary) {
-        Map<String, List<String>> dependencies = getDependencies().get();
+        List<String> dependencies = getDependencies().get();
 
         ProjectLayout projectLayout = getProjectLayout();
 
@@ -47,12 +43,7 @@ public abstract class CombinedIgnoreMissingPlatformNativeDependency implements N
         FileCollection linkFiles = projectLayout.files();
         FileCollection runtimeFiles = projectLayout.files();
 
-        List<String> depsForPlatform = dependencies.getOrDefault(binary.getTargetPlatform().getName(), null);
-        if (depsForPlatform == null) {
-            return new ResolvedNativeDependency(includeRoots, sourceRoots, linkFiles, runtimeFiles);
-        }
-
-        for (String dep : depsForPlatform) {
+        for (String dep : dependencies) {
             ResolvedNativeDependency resolved = dependencyCollection.getByName(dep).resolveNativeDependency(binary);
             includeRoots = includeRoots.plus(resolved.getIncludeRoots());
             sourceRoots = sourceRoots.plus(resolved.getSourceRoots());

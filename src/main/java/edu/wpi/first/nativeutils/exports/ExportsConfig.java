@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.configs;
+package edu.wpi.first.nativeutils.exports;
 
 import java.util.List;
 

@@ -1,9 +1,7 @@
-package edu.wpi.first.nativeutils.configs.impl;
+package edu.wpi.first.nativeutils.platforms;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import edu.wpi.first.nativeutils.configs.CompilerArgsConfig;
 
 public class DefaultCompilerArgsConfig implements CompilerArgsConfig {
   private List<String> args = new ArrayList<>();

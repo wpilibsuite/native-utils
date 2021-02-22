@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.rules;
+package edu.wpi.first.nativeutils.platforms;
 
 import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.model.RuleSource;

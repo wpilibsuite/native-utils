@@ -12,8 +12,6 @@ import org.gradle.api.file.ProjectLayout;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.NativeDependencySet;
 
-import edu.wpi.first.nativeutils.dependencies.configs.NativeDependency;
-
 public class DelegatedDependencySet implements NativeDependencySet, Named {
     private FileCollection includeRoots;
     private FileCollection linkFiles;

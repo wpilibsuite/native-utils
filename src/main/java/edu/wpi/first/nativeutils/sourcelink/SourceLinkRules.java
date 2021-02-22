@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.rules;
+package edu.wpi.first.nativeutils.sourcelink;
 
 import java.io.File;
 import java.util.Set;
@@ -15,10 +15,7 @@ import org.gradle.nativeplatform.internal.SharedLibraryBinarySpecInternal;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 import org.gradle.platform.base.BinaryTasks;
 
-import edu.wpi.first.nativeutils.tasks.LinkerSourceLinkGenerationTask;
-import edu.wpi.first.nativeutils.tasks.SourceLinkGenerationTask;
-
-public class GitLinkRules extends RuleSource {
+public class SourceLinkRules extends RuleSource {
 
   @BinaryTasks
   public void createSourceLinkSharedBinaryTasks(ModelMap<Task> tasks, SharedLibraryBinarySpecInternal binary) {

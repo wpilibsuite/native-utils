@@ -1,8 +1,6 @@
-package edu.wpi.first.nativeutils.configs.impl;
+package edu.wpi.first.nativeutils.exports;
 
 import javax.inject.Inject;
-
-import edu.wpi.first.nativeutils.configs.ExportsConfig;
 
 public abstract class DefaultExportsConfig implements ExportsConfig{
 

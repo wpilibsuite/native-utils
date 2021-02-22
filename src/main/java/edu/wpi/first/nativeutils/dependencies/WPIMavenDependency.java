@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.dependencies.configs;
+package edu.wpi.first.nativeutils.dependencies;
 
 import java.io.File;
 import java.util.HashMap;

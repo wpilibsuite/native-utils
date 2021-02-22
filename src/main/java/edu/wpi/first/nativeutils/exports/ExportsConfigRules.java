@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.rules;
+package edu.wpi.first.nativeutils.exports;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,9 +25,6 @@ import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 import org.gradle.platform.base.ComponentSpecContainer;
 
 import edu.wpi.first.nativeutils.NativeUtilsExtension;
-import edu.wpi.first.nativeutils.configs.ExportsConfig;
-import edu.wpi.first.nativeutils.tasks.ExportsGenerationTask;
-import edu.wpi.first.nativeutils.tasks.ExtractDefFileGeneratorTask;
 
 public class ExportsConfigRules extends RuleSource {
 

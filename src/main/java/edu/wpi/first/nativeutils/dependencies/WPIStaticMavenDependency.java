@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.dependencies.configs;
+package edu.wpi.first.nativeutils.dependencies;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,8 +10,6 @@ import javax.inject.Inject;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
 import org.gradle.nativeplatform.NativeBinarySpec;
-
-import edu.wpi.first.nativeutils.dependencies.ResolvedNativeDependency;
 
 public abstract class WPIStaticMavenDependency extends WPIMavenDependency {
     private static final List<String> staticMatchers = List.of("**/*.lib", "**/*.a");

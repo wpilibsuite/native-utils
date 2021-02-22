@@ -3,14 +3,13 @@ package edu.wpi.first.nativeutils;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.attributes.Attribute;
+import org.gradle.internal.os.OperatingSystem;
 
 import edu.wpi.first.deployutils.DeployUtils;
-import edu.wpi.first.nativeutils.configs.ExportsConfig;
-import edu.wpi.first.nativeutils.rules.ExportsConfigRules;
-import edu.wpi.first.nativeutils.rules.PdbRules;
-import edu.wpi.first.nativeutils.rules.PlatformRules;
-import edu.wpi.first.nativeutils.rules.PrivateExportsConfigRules;
-import edu.wpi.first.nativeutils.tasks.ExportsGenerationTask;
+import edu.wpi.first.nativeutils.exports.ExportsConfigRules;
+import edu.wpi.first.nativeutils.exports.PrivateExportsConfigRules;
+import edu.wpi.first.nativeutils.pdb.PdbPlugin;
+import edu.wpi.first.nativeutils.platforms.PlatformRules;
 import edu.wpi.first.toolchain.ToolchainExtension;
 import edu.wpi.first.toolchain.ToolchainPlugin;
 
@@ -36,12 +35,11 @@ public class NativeUtils implements Plugin<Project> {
 
     project.getExtensions().create("nativeUtils", NativeUtilsExtension.class, project, tcExt);
 
-    project.getExtensions().add(NativeUtils.class.getSimpleName(), NativeUtils.class.getName());
-    project.getExtensions().add(ExportsConfig.class.getSimpleName(), ExportsConfig.class.getName());
-    project.getExtensions().add(ExportsGenerationTask.class.getSimpleName(), ExportsGenerationTask.class.getName());
     project.getPluginManager().apply(ExportsConfigRules.class);
     project.getPluginManager().apply(PrivateExportsConfigRules.class);
 
-    project.getPluginManager().apply(PdbRules.class);
+    if (OperatingSystem.current().isWindows()) {
+      project.getPluginManager().apply(PdbPlugin.class);
+    }
   }
 }

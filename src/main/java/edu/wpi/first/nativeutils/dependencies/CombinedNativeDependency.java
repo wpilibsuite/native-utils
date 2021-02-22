@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.dependencies.configs;
+package edu.wpi.first.nativeutils.dependencies;
 
 import java.util.List;
 import java.util.Map;
@@ -10,8 +10,6 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.nativeplatform.NativeBinarySpec;
-
-import edu.wpi.first.nativeutils.dependencies.ResolvedNativeDependency;
 
 public abstract class CombinedNativeDependency implements NativeDependency {
 
