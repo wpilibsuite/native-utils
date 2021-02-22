@@ -7,11 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.RegularFileProperty;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
@@ -20,34 +17,19 @@ import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
-public class PrivateExportsGenerationTask extends DefaultTask {
-  private final RegularFileProperty symbolsToExportFile;
-
-  private final RegularFileProperty exportsFile;
-
-  private final ListProperty<String> exportsList;
-
-  private final Property<String> libraryName;
+public abstract class PrivateExportsGenerationTask extends DefaultTask {
 
   @InputFile
-  public RegularFileProperty getSymbolsToExportFile() {
-    return symbolsToExportFile;
-  }
+  public abstract RegularFileProperty getSymbolsToExportFile();
 
   @OutputFile
-  public RegularFileProperty getExportsFile() {
-    return exportsFile;
-  }
+  public abstract RegularFileProperty getExportsFile();
 
   @Internal
-  public ListProperty<String> getExportsList() {
-    return exportsList;
-  }
+  public abstract ListProperty<String> getExportsList();
 
   @Input
-  public Property<String> getLibraryName() {
-    return libraryName;
-  }
+  public abstract Property<String> getLibraryName();
 
   private boolean isWindows = false;
   private boolean isMac = false;
@@ -60,29 +42,18 @@ public class PrivateExportsGenerationTask extends DefaultTask {
     isMac = set;
   }
 
-  @Inject
-  public PrivateExportsGenerationTask(ObjectFactory factory) {
-    symbolsToExportFile = factory.fileProperty();
-    exportsFile = factory.fileProperty();
-    exportsList = factory.listProperty(String.class);
-    libraryName = factory.property(String.class);
-
-    this.getInputs().file(symbolsToExportFile);
-    this.getOutputs().file(exportsFile);
-  }
-
   private void executeWindows() throws IOException {
-    List<String> exports = Files.readAllLines(symbolsToExportFile.get().getAsFile().toPath());
-    exportsList.addAll(exports);
-    exportsList.finalizeValue();
+    List<String> exports = Files.readAllLines(getSymbolsToExportFile().get().getAsFile().toPath());
+    getExportsList().addAll(exports);
+    getExportsList().finalizeValue();
 
 
-    File toWrite = exportsFile.get().getAsFile();
+    File toWrite = getExportsFile().get().getAsFile();
     toWrite.getParentFile().mkdirs();
 
     try (BufferedWriter writer = Files.newBufferedWriter(toWrite.toPath())) {
       writer.write("LIBRARY ");
-      writer.write(libraryName.get());
+      writer.write(getLibraryName().get());
       writer.newLine();
       writer.write("EXPORTS");
       writer.newLine();
@@ -96,16 +67,16 @@ public class PrivateExportsGenerationTask extends DefaultTask {
   }
 
   private void executeUnix() throws IOException {
-    List<String> exports = Files.readAllLines(symbolsToExportFile.get().getAsFile().toPath());
-    exportsList.addAll(exports);
-    exportsList.finalizeValue();
+    List<String> exports = Files.readAllLines(getSymbolsToExportFile().get().getAsFile().toPath());
+    getExportsList().addAll(exports);
+    getExportsList().finalizeValue();
 
 
-    File toWrite = exportsFile.get().getAsFile();
+    File toWrite = getExportsFile().get().getAsFile();
     toWrite.getParentFile().mkdirs();
 
     try (BufferedWriter writer = Files.newBufferedWriter(toWrite.toPath())) {
-      writer.write(libraryName.get());
+      writer.write(getLibraryName().get());
       writer.write(" {");
       writer.newLine();
       writer.write("  global: ");
@@ -123,12 +94,12 @@ public class PrivateExportsGenerationTask extends DefaultTask {
   }
 
   private void executeMac() throws IOException {
-    List<String> exports = Files.readAllLines(symbolsToExportFile.get().getAsFile().toPath());
-    exportsList.addAll(exports);
-    exportsList.finalizeValue();
+    List<String> exports = Files.readAllLines(getSymbolsToExportFile().get().getAsFile().toPath());
+    getExportsList().addAll(exports);
+    getExportsList().finalizeValue();
 
 
-    File toWrite = exportsFile.get().getAsFile();
+    File toWrite = getExportsFile().get().getAsFile();
     toWrite.getParentFile().mkdirs();
 
     try (BufferedWriter writer = Files.newBufferedWriter(toWrite.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {

@@ -2,7 +2,7 @@ package edu.wpi.first.nativeutils.exports;
 
 import javax.inject.Inject;
 
-public abstract class DefaultExportsConfig implements ExportsConfig{
+public abstract class DefaultExportsConfig implements ExportsConfig {
 
     private final String name;
 

@@ -58,5 +58,6 @@ public class SourceLinkRules extends RuleSource {
 
     linkTask.dependsOn(sourceGenTask);
     linkTask.getLinkerArgs().add("/SOURCELINK:" + sourceLinkFile.getAbsolutePath());
+    binary.getTasks().add(sourceGenTask.get());
   }
 }

@@ -1,6 +1,6 @@
 package edu.wpi.first.nativeutils.exports;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.gradle.api.NamedDomainObjectCollection;
@@ -14,9 +14,10 @@ import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
 import org.gradle.nativeplatform.NativeLibrarySpec;
 import org.gradle.nativeplatform.SharedLibraryBinarySpec;
+import org.gradle.nativeplatform.internal.SharedLibraryBinarySpecInternal;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
-import org.gradle.nativeplatform.tasks.LinkSharedLibrary;
 import org.gradle.platform.base.BinarySpec;
+import org.gradle.platform.base.BinaryTasks;
 import org.gradle.platform.base.ComponentSpec;
 import org.gradle.platform.base.ComponentSpecContainer;
 
@@ -26,6 +27,51 @@ import edu.wpi.first.toolchain.OrderedStripTask;
 import edu.wpi.first.toolchain.ToolchainExtension;
 
 public class PrivateExportsConfigRules extends RuleSource {
+
+  @BinaryTasks
+  public void createPrivateExportsSharedBinaryTasks(ModelMap<Task> tasks, SharedLibraryBinarySpecInternal binary) {
+    if (!binary.getTargetPlatform().getOperatingSystem().isWindows()) {
+      return;
+    }
+
+    Project project = binary.getBuildTask().getProject();
+    NativeUtilsExtension nue = project.getExtensions().getByType(NativeUtilsExtension.class);
+
+    PrivateExportsConfig config = nue.getPrivateExportsConfigs().findByName(binary.getComponent().getName());
+    if (config == null) {
+      return;
+    }
+
+    binary.getTasks().withType(AbstractLinkTask.class, link -> {
+      String exportsTaskName = binary.getNamingScheme().getTaskName("generatePrivateExports");
+
+      TaskProvider<PrivateExportsGenerationTask> exportsTask = project.getTasks().register(exportsTaskName, PrivateExportsGenerationTask.class, task -> {
+        task.getSymbolsToExportFile().set(config.getExportsFile());
+            task.getLibraryName().set(binary.getComponent().getBaseName());
+
+            if (binary.getTargetPlatform().getOperatingSystem().isWindows()) {
+              task.setIsWindows(true);
+              task.getExportsFile().set(project.getLayout().getBuildDirectory().file("tmp/" + exportsTaskName + "/exports.def"));
+              link.getLinkerArgs().add(task.getExportsFile().map(x -> "/DEF:" + x.getAsFile().toString()));
+              link.getInputs().file(task.getExportsFile());
+
+            } else if (binary.getTargetPlatform().getOperatingSystem().isMacOsX()) {
+              task.setIsMac(true);
+              task.getExportsFile().set(project.getLayout().getBuildDirectory().file("tmp/" + exportsTaskName + "/exports.txt"));
+              link.getLinkerArgs().addAll(task.getExportsFile().map(x -> List.of("-exported_symbols_list", x.getAsFile().toString())));
+              link.getInputs().file(task.getExportsFile());
+
+            } else {
+              task.getExportsFile().set(project.getLayout().getBuildDirectory().file("tmp/" + exportsTaskName + "/exports.txt"));
+              link.getLinkerArgs().add(task.getExportsFile().map(x -> "-Wl,--version-script=" + x.getAsFile().toString()));
+              link.getInputs().file(task.getExportsFile());
+            }
+      });
+
+      link.dependsOn(exportsTask);
+      binary.getTasks().add(exportsTask.get());
+    });
+  }
 
   @Mutate
   void setupPrivateExports(ModelMap<Task> tasks, ExtensionContainer extensions, ProjectLayout projectLayout,
@@ -54,44 +100,10 @@ public class PrivateExportsConfigRules extends RuleSource {
           continue;
         }
         SharedLibraryBinarySpec binary = (SharedLibraryBinarySpec) oBinary;
-        String exportsTaskName = "generateExports" + binary.getBuildTask().getName();
-        TaskProvider<PrivateExportsGenerationTask> exportsTask = project.getTasks().register(exportsTaskName,
-            PrivateExportsGenerationTask.class, task -> {
-              task.getSymbolsToExportFile().set(config.getExportsFile());
-              task.getLibraryName().set(nativeComponent.getBaseName());
-
-              if (binary.getTargetPlatform().getOperatingSystem().isWindows()) {
-                task.setIsWindows(true);
-                String exportsName = "exports.def";
-                task.getExportsFile().set(task.getProject()
-                    .file(task.getProject().getBuildDir() + "/tmp/" + task.getName() + "/" + exportsName));
-                ((LinkSharedLibrary) binary.getTasks().getLink()).getLinkerArgs().add(project.provider(() -> {
-                  return "/DEF:" + task.getExportsFile().get().getAsFile().toString();
-                }));
-                binary.getTasks().getLink().getInputs().file(task.getExportsFile());
-              } else if (binary.getTargetPlatform().getOperatingSystem().isMacOsX()) {
-                task.setIsMac(true);
-                String exportsName = "exports.txt";
-                task.getExportsFile().set(task.getProject()
-                    .file(task.getProject().getBuildDir() + "/tmp/" + task.getName() + "/" + exportsName));
-                ((LinkSharedLibrary) binary.getTasks().getLink()).getLinkerArgs().addAll(project.provider(() -> {
-                  return Arrays.asList("-exported_symbols_list", task.getExportsFile().get().getAsFile().toString());
-                }));
-                binary.getTasks().getLink().getInputs().file(task.getExportsFile());
-              } else {
-                String exportsName = "exports.txt";
-                task.getExportsFile().set(task.getProject()
-                    .file(task.getProject().getBuildDir() + "/tmp/" + task.getName() + "/" + exportsName));
-                ((LinkSharedLibrary) binary.getTasks().getLink()).getLinkerArgs().add(project.provider(() -> {
-                  return "-Wl,--version-script=" + task.getExportsFile().get().getAsFile().toString();
-                }));
-                binary.getTasks().getLink().getInputs().file(task.getExportsFile());
-              }
-
-            });
 
         Task rawLinkTask = binary.getTasks().getLink();
-        rawLinkTask.dependsOn(exportsTask);
+
+        // TODO move all of this to a binary task
 
         if (config.getPerformStripAllSymbols().get()) {
           if (rawLinkTask instanceof AbstractLinkTask) {

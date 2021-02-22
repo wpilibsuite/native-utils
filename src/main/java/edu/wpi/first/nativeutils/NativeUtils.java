@@ -6,7 +6,7 @@ import org.gradle.api.attributes.Attribute;
 import org.gradle.internal.os.OperatingSystem;
 
 import edu.wpi.first.deployutils.DeployUtils;
-import edu.wpi.first.nativeutils.exports.ExportsConfigRules;
+import edu.wpi.first.nativeutils.exports.ExportsConfigPlugin;
 import edu.wpi.first.nativeutils.exports.PrivateExportsConfigRules;
 import edu.wpi.first.nativeutils.pdb.PdbPlugin;
 import edu.wpi.first.nativeutils.platforms.PlatformRules;
@@ -35,7 +35,7 @@ public class NativeUtils implements Plugin<Project> {
 
     project.getExtensions().create("nativeUtils", NativeUtilsExtension.class, project, tcExt);
 
-    project.getPluginManager().apply(ExportsConfigRules.class);
+    project.getPluginManager().apply(ExportsConfigPlugin.class);
     project.getPluginManager().apply(PrivateExportsConfigRules.class);
 
     if (OperatingSystem.current().isWindows()) {

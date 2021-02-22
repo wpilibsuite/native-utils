@@ -12,11 +12,11 @@ import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.nativeplatform.SharedLibraryBinarySpec;
 import org.gradle.process.ExecSpec;
 
 public abstract class ExportsGenerationTask extends DefaultTask implements Action<ExecSpec> {
@@ -30,13 +30,13 @@ public abstract class ExportsGenerationTask extends DefaultTask implements Actio
     @InputFile
     public abstract RegularFileProperty getDefFileGenerator();
 
-    private SharedLibraryBinarySpec binary;
-    private ExportsConfig config;
+    @Internal
+    public abstract String getArchitecture();
+    public abstract void setArchitecture(String architecture);
 
-    public void setInternal(SharedLibraryBinarySpec binary, ExportsConfig config) {
-        this.binary = binary;
-        this.config = config;
-    }
+    @Internal
+    public abstract ExportsConfig getExportsConfig();
+    public abstract void setExportsConfig(ExportsConfig config);
 
 
     @TaskAction
@@ -48,11 +48,12 @@ public abstract class ExportsGenerationTask extends DefaultTask implements Actio
 
         final List<String> lines = new ArrayList<>();
         List<String> excludeSymbols;
-        boolean isX86 = binary.getTargetPlatform().getArchitecture().getName().equals("x86");
+        ExportsConfig config = getExportsConfig();
+        boolean isX86 = getArchitecture().equals("x86");
         if (isX86) {
-            excludeSymbols = config.getX86ExcludeSymbols().get();
+            excludeSymbols = getExportsConfig().getX86ExcludeSymbols().get();
         } else {
-            excludeSymbols = config.getX64ExcludeSymbols().get();
+            excludeSymbols = getExportsConfig().getX64ExcludeSymbols().get();
         }
 
         if (excludeSymbols == null) {
