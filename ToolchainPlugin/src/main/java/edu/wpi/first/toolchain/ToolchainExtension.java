@@ -10,7 +10,6 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.internal.logging.text.DiagnosticsVisitor;
 import org.gradle.internal.os.OperatingSystem;
-import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
 import edu.wpi.first.toolchain.bionic.BionicToolchainPlugin;
 import edu.wpi.first.toolchain.configurable.ConfigurableGcc;
@@ -25,8 +24,6 @@ public class ToolchainExtension {
     private final NamedDomainObjectContainer<CrossCompilerConfiguration> crossCompilers;
     private final NamedDomainObjectContainer<ToolchainDescriptorBase> toolchainDescriptors;
     private final Map<String, List<String>> stripExcludeMap = new HashMap<>();
-
-    private final Map<AbstractLinkTask, OrderedStripTask> linkTaskMap = new HashMap<>();
 
     private Project project;
 
@@ -63,10 +60,6 @@ public class ToolchainExtension {
             }
         });
 
-    }
-
-    public Map<AbstractLinkTask, OrderedStripTask> getLinkTaskMap() {
-        return linkTaskMap;
     }
 
     // public void setSinglePrintPerPlatform() {
