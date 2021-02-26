@@ -85,7 +85,8 @@ public class DelegatedDependencySet implements NativeDependencySet, Named {
         runtimeFiles = resolvedDep.getRuntimeFiles();
     }
 
-    public FileCollection getSourceRoots() {
+    // Called getSourceFiles called by reflection in gradle-cpp-vscode
+    public FileCollection getSourceFiles() {
         resolve();
         return sourceRoots;
     }
