@@ -14,9 +14,9 @@ import org.gradle.nativeplatform.NativeBinarySpec;
 
 public abstract class WPISharedMavenDependency extends WPIMavenDependency {
     private static final List<String> sharedMatchers = List.of("**/*.so", "**/*.so.*", "**/*.dylib", "**/*.lib");
-    private static final List<String> runtimeMatchers = List.of("**/*.so", "**/*.so.*", "**/*.dylib", "**/*.dll");
+    private static final List<String> runtimeMatchers = List.of("**/*.so", "**/*.so.*", "**/*.dylib", "**/*.dll", "**/*.pdb");
     private static final List<String> sharedExcludes = List.of("**/*.so.debug", "**/*.so.*.debug", "**/*jni*");
-    private static final List<String> runtimeExcludes = List.of("**/*.so.debug", "**/*.so.*.debug");
+    private static final List<String> runtimeExcludes = List.of();
 
     @Inject
     public WPISharedMavenDependency(String name, Project project) {
