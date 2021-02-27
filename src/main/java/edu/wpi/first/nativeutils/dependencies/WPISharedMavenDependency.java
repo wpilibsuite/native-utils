@@ -13,10 +13,10 @@ import org.gradle.api.provider.Property;
 import org.gradle.nativeplatform.NativeBinarySpec;
 
 public abstract class WPISharedMavenDependency extends WPIMavenDependency {
-    private static final List<String> sharedMatchers = List.of("**/*.so", "**/*.so.*", "**/*.dylib", "**/*.lib");
-    private static final List<String> runtimeMatchers = List.of("**/*.so", "**/*.so.*", "**/*.dylib", "**/*.dll", "**/*.pdb");
-    private static final List<String> sharedExcludes = List.of("**/*.so.debug", "**/*.so.*.debug", "**/*jni*");
-    private static final List<String> runtimeExcludes = List.of();
+    public static final List<String> SHARED_MATCHERS = List.of("**/*.so", "**/*.so.*", "**/*.dylib", "**/*.lib");
+    public static final List<String> RUNTIME_MATCHERS = List.of("**/*.so", "**/*.so.*", "**/*.dylib", "**/*.dll", "**/*.pdb");
+    public static final List<String> SHARED_EXCLUDES = List.of("**/*.so.debug", "**/*.so.*.debug", "**/*jni*");
+    public static final List<String> RUNTIME_EXCLUDES = List.of();
 
     @Inject
     public WPISharedMavenDependency(String name, Project project) {
@@ -42,13 +42,13 @@ public abstract class WPISharedMavenDependency extends WPIMavenDependency {
         FileCollection headers = getArtifactRoots(getHeaderClassifier().getOrElse(null));
         FileCollection sources = getArtifactRoots(getSourceClassifier().getOrElse(null));
 
-        FileCollection linkFiles = getArtifactFiles(platformName, buildType, sharedMatchers, sharedExcludes);
+        FileCollection linkFiles = getArtifactFiles(platformName, buildType, SHARED_MATCHERS, SHARED_EXCLUDES);
 
         FileCollection runtimeFiles;
         if (getSkipAtRuntime().getOrElse(false)) {
             runtimeFiles = getProject().files();
         } else {
-            runtimeFiles = getArtifactFiles(platformName, buildType, runtimeMatchers, runtimeExcludes);
+            runtimeFiles = getArtifactFiles(platformName, buildType, RUNTIME_MATCHERS, RUNTIME_EXCLUDES);
         }
 
         resolvedDep = new ResolvedNativeDependency(headers, sources, linkFiles, runtimeFiles);

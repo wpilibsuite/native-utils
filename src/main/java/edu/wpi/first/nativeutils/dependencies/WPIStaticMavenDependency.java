@@ -12,8 +12,8 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.nativeplatform.NativeBinarySpec;
 
 public abstract class WPIStaticMavenDependency extends WPIMavenDependency {
-    private static final List<String> staticMatchers = List.of("**/*.lib", "**/*.a");
-    private static final List<String> emptyList = List.of();
+    public static final List<String> STATIC_MATCHERS = List.of("**/*.lib", "**/*.a");
+    public static final List<String> EMPTY_LIST = List.of();
 
     @Inject
     public WPIStaticMavenDependency(String name, Project project) {
@@ -39,7 +39,7 @@ public abstract class WPIStaticMavenDependency extends WPIMavenDependency {
         FileCollection headers = getArtifactRoots(getHeaderClassifier().getOrElse(null));
         FileCollection sources = getArtifactRoots(getSourceClassifier().getOrElse(null));
 
-        FileCollection linkFiles = getArtifactFiles(platformName + "static", buildType, staticMatchers, emptyList);
+        FileCollection linkFiles = getArtifactFiles(platformName + "static", buildType, STATIC_MATCHERS, EMPTY_LIST);
         FileCollection runtimeFiles = getProject().files();
 
         resolvedDep = new ResolvedNativeDependency(headers, sources, linkFiles, runtimeFiles);
