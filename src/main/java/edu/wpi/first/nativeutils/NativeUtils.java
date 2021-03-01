@@ -16,11 +16,11 @@ import edu.wpi.first.toolchain.ToolchainPlugin;
 public class NativeUtils implements Plugin<Project> {
   public static final Attribute<String> NATIVE_ARTIFACT_FORMAT = Attribute.of("artifactType", String.class);
   public static final String NATIVE_ARTIFACT_ZIP_TYPE = "zip";
-  public static final String NATIVE_ARTIFACT_DIRECTORY_TYPE = "directory";
+  public static final String NATIVE_ARTIFACT_DIRECTORY_TYPE = "nu-directory";
 
   @Override
   public void apply(Project project) {
-
+    // Apply transformation for native artifacts
     project.getDependencies().registerTransform(UnzipTransform.class, variantTransform -> {
       variantTransform.getFrom().attribute(NATIVE_ARTIFACT_FORMAT, NATIVE_ARTIFACT_ZIP_TYPE);
       variantTransform.getTo().attribute(NATIVE_ARTIFACT_FORMAT, NATIVE_ARTIFACT_DIRECTORY_TYPE);
