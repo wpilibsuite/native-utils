@@ -1,5 +1,6 @@
 package edu.wpi.first.nativeutils.dependencies;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +43,14 @@ public abstract class WPISharedMavenDependency extends WPIMavenDependency {
         FileCollection headers = getArtifactRoots(getHeaderClassifier().getOrElse(null));
         FileCollection sources = getArtifactRoots(getSourceClassifier().getOrElse(null));
 
-        FileCollection linkFiles = getArtifactFiles(platformName, buildType, SHARED_MATCHERS, SHARED_EXCLUDES);
+        List<String> sharedExcludes = SHARED_EXCLUDES;
+        Set<String> extraExcludes = getExtraSharedExcludes().get();
+        if (!extraExcludes.isEmpty()) {
+            sharedExcludes = new ArrayList<>(sharedExcludes);
+            sharedExcludes.addAll(extraExcludes);
+        }
+
+        FileCollection linkFiles = getArtifactFiles(platformName, buildType, SHARED_MATCHERS, sharedExcludes);
 
         FileCollection runtimeFiles;
         if (getSkipAtRuntime().getOrElse(false)) {

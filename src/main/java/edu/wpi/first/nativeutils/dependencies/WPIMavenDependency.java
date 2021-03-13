@@ -98,4 +98,6 @@ public abstract class WPIMavenDependency implements NativeDependency {
     public abstract Property<String> getSourceClassifier();
 
     public abstract SetProperty<String> getTargetPlatforms();
+
+    public abstract SetProperty<String> getExtraSharedExcludes();
 }

@@ -326,6 +326,8 @@ public class WPINativeUtilsExtension {
             c.getSourceClassifier().set("sources");
             c.getExt().set("zip");
             c.getVersion().set(version);
+            c.getExtraSharedExcludes().add("**/*java*");
+            c.getExtraSharedExcludes().add("**/*jni*");
             c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
         });
         configs.register(name + "_static", WPIStaticMavenDependency.class, c -> {
@@ -335,6 +337,8 @@ public class WPINativeUtilsExtension {
             c.getSourceClassifier().set("sources");
             c.getExt().set("zip");
             c.getVersion().set(version);
+            c.getExtraSharedExcludes().add("**/*java*");
+            c.getExtraSharedExcludes().add("**/*jni*");
             c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
         });
     }
