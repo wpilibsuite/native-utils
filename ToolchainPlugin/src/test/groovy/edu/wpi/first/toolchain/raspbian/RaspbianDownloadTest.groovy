@@ -2,20 +2,20 @@ package edu.wpi.first.toolchain.raspbian
 
 import org.gradle.testkit.runner.GradleRunner
 import static org.gradle.testkit.runner.TaskOutcome.*
-import org.junit.Rule
+
 import spock.lang.Shared
-import org.junit.rules.TemporaryFolder
+import spock.lang.TempDir
 import spock.lang.Specification
 import spock.lang.IgnoreIf
 
 @IgnoreIf({ !Boolean.valueOf(env['SPOCK_RUN_TOOLCHAINS']) })
 class RaspbianDownloadTest extends Specification {
-  @Rule TemporaryFolder testProjectDir = new TemporaryFolder()
+  @TempDir File testProjectDir
   File buildFile
   @Shared File toolchainDir
 
   def setup() {
-    buildFile = testProjectDir.newFile('build.gradle')
+    buildFile = new File(testProjectDir, 'build.gradle')
   }
 
   def setupSpec() {
@@ -37,7 +37,7 @@ toolchainsPlugin.withRaspbian()
 """
     when:
     def result = GradleRunner.create()
-                             .withProjectDir(testProjectDir.root)
+                             .withProjectDir(testProjectDir)
                              .withArguments('installRaspbianToolchain', '--stacktrace')
                              .withPluginClasspath()
                              .build()

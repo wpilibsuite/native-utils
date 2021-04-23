@@ -2,17 +2,16 @@ package edu.wpi.first.nativeutils
 
 import org.gradle.testkit.runner.GradleRunner
 import static org.gradle.testkit.runner.TaskOutcome.*
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
+import spock.lang.TempDir
 import spock.lang.Specification
 
 
 class NativeUtilsPluginInitializationTest extends Specification {
-  @Rule TemporaryFolder testProjectDir = new TemporaryFolder()
+  @TempDir File testProjectDir
   File buildFile
 
   def setup() {
-    buildFile = testProjectDir.newFile('build.gradle')
+    buildFile = new File(testProjectDir, 'build.gradle')
   }
 
   def "Project Initializes Correctly"() {
@@ -24,7 +23,7 @@ class NativeUtilsPluginInitializationTest extends Specification {
 """
     when:
     def result = GradleRunner.create()
-                             .withProjectDir(testProjectDir.root)
+                             .withProjectDir(testProjectDir)
                              .withArguments('tasks', '--stacktrace')
                              .withPluginClasspath()
                              .build()
