@@ -459,7 +459,7 @@ public class WPINativeUtilsExtension {
             }
 
             configs.create("opencv", c -> {
-                c.setGroupId("edu.wpi.first.thirdparty.frc2021.opencv");
+                c.setGroupId("edu.wpi.first.thirdparty.frc2022.opencv");
                 c.setArtifactId("opencv-cpp");
                 c.setHeaderClassifier("headers");
                 c.setSourceClassifier("sources");
@@ -471,7 +471,7 @@ public class WPINativeUtilsExtension {
             });
 
             configs.create("googletest", c -> {
-                c.setGroupId("edu.wpi.first.thirdparty.frc2021");
+                c.setGroupId("edu.wpi.first.thirdparty.frc2022");
                 c.setArtifactId("googletest");
                 c.setHeaderClassifier("headers");
                 c.setSourceClassifier("sources");
@@ -481,7 +481,7 @@ public class WPINativeUtilsExtension {
             });
 
             configs.create("imgui", c -> {
-                c.setGroupId("edu.wpi.first.thirdparty.frc2021");
+                c.setGroupId("edu.wpi.first.thirdparty.frc2022");
                 c.setArtifactId("imgui");
                 c.setHeaderClassifier("headers");
                 c.setSourceClassifier("sources");
