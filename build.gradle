@@ -24,7 +24,7 @@ compileGroovy {
 
 allprojects {
     group = "edu.wpi.first"
-    version = "2022.1.1"
+    version = "2022.0.0"
 
     if (project.hasProperty('publishVersion')) {
         version = project.publishVersion
