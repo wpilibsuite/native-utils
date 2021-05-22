@@ -524,8 +524,8 @@ public class WPINativeUtilsExtension {
                     deps.add("wpilibc_static");
                     deps.add("ntcore_static");
                     deps.add("hal_static");
-                    deps.add("wpiutil_static");
                     deps.add("wpimath_static");
+                    deps.add("wpiutil_static");
                     deps.add("chipobject_shared");
                     deps.add("netcomm_shared");
                     deps.add("visa_shared");
@@ -537,8 +537,8 @@ public class WPINativeUtilsExtension {
                     deps.add("wpilibc_static");
                     deps.add("ntcore_static");
                     deps.add("hal_static");
-                    deps.add("wpiutil_static");
                     deps.add("wpimath_static");
+                    deps.add("wpiutil_static");
                     deps.add("chipobject_shared");
                     deps.add("netcomm_shared");
                     deps.add("visa_shared");
@@ -650,8 +650,8 @@ public class WPINativeUtilsExtension {
                     deps.add("wpilibc_static");
                     deps.add("ntcore_static");
                     deps.add("hal_static");
-                    deps.add("wpiutil_static");
                     deps.add("wpimath_static");
+                    deps.add("wpiutil_static");
                 });
                 configs.create("wpilib_executable_static_dt", c -> {
                     c.setLibraryName("wpilib_executable_static");
@@ -660,8 +660,8 @@ public class WPINativeUtilsExtension {
                     deps.add("wpilibc_static");
                     deps.add("ntcore_static");
                     deps.add("hal_static");
-                    deps.add("wpiutil_static");
                     deps.add("wpimath_static");
+                    deps.add("wpiutil_static");
                 });
                 configs.create("driver_static_dt", c -> {
                     c.setLibraryName("driver_static");
