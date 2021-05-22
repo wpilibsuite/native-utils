@@ -65,7 +65,8 @@ public class WPINativeUtilsExtension {
                         "-Wno-unused-private-field", "-Wno-unused-const-variable", "-Wno-error=c11-extensions",
                         "-pthread"));
         public List<String> macCCompilerArgs = Collections.unmodifiableList(Arrays.asList("-pedantic", "-fPIC",
-                "-Wno-unused-parameter", "-Wno-missing-field-initializers", "-Wno-unused-private-field"));
+                "-Wno-unused-parameter", "-Wno-missing-field-initializers", "-Wno-unused-private-field",
+                "-Wno-fixed-enum-extension"));
         public List<String> macObjcppCompilerArgs = Collections
                 .unmodifiableList(Arrays.asList("-std=c++17", "-stdlib=libc++", "-fobjc-weak", "-fobjc-arc", "-fPIC"));
         public List<String> macObjcCompilerArgs = Collections
