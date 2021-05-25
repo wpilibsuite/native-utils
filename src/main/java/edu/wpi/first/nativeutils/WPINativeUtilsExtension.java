@@ -41,7 +41,8 @@ public class WPINativeUtilsExtension {
 
         public List<String> linuxCrossCompilerArgs = Collections.unmodifiableList(
                 Arrays.asList("-std=c++17", "-Wformat=2", "-pedantic", "-Wno-psabi", "-Wno-unused-parameter",
-                        "-Wno-error=deprecated-declarations", "-fPIC", "-rdynamic", "-pthread"));
+                        "-Wno-error=deprecated-declarations", "-Wno-error=maybe-uninitialized", "-fPIC", "-rdynamic",
+                        "-pthread"));
         public List<String> linuxCrossCCompilerArgs = Collections.unmodifiableList(Arrays.asList("-Wformat=2",
                 "-pedantic", "-Wno-psabi", "-Wno-unused-parameter", "-fPIC", "-rdynamic", "-pthread"));
         public List<String> linuxCrossLinkerArgs = Collections
@@ -51,7 +52,8 @@ public class WPINativeUtilsExtension {
 
         public List<String> linuxCompilerArgs = Collections.unmodifiableList(
                 Arrays.asList("-std=c++17", "-Wformat=2", "-pedantic", "-Wno-psabi", "-Wno-unused-parameter",
-                        "-Wno-error=deprecated-declarations", "-fPIC", "-rdynamic", "-pthread"));
+                        "-Wno-error=deprecated-declarations", "-Wno-error=maybe-uninitialized", "-fPIC", "-rdynamic",
+                        "-pthread"));
         public List<String> linuxCCompilerArgs = Collections.unmodifiableList(Arrays.asList("-Wformat=2", "-pedantic",
                 "-Wno-psabi", "-Wno-unused-parameter", "-fPIC", "-rdynamic", "-pthread"));
         public List<String> linuxLinkerArgs = Collections
