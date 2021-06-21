@@ -67,6 +67,8 @@ public class NativeUtilsExtension {
 
   private final ToolchainExtension tcExt;
 
+  private boolean skipInstallPdb = false;
+
   @Inject
   public NativeUtilsExtension(Project project, ToolchainExtension tcExt) {
     this.project = project;
@@ -334,6 +336,14 @@ public class NativeUtilsExtension {
 
   public void excludeBinaryFromStrip(NativeBinarySpec binary) {
     tcExt.addStripExcludeComponentsForPlatform(binary.getTargetPlatform().getName(), binary.getComponent().getName());
+  }
+
+  public boolean isSkipInstallPdb() {
+    return skipInstallPdb;
+  }
+
+  public void setSkipInstallPdb(boolean skip) {
+    skipInstallPdb = skip;
   }
 
   private File getGitDir(File currentDir) {

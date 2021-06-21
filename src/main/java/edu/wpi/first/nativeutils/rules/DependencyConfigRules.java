@@ -120,8 +120,8 @@ public class DependencyConfigRules extends RuleSource {
   }
 
   @Mutate
-  public void configureStaticPdbGeneration(ModelMap<Task> tasks, BinaryContainer binaries,
-      ExtensionContainer ext, ProjectLayout projectLayout) {
+  public void configureStaticPdbGeneration(ModelMap<Task> tasks, BinaryContainer binaries, ExtensionContainer ext,
+      ProjectLayout projectLayout) {
     if (binaries == null) {
       return;
     }
@@ -138,8 +138,14 @@ public class DependencyConfigRules extends RuleSource {
   }
 
   @Mutate
-  public void setupInstallPdbCopy(ModelMap<Task> tasks, BinaryContainer binaries, ComponentSpecContainer components) {
+  public void setupInstallPdbCopy(ModelMap<Task> tasks, BinaryContainer binaries, ComponentSpecContainer components,
+      ExtensionContainer extensions) {
     if (binaries == null) {
+      return;
+    }
+
+    NativeUtilsExtension extension = extensions.getByType(NativeUtilsExtension.class);
+    if (extension.isSkipInstallPdb()) {
       return;
     }
 
@@ -147,9 +153,10 @@ public class DependencyConfigRules extends RuleSource {
       // Get install task
       InstallExecutable installTask;
       if (oBinary instanceof NativeExecutableBinarySpec) {
-        installTask = (InstallExecutable)((NativeExecutableBinarySpec.TasksCollection)oBinary.getTasks()).getInstall();
+        installTask = (InstallExecutable) ((NativeExecutableBinarySpec.TasksCollection) oBinary.getTasks())
+            .getInstall();
       } else if (oBinary instanceof NativeTestSuiteBinarySpec) {
-        installTask = (InstallExecutable)((NativeTestSuiteBinarySpec.TasksCollection)oBinary.getTasks()).getInstall();
+        installTask = (InstallExecutable) ((NativeTestSuiteBinarySpec.TasksCollection) oBinary.getTasks()).getInstall();
       } else {
         continue;
       }
@@ -158,9 +165,9 @@ public class DependencyConfigRules extends RuleSource {
 
         @Override
         public void execute(Task installTaskRaw) {
-          InstallExecutable installTask = (InstallExecutable)installTaskRaw;
+          InstallExecutable installTask = (InstallExecutable) installTaskRaw;
           List<File> filesToAdd = new ArrayList<>();
-          for(File file : installTask.getLibs()) {
+          for (File file : installTask.getLibs()) {
             if (file.exists()) {
               String name = file.getName();
               name = name.substring(0, name.length() - 3);
