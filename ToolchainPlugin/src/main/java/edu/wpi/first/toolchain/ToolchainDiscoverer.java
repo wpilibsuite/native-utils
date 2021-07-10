@@ -23,7 +23,7 @@ import org.gradle.nativeplatform.toolchain.internal.gcc.metadata.GccMetadataProv
 import org.gradle.platform.base.internal.toolchain.SearchResult;
 import org.gradle.process.ExecSpec;
 import org.gradle.process.internal.ExecActionFactory;
-import org.gradle.util.VersionNumber;
+import org.gradle.util.internal.VersionNumber;
 
 public class ToolchainDiscoverer implements Named {
 
