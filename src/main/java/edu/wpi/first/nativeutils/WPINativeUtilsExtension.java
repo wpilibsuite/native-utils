@@ -64,7 +64,7 @@ public class WPINativeUtilsExtension {
                 "-Wno-error=deprecated-declarations", "-Wno-missing-field-initializers", "-Wno-unused-private-field",
                 "-Wno-unused-const-variable", "-Wno-error=c11-extensions", "-pthread");
         public final List<String> macCCompilerArgs = List.of("-pedantic", "-fPIC", "-Wno-unused-parameter",
-                "-Wno-missing-field-initializers", "-Wno-unused-private-field");
+                "-Wno-missing-field-initializers", "-Wno-unused-private-field", "-Wno-fixed-enum-extension");
         public final List<String> macObjcppCompilerArgs = List.of("-std=c++17", "-stdlib=libc++", "-fobjc-weak",
                 "-fobjc-arc", "-fPIC");
         public final List<String> macObjcCompilerArgs = List.of("-fobjc-weak", "-fobjc-arc", "-fPIC");
@@ -422,34 +422,34 @@ public class WPINativeUtilsExtension {
 
         registerStandardDependency(configs, "wpimath", "edu.wpi.first.wpimath", "wpimath-cpp", dependencyVersions.getWpimathVersion());
 
-        registerStandardDependency(configs, "opencv", "edu.wpi.first.thirdparty.frc2021.opencv", "opencv-cpp", dependencyVersions.getOpencvVersion());
-        registerStaticOnlyStandardDependency(configs, "googletest", "edu.wpi.first.thirdparty.frc2021", "googletest", dependencyVersions.getGoogleTestVersion());
-        registerStaticOnlyStandardDependency(configs, "imgui", "edu.wpi.first.thirdparty.frc2021", "imgui", dependencyVersions.getImguiVersion());
+        registerStandardDependency(configs, "opencv", "edu.wpi.first.thirdparty.frc2022.opencv", "opencv-cpp", dependencyVersions.getOpencvVersion());
+        registerStaticOnlyStandardDependency(configs, "googletest", "edu.wpi.first.thirdparty.frc2022", "googletest", dependencyVersions.getGoogleTestVersion());
+        registerStaticOnlyStandardDependency(configs, "imgui", "edu.wpi.first.thirdparty.frc2022", "imgui", dependencyVersions.getImguiVersion());
 
 
         configs.register("wpilib_jni", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("ntcore_shared", "hal_shared", "wpiutil_shared", "wpimath_shared", "ni_link_libraries"));
+            d.set(List.of("ntcore_shared", "hal_shared", "wpimath_shared", "wpiutil_shared", "ni_link_libraries"));
         });
 
         configs.register("wpilib_static", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("wpilibc_static", "ntcore_static", "hal_static", "wpiutil_static", "wpimath_static", "ni_link_libraries"));
+            d.set(List.of("wpilibc_static", "ntcore_static", "hal_static", "wpimath_static", "wpiutil_static", "ni_link_libraries"));
         });
 
         configs.register("wpilib_shared", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("wpilibc_shared", "ntcore_shared", "hal_shared", "wpiutil_shared", "wpimath_shared", "ni_link_libraries"));
+            d.set(List.of("wpilibc_shared", "ntcore_shared", "hal_shared", "wpimath_shared", "wpiutil_shared", "ni_link_libraries"));
         });
 
         configs.register("driver_static", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("hal_static", "wpiutil_static", "wpimath_static", "ni_link_libraries"));
+            d.set(List.of("hal_static", "wpimath_static", "wpiutil_static", "ni_link_libraries"));
         });
 
         configs.register("driver_shared", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("hal_shared", "wpiutil_shared", "wpimath_shared", "ni_link_libraries"));
+            d.set(List.of("hal_shared", "wpimath_shared", "wpiutil_shared", "ni_link_libraries"));
         });
 
         configs.register("wpilib_executable_shared", AllPlatformsCombinedNativeDependency.class, c -> {

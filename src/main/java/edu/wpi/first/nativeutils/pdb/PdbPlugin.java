@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.gradle.api.Action;
 import org.gradle.api.Task;
+import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.specs.Spec;
 import org.gradle.language.c.tasks.CCompile;
 import org.gradle.language.cpp.tasks.CppCompile;
@@ -16,6 +17,8 @@ import org.gradle.nativeplatform.internal.StaticLibraryBinarySpecInternal;
 import org.gradle.nativeplatform.tasks.CreateStaticLibrary;
 import org.gradle.nativeplatform.tasks.InstallExecutable;
 import org.gradle.platform.base.BinaryTasks;
+
+import edu.wpi.first.nativeutils.NativeUtilsExtension;
 
 public class PdbPlugin extends RuleSource {
     private void staticLibraryPdbConfiguration(ModelMap<Task> tasks, StaticLibraryBinarySpecInternal staticLib) {
@@ -70,7 +73,12 @@ public class PdbPlugin extends RuleSource {
     }
 
     @Mutate
-    public void createPdbStaticBinaryTasks(ModelMap<Task> tasks) {
+    public void createPdbStaticBinaryTasks(ModelMap<Task> tasks, ExtensionContainer extensions) {
+        NativeUtilsExtension extension = extensions.getByType(NativeUtilsExtension.class);
+        if (extension.isSkipInstallPdb()) {
+        return;
+        }
+
         tasks.withType(InstallExecutable.class, install -> {
             install.doFirst(new Action<Task>() {
 
