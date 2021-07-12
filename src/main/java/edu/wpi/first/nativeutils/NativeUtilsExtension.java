@@ -808,4 +808,14 @@ public class NativeUtilsExtension {
       project.getPluginManager().apply(SourceLinkPlugin.class);
     }
   }
+
+  private boolean skipInstallPdb = false;
+
+  public boolean isSkipInstallPdb() {
+    return skipInstallPdb;
+  }
+
+  public void setSkipInstallPdb(boolean skip) {
+    skipInstallPdb = skip;
+  }
 }
