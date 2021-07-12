@@ -71,7 +71,9 @@ public class SourceLinkGenerationTask extends DefaultTask {
         final Pattern pattern = Pattern.compile(regexPattern);
         Matcher matcher = pattern.matcher(remoteUrl);
 
-        matcher.find();
+        if (!matcher.find()) {
+            return;
+        }
 
         String company = matcher.group("company");
         String project = matcher.group("project");
