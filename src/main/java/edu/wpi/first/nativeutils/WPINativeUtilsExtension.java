@@ -20,7 +20,8 @@ public class WPINativeUtilsExtension {
 
         public List<String> windowsCompilerArgs = Collections.unmodifiableList(
                 Arrays.asList("/EHsc", "/FS", "/Zc:inline", "/wd4244", "/wd4267", "/wd4146", "/wd4996",
-                        "/Zc:throwingNew", "/D_CRT_SECURE_NO_WARNINGS", "/std:c++17", "/permissive-", "/bigobj"));
+                        "/Zc:throwingNew", "/D_CRT_SECURE_NO_WARNINGS", "/std:c++17", "/permissive-", "/bigobj",
+                        "/utf-8"));
         public List<String> windowsCCompilerArgs = Collections
                 .unmodifiableList(Arrays.asList("/FS", "/Zc:inline", "/D_CRT_SECURE_NO_WARNINGS"));
         public List<String> windowsReleaseCompilerArgs = Collections.unmodifiableList(Arrays.asList("/O2", "/MD"));
