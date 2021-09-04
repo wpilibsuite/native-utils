@@ -1,5 +1,5 @@
 plugins {
-    id "com.gradle.plugin-publish" version "0.11.0"
+    id "com.gradle.plugin-publish" version "0.15.0"
     id 'java-gradle-plugin'
     id 'maven-publish'
     id 'groovy'
@@ -7,24 +7,12 @@ plugins {
     id 'idea'
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-
-compileJava {
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
-}
-
-compileGroovy {
-    sourceCompatibility = '8'
-    targetCompatibility = '8'
-}
+sourceCompatibility = 11
+targetCompatibility = 11
 
 allprojects {
     group = "edu.wpi.first"
-    version = "2022.0.2"
+    version = "2022.1.0"
 
     if (project.hasProperty('publishVersion')) {
         version = project.publishVersion
@@ -42,6 +30,17 @@ dependencies {
     api project(':ToolchainPlugin')
     implementation 'org.ajoberstar.grgit:grgit-core:3.0.0'
     implementation 'com.google.code.gson:gson:2.8.6'
+
+    testImplementation('org.spockframework:spock-core:2.0-M4-groovy-3.0') {
+        exclude group: 'org.codehaus.groovy'
+    }
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testImplementation gradleTestKit()
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
 }
 
 tasks.withType(JavaCompile) {
@@ -66,5 +65,5 @@ gradlePlugin {
 }
 
 wrapper {
-    gradleVersion = '6.0.1'
+    gradleVersion = '7.1.1'
 }

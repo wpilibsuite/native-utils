@@ -1,4 +1,4 @@
-package edu.wpi.first.toolchain
+package edu.wpi.first.nativeutils
 
 import org.gradle.testkit.runner.GradleRunner
 import static org.gradle.testkit.runner.TaskOutcome.*
@@ -6,7 +6,7 @@ import spock.lang.TempDir
 import spock.lang.Specification
 
 
-class ToolchainPluginInitializationTest extends Specification {
+class NativeUtilsPluginInitializationTest extends Specification {
   @TempDir File testProjectDir
   File buildFile
 
@@ -18,7 +18,7 @@ class ToolchainPluginInitializationTest extends Specification {
     given:
     buildFile << """plugins {
   id 'cpp'
-  id 'edu.wpi.first.Toolchain'
+  id 'edu.wpi.first.NativeUtils'
 }
 """
     when:

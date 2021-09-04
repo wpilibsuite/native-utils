@@ -23,7 +23,7 @@ import org.gradle.nativeplatform.toolchain.internal.gcc.metadata.GccMetadataProv
 import org.gradle.platform.base.internal.toolchain.SearchResult;
 import org.gradle.process.ExecSpec;
 import org.gradle.process.internal.ExecActionFactory;
-import org.gradle.util.VersionNumber;
+import org.gradle.util.internal.VersionNumber;
 
 public class ToolchainDiscoverer implements Named {
 
@@ -195,10 +195,12 @@ public class ToolchainDiscoverer implements Named {
     public static List<File> systemPath(Project project, Function<String, String> composer) {
         String tool = composer == null ? "g++" : composer.apply("gcc");
         ByteArrayOutputStream os = new ByteArrayOutputStream();
+        ByteArrayOutputStream errStr = new ByteArrayOutputStream();
 
         project.exec((ExecSpec spec) -> {
             spec.commandLine(OperatingSystem.current().isWindows() ? "where.exe" : "which", tool);
             spec.setStandardOutput(os);
+            spec.setErrorOutput(errStr);
             spec.setIgnoreExitValue(true);
         });
 

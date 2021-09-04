@@ -1,8 +1,5 @@
 package edu.wpi.first.nativeutils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,94 +7,93 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import org.gradle.api.Action;
+import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
 
-import edu.wpi.first.nativeutils.configs.PlatformConfig;
+import edu.wpi.first.nativeutils.platforms.PlatformConfig;
+import edu.wpi.first.nativeutils.dependencies.AllPlatformsCombinedNativeDependency;
+import edu.wpi.first.nativeutils.dependencies.CombinedIgnoreMissingPlatformNativeDependency;
+import edu.wpi.first.nativeutils.dependencies.NativeDependency;
+import edu.wpi.first.nativeutils.dependencies.WPISharedMavenDependency;
+import edu.wpi.first.nativeutils.dependencies.WPIStaticMavenDependency;
 
 public class WPINativeUtilsExtension {
     private NativeUtilsExtension nativeExt;
 
-    public class DefaultArguments {
+    public static class DefaultArguments {
 
-        public List<String> windowsCompilerArgs = Collections.unmodifiableList(
-                Arrays.asList("/EHsc", "/FS", "/Zc:inline", "/wd4244", "/wd4267", "/wd4146", "/wd4996",
-                        "/Zc:throwingNew", "/D_CRT_SECURE_NO_WARNINGS", "/std:c++17", "/permissive-", "/bigobj"));
-        public List<String> windowsCCompilerArgs = Collections
-                .unmodifiableList(Arrays.asList("/FS", "/Zc:inline", "/D_CRT_SECURE_NO_WARNINGS"));
-        public List<String> windowsReleaseCompilerArgs = Collections.unmodifiableList(Arrays.asList("/O2", "/MD"));
-        public List<String> windowsDebugCompilerArgs = Collections.unmodifiableList(Arrays.asList("/Od", "/MDd"));
-        public List<String> windowsLinkerArgs = Collections.unmodifiableList(Arrays.asList("/DEBUG:FULL", "/PDBALTPATH:%_PDB%"));
-        public List<String> windowsReleaseLinkerArgs = Collections
-                .unmodifiableList(Arrays.asList("/OPT:REF", "/OPT:ICF"));
+        public final List<String> windowsCompilerArgs = List.of("/EHsc", "/FS", "/Zc:inline", "/wd4244", "/wd4267",
+                "/wd4146", "/wd4996", "/Zc:throwingNew", "/D_CRT_SECURE_NO_WARNINGS", "/std:c++17", "/permissive-",
+                "/bigobj");
+        public final List<String> windowsCCompilerArgs = List.of("/FS", "/Zc:inline", "/D_CRT_SECURE_NO_WARNINGS");
+        public final List<String> windowsReleaseCompilerArgs = List.of("/O2", "/MD");
+        public final List<String> windowsDebugCompilerArgs = List.of("/Od", "/MDd");
+        public final List<String> windowsLinkerArgs = List.of("/DEBUG:FULL", "/PDBALTPATH:%_PDB%");
+        public final List<String> windowsReleaseLinkerArgs = List.of("/OPT:REF", "/OPT:ICF");
 
-        public String windowsSymbolArg = "/Zi";
+        public final String windowsSymbolArg = "/Zi";
 
-        public List<String> windowsWarningArgs = Collections.unmodifiableList(Arrays.asList("/W3"));
-        public List<String> windowsWarningsAsErrorsArgs = Collections.unmodifiableList(Arrays.asList("/WX"));
+        public final List<String> windowsWarningArgs = List.of("/W3");
+        public final List<String> windowsWarningsAsErrorsArgs = List.of("/WX");
 
-        public List<String> unixWarningArgs = Collections.unmodifiableList(Arrays.asList("-Wall", "-Wextra"));
-        public List<String> unixWarningsAsErrorsArgs = Collections.unmodifiableList(Arrays.asList("-Werror"));
+        public final List<String> unixWarningArgs = List.of("-Wall", "-Wextra");
+        public final List<String> unixWarningsAsErrorsArgs = List.of("-Werror");
 
-        public String unixSymbolArg = "-g";
+        public final String unixSymbolArg = "-g";
 
-        public List<String> linuxCrossCompilerArgs = Collections.unmodifiableList(
-                Arrays.asList("-std=c++17", "-Wformat=2", "-pedantic", "-Wno-psabi", "-Wno-unused-parameter",
-                        "-Wno-error=deprecated-declarations", "-fPIC", "-rdynamic", "-pthread"));
-        public List<String> linuxCrossCCompilerArgs = Collections.unmodifiableList(Arrays.asList("-Wformat=2",
-                "-pedantic", "-Wno-psabi", "-Wno-unused-parameter", "-fPIC", "-rdynamic", "-pthread"));
-        public List<String> linuxCrossLinkerArgs = Collections
-                .unmodifiableList(Arrays.asList("-rdynamic", "-pthread", "-ldl", "-latomic"));
-        public List<String> linuxCrossReleaseCompilerArgs = Collections.unmodifiableList(Arrays.asList("-O2"));
-        public List<String> linuxCrossDebugCompilerArgs = Collections.unmodifiableList(Arrays.asList("-Og"));
+        public final List<String> linuxCrossCompilerArgs = List.of("-std=c++17", "-Wformat=2", "-pedantic",
+                "-Wno-psabi", "-Wno-unused-parameter", "-Wno-error=deprecated-declarations", "-fPIC", "-rdynamic",
+                "-pthread");
+        public final List<String> linuxCrossCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
+                "-Wno-unused-parameter", "-fPIC", "-rdynamic", "-pthread");
+        public final List<String> linuxCrossLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic");
+        public final List<String> linuxCrossReleaseCompilerArgs = List.of("-O2");
+        public final List<String> linuxCrossDebugCompilerArgs = List.of("-Og");
 
-        public List<String> linuxCompilerArgs = Collections.unmodifiableList(
-                Arrays.asList("-std=c++17", "-Wformat=2", "-pedantic", "-Wno-psabi", "-Wno-unused-parameter",
-                        "-Wno-error=deprecated-declarations", "-fPIC", "-rdynamic", "-pthread"));
-        public List<String> linuxCCompilerArgs = Collections.unmodifiableList(Arrays.asList("-Wformat=2", "-pedantic",
-                "-Wno-psabi", "-Wno-unused-parameter", "-fPIC", "-rdynamic", "-pthread"));
-        public List<String> linuxLinkerArgs = Collections
-                .unmodifiableList(Arrays.asList("-rdynamic", "-pthread", "-ldl", "-latomic"));
-        public List<String> linuxReleaseCompilerArgs = Collections.unmodifiableList(Arrays.asList("-O2"));
-        public List<String> linuxDebugCompilerArgs = Collections.unmodifiableList(Arrays.asList("-O0"));
+        public final List<String> linuxCompilerArgs = List.of("-std=c++17", "-Wformat=2", "-pedantic", "-Wno-psabi",
+                "-Wno-unused-parameter", "-Wno-error=deprecated-declarations", "-fPIC", "-rdynamic", "-pthread");
+        public final List<String> linuxCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
+                "-Wno-unused-parameter", "-fPIC", "-rdynamic", "-pthread");
+        public final List<String> linuxLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic");
+        public final List<String> linuxReleaseCompilerArgs = List.of("-O2");
+        public final List<String> linuxDebugCompilerArgs = List.of("-O0");
 
-        public List<String> macCompilerArgs = Collections
-                .unmodifiableList(Arrays.asList("-std=c++17", "-pedantic", "-fPIC", "-Wno-unused-parameter",
-                        "-Wno-error=deprecated-declarations", "-Wno-missing-field-initializers",
-                        "-Wno-unused-private-field", "-Wno-unused-const-variable", "-Wno-error=c11-extensions",
-                        "-pthread"));
-        public List<String> macCCompilerArgs = Collections.unmodifiableList(Arrays.asList("-pedantic", "-fPIC",
-                "-Wno-unused-parameter", "-Wno-missing-field-initializers", "-Wno-unused-private-field",
-                "-Wno-fixed-enum-extension"));
-        public List<String> macObjcppCompilerArgs = Collections
-                .unmodifiableList(Arrays.asList("-std=c++17", "-stdlib=libc++", "-fobjc-weak", "-fobjc-arc", "-fPIC"));
-        public List<String> macObjcCompilerArgs = Collections
-                .unmodifiableList(Arrays.asList("-fobjc-weak", "-fobjc-arc", "-fPIC"));
-        public List<String> macReleaseCompilerArgs = Collections.unmodifiableList(Arrays.asList("-O2"));
-        public List<String> macDebugCompilerArgs = Collections.unmodifiableList(Arrays.asList("-O0"));
-        public List<String> macLinkerArgs = Collections
-                .unmodifiableList(Arrays.asList("-framework", "CoreFoundation", "-framework", "AVFoundation",
-                        "-framework", "Foundation", "-framework", "CoreMedia", "-framework", "CoreVideo"));
+        public final List<String> macCompilerArgs = List.of("-std=c++17", "-pedantic", "-fPIC", "-Wno-unused-parameter",
+                "-Wno-error=deprecated-declarations", "-Wno-missing-field-initializers", "-Wno-unused-private-field",
+                "-Wno-unused-const-variable", "-Wno-error=c11-extensions", "-pthread");
+        public final List<String> macCCompilerArgs = List.of("-pedantic", "-fPIC", "-Wno-unused-parameter",
+                "-Wno-missing-field-initializers", "-Wno-unused-private-field", "-Wno-fixed-enum-extension");
+        public final List<String> macObjcppCompilerArgs = List.of("-std=c++17", "-stdlib=libc++", "-fobjc-weak",
+                "-fobjc-arc", "-fPIC");
+        public final List<String> macObjcCompilerArgs = List.of("-fobjc-weak", "-fobjc-arc", "-fPIC");
+        public final List<String> macReleaseCompilerArgs = List.of("-O2");
+        public final List<String> macDebugCompilerArgs = List.of("-O0");
+        public final List<String> macLinkerArgs = List.of("-framework", "CoreFoundation", "-framework", "AVFoundation",
+                "-framework", "Foundation", "-framework", "CoreMedia", "-framework", "CoreVideo");
     }
 
-    public class Platforms {
-        public String roborio = "linuxathena";
-        public String raspbian = "linuxraspbian";
-        public String windowsx64 = "windowsx86-64";
-        public String windowsx86 = "windowsx86";
-        public String osxx64 = "osxx86-64";
-        public String linuxx64 = "linuxx86-64";
-        public String aarch64bionic = "linuxaarch64bionic";
-        public String aarch64xenial = "linuxaarch64xenial";
-        public List<String> allPlatforms = Collections.unmodifiableList(Arrays.asList(roborio, raspbian, aarch64bionic,
-                aarch64xenial, windowsx64, windowsx86, osxx64, linuxx64));
-        public List<String> desktopPlatforms = Collections
-                .unmodifiableList(Arrays.asList(windowsx64, windowsx86, osxx64, linuxx64));
+    public static class Platforms {
+        public final String roborio = "linuxathena";
+        public final String raspbian = "linuxraspbian";
+        public final String windowsx64 = "windowsx86-64";
+        public final String windowsx86 = "windowsx86";
+        public final String osxx64 = "osxx86-64";
+        public final String linuxx64 = "linuxx86-64";
+        public final String aarch64bionic = "linuxaarch64bionic";
+        public final String aarch64xenial = "linuxaarch64xenial";
+        public final List<String> allPlatforms = List.of(roborio, raspbian, aarch64bionic, aarch64xenial, windowsx64,
+                windowsx86, osxx64, linuxx64);
+        public final List<String> desktopPlatforms = List.of(windowsx64, windowsx86, osxx64, linuxx64);
     }
 
-    public Platforms platforms = new Platforms();
-    public DefaultArguments defaultArguments = new DefaultArguments();
+    public final Platforms platforms;
 
-    private Map<String, PlatformConfig> windowsPlatforms = new HashMap<>();
-    private Map<String, PlatformConfig> unixPlatforms = new HashMap<>();
+    public final DefaultArguments defaultArguments;
+
+    private final Map<String, PlatformConfig> windowsPlatforms = new HashMap<>();
+    private final Map<String, PlatformConfig> unixPlatforms = new HashMap<>();
 
     public void addLinuxCrossArgs(PlatformConfig platform) {
         platform.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerArgs);
@@ -160,9 +156,15 @@ public class WPINativeUtilsExtension {
         platform.getObjcppCompiler().getDebugArgs().add(defaultArguments.unixSymbolArg);
     }
 
+    private final ObjectFactory objects;
+
     @Inject
-    public WPINativeUtilsExtension(NativeUtilsExtension nativeExt) {
+    public WPINativeUtilsExtension(NativeUtilsExtension nativeExt, ObjectFactory objects) {
         this.nativeExt = nativeExt;
+        this.objects = objects;
+
+        this.platforms = objects.newInstance(Platforms.class);
+        defaultArguments = objects.newInstance(DefaultArguments.class);
 
         PlatformConfig windowsx86_64 = nativeExt.getPlatformConfigs().create(platforms.windowsx64);
         PlatformConfig windowsx86 = nativeExt.getPlatformConfigs().create(platforms.windowsx86);
@@ -181,38 +183,43 @@ public class WPINativeUtilsExtension {
         unixPlatforms.put(platforms.aarch64bionic, linuxbionic);
         unixPlatforms.put(platforms.aarch64xenial, linuxxenial);
 
-        linuxathena.setPlatformPath("linux/athena");
+        linuxathena.getPlatformPath().set("linux/athena");
         addLinuxCrossArgs(linuxathena);
 
-        linuxraspbian.setPlatformPath("linux/raspbian");
+        linuxraspbian.getPlatformPath().set("linux/raspbian");
         addLinuxCrossArgs(linuxraspbian);
 
-        linuxbionic.setPlatformPath("linux/aarch64bionic");
+        linuxbionic.getPlatformPath().set("linux/aarch64bionic");
         addLinuxCrossArgs(linuxbionic);
 
-        linuxxenial.setPlatformPath("linux/aarch64xenial");
+        linuxxenial.getPlatformPath().set("linux/aarch64xenial");
         addLinuxCrossArgs(linuxxenial);
 
-        windowsx86_64.setPlatformPath("windows/x86-64");
+        windowsx86_64.getPlatformPath().set("windows/x86-64");
         addWindowsArgs(windowsx86_64);
 
-        windowsx86.setPlatformPath("windows/x86");
+        windowsx86.getPlatformPath().set("windows/x86");
         addWindowsArgs(windowsx86);
 
-        linuxx86_64.setPlatformPath("linux/x86-64");
+        linuxx86_64.getPlatformPath().set("linux/x86-64");
         addLinuxArgs(linuxx86_64);
 
-        osxx86_64.setPlatformPath("osx/x86-64");
+        osxx86_64.getPlatformPath().set("osx/x86-64");
         addMacArgs(osxx86_64);
     }
 
-    public class DependencyVersions {
-        public String wpiVersion = "-1";
-        public String niLibVersion = "-1";
-        public String opencvVersion = "-1";
-        public String googleTestVersion = "-1";
-        public String imguiVersion = "-1";
-        public String wpimathVersion = "-1";
+    public static abstract class DependencyVersions {
+        public abstract Property<String> getWpiVersion();
+
+        public abstract Property<String> getNiLibVersion();
+
+        public abstract Property<String> getOpencvVersion();
+
+        public abstract Property<String> getGoogleTestVersion();
+
+        public abstract Property<String> getImguiVersion();
+
+        public abstract Property<String> getWpimathVersion();
     }
 
     private void addPlatformReleaseSymbolGeneration(String platform) {
@@ -310,395 +317,169 @@ public class WPINativeUtilsExtension {
 
     private DependencyVersions dependencyVersions;
 
-    private boolean skipRaspbianAsDesktop = false;
+    private void registerStandardDependency(ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs,
+            String name, String groupId, String artifactId, Property<String> version) {
+        configs.register(name + "_shared", WPISharedMavenDependency.class, c -> {
+            c.getGroupId().set(groupId);
+            c.getArtifactId().set(artifactId);
+            c.getHeaderClassifier().set("headers");
+            c.getSourceClassifier().set("sources");
+            c.getExt().set("zip");
+            c.getVersion().set(version);
+            c.getExtraSharedExcludes().add("**/*java*");
+            c.getExtraSharedExcludes().add("**/*jni*");
+            c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
+        });
+        configs.register(name + "_static", WPIStaticMavenDependency.class, c -> {
+            c.getGroupId().set(groupId);
+            c.getArtifactId().set(artifactId);
+            c.getHeaderClassifier().set("headers");
+            c.getSourceClassifier().set("sources");
+            c.getExt().set("zip");
+            c.getVersion().set(version);
+            c.getExtraSharedExcludes().add("**/*java*");
+            c.getExtraSharedExcludes().add("**/*jni*");
+            c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
+        });
+    }
 
-    public void setSkipRaspbianAsDesktop(boolean skip) {
-        skipRaspbianAsDesktop = skip;
+    private void registerStaticOnlyStandardDependency(ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs,
+            String name, String groupId, String artifactId, Property<String> version) {
+        configs.register(name + "_static", WPIStaticMavenDependency.class, c -> {
+            c.getGroupId().set(groupId);
+            c.getArtifactId().set(artifactId);
+            c.getHeaderClassifier().set("headers");
+            c.getSourceClassifier().set("sources");
+            c.getExt().set("zip");
+            c.getVersion().set(version);
+            c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
+        });
     }
 
     public void configureDependencies(Action<DependencyVersions> dependencies) {
         if (dependencyVersions != null) {
             return;
         }
-        dependencyVersions = new DependencyVersions();
+        dependencyVersions = objects.newInstance(DependencyVersions.class);
         dependencies.execute(dependencyVersions);
-        nativeExt.dependencyConfigs(configs -> {
-            configs.create("netcomm", c -> {
-                c.setGroupId("edu.wpi.first.ni-libraries");
-                c.setArtifactId("netcomm");
-                c.setHeaderClassifier("headers");
-                c.setExt("zip");
-                c.setVersion(dependencyVersions.niLibVersion);
-                c.setSharedUsedAtRuntime(false);
-                c.getSharedPlatforms().add(this.platforms.roborio);
-            });
-
-            configs.create("chipobject", c -> {
-                c.setGroupId("edu.wpi.first.ni-libraries");
-                c.setArtifactId("chipobject");
-                c.setHeaderClassifier("headers");
-                c.setExt("zip");
-                c.setVersion(dependencyVersions.niLibVersion);
-                c.setSharedUsedAtRuntime(false);
-                c.getSharedPlatforms().add(this.platforms.roborio);
-            });
-
-            configs.create("visa", c -> {
-                c.setGroupId("edu.wpi.first.ni-libraries");
-                c.setArtifactId("visa");
-                c.setHeaderClassifier("headers");
-                c.setExt("zip");
-                c.setVersion(dependencyVersions.niLibVersion);
-                c.setSharedUsedAtRuntime(false);
-                c.getSharedPlatforms().add(this.platforms.roborio);
-            });
-
-            configs.create("ni_runtime", c -> {
-                c.setGroupId("edu.wpi.first.ni-libraries");
-                c.setArtifactId("runtime");
-                c.setExt("zip");
-                c.setVersion(dependencyVersions.niLibVersion);
-                c.setSharedUsedAtRuntime(false);
-                c.getSharedPlatforms().add(this.platforms.roborio);
-            });
-
-            if (!dependencyVersions.wpiVersion.equals("-1")) {
-
-                configs.create("wpiutil", c -> {
-                    c.setGroupId("edu.wpi.first.wpiutil");
-                    c.setArtifactId("wpiutil-cpp");
-                    c.setHeaderClassifier("headers");
-                    c.setSourceClassifier("sources");
-                    c.setExt("zip");
-                    c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedExcludes().add("**/*jni*");
-                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
-                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-                });
-
-                configs.create("ntcore", c -> {
-                    c.setGroupId("edu.wpi.first.ntcore");
-                    c.setArtifactId("ntcore-cpp");
-                    c.setHeaderClassifier("headers");
-                    c.setSourceClassifier("sources");
-                    c.setExt("zip");
-                    c.getSharedExcludes().add("**/*jni*");
-                    c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
-                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-                });
-
-                configs.create("hal", c -> {
-                    c.setGroupId("edu.wpi.first.hal");
-                    c.setArtifactId("hal-cpp");
-                    c.setHeaderClassifier("headers");
-                    c.setSourceClassifier("sources");
-                    c.setExt("zip");
-                    c.getSharedExcludes().add("**/*jni*");
-                    c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
-                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-                });
-
-                configs.create("cscore", c -> {
-                    c.setGroupId("edu.wpi.first.cscore");
-                    c.setArtifactId("cscore-cpp");
-                    c.setHeaderClassifier("headers");
-                    c.setSourceClassifier("sources");
-                    c.setExt("zip");
-                    c.getSharedExcludes().add("**/*jni*");
-                    c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
-                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-                });
-
-                configs.create("cameraserver", c -> {
-                    c.setGroupId("edu.wpi.first.cameraserver");
-                    c.setArtifactId("cameraserver-cpp");
-                    c.setHeaderClassifier("headers");
-                    c.setSourceClassifier("sources");
-                    c.setExt("zip");
-                    c.getSharedExcludes().add("**/*jni*");
-                    c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
-                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-                });
-
-                configs.create("wpilibc", c -> {
-                    c.setGroupId("edu.wpi.first.wpilibc");
-                    c.setArtifactId("wpilibc-cpp");
-                    c.setHeaderClassifier("headers");
-                    c.setSourceClassifier("sources");
-                    c.setExt("zip");
-                    c.getSharedExcludes().add("**/*jni*");
-                    c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
-                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-                });
-
-                configs.create("wpilib_new_commands", c -> {
-                    c.setGroupId("edu.wpi.first.wpilibNewCommands");
-                    c.setArtifactId("wpilibNewCommands-cpp");
-                    c.setHeaderClassifier("headers");
-                    c.setSourceClassifier("sources");
-                    c.setExt("zip");
-                    c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
-                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-                });
-
-                configs.create("wpilib_old_commands", c -> {
-                    c.setGroupId("edu.wpi.first.wpilibOldCommands");
-                    c.setArtifactId("wpilibOldCommands-cpp");
-                    c.setHeaderClassifier("headers");
-                    c.setSourceClassifier("sources");
-                    c.setExt("zip");
-                    c.setVersion(dependencyVersions.wpiVersion);
-                    c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
-                    c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-                });
-            }
-
-            configs.create("opencv", c -> {
-                c.setGroupId("edu.wpi.first.thirdparty.frc2022.opencv");
-                c.setArtifactId("opencv-cpp");
-                c.setHeaderClassifier("headers");
-                c.setSourceClassifier("sources");
-                c.setExt("zip");
-                c.setVersion(dependencyVersions.opencvVersion);
-                c.getSharedExcludes().add("**/*java*");
-                c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
-                c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-            });
-
-            configs.create("googletest", c -> {
-                c.setGroupId("edu.wpi.first.thirdparty.frc2022");
-                c.setArtifactId("googletest");
-                c.setHeaderClassifier("headers");
-                c.setSourceClassifier("sources");
-                c.setExt("zip");
-                c.setVersion(dependencyVersions.googleTestVersion);
-                c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-            });
-
-            configs.create("imgui", c -> {
-                c.setGroupId("edu.wpi.first.thirdparty.frc2022");
-                c.setArtifactId("imgui");
-                c.setHeaderClassifier("headers");
-                c.setSourceClassifier("sources");
-                c.setExt("zip");
-                c.setVersion(dependencyVersions.imguiVersion);
-                c.getStaticPlatforms().addAll(this.platforms.desktopPlatforms);
-            });
-
-            configs.create("wpimath", c -> {
-                c.setGroupId("edu.wpi.first.wpimath");
-                c.setArtifactId("wpimath-cpp");
-                c.setHeaderClassifier("headers");
-                c.setSourceClassifier("sources");
-                c.setExt("zip");
-                c.getSharedExcludes().add("**/*jni*");
-                c.setVersion(dependencyVersions.wpimathVersion);
-                c.getStaticPlatforms().addAll(this.platforms.allPlatforms);
-                c.getSharedPlatforms().addAll(this.platforms.allPlatforms);
-            });
+        ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs = nativeExt.getNativeDependencyContainer();
+        configs.register("netcomm", WPISharedMavenDependency.class, c -> {
+            c.getGroupId().set("edu.wpi.first.ni-libraries");
+            c.getArtifactId().set("netcomm");
+            c.getHeaderClassifier().set("headers");
+            c.getExt().set("zip");
+            c.getVersion().set(dependencyVersions.getNiLibVersion());
+            c.getSkipAtRuntime().set(true);
+            c.getTargetPlatforms().add(this.platforms.roborio);
         });
-        if (!dependencyVersions.wpiVersion.equals("-1")) {
-            nativeExt.combinedDependencyConfigs(configs -> {
-                configs.create("wpilib_jni_rio", c -> {
-                    c.setLibraryName("wpilib_jni");
-                    c.getTargetPlatforms().add(this.platforms.roborio);
-                    List<String> deps = c.getDependencies();
-                    deps.add("ntcore_shared");
-                    deps.add("hal_shared");
-                    deps.add("wpiutil_shared");
-                    deps.add("wpimath_shared");
-                    deps.add("chipobject_shared");
-                    deps.add("netcomm_shared");
-                    deps.add("visa_shared");
-                });
 
-                configs.create("wpilib_static_rio", c -> {
-                    c.setLibraryName("wpilib_static");
-                    c.getTargetPlatforms().add(this.platforms.roborio);
-                    List<String> deps = c.getDependencies();
-                    deps.add("wpilibc_static");
-                    deps.add("ntcore_static");
-                    deps.add("hal_static");
-                    deps.add("wpimath_static");
-                    deps.add("wpiutil_static");
-                    deps.add("chipobject_shared");
-                    deps.add("netcomm_shared");
-                    deps.add("visa_shared");
-                });
-                configs.create("wpilib_executable_static_rio", c -> {
-                    c.setLibraryName("wpilib_executable_static");
-                    c.getTargetPlatforms().add(this.platforms.roborio);
-                    List<String> deps = c.getDependencies();
-                    deps.add("wpilibc_static");
-                    deps.add("ntcore_static");
-                    deps.add("hal_static");
-                    deps.add("wpimath_static");
-                    deps.add("wpiutil_static");
-                    deps.add("chipobject_shared");
-                    deps.add("netcomm_shared");
-                    deps.add("visa_shared");
-                    deps.add("ni_runtime_shared");
-                });
-                configs.create("driver_static_rio", c -> {
-                    c.setLibraryName("driver_static");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().add(this.platforms.roborio);
-                    deps.add("hal_static");
-                    deps.add("wpiutil_static");
-                    deps.add("chipobject_shared");
-                    deps.add("netcomm_shared");
-                    deps.add("visa_shared");
-                });
-                configs.create("wpilib_shared_rio", c -> {
-                    c.setLibraryName("wpilib_shared");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().add(this.platforms.roborio);
-                    deps.add("wpilibc_shared");
-                    deps.add("ntcore_shared");
-                    deps.add("hal_shared");
-                    deps.add("wpiutil_shared");
-                    deps.add("wpimath_shared");
-                    deps.add("chipobject_shared");
-                    deps.add("netcomm_shared");
-                    deps.add("visa_shared");
-                });
-                configs.create("wpilib_executable_shared_rio", c -> {
-                    c.setLibraryName("wpilib_executable_shared");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().add(this.platforms.roborio);
-                    deps.add("wpilibc_shared");
-                    deps.add("ntcore_shared");
-                    deps.add("hal_shared");
-                    deps.add("wpiutil_shared");
-                    deps.add("wpimath_shared");
-                    deps.add("chipobject_shared");
-                    deps.add("netcomm_shared");
-                    deps.add("visa_shared");
-                    deps.add("ni_runtime_shared");
-                });
-                configs.create("driver_shared_rio", c -> {
-                    c.setLibraryName("driver_shared");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().add(this.platforms.roborio);
-                    deps.add("hal_shared");
-                    deps.add("wpiutil_shared");
-                    deps.add("chipobject_shared");
-                    deps.add("netcomm_shared");
-                    deps.add("visa_shared");
-                });
+        configs.register("chipobject", WPISharedMavenDependency.class, c -> {
+            c.getGroupId().set("edu.wpi.first.ni-libraries");
+            c.getArtifactId().set("chipobject");
+            c.getHeaderClassifier().set("headers");
+            c.getExt().set("zip");
+            c.getVersion().set(dependencyVersions.getNiLibVersion());
+            c.getSkipAtRuntime().set(true);
+            c.getTargetPlatforms().add(this.platforms.roborio);
+        });
 
-                configs.create("vision_jni_shared", c -> {
-                    c.setLibraryName("vision_jni_shared");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
-                    deps.add("cscore_shared");
-                    deps.add("opencv_shared");
-                });
+        configs.register("visa", WPISharedMavenDependency.class, c -> {
+            c.getGroupId().set("edu.wpi.first.ni-libraries");
+            c.getArtifactId().set("visa");
+            c.getHeaderClassifier().set("headers");
+            c.getExt().set("zip");
+            c.getVersion().set(dependencyVersions.getNiLibVersion());
+            c.getSkipAtRuntime().set(true);
+            c.getTargetPlatforms().add(this.platforms.roborio);
+        });
 
-                configs.create("vision_shared", c -> {
-                    c.setLibraryName("vision_shared");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
-                    deps.add("cameraserver_shared");
-                    deps.add("cscore_shared");
-                    deps.add("opencv_shared");
-                });
+        configs.register("ni_runtime", WPISharedMavenDependency.class, c -> {
+            c.getGroupId().set("edu.wpi.first.ni-libraries");
+            c.getArtifactId().set("runtime");
+            c.getExt().set("zip");
+            c.getVersion().set(dependencyVersions.getNiLibVersion());
+            c.getSkipAtRuntime().set(true);
+            c.getTargetPlatforms().add(this.platforms.roborio);
+        });
 
-                configs.create("vision_jni_static", c -> {
-                    c.setLibraryName("vision_jni_static");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
-                    deps.add("cscore_static");
-                    deps.add("opencv_static");
-                });
+        configs.register("ni_link_libraries", CombinedIgnoreMissingPlatformNativeDependency.class, c -> {
+            c.getDependencies().put(this.platforms.roborio, List.of("netcomm", "chipobject", "visa"));
+        });
 
-                configs.create("vision_static", c -> {
-                    c.setLibraryName("vision_static");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
-                    deps.add("cameraserver_static");
-                    deps.add("cscore_static");
-                    deps.add("opencv_static");
-                });
+        configs.register("ni_runtime_libraries", CombinedIgnoreMissingPlatformNativeDependency.class, c -> {
+            c.getDependencies().put(this.platforms.roborio, List.of("ni_runtime"));
+        });
 
-                List<String> platsWithoutRio = new ArrayList<>(this.platforms.allPlatforms);
-                platsWithoutRio.remove(this.platforms.roborio);
+        Property<String> wpiVersion = dependencyVersions.getWpiVersion();
+        registerStandardDependency(configs, "wpiutil", "edu.wpi.first.wpiutil", "wpiutil-cpp", wpiVersion);
+        registerStandardDependency(configs, "ntcore", "edu.wpi.first.ntcore", "ntcore-cpp", wpiVersion);
+        registerStandardDependency(configs, "hal", "edu.wpi.first.hal", "hal-cpp", wpiVersion);
+        registerStandardDependency(configs, "cscore", "edu.wpi.first.cscore", "cscore-cpp", wpiVersion);
+        registerStandardDependency(configs, "cameraserver", "edu.wpi.first.cameraserver", "cameraserver-cpp", wpiVersion);
+        registerStandardDependency(configs, "wpilibc", "edu.wpi.first.wpilibc", "wpilibc-cpp", wpiVersion);
+        registerStandardDependency(configs, "wpilib_new_commands", "edu.wpi.first.wpilibNewCommands", "wpilibNewCommands-cpp", wpiVersion);
+        registerStandardDependency(configs, "wpilib_old_commands", "edu.wpi.first.wpilibOldCommands", "wpilibOldCommands-cpp", wpiVersion);
 
-                if (skipRaspbianAsDesktop) {
-                    platsWithoutRio.remove(this.platforms.raspbian);
-                }
+        registerStandardDependency(configs, "wpimath", "edu.wpi.first.wpimath", "wpimath-cpp", dependencyVersions.getWpimathVersion());
 
-                configs.create("wpilib_jni_dt", c -> {
-                    c.setLibraryName("wpilib_jni");
-                    c.getTargetPlatforms().addAll(platsWithoutRio);
-                    List<String> deps = c.getDependencies();
-                    deps.add("ntcore_shared");
-                    deps.add("hal_shared");
-                    deps.add("wpiutil_shared");
-                    deps.add("wpimath_shared");
-                });
+        registerStandardDependency(configs, "opencv", "edu.wpi.first.thirdparty.frc2022.opencv", "opencv-cpp", dependencyVersions.getOpencvVersion());
+        registerStaticOnlyStandardDependency(configs, "googletest", "edu.wpi.first.thirdparty.frc2022", "googletest", dependencyVersions.getGoogleTestVersion());
+        registerStaticOnlyStandardDependency(configs, "imgui", "edu.wpi.first.thirdparty.frc2022", "imgui", dependencyVersions.getImguiVersion());
 
-                configs.create("wpilib_static_dt", c -> {
-                    c.setLibraryName("wpilib_static");
-                    c.getTargetPlatforms().addAll(platsWithoutRio);
-                    List<String> deps = c.getDependencies();
-                    deps.add("wpilibc_static");
-                    deps.add("ntcore_static");
-                    deps.add("hal_static");
-                    deps.add("wpimath_static");
-                    deps.add("wpiutil_static");
-                });
-                configs.create("wpilib_executable_static_dt", c -> {
-                    c.setLibraryName("wpilib_executable_static");
-                    c.getTargetPlatforms().addAll(platsWithoutRio);
-                    List<String> deps = c.getDependencies();
-                    deps.add("wpilibc_static");
-                    deps.add("ntcore_static");
-                    deps.add("hal_static");
-                    deps.add("wpimath_static");
-                    deps.add("wpiutil_static");
-                });
-                configs.create("driver_static_dt", c -> {
-                    c.setLibraryName("driver_static");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().addAll(platsWithoutRio);
-                    deps.add("hal_static");
-                    deps.add("wpiutil_static");
-                });
-                configs.create("wpilib_shared_dt", c -> {
-                    c.setLibraryName("wpilib_shared");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().addAll(platsWithoutRio);
-                    deps.add("wpilibc_shared");
-                    deps.add("ntcore_shared");
-                    deps.add("hal_shared");
-                    deps.add("wpiutil_shared");
-                    deps.add("wpimath_shared");
-                });
-                configs.create("wpilib_executable_shared_dt", c -> {
-                    c.setLibraryName("wpilib_executable_shared");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().addAll(platsWithoutRio);
-                    deps.add("wpilibc_shared");
-                    deps.add("ntcore_shared");
-                    deps.add("hal_shared");
-                    deps.add("wpiutil_shared");
-                    deps.add("wpimath_shared");
-                });
-                configs.create("driver_shared_dt", c -> {
-                    c.setLibraryName("driver_shared");
-                    List<String> deps = c.getDependencies();
-                    c.getTargetPlatforms().addAll(platsWithoutRio);
-                    deps.add("hal_shared");
-                    deps.add("wpiutil_shared");
-                });
-            });
-        }
+
+        configs.register("wpilib_jni", AllPlatformsCombinedNativeDependency.class, c -> {
+            ListProperty<String> d = c.getDependencies();
+            d.set(List.of("ntcore_shared", "hal_shared", "wpimath_shared", "wpiutil_shared", "ni_link_libraries"));
+        });
+
+        configs.register("wpilib_static", AllPlatformsCombinedNativeDependency.class, c -> {
+            ListProperty<String> d = c.getDependencies();
+            d.set(List.of("wpilibc_static", "ntcore_static", "hal_static", "wpimath_static", "wpiutil_static", "ni_link_libraries"));
+        });
+
+        configs.register("wpilib_shared", AllPlatformsCombinedNativeDependency.class, c -> {
+            ListProperty<String> d = c.getDependencies();
+            d.set(List.of("wpilibc_shared", "ntcore_shared", "hal_shared", "wpimath_shared", "wpiutil_shared", "ni_link_libraries"));
+        });
+
+        configs.register("driver_static", AllPlatformsCombinedNativeDependency.class, c -> {
+            ListProperty<String> d = c.getDependencies();
+            d.set(List.of("hal_static", "wpimath_static", "wpiutil_static", "ni_link_libraries"));
+        });
+
+        configs.register("driver_shared", AllPlatformsCombinedNativeDependency.class, c -> {
+            ListProperty<String> d = c.getDependencies();
+            d.set(List.of("hal_shared", "wpimath_shared", "wpiutil_shared", "ni_link_libraries"));
+        });
+
+        configs.register("wpilib_executable_shared", AllPlatformsCombinedNativeDependency.class, c -> {
+            ListProperty<String> d = c.getDependencies();
+            d.set(List.of("wpilib_shared", "ni_link_libraries", "ni_runtime_libraries"));
+        });
+
+        configs.register("wpilib_executable_static", AllPlatformsCombinedNativeDependency.class, c -> {
+            ListProperty<String> d = c.getDependencies();
+            d.set(List.of("wpilib_static", "ni_link_libraries", "ni_runtime_libraries"));
+        });
+
+        configs.register("vision_jni_shared", AllPlatformsCombinedNativeDependency.class, c -> {
+            ListProperty<String> d = c.getDependencies();
+            d.set(List.of("cscore_shared", "opencv_shared"));
+        });
+
+        configs.register("vision_jni_static", AllPlatformsCombinedNativeDependency.class, c -> {
+            ListProperty<String> d = c.getDependencies();
+            d.set(List.of("cscore_static", "opencv_static"));
+        });
+
+        configs.register("vision_shared", AllPlatformsCombinedNativeDependency.class, c -> {
+            ListProperty<String> d = c.getDependencies();
+            d.set(List.of("cameraserver_shared", "cscore_shared", "opencv_shared"));
+        });
+
+        configs.register("vision_static", AllPlatformsCombinedNativeDependency.class, c -> {
+            ListProperty<String> d = c.getDependencies();
+            d.set(List.of("cameraserver_static", "cscore_static", "opencv_static"));
+        });
     }
 }

@@ -10,7 +10,6 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.internal.logging.text.DiagnosticsVisitor;
 import org.gradle.internal.os.OperatingSystem;
-import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
 import edu.wpi.first.toolchain.bionic.BionicToolchainPlugin;
 import edu.wpi.first.toolchain.configurable.ConfigurableGcc;
@@ -19,14 +18,12 @@ import edu.wpi.first.toolchain.configurable.DefaultCrossCompilerConfiguration;
 import edu.wpi.first.toolchain.raspbian.RaspbianToolchainPlugin;
 import edu.wpi.first.toolchain.roborio.RoboRioToolchainPlugin;
 import edu.wpi.first.toolchain.xenial.XenialToolchainPlugin;
-import jaci.gradle.toolchains.ToolchainsPlugin.ToolchainUtilExtension;
+//import edu.wpi.first.deployutils.toolchains.ToolchainsPlugin.ToolchainUtilExtension;
 
 public class ToolchainExtension {
     private final NamedDomainObjectContainer<CrossCompilerConfiguration> crossCompilers;
     private final NamedDomainObjectContainer<ToolchainDescriptorBase> toolchainDescriptors;
     private final Map<String, List<String>> stripExcludeMap = new HashMap<>();
-
-    private final Map<AbstractLinkTask, OrderedStripTask> linkTaskMap = new HashMap<>();
 
     private Project project;
 
@@ -65,17 +62,13 @@ public class ToolchainExtension {
 
     }
 
-    public Map<AbstractLinkTask, OrderedStripTask> getLinkTaskMap() {
-        return linkTaskMap;
-    }
-
-    public void setSinglePrintPerPlatform() {
-        ToolchainPlugin.singlePrintPerPlatform = true;
-        ToolchainUtilExtension tcuExt = project.getExtensions().findByType(ToolchainUtilExtension.class);
-        if (tcuExt != null) {
-            tcuExt.setSkipBinaryToolchainMissingWarning(true);
-        }
-    }
+    // public void setSinglePrintPerPlatform() {
+    //     ToolchainPlugin.singlePrintPerPlatform = true;
+    //     ToolchainUtilExtension tcuExt = project.getExtensions().findByType(ToolchainUtilExtension.class);
+    //     if (tcuExt != null) {
+    //         tcuExt.setSkipBinaryToolchainMissingWarning(true);
+    //     }
+    // }
 
     public void withRoboRIO() {
         project.getPluginManager().apply(RoboRioToolchainPlugin.class);
