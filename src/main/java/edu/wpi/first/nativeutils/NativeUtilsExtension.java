@@ -51,7 +51,6 @@ import edu.wpi.first.toolchain.bionic.BionicToolchainPlugin;
 import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
 import edu.wpi.first.toolchain.raspbian.RaspbianToolchainPlugin;
 import edu.wpi.first.toolchain.roborio.RoboRioToolchainPlugin;
-import edu.wpi.first.toolchain.xenial.XenialToolchainPlugin;
 
 public class NativeUtilsExtension {
 
@@ -787,10 +786,6 @@ public class NativeUtilsExtension {
 
   public void withBionic() {
     project.getPluginManager().apply(BionicToolchainPlugin.class);
-  }
-
-  public void withXenial() {
-    project.getPluginManager().apply(XenialToolchainPlugin.class);
   }
 
   public void excludeBinariesFromStrip(VariantComponentSpec component) {
