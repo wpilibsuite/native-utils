@@ -29,7 +29,7 @@ public class ExportsConfigRules extends RuleSource {
 
         binary.getTasks().withType(AbstractLinkTask.class, link -> {
 
-            TaskProvider<ExtractDefFileGeneratorTask> extractTask = binary.getBuildTask().getProject().getTasks()
+            TaskProvider<ExtractDefFileGeneratorTask> extractTask = binary.getBuildTask().getProject().getRootProject().getTasks()
                     .named(ExportsConfigPlugin.EXPORT_GENERATOR_EXTRACT_TASK_NAME, ExtractDefFileGeneratorTask.class);
 
             String exportsName = binary.getNamingScheme().getTaskName("generateExports");

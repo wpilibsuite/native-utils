@@ -62,13 +62,13 @@ public class ToolchainExtension {
 
     }
 
-    // public void setSinglePrintPerPlatform() {
-    //     ToolchainPlugin.singlePrintPerPlatform = true;
-    //     ToolchainUtilExtension tcuExt = project.getExtensions().findByType(ToolchainUtilExtension.class);
-    //     if (tcuExt != null) {
-    //         tcuExt.setSkipBinaryToolchainMissingWarning(true);
-    //     }
-    // }
+    public void setSinglePrintPerPlatform() {
+        ToolchainPlugin.singlePrintPerPlatform = true;
+        // ToolchainUtilExtension tcuExt = project.getExtensions().findByType(ToolchainUtilExtension.class);
+        // if (tcuExt != null) {
+        //     tcuExt.setSkipBinaryToolchainMissingWarning(true);
+        // }
+    }
 
     public void withRoboRIO() {
         project.getPluginManager().apply(RoboRioToolchainPlugin.class);

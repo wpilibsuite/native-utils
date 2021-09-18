@@ -567,9 +567,9 @@ public class NativeUtilsExtension {
 //     }
 //   }
 
-  // public void setSinglePrintPerPlatform() {
-  //   tcExt.setSinglePrintPerPlatform();
-  // }
+  public void setSinglePrintPerPlatform() {
+    tcExt.setSinglePrintPerPlatform();
+  }
 
   public NamedDomainObjectContainer<ToolchainDescriptorBase> getToolchainDescriptors() {
     return tcExt.getToolchainDescriptors();

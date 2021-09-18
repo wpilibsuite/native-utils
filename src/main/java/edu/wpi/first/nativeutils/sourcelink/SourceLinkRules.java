@@ -24,7 +24,7 @@ public class SourceLinkRules extends RuleSource {
     }
 
     binary.getTasks().withType(AbstractLinkTask.class, link -> {
-      handleLinkedComponent(binary, link, binary.getBuildTask().getProject().getTasks().named("generateSourceLinkFile", SourceLinkGenerationTask.class), binary.getBuildTask().getProject());
+      handleLinkedComponent(binary, link, binary.getBuildTask().getProject().getRootProject().getTasks().named(SourceLinkPlugin.SOURCE_LINK_ROOT_TASK_NAME, SourceLinkGenerationTask.class), binary.getBuildTask().getProject());
     });
   }
 
@@ -34,7 +34,7 @@ public class SourceLinkRules extends RuleSource {
       return;
     }
     binary.getTasks().withType(AbstractLinkTask.class, link -> {
-      handleLinkedComponent(binary, link, binary.getBuildTask().getProject().getTasks().named("generateSourceLinkFile", SourceLinkGenerationTask.class), binary.getBuildTask().getProject());
+      handleLinkedComponent(binary, link, binary.getBuildTask().getProject().getRootProject().getTasks().named(SourceLinkPlugin.SOURCE_LINK_ROOT_TASK_NAME, SourceLinkGenerationTask.class), binary.getBuildTask().getProject());
     });
   }
 
