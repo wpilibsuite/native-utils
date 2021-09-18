@@ -85,7 +85,14 @@ public class RaspbianToolchainPlugin implements Plugin<Project> {
     private String toolchainRemoteFile() {
         String[] desiredVersion = raspbianExt.toolchainVersion.split("-");
 
-        String platformId = OperatingSystem.current().isWindows() ? "Windows" : OperatingSystem.current().isMacOsX() ? "Mac" : "Linux";
+        String platformId;
+        if (OperatingSystem.current().isWindows()) {
+            platformId = "Windows" + (NativePlatforms.desktopPlatformArch() == "x86-64" ? "64" : "32");
+        } else if (OperatingSystem.current().isMacOsX()) {
+            platformId = "Mac";
+        } else {
+            platformId = "Linux";
+        }
         String ext = OperatingSystem.current().isWindows() ? "zip" : "tar.gz";
         return desiredVersion[0] + "-" + platformId + "-Toolchain-" + desiredVersion[1] + "." + ext;
     }
