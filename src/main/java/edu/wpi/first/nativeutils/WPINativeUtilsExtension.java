@@ -82,8 +82,7 @@ public class WPINativeUtilsExtension {
         public final String osxx64 = "osxx86-64";
         public final String linuxx64 = "linuxx86-64";
         public final String aarch64bionic = "linuxaarch64bionic";
-        public final String aarch64xenial = "linuxaarch64xenial";
-        public final List<String> allPlatforms = List.of(roborio, raspbian, aarch64bionic, aarch64xenial, windowsx64,
+        public final List<String> allPlatforms = List.of(roborio, raspbian, aarch64bionic, windowsx64,
                 windowsx86, osxx64, linuxx64);
         public final List<String> desktopPlatforms = List.of(windowsx64, windowsx86, osxx64, linuxx64);
     }
@@ -175,13 +174,11 @@ public class WPINativeUtilsExtension {
         PlatformConfig linuxathena = nativeExt.getPlatformConfigs().create(platforms.roborio);
         PlatformConfig linuxraspbian = nativeExt.getPlatformConfigs().create(platforms.raspbian);
         PlatformConfig linuxbionic = nativeExt.getPlatformConfigs().create(platforms.aarch64bionic);
-        PlatformConfig linuxxenial = nativeExt.getPlatformConfigs().create(platforms.aarch64xenial);
         unixPlatforms.put(platforms.linuxx64, linuxx86_64);
         unixPlatforms.put(platforms.osxx64, osxx86_64);
         unixPlatforms.put(platforms.raspbian, linuxraspbian);
         unixPlatforms.put(platforms.roborio, linuxathena);
         unixPlatforms.put(platforms.aarch64bionic, linuxbionic);
-        unixPlatforms.put(platforms.aarch64xenial, linuxxenial);
 
         linuxathena.getPlatformPath().set("linux/athena");
         addLinuxCrossArgs(linuxathena);
@@ -191,9 +188,6 @@ public class WPINativeUtilsExtension {
 
         linuxbionic.getPlatformPath().set("linux/aarch64bionic");
         addLinuxCrossArgs(linuxbionic);
-
-        linuxxenial.getPlatformPath().set("linux/aarch64xenial");
-        addLinuxCrossArgs(linuxxenial);
 
         windowsx86_64.getPlatformPath().set("windows/x86-64");
         addWindowsArgs(windowsx86_64);
