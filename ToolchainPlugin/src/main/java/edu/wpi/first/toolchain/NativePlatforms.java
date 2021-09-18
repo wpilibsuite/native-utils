@@ -13,6 +13,16 @@ public class NativePlatforms {
         return (arch.equals("amd64") || arch.equals("x86_64")) ? "x86-64" : "x86";
     }
 
+    public static String desktopPlatformArch() {
+        if (OperatingSystem.current().isWindows()) {
+            String arch = System.getenv("PROCESSOR_ARCHITECTURE");
+            String wow64Arch = System.getenv("PROCESSOR_ARCHITEW6432");
+            return arch != null && arch.endsWith("64") || wow64Arch != null && wow64Arch.endsWith("64") ? "x86-64" : "x86";
+        } else {
+            return desktopArch();
+        }
+    }
+
     public static String desktopOS() {
         return OperatingSystem.current().isWindows() ? "windows" : OperatingSystem.current().isMacOsX() ? "osx" : "linux";
     }
