@@ -2,6 +2,8 @@ package edu.wpi.first.nativeutils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import javax.inject.Inject;
 
@@ -175,6 +177,19 @@ public class NativeUtilsExtension {
 
   private final ToolchainExtension tcExt;
 
+  private Map<String, Class<?>> nativeDependencyTypeMap = new HashMap<>();
+
+  public Class<?> getNativeDependencyType(String name) {
+    return nativeDependencyTypeMap.get(name);
+  }
+
+  private <T extends NativeDependency> void addNativeDependencyType(Class<T> cls, Object arg) {
+    dependencyContainer.registerFactory(cls, name -> {
+      return objectFactory.newInstance(cls, name, arg);
+    });
+    nativeDependencyTypeMap.put(cls.getSimpleName(), cls);
+  }
+
   @Inject
   public NativeUtilsExtension(Project project, ToolchainExtension tcExt) {
     this.project = project;
@@ -186,25 +201,12 @@ public class NativeUtilsExtension {
     });
 
     dependencyContainer = objectFactory.polymorphicDomainObjectContainer(NativeDependency.class);
-    dependencyContainer.registerFactory(WPIStaticMavenDependency.class, name -> {
-      return objectFactory.newInstance(WPIStaticMavenDependency.class, name, project);
-    });
+    addNativeDependencyType(WPIStaticMavenDependency.class, project);
+    addNativeDependencyType(WPISharedMavenDependency.class, project);
 
-    dependencyContainer.registerFactory(WPISharedMavenDependency.class, name -> {
-      return objectFactory.newInstance(WPISharedMavenDependency.class, name, project);
-    });
-
-    dependencyContainer.registerFactory(CombinedIgnoreMissingPlatformNativeDependency.class, name -> {
-      return objectFactory.newInstance(CombinedIgnoreMissingPlatformNativeDependency.class, name, dependencyContainer);
-    });
-
-    dependencyContainer.registerFactory(AllPlatformsCombinedNativeDependency.class, name -> {
-      return objectFactory.newInstance(AllPlatformsCombinedNativeDependency.class, name, dependencyContainer);
-    });
-
-    dependencyContainer.registerFactory(CombinedNativeDependency.class, name -> {
-      return objectFactory.newInstance(CombinedNativeDependency.class, name, dependencyContainer);
-    });
+    addNativeDependencyType(CombinedIgnoreMissingPlatformNativeDependency.class, dependencyContainer);
+    addNativeDependencyType(AllPlatformsCombinedNativeDependency.class, dependencyContainer);
+    addNativeDependencyType(CombinedNativeDependency.class, dependencyContainer);
 
     // delegatedDependencyContainer = objectFactory.domainObjectContainer(DelegatedDependencySet.class, name -> {
     //   return objectFactory.newInstance(DelegatedDependencySet.class, name, dependencyContainer, true);
