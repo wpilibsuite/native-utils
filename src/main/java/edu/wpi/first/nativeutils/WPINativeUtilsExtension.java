@@ -26,7 +26,7 @@ public class WPINativeUtilsExtension {
 
         public final List<String> windowsCompilerArgs = List.of("/EHsc", "/FS", "/Zc:inline", "/wd4244", "/wd4267",
                 "/wd4146", "/wd4996", "/Zc:throwingNew", "/D_CRT_SECURE_NO_WARNINGS", "/std:c++17", "/permissive-",
-                "/bigobj");
+                "/bigobj", "/Zc:__cplusplus");
         public final List<String> windowsCCompilerArgs = List.of("/FS", "/Zc:inline", "/D_CRT_SECURE_NO_WARNINGS");
         public final List<String> windowsReleaseCompilerArgs = List.of("/O2", "/MD");
         public final List<String> windowsDebugCompilerArgs = List.of("/Od", "/MDd");
