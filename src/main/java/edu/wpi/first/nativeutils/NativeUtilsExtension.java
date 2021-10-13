@@ -3,6 +3,7 @@ package edu.wpi.first.nativeutils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.HashMap;
 
 import javax.inject.Inject;
@@ -12,6 +13,7 @@ import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.GradleException;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
+import org.gradle.api.internal.PolymorphicDomainObjectContainerInternal;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.os.OperatingSystem;
@@ -177,17 +179,23 @@ public class NativeUtilsExtension {
 
   private final ToolchainExtension tcExt;
 
-  private Map<String, Class<?>> nativeDependencyTypeMap = new HashMap<>();
-
-  public Class<?> getNativeDependencyType(String name) {
-    return nativeDependencyTypeMap.get(name);
-  }
+  public Class<? extends NativeDependency> getNativeDependencyTypeClass(String name) {
+    @SuppressWarnings("unchecked")
+    PolymorphicDomainObjectContainerInternal<NativeDependency> internalDependencies =
+        (PolymorphicDomainObjectContainerInternal<NativeDependency>) dependencyContainer;
+    Set<? extends java.lang.Class<? extends NativeDependency>> dependencyTypeSet = internalDependencies.getCreateableTypes();
+    for (Class<? extends NativeDependency> dependencyType : dependencyTypeSet) {
+        if (dependencyType.getSimpleName().equals(name)) {
+            return dependencyType;
+        }
+    }
+    return null;
+}
 
   private <T extends NativeDependency> void addNativeDependencyType(Class<T> cls, Object arg) {
     dependencyContainer.registerFactory(cls, name -> {
       return objectFactory.newInstance(cls, name, arg);
     });
-    nativeDependencyTypeMap.put(cls.getSimpleName(), cls);
   }
 
   @Inject
