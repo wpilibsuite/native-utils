@@ -2,6 +2,9 @@ package edu.wpi.first.nativeutils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashMap;
 
 import javax.inject.Inject;
 
@@ -10,6 +13,7 @@ import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.GradleException;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
+import org.gradle.api.internal.PolymorphicDomainObjectContainerInternal;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.os.OperatingSystem;
@@ -175,6 +179,25 @@ public class NativeUtilsExtension {
 
   private final ToolchainExtension tcExt;
 
+  public Class<? extends NativeDependency> getNativeDependencyTypeClass(String name) {
+    @SuppressWarnings("unchecked")
+    PolymorphicDomainObjectContainerInternal<NativeDependency> internalDependencies =
+        (PolymorphicDomainObjectContainerInternal<NativeDependency>) dependencyContainer;
+    Set<? extends java.lang.Class<? extends NativeDependency>> dependencyTypeSet = internalDependencies.getCreateableTypes();
+    for (Class<? extends NativeDependency> dependencyType : dependencyTypeSet) {
+        if (dependencyType.getSimpleName().equals(name)) {
+            return dependencyType;
+        }
+    }
+    return null;
+}
+
+  private <T extends NativeDependency> void addNativeDependencyType(Class<T> cls, Object arg) {
+    dependencyContainer.registerFactory(cls, name -> {
+      return objectFactory.newInstance(cls, name, arg);
+    });
+  }
+
   @Inject
   public NativeUtilsExtension(Project project, ToolchainExtension tcExt) {
     this.project = project;
@@ -186,25 +209,12 @@ public class NativeUtilsExtension {
     });
 
     dependencyContainer = objectFactory.polymorphicDomainObjectContainer(NativeDependency.class);
-    dependencyContainer.registerFactory(WPIStaticMavenDependency.class, name -> {
-      return objectFactory.newInstance(WPIStaticMavenDependency.class, name, project);
-    });
+    addNativeDependencyType(WPIStaticMavenDependency.class, project);
+    addNativeDependencyType(WPISharedMavenDependency.class, project);
 
-    dependencyContainer.registerFactory(WPISharedMavenDependency.class, name -> {
-      return objectFactory.newInstance(WPISharedMavenDependency.class, name, project);
-    });
-
-    dependencyContainer.registerFactory(CombinedIgnoreMissingPlatformNativeDependency.class, name -> {
-      return objectFactory.newInstance(CombinedIgnoreMissingPlatformNativeDependency.class, name, dependencyContainer);
-    });
-
-    dependencyContainer.registerFactory(AllPlatformsCombinedNativeDependency.class, name -> {
-      return objectFactory.newInstance(AllPlatformsCombinedNativeDependency.class, name, dependencyContainer);
-    });
-
-    dependencyContainer.registerFactory(CombinedNativeDependency.class, name -> {
-      return objectFactory.newInstance(CombinedNativeDependency.class, name, dependencyContainer);
-    });
+    addNativeDependencyType(CombinedIgnoreMissingPlatformNativeDependency.class, dependencyContainer);
+    addNativeDependencyType(AllPlatformsCombinedNativeDependency.class, dependencyContainer);
+    addNativeDependencyType(CombinedNativeDependency.class, dependencyContainer);
 
     // delegatedDependencyContainer = objectFactory.domainObjectContainer(DelegatedDependencySet.class, name -> {
     //   return objectFactory.newInstance(DelegatedDependencySet.class, name, dependencyContainer, true);
