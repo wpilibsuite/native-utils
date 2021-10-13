@@ -239,7 +239,9 @@ public class NativeUtilsExtension {
     // });
 
     privateExportsConfigs = objectFactory.domainObjectContainer(PrivateExportsConfig.class, name -> {
-      return objectFactory.newInstance(PrivateExportsConfig.class, name);
+      PrivateExportsConfig exports = objectFactory.newInstance(PrivateExportsConfig.class, name);
+      exports.getPerformStripAllSymbols().convention(false);
+      return exports;
     });
 
     // nativeLibraryConfigs = new AfterAddNamedDomainObjectContainer<>(NativeLibraryConfig.class, name -> {
