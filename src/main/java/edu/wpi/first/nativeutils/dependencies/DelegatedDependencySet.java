@@ -22,6 +22,7 @@ public class DelegatedDependencySet implements NativeDependencySet, Named {
     private final NamedDomainObjectCollection<NativeDependency> dependencyCollection;
     private boolean resolved = false;
     private final NativeBinarySpec binary;
+    private final FastDownloadDependencySet fastDownloadSet;
 
     @Inject
     public ProjectLayout getProjectLayout() {
@@ -29,11 +30,13 @@ public class DelegatedDependencySet implements NativeDependencySet, Named {
     }
 
     @Inject
-    public DelegatedDependencySet(String name, NamedDomainObjectCollection<NativeDependency> dependencyCollection, boolean required, NativeBinarySpec binary) {
+    public DelegatedDependencySet(String name, NamedDomainObjectCollection<NativeDependency> dependencyCollection, boolean required, NativeBinarySpec binary, FastDownloadDependencySet fastDownloadSet) {
         this.name = name;
         this.required = required;
         this.dependencyCollection = Objects.requireNonNull(dependencyCollection, "Must have a valid depenedency collection");
         this.binary = binary;
+        this.fastDownloadSet = Objects.requireNonNull(fastDownloadSet);
+        resolve();
     }
 
     public boolean isRequired() {
@@ -64,7 +67,7 @@ public class DelegatedDependencySet implements NativeDependencySet, Named {
             return;
         }
 
-        ResolvedNativeDependency resolvedDep = resolvedDependency.resolveNativeDependency(binary);
+        ResolvedNativeDependency resolvedDep = resolvedDependency.resolveNativeDependency(binary, fastDownloadSet);
 
         if (resolvedDep == null) {
             if (required) {
@@ -87,25 +90,21 @@ public class DelegatedDependencySet implements NativeDependencySet, Named {
 
     // Called getSourceFiles called by reflection in gradle-cpp-vscode
     public FileCollection getSourceFiles() {
-        resolve();
         return sourceRoots;
     }
 
     @Override
     public FileCollection getIncludeRoots() {
-        resolve();
         return includeRoots;
     }
 
     @Override
     public FileCollection getLinkFiles() {
-        resolve();
         return linkFiles;
     }
 
     @Override
     public FileCollection getRuntimeFiles() {
-        resolve();
         return runtimeFiles;
     }
 

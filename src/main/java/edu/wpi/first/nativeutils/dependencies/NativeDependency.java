@@ -4,5 +4,5 @@ import org.gradle.api.Named;
 import org.gradle.nativeplatform.NativeBinarySpec;
 
 public interface NativeDependency extends Named {
-    ResolvedNativeDependency resolveNativeDependency(NativeBinarySpec binary);
+    ResolvedNativeDependency resolveNativeDependency(NativeBinarySpec binary, FastDownloadDependencySet loaderDependencySet);
 }

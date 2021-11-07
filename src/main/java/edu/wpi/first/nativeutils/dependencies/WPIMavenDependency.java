@@ -32,19 +32,19 @@ public abstract class WPIMavenDependency implements NativeDependency {
 
     private final Map<String, ArtifactView> classifierViewMap = new HashMap<>();
 
-    protected FileCollection getArtifactRoots(String classifier) {
+    protected FileCollection getArtifactRoots(String classifier, ArtifactType type, FastDownloadDependencySet loaderDependencySet) {
         if (classifier == null) {
             return project.files();
         }
-        ArtifactView view = getViewForArtifact(classifier);
+        ArtifactView view = getViewForArtifact(classifier, type, loaderDependencySet);
         Callable<FileCollection> cbl = () -> view.getFiles();
         return project.files(cbl);
     }
 
     protected FileCollection getArtifactFiles(String targetPlatform, String buildType, List<String> matches,
-            List<String> excludes) {
+            List<String> excludes, ArtifactType type, FastDownloadDependencySet loaderDependencySet) {
         buildType = buildType.equalsIgnoreCase("debug") ? "debug" : "";
-        ArtifactView view = getViewForArtifact(targetPlatform + buildType);
+        ArtifactView view = getViewForArtifact(targetPlatform + buildType, type, loaderDependencySet);
         PatternFilterable filterable = new PatternSet();
         filterable.include(matches);
         filterable.exclude(excludes);
@@ -52,7 +52,7 @@ public abstract class WPIMavenDependency implements NativeDependency {
         return project.files(cbl);
     }
 
-    protected ArtifactView getViewForArtifact(String classifier) {
+    protected ArtifactView getViewForArtifact(String classifier, ArtifactType type, FastDownloadDependencySet loaderDependencySet) {
         ArtifactView view = classifierViewMap.get(classifier);
         if (view != null) {
             return view;
@@ -60,6 +60,7 @@ public abstract class WPIMavenDependency implements NativeDependency {
 
         String configName = name + "_" + classifier;
         Configuration cfg = project.getConfigurations().create(configName);
+        loaderDependencySet.addConfiguration(type, cfg);
         String dep = getGroupId().get() + ":" + getArtifactId().get() + ":" + getVersion().get() + ":" + classifier
                 + "@" + getExt().get();
         project.getDependencies().add(configName, dep);
