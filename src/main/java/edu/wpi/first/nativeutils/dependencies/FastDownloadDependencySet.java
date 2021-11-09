@@ -19,7 +19,6 @@ public class FastDownloadDependencySet implements NativeDependencySet, SourceCon
     public void addConfiguration(ArtifactType type, Configuration configuration) {
         switch (type) {
         case SOURCES:
-            System.out.println("Adding sources");
             sourcesConfiguration.extendsFrom(configuration);
             break;
         case HEADERS:
