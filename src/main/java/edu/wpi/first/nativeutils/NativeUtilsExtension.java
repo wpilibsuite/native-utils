@@ -214,7 +214,7 @@ public class NativeUtilsExtension {
   private FastDownloadDependencySet getFastDepSet(NativeBinarySpec binary) {
     FastDownloadDependencySet fastDepSet = depSetMap.get(binary);
     if (fastDepSet == null) {
-      fastDepSet = new FastDownloadDependencySet(project);
+      fastDepSet = new FastDownloadDependencySet(binary.getName(), project);
       depSetMap.put(binary, fastDepSet);
       binary.lib(fastDepSet);
     }

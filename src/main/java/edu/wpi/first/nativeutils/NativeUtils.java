@@ -12,6 +12,7 @@ import edu.wpi.first.nativeutils.pdb.PdbPlugin;
 import edu.wpi.first.nativeutils.platforms.PlatformRules;
 import edu.wpi.first.toolchain.ToolchainExtension;
 import edu.wpi.first.toolchain.ToolchainPlugin;
+import edu.wpi.first.vscode.GradleVsCode;
 
 public class NativeUtils implements Plugin<Project> {
   public static final Attribute<String> NATIVE_ARTIFACT_FORMAT = Attribute.of("artifactType", String.class);
@@ -41,5 +42,7 @@ public class NativeUtils implements Plugin<Project> {
     if (OperatingSystem.current().isWindows()) {
       project.getPluginManager().apply(PdbPlugin.class);
     }
+
+    project.getPluginManager().apply(GradleVsCode.class);
   }
 }

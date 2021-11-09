@@ -30,7 +30,17 @@ public abstract class WPIMavenDependency implements NativeDependency {
         this.project = project;
     }
 
-    private final Map<String, ArtifactView> classifierViewMap = new HashMap<>();
+    private static class ViewConfigurationContainer {
+        final ArtifactView view;
+        final Configuration configuration;
+
+        ViewConfigurationContainer(ArtifactView view, Configuration configuration) {
+            this.view = view;
+            this.configuration = configuration;
+        }
+    }
+
+    private final Map<String, ViewConfigurationContainer> classifierViewMap = new HashMap<>();
 
     protected FileCollection getArtifactRoots(String classifier, ArtifactType type, FastDownloadDependencySet loaderDependencySet) {
         if (classifier == null) {
@@ -53,12 +63,13 @@ public abstract class WPIMavenDependency implements NativeDependency {
     }
 
     protected ArtifactView getViewForArtifact(String classifier, ArtifactType type, FastDownloadDependencySet loaderDependencySet) {
-        ArtifactView view = classifierViewMap.get(classifier);
-        if (view != null) {
-            return view;
-        }
-
+        ViewConfigurationContainer viewContainer = classifierViewMap.get(classifier);
         String configName = name + "_" + classifier;
+        if (viewContainer != null) {
+            loaderDependencySet.addConfiguration(type, viewContainer.configuration);
+            return viewContainer.view;
+        }
+        
         Configuration cfg = project.getConfigurations().create(configName);
         loaderDependencySet.addConfiguration(type, cfg);
         String dep = getGroupId().get() + ":" + getArtifactId().get() + ":" + getVersion().get() + ":" + classifier
@@ -66,14 +77,14 @@ public abstract class WPIMavenDependency implements NativeDependency {
         project.getDependencies().add(configName, dep);
 
         cfg.setCanBeConsumed(false);
-        view = cfg.getIncoming().artifactView(viewConfiguration -> {
+        ArtifactView view = cfg.getIncoming().artifactView(viewConfiguration -> {
             viewConfiguration.attributes(attributeContainer -> {
                 attributeContainer.attribute(NativeUtils.NATIVE_ARTIFACT_FORMAT,
                         NativeUtils.NATIVE_ARTIFACT_DIRECTORY_TYPE);
             });
         });
 
-        classifierViewMap.put(classifier, view);
+        classifierViewMap.put(classifier, new ViewConfigurationContainer(view, cfg));
         return view;
     }
 

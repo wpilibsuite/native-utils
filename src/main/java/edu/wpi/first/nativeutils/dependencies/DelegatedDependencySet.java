@@ -12,7 +12,9 @@ import org.gradle.api.file.ProjectLayout;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.NativeDependencySet;
 
-public class DelegatedDependencySet implements NativeDependencySet, Named {
+import edu.wpi.first.vscode.dependencies.SourceContainingNativeDependencySet;
+
+public class DelegatedDependencySet implements NativeDependencySet, Named, SourceContainingNativeDependencySet {
     private FileCollection includeRoots;
     private FileCollection linkFiles;
     private FileCollection runtimeFiles;
@@ -88,7 +90,7 @@ public class DelegatedDependencySet implements NativeDependencySet, Named {
         runtimeFiles = resolvedDep.getRuntimeFiles();
     }
 
-    // Called getSourceFiles called by reflection in gradle-cpp-vscode
+    @Override
     public FileCollection getSourceFiles() {
         return sourceRoots;
     }
