@@ -35,7 +35,7 @@ public abstract class CombinedNativeDependency implements NativeDependency {
     }
 
     @Override
-    public ResolvedNativeDependency resolveNativeDependency(NativeBinarySpec binary) {
+    public ResolvedNativeDependency resolveNativeDependency(NativeBinarySpec binary, FastDownloadDependencySet loaderDependencySet) {
         Map<String, List<String>> dependencies = getDependencies().get();
 
         List<String> depsForPlatform = dependencies.getOrDefault(binary.getTargetPlatform().getName(), null);
@@ -51,7 +51,7 @@ public abstract class CombinedNativeDependency implements NativeDependency {
         FileCollection runtimeFiles = projectLayout.files();
 
         for (String dep : depsForPlatform) {
-            ResolvedNativeDependency resolved = dependencyCollection.getByName(dep).resolveNativeDependency(binary);
+            ResolvedNativeDependency resolved = dependencyCollection.getByName(dep).resolveNativeDependency(binary, loaderDependencySet);
             includeRoots = includeRoots.plus(resolved.getIncludeRoots());
             sourceRoots = sourceRoots.plus(resolved.getSourceRoots());
             linkFiles = linkFiles.plus(resolved.getLinkFiles());

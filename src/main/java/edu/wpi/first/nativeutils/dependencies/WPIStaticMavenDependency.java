@@ -22,7 +22,8 @@ public abstract class WPIStaticMavenDependency extends WPIMavenDependency {
 
     private final Map<NativeBinarySpec, ResolvedNativeDependency> resolvedDependencies = new HashMap<>();
 
-    public ResolvedNativeDependency resolveNativeDependency(NativeBinarySpec binary) {
+    @Override
+    public ResolvedNativeDependency resolveNativeDependency(NativeBinarySpec binary, FastDownloadDependencySet loaderDependencySet) {
         ResolvedNativeDependency resolvedDep = resolvedDependencies.get(binary);
         if (resolvedDep != null) {
             return resolvedDep;
@@ -36,10 +37,10 @@ public abstract class WPIStaticMavenDependency extends WPIMavenDependency {
 
         String buildType = binary.getBuildType().getName();
 
-        FileCollection headers = getArtifactRoots(getHeaderClassifier().getOrElse(null));
-        FileCollection sources = getArtifactRoots(getSourceClassifier().getOrElse(null));
+        FileCollection headers = getArtifactRoots(getHeaderClassifier().getOrElse(null), ArtifactType.HEADERS, loaderDependencySet);
+        FileCollection sources = getArtifactRoots(getSourceClassifier().getOrElse(null), ArtifactType.SOURCES, loaderDependencySet);
 
-        FileCollection linkFiles = getArtifactFiles(platformName + "static", buildType, STATIC_MATCHERS, EMPTY_LIST);
+        FileCollection linkFiles = getArtifactFiles(platformName + "static", buildType, STATIC_MATCHERS, EMPTY_LIST, ArtifactType.LINK, loaderDependencySet);
         FileCollection runtimeFiles = getProject().files();
 
         resolvedDep = new ResolvedNativeDependency(headers, sources, linkFiles, runtimeFiles);

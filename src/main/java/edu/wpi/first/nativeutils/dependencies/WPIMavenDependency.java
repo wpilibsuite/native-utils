@@ -30,21 +30,31 @@ public abstract class WPIMavenDependency implements NativeDependency {
         this.project = project;
     }
 
-    private final Map<String, ArtifactView> classifierViewMap = new HashMap<>();
+    private static class ViewConfigurationContainer {
+        final ArtifactView view;
+        final Configuration configuration;
 
-    protected FileCollection getArtifactRoots(String classifier) {
+        ViewConfigurationContainer(ArtifactView view, Configuration configuration) {
+            this.view = view;
+            this.configuration = configuration;
+        }
+    }
+
+    private final Map<String, ViewConfigurationContainer> classifierViewMap = new HashMap<>();
+
+    protected FileCollection getArtifactRoots(String classifier, ArtifactType type, FastDownloadDependencySet loaderDependencySet) {
         if (classifier == null) {
             return project.files();
         }
-        ArtifactView view = getViewForArtifact(classifier);
+        ArtifactView view = getViewForArtifact(classifier, type, loaderDependencySet);
         Callable<FileCollection> cbl = () -> view.getFiles();
         return project.files(cbl);
     }
 
     protected FileCollection getArtifactFiles(String targetPlatform, String buildType, List<String> matches,
-            List<String> excludes) {
+            List<String> excludes, ArtifactType type, FastDownloadDependencySet loaderDependencySet) {
         buildType = buildType.equalsIgnoreCase("debug") ? "debug" : "";
-        ArtifactView view = getViewForArtifact(targetPlatform + buildType);
+        ArtifactView view = getViewForArtifact(targetPlatform + buildType, type, loaderDependencySet);
         PatternFilterable filterable = new PatternSet();
         filterable.include(matches);
         filterable.exclude(excludes);
@@ -52,27 +62,29 @@ public abstract class WPIMavenDependency implements NativeDependency {
         return project.files(cbl);
     }
 
-    protected ArtifactView getViewForArtifact(String classifier) {
-        ArtifactView view = classifierViewMap.get(classifier);
-        if (view != null) {
-            return view;
-        }
-
+    protected ArtifactView getViewForArtifact(String classifier, ArtifactType type, FastDownloadDependencySet loaderDependencySet) {
+        ViewConfigurationContainer viewContainer = classifierViewMap.get(classifier);
         String configName = name + "_" + classifier;
+        if (viewContainer != null) {
+            loaderDependencySet.addConfiguration(type, viewContainer.configuration);
+            return viewContainer.view;
+        }
+        
         Configuration cfg = project.getConfigurations().create(configName);
+        loaderDependencySet.addConfiguration(type, cfg);
         String dep = getGroupId().get() + ":" + getArtifactId().get() + ":" + getVersion().get() + ":" + classifier
                 + "@" + getExt().get();
         project.getDependencies().add(configName, dep);
 
         cfg.setCanBeConsumed(false);
-        view = cfg.getIncoming().artifactView(viewConfiguration -> {
+        ArtifactView view = cfg.getIncoming().artifactView(viewConfiguration -> {
             viewConfiguration.attributes(attributeContainer -> {
                 attributeContainer.attribute(NativeUtils.NATIVE_ARTIFACT_FORMAT,
                         NativeUtils.NATIVE_ARTIFACT_DIRECTORY_TYPE);
             });
         });
 
-        classifierViewMap.put(classifier, view);
+        classifierViewMap.put(classifier, new ViewConfigurationContainer(view, cfg));
         return view;
     }
 
