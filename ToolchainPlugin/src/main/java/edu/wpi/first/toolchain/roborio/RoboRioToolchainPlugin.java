@@ -32,7 +32,12 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
         Property<Boolean> optional = project.getObjects().property(Boolean.class);
         optional.set(true);
 
-        ToolchainDescriptor<RoboRioGcc> descriptor = new ToolchainDescriptor<>(toolchainName, "roborioGcc", new ToolchainRegistrar<RoboRioGcc>(RoboRioGcc.class, project), optional);
+        ToolchainDescriptor<RoboRioGcc> descriptor = new ToolchainDescriptor<>(
+            project,
+            toolchainName,
+            "roborioGcc",
+            new ToolchainRegistrar<RoboRioGcc>(RoboRioGcc.class, project),
+            optional);
         descriptor.setToolchainPlatforms(NativePlatforms.roborio);
         descriptor.getDiscoverers().all((ToolchainDiscoverer disc) -> {
             disc.configureVersions(roborioExt.versionLow, roborioExt.versionHigh);

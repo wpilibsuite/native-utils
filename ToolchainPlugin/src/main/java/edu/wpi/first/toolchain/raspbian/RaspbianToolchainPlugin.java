@@ -32,7 +32,12 @@ public class RaspbianToolchainPlugin implements Plugin<Project> {
         Property<Boolean> optional = project.getObjects().property(Boolean.class);
         optional.set(true);
 
-        ToolchainDescriptor<RaspbianGcc> descriptor = new ToolchainDescriptor<>(toolchainName, "raspianGcc", new ToolchainRegistrar<RaspbianGcc>(RaspbianGcc.class, project), optional);
+        ToolchainDescriptor<RaspbianGcc> descriptor = new ToolchainDescriptor<>(
+            project,
+            toolchainName,
+            "raspianGcc",
+            new ToolchainRegistrar<RaspbianGcc>(RaspbianGcc.class, project),
+            optional);
         descriptor.setToolchainPlatforms(NativePlatforms.raspbian);
         descriptor.getDiscoverers().all((ToolchainDiscoverer disc) -> {
             disc.configureVersions(raspbianExt.versionLow, raspbianExt.versionHigh);

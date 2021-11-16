@@ -40,9 +40,12 @@ public class ToolchainExtension {
 
         crossCompilers.all(config -> {
             if (config.getToolchainDescriptor() == null) {
-                ToolchainDescriptor<ConfigurableGcc> descriptor = new ToolchainDescriptor<>(config.getName(),
+                ToolchainDescriptor<ConfigurableGcc> descriptor = new ToolchainDescriptor<>(
+                        project,        
+                        config.getName(),
                         config.getName() + "ConfiguredGcc",
-                        new ToolchainRegistrar<ConfigurableGcc>(ConfigurableGcc.class, project), config.getOptional());
+                        new ToolchainRegistrar<ConfigurableGcc>(ConfigurableGcc.class, project), 
+                        config.getOptional());
 
                 toolchainDescriptors.add(descriptor);
 
