@@ -40,7 +40,7 @@ public class ExportsConfigRules extends RuleSource {
                         task.setExportsConfig(config);
                         task.getDefFileGenerator().set(extractTask.get().getDefFileGenerator());
 
-                        task.getSourceFiles().from(link.getSource());
+                        task.getSourceFiles().from(link.getSource().filter(x -> x.getName().endsWith(".obj")));
 
                         task.getDefFile().set(
                                 project.getLayout().getBuildDirectory().file("tmp/" + exportsName + "/exports.def"));
