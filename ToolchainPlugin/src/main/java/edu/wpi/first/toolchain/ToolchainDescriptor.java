@@ -2,6 +2,7 @@ package edu.wpi.first.toolchain;
 
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.NamedDomainObjectSet;
+import org.gradle.api.Project;
 import org.gradle.api.internal.CollectionCallbackActionDecorator;
 import org.gradle.api.internal.DefaultDomainObjectSet;
 import org.gradle.api.internal.DefaultNamedDomainObjectSet;
@@ -20,14 +21,14 @@ public class ToolchainDescriptor<T extends GccToolChain> implements ToolchainDes
 
     private ToolchainRegistrar<T> registrar;
 
-    public ToolchainDescriptor(String name, String toolchainName, ToolchainRegistrar<T> registrar, Property<Boolean> optional) {
+    public ToolchainDescriptor(Project project, String name, String toolchainName, ToolchainRegistrar<T> registrar, Property<Boolean> optional) {
         this.name = name;
         this.platforms = null;
         this.optional = optional;
         this.registrar = registrar;
         this.toolchainName = toolchainName;
-        this.discoverers = new DefaultNamedDomainObjectSet<ToolchainDiscoverer>(ToolchainDiscoverer.class, DirectInstantiator.INSTANCE, CollectionCallbackActionDecorator.NOOP);
-        this.installers = new DefaultDomainObjectSet<AbstractToolchainInstaller>(AbstractToolchainInstaller.class, CollectionCallbackActionDecorator.NOOP);
+        this.discoverers = project.getObjects().namedDomainObjectSet(ToolchainDiscoverer.class);
+        this.installers = project.getObjects().domainObjectSet(AbstractToolchainInstaller.class);
     }
 
     @Override

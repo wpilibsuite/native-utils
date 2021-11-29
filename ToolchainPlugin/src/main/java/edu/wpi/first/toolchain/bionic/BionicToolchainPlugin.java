@@ -32,7 +32,12 @@ public class BionicToolchainPlugin implements Plugin<Project> {
         Property<Boolean> optional = project.getObjects().property(Boolean.class);
         optional.set(true);
 
-        ToolchainDescriptor<BionicGcc> descriptor = new ToolchainDescriptor<>(toolchainName, "bionicGcc", new ToolchainRegistrar<BionicGcc>(BionicGcc.class, project), optional);
+        ToolchainDescriptor<BionicGcc> descriptor = new ToolchainDescriptor<>(
+            project, 
+            toolchainName,
+            "bionicGcc",
+            new ToolchainRegistrar<BionicGcc>(BionicGcc.class, project), 
+            optional);
         descriptor.setToolchainPlatforms(NativePlatforms.aarch64bionic);
         descriptor.getDiscoverers().all((ToolchainDiscoverer disc) -> {
             disc.configureVersions(bionicExt.versionLow, bionicExt.versionHigh);
