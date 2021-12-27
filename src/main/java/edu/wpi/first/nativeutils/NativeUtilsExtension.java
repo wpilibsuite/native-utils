@@ -27,6 +27,7 @@ import org.gradle.platform.base.VariantComponentSpec;
 import edu.wpi.first.nativeutils.dependencies.AllPlatformsCombinedNativeDependency;
 import edu.wpi.first.nativeutils.dependencies.CombinedIgnoreMissingPlatformNativeDependency;
 import edu.wpi.first.nativeutils.dependencies.CombinedNativeDependency;
+import edu.wpi.first.nativeutils.dependencies.CustomDependencySet;
 import edu.wpi.first.nativeutils.dependencies.DelegatedDependencySet;
 import edu.wpi.first.nativeutils.dependencies.FastDownloadDependencySet;
 import edu.wpi.first.nativeutils.dependencies.NativeDependency;
@@ -37,6 +38,7 @@ import edu.wpi.first.nativeutils.exports.ExportsConfig;
 import edu.wpi.first.nativeutils.exports.PrivateExportsConfig;
 import edu.wpi.first.nativeutils.platforms.DefaultPlatformConfig;
 import edu.wpi.first.nativeutils.platforms.PlatformConfig;
+import edu.wpi.first.nativeutils.resources.ResourceGenerationTask;
 import edu.wpi.first.nativeutils.sourcelink.SourceLinkPlugin;
 import edu.wpi.first.nativeutils.tasks.PrintNativeDependenciesTask;
 import edu.wpi.first.toolchain.NativePlatforms;
@@ -329,6 +331,24 @@ public class NativeUtilsExtension {
 
   public void wpi(Action<WPINativeUtilsExtension> action) {
     action.execute(wpiNativeUtilsExtension);
+  }
+
+  public CustomDependencySet customDependencySet(Action<CustomDependencySet> action) {
+    CustomDependencySet set = project.getObjects().newInstance(CustomDependencySet.class, project.getObjects());
+    action.execute(set);
+    return set;
+  }
+
+  public CustomDependencySet customDependencySet() {
+    return project.getObjects().newInstance(CustomDependencySet.class, project.getObjects());
+  }
+
+  public TaskProvider<ResourceGenerationTask> generateResources(String name) {
+    return project.getTasks().register(name, ResourceGenerationTask.class);
+  }
+
+  public TaskProvider<ResourceGenerationTask> generateResources(String name, Action<ResourceGenerationTask> configure) {
+    return project.getTasks().register(name, ResourceGenerationTask.class, configure);
   }
 
   public void withRoboRIO() {
