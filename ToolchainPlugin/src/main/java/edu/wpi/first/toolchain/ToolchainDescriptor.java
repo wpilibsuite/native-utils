@@ -3,12 +3,8 @@ package edu.wpi.first.toolchain;
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.Project;
-import org.gradle.api.internal.CollectionCallbackActionDecorator;
-import org.gradle.api.internal.DefaultDomainObjectSet;
-import org.gradle.api.internal.DefaultNamedDomainObjectSet;
 import org.gradle.api.provider.Property;
 import org.gradle.internal.logging.text.DiagnosticsVisitor;
-import org.gradle.internal.reflect.DirectInstantiator;
 
 public class ToolchainDescriptor<T extends GccToolChain> implements ToolchainDescriptorBase {
 

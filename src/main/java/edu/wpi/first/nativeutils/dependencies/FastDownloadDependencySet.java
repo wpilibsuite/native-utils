@@ -45,7 +45,7 @@ public class FastDownloadDependencySet implements NativeDependencySet, SourceCon
     }
 
     @Override
-    public FileCollection getSourceFiles() {
+    public FileCollection getSourceRoots() {
         sourcesConfiguration.getResolvedConfiguration().getFiles();
         return emptyCollection;
     }

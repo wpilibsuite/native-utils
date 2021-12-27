@@ -91,7 +91,7 @@ public class DelegatedDependencySet implements NativeDependencySet, Named, Sourc
     }
 
     @Override
-    public FileCollection getSourceFiles() {
+    public FileCollection getSourceRoots() {
         return sourceRoots;
     }
 
