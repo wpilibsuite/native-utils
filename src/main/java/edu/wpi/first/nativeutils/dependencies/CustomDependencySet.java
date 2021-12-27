@@ -42,5 +42,5 @@ public class CustomDependencySet implements NativeDependencySet, SourceContainin
     public ConfigurableFileCollection getSourceRoots() {
         return sourceRoots;
     }
-    
+
 }

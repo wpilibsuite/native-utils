@@ -31,7 +31,7 @@ public abstract class ResourceGenerationAction implements WorkAction<ResourceWor
                     int read = input.read(toRead);
                     if (read <= 0) {
                         break;
-                    } 
+                    }
                     for (int i = 0; i < read; i++) {
                         String fmt = String.format("0x%02x, ", toRead[i]);
                         writer.append(fmt);
@@ -78,5 +78,3 @@ public abstract class ResourceGenerationAction implements WorkAction<ResourceWor
         }
     }
 }
-
-

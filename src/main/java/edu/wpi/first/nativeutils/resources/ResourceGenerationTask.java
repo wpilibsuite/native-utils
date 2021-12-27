@@ -60,7 +60,7 @@ public abstract class ResourceGenerationTask extends DefaultTask {
         Map<File, String> filesToGenerate = new HashMap<>();
 
         Logger logger = Logging.getLogger(ResourceGenerationTask.class);
-        
+
         for (FileChange change : changes.getFileChanges(sourceFiles)) {
             if (change.getFileType() == FileType.DIRECTORY) {
                 continue;
