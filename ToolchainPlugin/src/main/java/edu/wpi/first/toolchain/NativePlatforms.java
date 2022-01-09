@@ -1,5 +1,6 @@
 package edu.wpi.first.toolchain;
 
+import org.gradle.api.logging.Logging;
 import org.gradle.internal.os.OperatingSystem;
 
 public class NativePlatforms {
@@ -10,6 +11,13 @@ public class NativePlatforms {
 
     public static String desktopArch() {
         String arch = System.getProperty("os.arch");
+        // Treat aarch64 or arm64 as x86-64
+        // This will make it so Java programs using aarch64 JDKs will build,
+        // even if they won't correctly run.
+        if (arch.equals("arm64") || arch.equals("aarch64")) {
+            Logging.getLogger(NativePlatforms.class).warn("Arm64 JDK's are not supported. Simulation will not work");
+            return "x86-64";
+        }
         return (arch.equals("amd64") || arch.equals("x86_64")) ? "x86-64" : "x86";
     }
 
