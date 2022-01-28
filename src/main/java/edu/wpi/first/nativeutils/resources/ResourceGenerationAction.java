@@ -51,7 +51,7 @@ public abstract class ResourceGenerationAction implements WorkAction<ResourceWor
 
             writer.append("  *len = ");
             writer.append(Integer.toString(sizeCount));
-            writer.append(";\n  return contents;\n};\n");
+            writer.append(";\n  return contents;\n}\n");
             writer.append("}  // extern \"C\"\n");
 
             if (namespace != null && !namespace.isEmpty()) {
