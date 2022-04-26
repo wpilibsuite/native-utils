@@ -3,7 +3,7 @@ package edu.wpi.first.toolchain.roborio;
 public class RoboRioToolchainExtension {
 
     public String versionLow = "7.3";
-    public String versionHigh = "7.3";
+    public String versionHigh = "12.1";
     public String toolchainVersion = "2022-7.3.0";
     public String toolchainTag = "v2022-1";
 
