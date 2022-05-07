@@ -283,10 +283,6 @@ public class NativeUtilsExtension {
     if (!only) {
       platformsToConfigure.addAll(tmpList);
     }
-
-    if (!project.hasProperty("buildwin32") && NativePlatforms.desktopArch().equals("x86-64")) {
-      platformsToConfigure.remove("windowsx86");
-    }
   }
 
   public void configurePlatform(String name, Action<? super PlatformConfig> action) {
