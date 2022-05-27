@@ -49,12 +49,7 @@ public abstract class ExportsGenerationTask extends DefaultTask implements Actio
         final List<String> lines = new ArrayList<>();
         List<String> excludeSymbols;
         ExportsConfig config = getExportsConfig();
-        boolean isX86 = getArchitecture().equals("x86");
-        if (isX86) {
-            excludeSymbols = getExportsConfig().getX86ExcludeSymbols().get();
-        } else {
-            excludeSymbols = getExportsConfig().getX64ExcludeSymbols().get();
-        }
+        excludeSymbols = getExportsConfig().getX64ExcludeSymbols().get();
 
         if (excludeSymbols == null) {
             excludeSymbols = new ArrayList<>();
@@ -75,16 +70,9 @@ public abstract class ExportsGenerationTask extends DefaultTask implements Actio
 
         }
 
-        if (isX86) {
-            Action<List<String>> symbolFilter = config.getX86SymbolFilter().getOrElse(null);
-            if (symbolFilter != null) {
-                symbolFilter.execute(lines);
-            }
-        } else {
-            Action<List<String>> symbolFilter = config.getX64SymbolFilter().getOrElse(null);
-            if (symbolFilter != null) {
-                symbolFilter.execute(lines);
-            }
+        Action<List<String>> symbolFilter = config.getX64SymbolFilter().getOrElse(null);
+        if (symbolFilter != null) {
+            symbolFilter.execute(lines);
         }
 
         try (BufferedWriter writer = Files.newBufferedWriter(defFile.toPath())) {
