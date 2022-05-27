@@ -400,6 +400,7 @@ public class WPINativeUtilsExtension {
 
         Property<String> wpiVersion = dependencyVersions.getWpiVersion();
         registerStandardDependency(configs, "wpiutil", "edu.wpi.first.wpiutil", "wpiutil-cpp", wpiVersion);
+        registerStandardDependency(configs, "wpinet", "edu.wpi.first.wpinet", "wpinet-cpp", wpiVersion);
         registerStandardDependency(configs, "ntcore", "edu.wpi.first.ntcore", "ntcore-cpp", wpiVersion);
         registerStandardDependency(configs, "hal", "edu.wpi.first.hal", "hal-cpp", wpiVersion);
         registerStandardDependency(configs, "cscore", "edu.wpi.first.cscore", "cscore-cpp", wpiVersion);
@@ -417,27 +418,27 @@ public class WPINativeUtilsExtension {
 
         configs.register("wpilib_jni", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("ntcore_shared", "hal_shared", "wpimath_shared", "wpiutil_shared", "ni_link_libraries"));
+            d.set(List.of("ntcore_shared", "hal_shared", "wpimath_shared", "wpinet_shared", "wpiutil_shared", "ni_link_libraries"));
         });
 
         configs.register("wpilib_static", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("wpilibc_static", "ntcore_static", "hal_static", "wpimath_static", "wpiutil_static", "ni_link_libraries"));
+            d.set(List.of("wpilibc_static", "ntcore_static", "hal_static", "wpimath_static", "wpinet_static", "wpiutil_static", "ni_link_libraries"));
         });
 
         configs.register("wpilib_shared", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("wpilibc_shared", "ntcore_shared", "hal_shared", "wpimath_shared", "wpiutil_shared", "ni_link_libraries"));
+            d.set(List.of("wpilibc_shared", "ntcore_shared", "hal_shared", "wpimath_shared", "wpinet_shared", "wpiutil_shared", "ni_link_libraries"));
         });
 
         configs.register("driver_static", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("hal_static", "wpimath_static", "wpiutil_static", "ni_link_libraries"));
+            d.set(List.of("hal_static", "wpimath_static", "wpinet_static", "wpiutil_static", "ni_link_libraries"));
         });
 
         configs.register("driver_shared", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("hal_shared", "wpimath_shared", "wpiutil_shared", "ni_link_libraries"));
+            d.set(List.of("hal_shared", "wpimath_shared", "wpinet_shared", "wpiutil_shared", "ni_link_libraries"));
         });
 
         configs.register("wpilib_executable_shared", AllPlatformsCombinedNativeDependency.class, c -> {
