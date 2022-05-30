@@ -127,7 +127,7 @@ nativeUtils.wpi.configureDependencies {
   googleTestVersion = ""
   imguiVersion = ""
   wpimathVersion = ""
-  
+
 }
 
 // The 6 below get the string representation of the main platforms
@@ -162,7 +162,8 @@ toolchainsPlugin {
   // Register the platforms and build types with the model
   // Default to true
   registerPlatforms = true
-  registerBuildTypes = true
+  registerReleaseBuildType = true
+  registerDebugBuildType = true
 
   // Add the roborio compiler
   withRoboRIO()

@@ -27,7 +27,8 @@ public class ToolchainExtension {
     private Project project;
 
     public boolean registerPlatforms = true;
-    public boolean registerBuildTypes = true;
+    public boolean registerReleaseBuildType = true;
+    public boolean registerDebugBuildType = true;
 
     public ToolchainExtension(Project project) {
         this.project = project;
@@ -41,10 +42,10 @@ public class ToolchainExtension {
         crossCompilers.all(config -> {
             if (config.getToolchainDescriptor() == null) {
                 ToolchainDescriptor<ConfigurableGcc> descriptor = new ToolchainDescriptor<>(
-                        project,        
+                        project,
                         config.getName(),
                         config.getName() + "ConfiguredGcc",
-                        new ToolchainRegistrar<ConfigurableGcc>(ConfigurableGcc.class, project), 
+                        new ToolchainRegistrar<ConfigurableGcc>(ConfigurableGcc.class, project),
                         config.getOptional());
 
                 toolchainDescriptors.add(descriptor);
