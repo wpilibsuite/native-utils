@@ -75,9 +75,12 @@ public class ToolchainRules extends RuleSource {
     void addBuildTypes(BuildTypeContainer buildTypes, final ExtensionContainer extContainer) {
         final ToolchainExtension ext = extContainer.getByType(ToolchainExtension.class);
 
-        if (ext.registerBuildTypes) {
-            buildTypes.maybeCreate("release");
+        if (ext.registerDebugBuildType) {
             buildTypes.maybeCreate("debug");
+        }
+
+        if (ext.registerReleaseBuildType) {
+            buildTypes.maybeCreate("release");
         }
     }
 
