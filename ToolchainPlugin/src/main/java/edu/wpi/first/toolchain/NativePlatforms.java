@@ -1,6 +1,5 @@
 package edu.wpi.first.toolchain;
 
-import org.gradle.api.logging.Logging;
 import org.gradle.internal.os.OperatingSystem;
 
 public class NativePlatforms {
@@ -11,12 +10,8 @@ public class NativePlatforms {
 
     public static String desktopArch() {
         String arch = System.getProperty("os.arch");
-        // Treat aarch64 or arm64 as x86-64
-        // This will make it so Java programs using aarch64 JDKs will build,
-        // even if they won't correctly run.
         if (arch.equals("arm64") || arch.equals("aarch64")) {
-            Logging.getLogger(NativePlatforms.class).warn("Arm64 JDK's are not supported. Simulation will not work");
-            return "x86-64";
+            return "arm64";
         }
         return (arch.equals("amd64") || arch.equals("x86_64")) ? "x86-64" : "x86";
     }
@@ -33,5 +28,28 @@ public class NativePlatforms {
 
     public static String desktopOS() {
         return OperatingSystem.current().isWindows() ? "windows" : OperatingSystem.current().isMacOsX() ? "osx" : "linux";
+    }
+
+    public static class PlatformArchPair {
+        public String platformName;
+        public String arch;
+
+        public PlatformArchPair(String platformName, String arch) {
+            this.platformName = platformName;
+            this.arch = arch;
+        }
+    }
+
+    public static PlatformArchPair[] desktopExtraPlatforms() {
+        if (OperatingSystem.current().isMacOsX()) {
+            String currentArch = desktopArch();
+            if (currentArch.equals("x86-64")) {
+                return new PlatformArchPair[] {new PlatformArchPair("osxarm64", "arm64")};
+            } else {
+                return new PlatformArchPair[] {new PlatformArchPair("osxx86-64", "x86-64")};
+            }
+        } else {
+            return new PlatformArchPair[0];
+        }
     }
 }

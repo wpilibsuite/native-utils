@@ -79,11 +79,12 @@ public class WPINativeUtilsExtension {
         public final String raspbian = "linuxraspbian";
         public final String windowsx64 = "windowsx86-64";
         public final String osxx64 = "osxx86-64";
+        public final String osxarm64 = "osxarm64";
         public final String linuxx64 = "linuxx86-64";
         public final String aarch64bionic = "linuxaarch64bionic";
         public final List<String> allPlatforms = List.of(roborio, raspbian, aarch64bionic, windowsx64,
-                osxx64, linuxx64);
-        public final List<String> desktopPlatforms = List.of(windowsx64, osxx64, linuxx64);
+                osxx64, osxarm64, linuxx64);
+        public final List<String> desktopPlatforms = List.of(windowsx64, osxx64, osxarm64, linuxx64);
     }
 
     public final Platforms platforms;
@@ -168,11 +169,13 @@ public class WPINativeUtilsExtension {
         windowsPlatforms.put(platforms.windowsx64, windowsx86_64);
         PlatformConfig linuxx86_64 = nativeExt.getPlatformConfigs().create(platforms.linuxx64);
         PlatformConfig osxx86_64 = nativeExt.getPlatformConfigs().create(platforms.osxx64);
+        PlatformConfig osxarm64 = nativeExt.getPlatformConfigs().create(platforms.osxarm64);
         PlatformConfig linuxathena = nativeExt.getPlatformConfigs().create(platforms.roborio);
         PlatformConfig linuxraspbian = nativeExt.getPlatformConfigs().create(platforms.raspbian);
         PlatformConfig linuxbionic = nativeExt.getPlatformConfigs().create(platforms.aarch64bionic);
         unixPlatforms.put(platforms.linuxx64, linuxx86_64);
         unixPlatforms.put(platforms.osxx64, osxx86_64);
+        unixPlatforms.put(platforms.osxarm64, osxarm64);
         unixPlatforms.put(platforms.raspbian, linuxraspbian);
         unixPlatforms.put(platforms.roborio, linuxathena);
         unixPlatforms.put(platforms.aarch64bionic, linuxbionic);
@@ -194,6 +197,9 @@ public class WPINativeUtilsExtension {
 
         osxx86_64.getPlatformPath().set("osx/x86-64");
         addMacArgs(osxx86_64);
+
+        osxarm64.getPlatformPath().set("osx/arm64");
+        addMacArgs(osxarm64);
     }
 
     public static abstract class DependencyVersions {
@@ -221,7 +227,7 @@ public class WPINativeUtilsExtension {
         if (plat != null) {
             plat.getCppCompiler().getArgs().add(defaultArguments.unixSymbolArg);
             plat.getcCompiler().getArgs().add(defaultArguments.unixSymbolArg);
-            if (platform.equals(platforms.osxx64)) {
+            if (platform.equals(platforms.osxx64) || platform.equals(platforms.osxarm64)) {
                 plat.getObjcCompiler().getArgs().add(defaultArguments.unixSymbolArg);
                 plat.getObjcppCompiler().getArgs().add(defaultArguments.unixSymbolArg);
             }
@@ -252,7 +258,7 @@ public class WPINativeUtilsExtension {
         if (plat != null) {
             plat.getCppCompiler().getArgs().addAll(0, defaultArguments.unixWarningArgs);
             plat.getcCompiler().getArgs().addAll(0, defaultArguments.unixWarningArgs);
-            if (platform.equals(platforms.osxx64)) {
+            if (platform.equals(platforms.osxx64) || platform.equals(platforms.osxarm64)) {
                 plat.getObjcCompiler().getArgs().addAll(0, defaultArguments.unixWarningArgs);
                 plat.getObjcppCompiler().getArgs().addAll(0, defaultArguments.unixWarningArgs);
             }
@@ -283,7 +289,7 @@ public class WPINativeUtilsExtension {
         if (plat != null) {
             plat.getCppCompiler().getArgs().addAll(0, defaultArguments.unixWarningsAsErrorsArgs);
             plat.getcCompiler().getArgs().addAll(0, defaultArguments.unixWarningsAsErrorsArgs);
-            if (platform.equals(platforms.osxx64)) {
+            if (platform.equals(platforms.osxx64) || platform.equals(platforms.osxarm64)) {
                 plat.getObjcCompiler().getArgs().addAll(0, defaultArguments.unixWarningArgs);
                 plat.getObjcppCompiler().getArgs().addAll(0, defaultArguments.unixWarningsAsErrorsArgs);
             }
