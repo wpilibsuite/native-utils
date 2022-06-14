@@ -1,8 +1,10 @@
 package edu.wpi.first.toolchain;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.internal.file.FileResolver;
@@ -14,6 +16,7 @@ import org.gradle.internal.reflect.Instantiator;
 import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.internal.work.WorkerLeaseService;
 import org.gradle.model.Defaults;
+import org.gradle.model.Finalize;
 import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
@@ -28,6 +31,8 @@ import org.gradle.nativeplatform.test.tasks.RunTestExecutable;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInternal;
+import org.gradle.nativeplatform.toolchain.internal.clang.ClangToolChain;
+import org.gradle.nativeplatform.toolchain.internal.gcc.AbstractGccCompatibleToolChain;
 import org.gradle.nativeplatform.toolchain.internal.gcc.metadata.SystemLibraryDiscovery;
 import org.gradle.nativeplatform.toolchain.internal.metadata.CompilerMetaDataProviderFactory;
 import org.gradle.platform.base.BinaryContainer;
@@ -43,6 +48,46 @@ import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
 public class ToolchainRules extends RuleSource {
 
     private static final ETLogger logger = ETLoggerFactory.INSTANCE.create("ToolchainRules");
+
+    @Finalize
+    void addClangArm(NativeToolChainRegistryInternal toolChainRegistry) {
+        toolChainRegistry.all(n -> {
+            if (n instanceof ClangToolChain && OperatingSystem.current().equals(OperatingSystem.MAC_OS)) {
+                AbstractGccCompatibleToolChain gcc = (AbstractGccCompatibleToolChain)n;
+                gcc.setTargets();
+                gcc.target("osxarm64", gccToolChain -> {
+                    Action<List<String>> m64args = new Action<List<String>>() {
+                        @Override
+                        public void execute(List<String> args) {
+                            args.add("-arch");
+                            args.add("arm64");
+                        }
+                    };
+                    gccToolChain.getCppCompiler().withArguments(m64args);
+                    gccToolChain.getcCompiler().withArguments(m64args);
+                    gccToolChain.getObjcCompiler().withArguments(m64args);
+                    gccToolChain.getObjcppCompiler().withArguments(m64args);
+                    gccToolChain.getLinker().withArguments(m64args);
+                    gccToolChain.getAssembler().withArguments(m64args);
+                });
+                gcc.target("osxx86-64", gccToolChain -> {
+                    Action<List<String>> m64args = new Action<List<String>>() {
+                        @Override
+                        public void execute(List<String> args) {
+                            args.add("-arch");
+                            args.add("x86_64");
+                        }
+                    };
+                    gccToolChain.getCppCompiler().withArguments(m64args);
+                    gccToolChain.getcCompiler().withArguments(m64args);
+                    gccToolChain.getObjcCompiler().withArguments(m64args);
+                    gccToolChain.getObjcppCompiler().withArguments(m64args);
+                    gccToolChain.getLinker().withArguments(m64args);
+                    gccToolChain.getAssembler().withArguments(m64args);
+                });
+            }
+        });
+    }
 
     @Defaults
     void addDefaultToolchains(NativeToolChainRegistryInternal toolChainRegistry, ServiceRegistry serviceRegistry,
@@ -106,6 +151,13 @@ public class ToolchainRules extends RuleSource {
         if (ext.registerPlatforms) {
             NativePlatform desktop = platforms.maybeCreate(NativePlatforms.desktop, NativePlatform.class);
             desktop.architecture(NativePlatforms.desktopArch().replaceAll("-", "_"));
+
+            NativePlatforms.PlatformArchPair[] extraPlatforms = NativePlatforms.desktopExtraPlatforms();
+
+            for (NativePlatforms.PlatformArchPair platform : extraPlatforms) {
+                NativePlatform toCreate = platforms.maybeCreate(platform.platformName, NativePlatform.class);
+                toCreate.architecture(platform.arch);
+            }
 
             for (CrossCompilerConfiguration config : ext.getCrossCompilers()) {
                 NativePlatform configedPlatform = platforms.maybeCreate(config.getName(), NativePlatform.class);
