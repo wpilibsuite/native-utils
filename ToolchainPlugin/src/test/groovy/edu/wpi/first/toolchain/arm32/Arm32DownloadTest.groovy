@@ -43,6 +43,6 @@ toolchainsPlugin.withLinuxArm32()
                              .build()
 
     then:
-    result.task(':installArm64Toolchain').outcome == SUCCESS
+    result.task(':installArm32Toolchain').outcome == SUCCESS
   }
 }
