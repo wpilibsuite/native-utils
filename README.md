@@ -169,7 +169,7 @@ toolchainsPlugin {
   // Add the roborio compiler
   withCrossRoboRIO()
   // Add the raspbian compiler
-  withLinuxArm32()
+  withCrossLinuxArm32()
   // The above 2 are included with nativeUtils.addWpiNativeUtils()
 
   crossCompilers {
