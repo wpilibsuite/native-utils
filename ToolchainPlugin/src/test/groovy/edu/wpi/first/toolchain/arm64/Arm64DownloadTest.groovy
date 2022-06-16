@@ -1,4 +1,4 @@
-package edu.wpi.first.toolchain.raspbian
+package edu.wpi.first.toolchain.arm64
 
 import org.gradle.testkit.runner.GradleRunner
 import static org.gradle.testkit.runner.TaskOutcome.*
@@ -9,7 +9,7 @@ import spock.lang.Specification
 import spock.lang.IgnoreIf
 
 @IgnoreIf({ !Boolean.valueOf(env['SPOCK_RUN_TOOLCHAINS']) })
-class RaspbianDownloadTest extends Specification {
+class Arm64DownloadTest extends Specification {
   @TempDir File testProjectDir
   File buildFile
   @Shared File toolchainDir
@@ -19,9 +19,9 @@ class RaspbianDownloadTest extends Specification {
   }
 
   def setupSpec() {
-    RaspbianToolchainExtension ext = new RaspbianToolchainExtension()
-    String raspbianVersion = ext.toolchainVersion.split("-")[0].toLowerCase();
-    toolchainDir = RaspbianToolchainPlugin.toolchainInstallLoc(raspbianVersion)
+    Arm64ToolchainExtension ext = new Arm64ToolchainExtension()
+    String arm64Version = ext.toolchainVersion.split("-")[0].toLowerCase();
+    toolchainDir = Arm64ToolchainPlugin.toolchainInstallLoc(arm64Version)
     def result = toolchainDir.deleteDir()  // Returns true if all goes well, false otherwise.
     assert result
   }
@@ -33,16 +33,16 @@ class RaspbianDownloadTest extends Specification {
   id 'edu.wpi.first.Toolchain'
 }
 
-toolchainsPlugin.withRaspbian()
+toolchainsPlugin.withLinuxArm64()
 """
     when:
     def result = GradleRunner.create()
                              .withProjectDir(testProjectDir)
-                             .withArguments('installRaspbianToolchain', '--stacktrace')
+                             .withArguments('installArm64Toolchain', '--stacktrace')
                              .withPluginClasspath()
                              .build()
 
     then:
-    result.task(':installRaspbianToolchain').outcome == SUCCESS
+    result.task(':installArm64Toolchain').outcome == SUCCESS
   }
 }

@@ -1,4 +1,4 @@
-package edu.wpi.first.toolchain.bionic;
+package edu.wpi.first.toolchain.arm32;
 
 import edu.wpi.first.toolchain.*;
 import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
@@ -14,37 +14,37 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class BionicToolchainPlugin implements Plugin<Project> {
+public class Arm32ToolchainPlugin implements Plugin<Project> {
 
-    public static final String toolchainName = "bionic";
+    public static final String toolchainName = "arm32";
 
-    private BionicToolchainExtension bionicExt;
+    private Arm32ToolchainExtension arm32Ext;
     private Project project;
 
     @Override
     public void apply(Project project) {
         this.project = project;
 
-        bionicExt = project.getExtensions().create("bionicToolchain", BionicToolchainExtension.class);
+        arm32Ext = project.getExtensions().create("arm32Toolchain", Arm32ToolchainExtension.class);
 
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
 
         Property<Boolean> optional = project.getObjects().property(Boolean.class);
         optional.set(true);
 
-        ToolchainDescriptor<BionicGcc> descriptor = new ToolchainDescriptor<>(
-            project, 
+        ToolchainDescriptor<Arm32Gcc> descriptor = new ToolchainDescriptor<>(
+            project,
             toolchainName,
-            "bionicGcc",
-            new ToolchainRegistrar<BionicGcc>(BionicGcc.class, project), 
+            "arm32Gcc",
+            new ToolchainRegistrar<Arm32Gcc>(Arm32Gcc.class, project),
             optional);
-        descriptor.setToolchainPlatforms(NativePlatforms.aarch64bionic);
+        descriptor.setToolchainPlatforms(NativePlatforms.linuxarm32);
         descriptor.getDiscoverers().all((ToolchainDiscoverer disc) -> {
-            disc.configureVersions(bionicExt.versionLow, bionicExt.versionHigh);
+            disc.configureVersions(arm32Ext.versionLow, arm32Ext.versionHigh);
         });
 
-        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.aarch64bionic, descriptor, optional);
-        configuration.setArchitecture("aarch64");
+        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.linuxarm32, descriptor, optional);
+        configuration.setArchitecture("arm");
         configuration.setOperatingSystem("linux");
         configuration.setCompilerPrefix("");
 
@@ -61,22 +61,22 @@ public class BionicToolchainPlugin implements Plugin<Project> {
     }
 
     public String composeTool(String toolName) {
-        String bionicVersion = bionicExt.toolchainVersion.split("-")[0].toLowerCase();
+        String arm32Version = arm32Ext.toolchainVersion.split("-")[0].toLowerCase();
         String exeSuffix = OperatingSystem.current().isWindows() ? ".exe" : "";
-        return "aarch64-" + bionicVersion + "-linux-gnu-" + toolName + exeSuffix;
+        return "arm-" + arm32Version + "-linux-gnueabihf-" + toolName + exeSuffix;
     }
 
-    public void populateDescriptor(ToolchainDescriptor<BionicGcc> descriptor) {
-        String bionicVersion = bionicExt.toolchainVersion.split("-")[0].toLowerCase();
-        File installLoc = toolchainInstallLoc(bionicVersion);
+    public void populateDescriptor(ToolchainDescriptor<Arm32Gcc> descriptor) {
+        String arm32Version = arm32Ext.toolchainVersion.split("-")[0].toLowerCase();
+        File installLoc = toolchainInstallLoc(arm32Version);
 
         descriptor.getDiscoverers().add(ToolchainDiscoverer.create("GradleUserDir", installLoc, this::composeTool, project));
         descriptor.getDiscoverers().addAll(ToolchainDiscoverer.forSystemPath(project, this::composeTool));
 
         try {
-            descriptor.getInstallers().add(installerFor(OperatingSystem.LINUX, installLoc, bionicVersion));
-            descriptor.getInstallers().add(installerFor(OperatingSystem.WINDOWS, installLoc, bionicVersion));
-            descriptor.getInstallers().add(installerFor(OperatingSystem.MAC_OS, installLoc, bionicVersion));
+            descriptor.getInstallers().add(installerFor(OperatingSystem.LINUX, installLoc, arm32Version));
+            descriptor.getInstallers().add(installerFor(OperatingSystem.WINDOWS, installLoc, arm32Version));
+            descriptor.getInstallers().add(installerFor(OperatingSystem.MAC_OS, installLoc, arm32Version));
         } catch (MalformedURLException e) {
             throw new GradleException("Malformed Toolchain URL", e);
         }
@@ -88,7 +88,7 @@ public class BionicToolchainPlugin implements Plugin<Project> {
     }
 
     private String toolchainRemoteFile() {
-        String[] desiredVersion = bionicExt.toolchainVersion.split("-");
+        String[] desiredVersion = arm32Ext.toolchainVersion.split("-");
 
         String platformId;
         if (OperatingSystem.current().isWindows()) {
@@ -103,7 +103,7 @@ public class BionicToolchainPlugin implements Plugin<Project> {
     }
 
     private URL toolchainDownloadUrl(String file) throws MalformedURLException {
-        return new URL("https://github.com/wpilibsuite/aarch64-bionic-toolchain/releases/download/" + bionicExt.toolchainTag + "/" + file);
+        return new URL("https://github.com/wpilibsuite/raspbian-toolchain/releases/download/" + arm32Ext.toolchainTag + "/" + file);
     }
 
 }

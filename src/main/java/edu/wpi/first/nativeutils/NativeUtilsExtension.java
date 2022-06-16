@@ -44,9 +44,9 @@ import edu.wpi.first.nativeutils.tasks.PrintNativeDependenciesTask;
 import edu.wpi.first.toolchain.NativePlatforms;
 import edu.wpi.first.toolchain.ToolchainDescriptorBase;
 import edu.wpi.first.toolchain.ToolchainExtension;
-import edu.wpi.first.toolchain.bionic.BionicToolchainPlugin;
+import edu.wpi.first.toolchain.arm32.Arm32ToolchainPlugin;
+import edu.wpi.first.toolchain.arm64.Arm64ToolchainPlugin;
 import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
-import edu.wpi.first.toolchain.raspbian.RaspbianToolchainPlugin;
 import edu.wpi.first.toolchain.roborio.RoboRioToolchainPlugin;
 
 public class NativeUtilsExtension {
@@ -358,12 +358,12 @@ public class NativeUtilsExtension {
     project.getPluginManager().apply(RoboRioToolchainPlugin.class);
   }
 
-  public void withRaspbian() {
-    project.getPluginManager().apply(RaspbianToolchainPlugin.class);
+  public void withLinuxArm32() {
+    project.getPluginManager().apply(Arm32ToolchainPlugin.class);
   }
 
-  public void withBionic() {
-    project.getPluginManager().apply(BionicToolchainPlugin.class);
+  public void withLinuxArm64() {
+    project.getPluginManager().apply(Arm64ToolchainPlugin.class);
   }
 
   public void excludeBinariesFromStrip(VariantComponentSpec component) {

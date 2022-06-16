@@ -1,4 +1,4 @@
-package edu.wpi.first.toolchain.raspbian;
+package edu.wpi.first.toolchain.arm64;
 
 import edu.wpi.first.toolchain.*;
 import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
@@ -14,37 +14,37 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class RaspbianToolchainPlugin implements Plugin<Project> {
+public class Arm64ToolchainPlugin implements Plugin<Project> {
 
-    public static final String toolchainName = "raspbian";
+    public static final String toolchainName = "arm64";
 
-    private RaspbianToolchainExtension raspbianExt;
+    private Arm64ToolchainExtension arm64Ext;
     private Project project;
 
     @Override
     public void apply(Project project) {
         this.project = project;
 
-        raspbianExt = project.getExtensions().create("raspbianToolchain", RaspbianToolchainExtension.class);
+        arm64Ext = project.getExtensions().create("arm64Toolchain", Arm64ToolchainExtension.class);
 
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
 
         Property<Boolean> optional = project.getObjects().property(Boolean.class);
         optional.set(true);
 
-        ToolchainDescriptor<RaspbianGcc> descriptor = new ToolchainDescriptor<>(
+        ToolchainDescriptor<Arm64Gcc> descriptor = new ToolchainDescriptor<>(
             project,
             toolchainName,
-            "raspianGcc",
-            new ToolchainRegistrar<RaspbianGcc>(RaspbianGcc.class, project),
+            "arm64Gcc",
+            new ToolchainRegistrar<Arm64Gcc>(Arm64Gcc.class, project),
             optional);
-        descriptor.setToolchainPlatforms(NativePlatforms.raspbian);
+        descriptor.setToolchainPlatforms(NativePlatforms.linuxarm64);
         descriptor.getDiscoverers().all((ToolchainDiscoverer disc) -> {
-            disc.configureVersions(raspbianExt.versionLow, raspbianExt.versionHigh);
+            disc.configureVersions(arm64Ext.versionLow, arm64Ext.versionHigh);
         });
 
-        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.raspbian, descriptor, optional);
-        configuration.setArchitecture("arm");
+        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.linuxarm64, descriptor, optional);
+        configuration.setArchitecture("arm64");
         configuration.setOperatingSystem("linux");
         configuration.setCompilerPrefix("");
 
@@ -61,22 +61,22 @@ public class RaspbianToolchainPlugin implements Plugin<Project> {
     }
 
     public String composeTool(String toolName) {
-        String raspbianVersion = raspbianExt.toolchainVersion.split("-")[0].toLowerCase();
+        String arm64Version = arm64Ext.toolchainVersion.split("-")[0].toLowerCase();
         String exeSuffix = OperatingSystem.current().isWindows() ? ".exe" : "";
-        return "arm-" + raspbianVersion + "-linux-gnueabihf-" + toolName + exeSuffix;
+        return "aarch64-" + arm64Version + "-linux-gnu-" + toolName + exeSuffix;
     }
 
-    public void populateDescriptor(ToolchainDescriptor<RaspbianGcc> descriptor) {
-        String raspbianVersion = raspbianExt.toolchainVersion.split("-")[0].toLowerCase();
-        File installLoc = toolchainInstallLoc(raspbianVersion);
+    public void populateDescriptor(ToolchainDescriptor<Arm64Gcc> descriptor) {
+        String arm64Version = arm64Ext.toolchainVersion.split("-")[0].toLowerCase();
+        File installLoc = toolchainInstallLoc(arm64Version);
 
         descriptor.getDiscoverers().add(ToolchainDiscoverer.create("GradleUserDir", installLoc, this::composeTool, project));
         descriptor.getDiscoverers().addAll(ToolchainDiscoverer.forSystemPath(project, this::composeTool));
 
         try {
-            descriptor.getInstallers().add(installerFor(OperatingSystem.LINUX, installLoc, raspbianVersion));
-            descriptor.getInstallers().add(installerFor(OperatingSystem.WINDOWS, installLoc, raspbianVersion));
-            descriptor.getInstallers().add(installerFor(OperatingSystem.MAC_OS, installLoc, raspbianVersion));
+            descriptor.getInstallers().add(installerFor(OperatingSystem.LINUX, installLoc, arm64Version));
+            descriptor.getInstallers().add(installerFor(OperatingSystem.WINDOWS, installLoc, arm64Version));
+            descriptor.getInstallers().add(installerFor(OperatingSystem.MAC_OS, installLoc, arm64Version));
         } catch (MalformedURLException e) {
             throw new GradleException("Malformed Toolchain URL", e);
         }
@@ -88,7 +88,7 @@ public class RaspbianToolchainPlugin implements Plugin<Project> {
     }
 
     private String toolchainRemoteFile() {
-        String[] desiredVersion = raspbianExt.toolchainVersion.split("-");
+        String[] desiredVersion = arm64Ext.toolchainVersion.split("-");
 
         String platformId;
         if (OperatingSystem.current().isWindows()) {
@@ -103,7 +103,7 @@ public class RaspbianToolchainPlugin implements Plugin<Project> {
     }
 
     private URL toolchainDownloadUrl(String file) throws MalformedURLException {
-        return new URL("https://github.com/wpilibsuite/raspbian-toolchain/releases/download/" + raspbianExt.toolchainTag + "/" + file);
+        return new URL("https://github.com/wpilibsuite/aarch64-bionic-toolchain/releases/download/" + arm64Ext.toolchainTag + "/" + file);
     }
 
 }

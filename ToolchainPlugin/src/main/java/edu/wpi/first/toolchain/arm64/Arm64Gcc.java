@@ -1,16 +1,16 @@
-package edu.wpi.first.toolchain.bionic;
+package edu.wpi.first.toolchain.arm64;
 
 import edu.wpi.first.toolchain.GccToolChain;
 import edu.wpi.first.toolchain.ToolchainOptions;
 
-public class BionicGcc extends GccToolChain {
+public class Arm64Gcc extends GccToolChain {
 
-    public BionicGcc(ToolchainOptions options) {
+    public Arm64Gcc(ToolchainOptions options) {
         super(options);
     }
 
     @Override
     protected String getTypeName() {
-        return "BionicGcc";
+        return "Arm64Gcc";
     }
 }

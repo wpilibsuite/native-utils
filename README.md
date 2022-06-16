@@ -133,7 +133,8 @@ nativeUtils.wpi.configureDependencies {
 // The 6 below get the string representation of the main platforms
 // For use comparing to binary.targetPlatform.name
 nativeUtils.wpi.platforms.roborio
-nativeUtils.wpi.platforms.raspbian
+nativeUtils.wpi.platforms.linuxarm32
+nativeUtils.wpi.platforms.linuxarm64
 nativeUtils.wpi.platforms.windowsx64
 nativeUtils.wpi.platforms.windowsx86
 nativeUtils.wpi.platforms.osxx64
@@ -168,7 +169,7 @@ toolchainsPlugin {
   // Add the roborio compiler
   withRoboRIO()
   // Add the raspbian compiler
-  withRasbian()
+  withLinuxArm32()
   // The above 2 are included with nativeUtils.addWpiNativeUtils()
 
   crossCompilers {
