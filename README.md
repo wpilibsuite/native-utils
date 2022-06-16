@@ -167,7 +167,7 @@ toolchainsPlugin {
   registerDebugBuildType = true
 
   // Add the roborio compiler
-  withRoboRIO()
+  withCrossRoboRIO()
   // Add the raspbian compiler
   withLinuxArm32()
   // The above 2 are included with nativeUtils.addWpiNativeUtils()

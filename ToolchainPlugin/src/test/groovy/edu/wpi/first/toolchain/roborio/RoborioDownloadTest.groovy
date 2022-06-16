@@ -33,7 +33,7 @@ class RoboRioDownloadTest extends Specification {
   id 'edu.wpi.first.Toolchain'
 }
 
-toolchainsPlugin.withRoboRIO()
+toolchainsPlugin.withCrossRoboRIO()
 """
     when:
     def result = GradleRunner.create()

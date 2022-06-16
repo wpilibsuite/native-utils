@@ -354,17 +354,17 @@ public class NativeUtilsExtension {
     return project.getTasks().register(name, ResourceGenerationTask.class, configure);
   }
 
-  public void withRoboRIO() {
+  public void withCrossRoboRIO() {
     project.getPluginManager().apply(RoboRioToolchainPlugin.class);
   }
 
-  public void withLinuxArm32() {
+  public void withCrossLinuxArm32() {
     if (!NativePlatforms.desktop.equals(NativePlatforms.linuxarm32)) {
       project.getPluginManager().apply(Arm32ToolchainPlugin.class);
     }
   }
 
-  public void withLinuxArm64() {
+  public void withCrossLinuxArm64() {
     if (!NativePlatforms.desktop.equals(NativePlatforms.linuxarm64)) {
       project.getPluginManager().apply(Arm64ToolchainPlugin.class);
     }

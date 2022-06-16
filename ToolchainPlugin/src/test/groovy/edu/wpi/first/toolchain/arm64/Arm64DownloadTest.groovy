@@ -33,7 +33,7 @@ class Arm64DownloadTest extends Specification {
   id 'edu.wpi.first.Toolchain'
 }
 
-toolchainsPlugin.withLinuxArm64()
+toolchainsPlugin.withCrossLinuxArm64()
 """
     when:
     def result = GradleRunner.create()
