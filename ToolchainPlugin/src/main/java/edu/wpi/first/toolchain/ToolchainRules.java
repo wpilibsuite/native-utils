@@ -52,6 +52,13 @@ public class ToolchainRules extends RuleSource {
     @Finalize
     void addClangArm(NativeToolChainRegistryInternal toolChainRegistry) {
         toolChainRegistry.all(n -> {
+            if (n instanceof org.gradle.nativeplatform.toolchain.internal.gcc.GccToolChain && OperatingSystem.current().equals(OperatingSystem.LINUX)) {
+                AbstractGccCompatibleToolChain gcc = (AbstractGccCompatibleToolChain)n;
+                if (NativePlatforms.desktop.equals(NativePlatforms.linuxarm32) || NativePlatforms.desktop.equals(NativePlatforms.linuxarm64)) {
+                    gcc.setTargets();
+                    gcc.target(NativePlatforms.desktop);
+                }
+            }
             if (n instanceof ClangToolChain && OperatingSystem.current().equals(OperatingSystem.MAC_OS)) {
                 AbstractGccCompatibleToolChain gcc = (AbstractGccCompatibleToolChain)n;
                 gcc.setTargets();
