@@ -160,6 +160,9 @@ public class ToolchainRules extends RuleSource {
             }
 
             for (CrossCompilerConfiguration config : ext.getCrossCompilers()) {
+                if (config.getName().equals(NativePlatforms.desktop)) {
+                    continue;
+                }
                 NativePlatform configedPlatform = platforms.maybeCreate(config.getName(), NativePlatform.class);
                 configedPlatform.architecture(config.getArchitecture());
                 configedPlatform.operatingSystem(config.getOperatingSystem());
