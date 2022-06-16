@@ -77,11 +77,15 @@ public class ToolchainExtension {
     }
 
     public void withLinuxArm32() {
-        project.getPluginManager().apply(Arm32ToolchainPlugin.class);
+        if (!NativePlatforms.desktop.equals(NativePlatforms.linuxarm32)) {
+            project.getPluginManager().apply(Arm32ToolchainPlugin.class);
+        }
     }
 
     public void withLinuxArm64() {
-        project.getPluginManager().apply(Arm64ToolchainPlugin.class);
+        if (!NativePlatforms.desktop.equals(NativePlatforms.linuxarm64)) {
+            project.getPluginManager().apply(Arm64ToolchainPlugin.class);
+        }
     }
 
     public NamedDomainObjectContainer<ToolchainDescriptorBase> getToolchainDescriptors() {
