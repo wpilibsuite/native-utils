@@ -19,6 +19,7 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
+import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.platform.base.Platform;
 import org.gradle.platform.base.PlatformAwareComponentSpec;
 import org.gradle.platform.base.PlatformContainer;
@@ -368,6 +369,10 @@ public class NativeUtilsExtension {
     if (!NativePlatforms.desktop.equals(NativePlatforms.linuxarm64)) {
       project.getPluginManager().apply(Arm64ToolchainPlugin.class);
     }
+  }
+
+  public boolean isNativeDesktopPlatform(NativePlatform platform) {
+    return platform.getName().equals(NativePlatforms.desktop);
   }
 
   public void excludeBinariesFromStrip(VariantComponentSpec component) {
