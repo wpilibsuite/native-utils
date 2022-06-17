@@ -11,6 +11,8 @@ import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 
 import edu.wpi.first.nativeutils.platforms.PlatformConfig;
 import edu.wpi.first.nativeutils.dependencies.AllPlatformsCombinedNativeDependency;
@@ -41,6 +43,7 @@ public class WPINativeUtilsExtension {
         public final List<String> unixWarningArgs = List.of("-Wall", "-Wextra");
         public final List<String> unixWarningsAsErrorsArgs = List.of("-Werror");
 
+        public final String unixRpathOriginArg = "-Wl,-rpath,'$ORIGIN'";
         public final String unixSymbolArg = "-g";
 
         public final List<String> linuxCrossCompilerArgs = List.of("-std=c++17", "-Wformat=2", "-pedantic",
@@ -71,7 +74,7 @@ public class WPINativeUtilsExtension {
         public final List<String> macReleaseCompilerArgs = List.of("-O2");
         public final List<String> macDebugCompilerArgs = List.of("-O0");
         public final List<String> macLinkerArgs = List.of("-framework", "CoreFoundation", "-framework", "AVFoundation",
-                "-framework", "Foundation", "-framework", "CoreMedia", "-framework", "CoreVideo");
+                "-framework", "Foundation", "-framework", "CoreMedia", "-framework", "CoreVideo", "-headerpad_max_install_names");
     }
 
     public static class Platforms {
@@ -156,11 +159,13 @@ public class WPINativeUtilsExtension {
     }
 
     private final ObjectFactory objects;
+    private final ProviderFactory provider;
 
     @Inject
-    public WPINativeUtilsExtension(NativeUtilsExtension nativeExt, ObjectFactory objects) {
+    public WPINativeUtilsExtension(NativeUtilsExtension nativeExt, ObjectFactory objects, ProviderFactory provider) {
         this.nativeExt = nativeExt;
         this.objects = objects;
+        this.provider = provider;
 
         this.platforms = objects.newInstance(Platforms.class);
         defaultArguments = objects.newInstance(DefaultArguments.class);
@@ -214,6 +219,12 @@ public class WPINativeUtilsExtension {
         public abstract Property<String> getImguiVersion();
 
         public abstract Property<String> getWpimathVersion();
+
+        public abstract Property<String> getOpencvYear();
+
+        public abstract Property<String> getImguiYear();
+
+        public abstract Property<String> getGoogleTestYear();
     }
 
     private void addPlatformReleaseSymbolGeneration(String platform) {
@@ -309,6 +320,26 @@ public class WPINativeUtilsExtension {
         }
     }
 
+    private void addPlatformRpathAsOrigin(String platform) {
+        PlatformConfig plat = unixPlatforms.get(platform);
+        if (plat != null) {
+            plat.getLinker().getArgs().add(defaultArguments.unixRpathOriginArg);
+            return;
+        }
+    }
+
+    public void addPlatformRpathAsOrigin(String... platforms) {
+        if (platforms.length == 0) {
+            for (String platform : this.platforms.allPlatforms) {
+                addPlatformRpathAsOrigin(platform);
+            }
+        } else {
+            for (String platform : platforms) {
+                addPlatformRpathAsOrigin(platform);
+            }
+        }
+    }
+
     private DependencyVersions dependencyVersions;
 
     private void registerStandardDependency(ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs,
@@ -337,8 +368,34 @@ public class WPINativeUtilsExtension {
         });
     }
 
+    private void registerStandardDependency(ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs,
+            String name, Provider<String> groupId, String artifactId, Property<String> version) {
+        configs.register(name + "_shared", WPISharedMavenDependency.class, c -> {
+            c.getGroupId().set(groupId);
+            c.getArtifactId().set(artifactId);
+            c.getHeaderClassifier().set("headers");
+            c.getSourceClassifier().set("sources");
+            c.getExt().set("zip");
+            c.getVersion().set(version);
+            c.getExtraSharedExcludes().add("**/*java*");
+            c.getExtraSharedExcludes().add("**/*jni*");
+            c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
+        });
+        configs.register(name + "_static", WPIStaticMavenDependency.class, c -> {
+            c.getGroupId().set(groupId);
+            c.getArtifactId().set(artifactId);
+            c.getHeaderClassifier().set("headers");
+            c.getSourceClassifier().set("sources");
+            c.getExt().set("zip");
+            c.getVersion().set(version);
+            c.getExtraSharedExcludes().add("**/*java*");
+            c.getExtraSharedExcludes().add("**/*jni*");
+            c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
+        });
+    }
+
     private void registerStaticOnlyStandardDependency(ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs,
-            String name, String groupId, String artifactId, Property<String> version) {
+            String name, Provider<String> groupId, String artifactId, Property<String> version) {
         configs.register(name + "_static", WPIStaticMavenDependency.class, c -> {
             c.getGroupId().set(groupId);
             c.getArtifactId().set(artifactId);
@@ -350,11 +407,16 @@ public class WPINativeUtilsExtension {
         });
     }
 
+    private static String defaultDependencyYear = "frc2023";
+
     public void configureDependencies(Action<DependencyVersions> dependencies) {
         if (dependencyVersions != null) {
             return;
         }
         dependencyVersions = objects.newInstance(DependencyVersions.class);
+        dependencyVersions.getGoogleTestYear().set(defaultDependencyYear);
+        dependencyVersions.getImguiYear().set(defaultDependencyYear);
+        dependencyVersions.getOpencvYear().set(defaultDependencyYear);
         dependencies.execute(dependencyVersions);
         ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs = nativeExt.getNativeDependencyContainer();
         configs.register("netcomm", WPISharedMavenDependency.class, c -> {
@@ -417,9 +479,13 @@ public class WPINativeUtilsExtension {
 
         registerStandardDependency(configs, "wpimath", "edu.wpi.first.wpimath", "wpimath-cpp", dependencyVersions.getWpimathVersion());
 
-        registerStandardDependency(configs, "opencv", "edu.wpi.first.thirdparty.frc2022.opencv", "opencv-cpp", dependencyVersions.getOpencvVersion());
-        registerStaticOnlyStandardDependency(configs, "googletest", "edu.wpi.first.thirdparty.frc2022", "googletest", dependencyVersions.getGoogleTestVersion());
-        registerStaticOnlyStandardDependency(configs, "imgui", "edu.wpi.first.thirdparty.frc2022", "imgui", dependencyVersions.getImguiVersion());
+        Provider<String> opencvYearGroup = provider.provider(() -> "edu.wpi.first.thirdparty." + dependencyVersions.getOpencvYear().get() + ".opencv");
+        Provider<String> imguiYearGroup = provider.provider(() -> "edu.wpi.first.thirdparty." + dependencyVersions.getImguiYear().get());
+        Provider<String> googleTestYearGroup = provider.provider(() -> "edu.wpi.first.thirdparty." + dependencyVersions.getGoogleTestYear().get());
+
+        registerStandardDependency(configs, "opencv", opencvYearGroup, "opencv-cpp", dependencyVersions.getOpencvVersion());
+        registerStaticOnlyStandardDependency(configs, "googletest", googleTestYearGroup, "googletest", dependencyVersions.getGoogleTestVersion());
+        registerStaticOnlyStandardDependency(configs, "imgui", imguiYearGroup, "imgui", dependencyVersions.getImguiVersion());
 
 
         configs.register("wpilib_jni", AllPlatformsCombinedNativeDependency.class, c -> {
