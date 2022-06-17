@@ -11,13 +11,12 @@ import org.gradle.api.Project;
 import org.gradle.internal.logging.text.DiagnosticsVisitor;
 import org.gradle.internal.os.OperatingSystem;
 
-import edu.wpi.first.toolchain.bionic.BionicToolchainPlugin;
+import edu.wpi.first.toolchain.arm32.Arm32ToolchainPlugin;
+import edu.wpi.first.toolchain.arm64.Arm64ToolchainPlugin;
 import edu.wpi.first.toolchain.configurable.ConfigurableGcc;
 import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
 import edu.wpi.first.toolchain.configurable.DefaultCrossCompilerConfiguration;
-import edu.wpi.first.toolchain.raspbian.RaspbianToolchainPlugin;
 import edu.wpi.first.toolchain.roborio.RoboRioToolchainPlugin;
-//import edu.wpi.first.deployutils.toolchains.ToolchainsPlugin.ToolchainUtilExtension;
 
 public class ToolchainExtension {
     private final NamedDomainObjectContainer<CrossCompilerConfiguration> crossCompilers;
@@ -73,16 +72,20 @@ public class ToolchainExtension {
         // }
     }
 
-    public void withRoboRIO() {
+    public void withCrossRoboRIO() {
         project.getPluginManager().apply(RoboRioToolchainPlugin.class);
     }
 
-    public void withRaspbian() {
-        project.getPluginManager().apply(RaspbianToolchainPlugin.class);
+    public void withCrossLinuxArm32() {
+        if (!NativePlatforms.desktop.equals(NativePlatforms.linuxarm32)) {
+            project.getPluginManager().apply(Arm32ToolchainPlugin.class);
+        }
     }
 
-    public void withBionic() {
-        project.getPluginManager().apply(BionicToolchainPlugin.class);
+    public void withCrossLinuxArm64() {
+        if (!NativePlatforms.desktop.equals(NativePlatforms.linuxarm64)) {
+            project.getPluginManager().apply(Arm64ToolchainPlugin.class);
+        }
     }
 
     public NamedDomainObjectContainer<ToolchainDescriptorBase> getToolchainDescriptors() {

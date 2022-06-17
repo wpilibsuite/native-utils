@@ -76,13 +76,13 @@ public class WPINativeUtilsExtension {
 
     public static class Platforms {
         public final String roborio = "linuxathena";
-        public final String raspbian = "linuxraspbian";
+        public final String linuxarm32 = "linuxarm32";
         public final String windowsx64 = "windowsx86-64";
         public final String osxx64 = "osxx86-64";
         public final String osxarm64 = "osxarm64";
         public final String linuxx64 = "linuxx86-64";
-        public final String aarch64bionic = "linuxaarch64bionic";
-        public final List<String> allPlatforms = List.of(roborio, raspbian, aarch64bionic, windowsx64,
+        public final String linuxarm64 = "linuxarm64";
+        public final List<String> allPlatforms = List.of(roborio, linuxarm32, linuxarm64, windowsx64,
                 osxx64, osxarm64, linuxx64);
         public final List<String> desktopPlatforms = List.of(windowsx64, osxx64, osxarm64, linuxx64);
     }
@@ -171,23 +171,23 @@ public class WPINativeUtilsExtension {
         PlatformConfig osxx86_64 = nativeExt.getPlatformConfigs().create(platforms.osxx64);
         PlatformConfig osxarm64 = nativeExt.getPlatformConfigs().create(platforms.osxarm64);
         PlatformConfig linuxathena = nativeExt.getPlatformConfigs().create(platforms.roborio);
-        PlatformConfig linuxraspbian = nativeExt.getPlatformConfigs().create(platforms.raspbian);
-        PlatformConfig linuxbionic = nativeExt.getPlatformConfigs().create(platforms.aarch64bionic);
+        PlatformConfig linuxarm32 = nativeExt.getPlatformConfigs().create(platforms.linuxarm32);
+        PlatformConfig linuxarm64 = nativeExt.getPlatformConfigs().create(platforms.linuxarm64);
         unixPlatforms.put(platforms.linuxx64, linuxx86_64);
         unixPlatforms.put(platforms.osxx64, osxx86_64);
         unixPlatforms.put(platforms.osxarm64, osxarm64);
-        unixPlatforms.put(platforms.raspbian, linuxraspbian);
+        unixPlatforms.put(platforms.linuxarm32, linuxarm32);
         unixPlatforms.put(platforms.roborio, linuxathena);
-        unixPlatforms.put(platforms.aarch64bionic, linuxbionic);
+        unixPlatforms.put(platforms.linuxarm64, linuxarm64);
 
         linuxathena.getPlatformPath().set("linux/athena");
         addLinuxCrossArgs(linuxathena);
 
-        linuxraspbian.getPlatformPath().set("linux/raspbian");
-        addLinuxCrossArgs(linuxraspbian);
+        linuxarm32.getPlatformPath().set("linux/arm32");
+        addLinuxCrossArgs(linuxarm32);
 
-        linuxbionic.getPlatformPath().set("linux/aarch64bionic");
-        addLinuxCrossArgs(linuxbionic);
+        linuxarm64.getPlatformPath().set("linux/arm64");
+        addLinuxCrossArgs(linuxarm64);
 
         windowsx86_64.getPlatformPath().set("windows/x86-64");
         addWindowsArgs(windowsx86_64);

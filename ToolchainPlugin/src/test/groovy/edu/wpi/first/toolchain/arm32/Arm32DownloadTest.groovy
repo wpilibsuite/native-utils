@@ -1,4 +1,4 @@
-package edu.wpi.first.toolchain.bionic
+package edu.wpi.first.toolchain.arm32
 
 import org.gradle.testkit.runner.GradleRunner
 import static org.gradle.testkit.runner.TaskOutcome.*
@@ -9,7 +9,7 @@ import spock.lang.Specification
 import spock.lang.IgnoreIf
 
 @IgnoreIf({ !Boolean.valueOf(env['SPOCK_RUN_TOOLCHAINS']) })
-class BionicDownloadTest extends Specification {
+class Arm32DownloadTest extends Specification {
   @TempDir File testProjectDir
   File buildFile
   @Shared File toolchainDir
@@ -19,9 +19,9 @@ class BionicDownloadTest extends Specification {
   }
 
   def setupSpec() {
-    BionicToolchainExtension ext = new BionicToolchainExtension()
-    String bionicVersion = ext.toolchainVersion.split("-")[0].toLowerCase();
-    toolchainDir = BionicToolchainPlugin.toolchainInstallLoc(bionicVersion)
+    Arm32ToolchainExtension ext = new Arm32ToolchainExtension()
+    String arm32Version = ext.toolchainVersion.split("-")[0].toLowerCase();
+    toolchainDir = Arm32ToolchainPlugin.toolchainInstallLoc(arm32Version)
     def result = toolchainDir.deleteDir()  // Returns true if all goes well, false otherwise.
     assert result
   }
@@ -33,16 +33,16 @@ class BionicDownloadTest extends Specification {
   id 'edu.wpi.first.Toolchain'
 }
 
-toolchainsPlugin.withBionic()
+toolchainsPlugin.withCrossLinuxArm32()
 """
     when:
     def result = GradleRunner.create()
                              .withProjectDir(testProjectDir)
-                             .withArguments('installBionicToolchain', '--stacktrace')
+                             .withArguments('installArm32Toolchain', '--stacktrace')
                              .withPluginClasspath()
                              .build()
 
     then:
-    result.task(':installBionicToolchain').outcome == SUCCESS
+    result.task(':installArm32Toolchain').outcome == SUCCESS
   }
 }

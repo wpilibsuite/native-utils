@@ -1,6 +1,6 @@
-package edu.wpi.first.toolchain.bionic;
+package edu.wpi.first.toolchain.arm64;
 
-public class BionicToolchainExtension {
+public class Arm64ToolchainExtension {
 
     public String versionLow = "8.4";
     public String versionHigh = "8.4";
