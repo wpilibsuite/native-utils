@@ -10,6 +10,7 @@ import org.gradle.api.Task;
 import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.ExtensionContainer;
+import org.gradle.api.specs.Spec;
 import org.gradle.internal.operations.BuildOperationExecutor;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.internal.reflect.Instantiator;
@@ -137,16 +138,28 @@ public class ToolchainRules extends RuleSource {
     }
 
     @Validate
-    void disableCrossTests(BinaryContainer binaries, ExtensionContainer extContainer) {
-        final ToolchainExtension ext = extContainer.getByType(ToolchainExtension.class);
+    void disableCrossTests(BinaryContainer binaries) {
+        String currentTarget = NativePlatforms.desktop;
+
+        Action<RunTestExecutable> eachTaskAction = new Action<RunTestExecutable>() {
+
+            Spec<Task> forceTaskToNotRunSpec = new Spec<Task>() {
+                @Override
+                public boolean isSatisfiedBy(Task arg0) {
+                    return false;
+                }
+            };
+
+            @Override
+            public void execute(RunTestExecutable test) {
+                test.onlyIf(forceTaskToNotRunSpec);
+            }
+
+        };
 
         for (GoogleTestTestSuiteBinarySpec binary : binaries.withType(GoogleTestTestSuiteBinarySpec.class)) {
-            if (ext.getCrossCompilers().findByName(binary.getTargetPlatform().getName()) != null) {
-                for (RunTestExecutable runExe : binary.getTasks().withType(RunTestExecutable.class)) {
-                    runExe.onlyIf(t -> {
-                        return false;
-                    });
-                }
+            if (!binary.getTargetPlatform().getName().equals(currentTarget)) {
+                binary.getTasks().withType(RunTestExecutable.class, eachTaskAction);
             }
         }
     }
