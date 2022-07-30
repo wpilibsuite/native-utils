@@ -48,6 +48,9 @@ public interface UnzipTransform extends TransformAction<TransformParameters.None
                     continue;
                 }
                 File outFile = new File(unzipDir, entry.getName());
+                if (!outFile.toPath().normalize().startsWith(unzipDir.toPath().normalize())) {
+                    throw new RuntimeException("Bad zip entry");
+                }
                 FileUtils.createParentDirs(outFile);
                 try (FileOutputStream outputStream = new FileOutputStream(outFile)) {
                     FileUtils.copyLarge(inputStream, outputStream);
