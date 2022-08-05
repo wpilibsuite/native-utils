@@ -47,18 +47,17 @@ public class WPINativeUtilsExtension {
         public final String unixSymbolArg = "-g";
 
         public final List<String> linuxCrossCompilerArgs = List.of("-std=c++17", "-Wformat=2", "-pedantic",
-                "-Wno-psabi", "-Wno-unused-parameter", "-Wno-error=deprecated-declarations", "-fPIC", "-rdynamic",
-                "-pthread");
+                "-Wno-psabi", "-Wno-unused-parameter", "-Wno-error=deprecated-declarations", "-fPIC", "-pthread");
         public final List<String> linuxCrossCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
-                "-Wno-unused-parameter", "-fPIC", "-rdynamic", "-pthread");
+                "-Wno-unused-parameter", "-fPIC", "-pthread");
         public final List<String> linuxCrossLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic");
         public final List<String> linuxCrossReleaseCompilerArgs = List.of("-O2");
         public final List<String> linuxCrossDebugCompilerArgs = List.of("-Og");
 
         public final List<String> linuxCompilerArgs = List.of("-std=c++17", "-Wformat=2", "-pedantic", "-Wno-psabi",
-                "-Wno-unused-parameter", "-Wno-error=deprecated-declarations", "-fPIC", "-rdynamic", "-pthread");
+                "-Wno-unused-parameter", "-Wno-error=deprecated-declarations", "-fPIC", "-pthread");
         public final List<String> linuxCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
-                "-Wno-unused-parameter", "-fPIC", "-rdynamic", "-pthread");
+                "-Wno-unused-parameter", "-fPIC", "-pthread");
         public final List<String> linuxLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic");
         public final List<String> linuxReleaseCompilerArgs = List.of("-O2");
         public final List<String> linuxDebugCompilerArgs = List.of("-O0");
