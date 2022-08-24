@@ -79,11 +79,11 @@ public class WPINativeUtilsExtension {
     public static class Platforms {
         public final String roborio = "linuxathena";
         public final String linuxarm32 = "linuxarm32";
+        public final String linuxarm64 = "linuxarm64";
         public final String windowsx64 = "windowsx86-64";
         public final String osxx64 = "osxx86-64";
         public final String osxarm64 = "osxarm64";
         public final String linuxx64 = "linuxx86-64";
-        public final String linuxarm64 = "linuxarm64";
         public final List<String> allPlatforms = List.of(roborio, linuxarm32, linuxarm64, windowsx64,
                 osxx64, osxarm64, linuxx64);
         public final List<String> desktopPlatforms = List.of(windowsx64, osxx64, osxarm64, linuxx64);
