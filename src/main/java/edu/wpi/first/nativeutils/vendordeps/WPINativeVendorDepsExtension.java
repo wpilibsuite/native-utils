@@ -16,17 +16,17 @@ import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.NamedJsonDepe
 
 public class WPINativeVendorDepsExtension {
     private final WPIVendorDepsExtension vendorDeps;
-    private final NativeUtilsExtension nte;
+    private final Project project;
+    private NativeUtilsExtension nte;
 
     @Inject
-    public WPINativeVendorDepsExtension(WPIVendorDepsExtension vendorDeps, NativeUtilsExtension nte, Project project) {
-        this.nte = nte;
+    public WPINativeVendorDepsExtension(WPIVendorDepsExtension vendorDeps, Project project) {
         this.vendorDeps = vendorDeps;
-
-        initializeNativeDependencies(project);
+        this.project = project;
     }
 
-    public void initializeNativeDependencies(Project project) {
+    public void initializeNativeDependencies() {
+        nte = project.getExtensions().getByType(NativeUtilsExtension.class);
         var dependencyContainer = nte.getNativeDependencyContainer();
         dependencyContainer.registerFactory(WPIVendorMavenDependency.class, name -> {
             return project.getObjects().newInstance(WPIVendorMavenDependency.class, name, project);

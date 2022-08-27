@@ -1,6 +1,5 @@
 package edu.wpi.first.nativeutils;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +14,6 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.internal.os.OperatingSystem;
 
 import edu.wpi.first.nativeutils.platforms.PlatformConfig;
 import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension;
@@ -173,37 +171,17 @@ public class WPINativeUtilsExtension {
     private final ObjectFactory objects;
     private final ProviderFactory provider;
 
-    private String frcHomeCache;
-
-    public String getFrcHome() {
-        if (frcHomeCache != null) {
-            return this.frcHomeCache;
-        }
-        String frcHome = "";
-        if (OperatingSystem.current().isWindows()) {
-            String publicFolder = System.getenv("PUBLIC");
-            if (publicFolder == null) {
-                publicFolder = "C:\\Users\\Public";
-            }
-            File homeRoot = new File(publicFolder, "wpilib");
-            frcHome = new File(homeRoot, this.frcYear).toString();
-        } else {
-            String userFolder = System.getProperty("user.home");
-            File homeRoot = new File(userFolder, "wpilib");
-            frcHome = new File(homeRoot, this.frcYear).toString();
-        }
-        frcHomeCache = frcHome;
-        return frcHomeCache;
-    }
-
     public void addVendorDeps() {
         project.getPlugins().apply(WPIVendorDepsPlugin.class);
-        vendorDeps = project.getExtensions().getByType(WPIVendorDepsExtension.class);
+
     }
 
     private WPIVendorDepsExtension vendorDeps;
 
     public WPIVendorDepsExtension getVendorDeps() {
+        if (vendorDeps == null) {
+            vendorDeps = project.getExtensions().getByType(WPIVendorDepsExtension.class);
+        }
         return vendorDeps;
     }
 

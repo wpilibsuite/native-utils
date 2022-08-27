@@ -16,13 +16,13 @@ import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.provider.Property;
+import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.plugins.NativeComponentPlugin;
 
 import com.google.gson.Gson;
 
 import edu.wpi.first.deployutils.log.ETLogger;
 import edu.wpi.first.deployutils.log.ETLoggerFactory;
-import edu.wpi.first.nativeutils.NativeUtilsExtension;
 
 public abstract class WPIVendorDepsExtension {
 
@@ -62,8 +62,7 @@ public abstract class WPIVendorDepsExtension {
         ObjectFactory objects = project.getObjects();
 
         project.getPlugins().withType(NativeComponentPlugin.class, p -> {
-            NativeUtilsExtension nte = project.getExtensions().getByType(NativeUtilsExtension.class);
-            nativeVendor = objects.newInstance(WPINativeVendorDepsExtension.class, this, nte, project);
+            nativeVendor = objects.newInstance(WPINativeVendorDepsExtension.class, this, project);
         });
 
         project.getPlugins().withType(JavaPlugin.class, p -> {
@@ -298,5 +297,29 @@ public abstract class WPIVendorDepsExtension {
                 }
             });
         }
+    }
+
+    private String frcHomeCache;
+    private final String frcYear = "frc2023";
+
+    public String getFrcHome() {
+        if (frcHomeCache != null) {
+            return this.frcHomeCache;
+        }
+        String frcHome = "";
+        if (OperatingSystem.current().isWindows()) {
+            String publicFolder = System.getenv("PUBLIC");
+            if (publicFolder == null) {
+                publicFolder = "C:\\Users\\Public";
+            }
+            File homeRoot = new File(publicFolder, "wpilib");
+            frcHome = new File(homeRoot, this.frcYear).toString();
+        } else {
+            String userFolder = System.getProperty("user.home");
+            File homeRoot = new File(userFolder, "wpilib");
+            frcHome = new File(homeRoot, this.frcYear).toString();
+        }
+        frcHomeCache = frcHome;
+        return frcHomeCache;
     }
 }

@@ -11,7 +11,6 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.options.Option;
 
 import de.undercouch.gradle.tasks.download.DownloadAction;
-import edu.wpi.first.nativeutils.WPINativeUtilsExtension;
 
 /**
  * A task type for downloading vendordep JSON files from the vendor URL.
@@ -19,7 +18,7 @@ import edu.wpi.first.nativeutils.WPINativeUtilsExtension;
 public class VendorDepTask extends DefaultTask {
     private String url;
     private DownloadAction downloadAction = new DownloadAction(getProject());
-    private WPINativeUtilsExtension wpiExt = getProject().getExtensions().getByType(WPINativeUtilsExtension.class);
+    private WPIVendorDepsExtension wpiExt = getProject().getExtensions().getByType(WPIVendorDepsExtension.class);
 
     @Option(option = "url", description = "The vendordep JSON URL or path")
     public void setURL(String url) {
