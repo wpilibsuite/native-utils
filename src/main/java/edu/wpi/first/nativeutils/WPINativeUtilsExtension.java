@@ -11,19 +11,15 @@ import org.gradle.api.Action;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.internal.os.OperatingSystem;
-import org.gradle.nativeplatform.plugins.NativeComponentPlugin;
 
 import edu.wpi.first.nativeutils.platforms.PlatformConfig;
-import edu.wpi.first.nativeutils.vendordeps.VendorDepTask;
-import edu.wpi.first.nativeutils.vendordeps.WPIJavaVendorDepsExtension;
-import edu.wpi.first.nativeutils.vendordeps.WPINativeVendorDepsExtension;
 import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension;
+import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsPlugin;
 import edu.wpi.first.toolchain.NativePlatforms;
 import edu.wpi.first.nativeutils.dependencies.AllPlatformsCombinedNativeDependency;
 import edu.wpi.first.nativeutils.dependencies.CombinedIgnoreMissingPlatformNativeDependency;
@@ -33,24 +29,6 @@ import edu.wpi.first.nativeutils.dependencies.WPIStaticMavenDependency;
 
 public class WPINativeUtilsExtension {
     private NativeUtilsExtension nativeExt;
-
-    private WPIVendorDepsExtension vendor;
-
-    public WPIVendorDepsExtension getVendor() {
-        return vendor;
-    }
-
-    private WPINativeVendorDepsExtension nativeVendor;
-
-    public WPINativeVendorDepsExtension getNativeVendor() {
-        return nativeVendor;
-    }
-
-    private WPIJavaVendorDepsExtension javaVendor;
-
-    public WPIJavaVendorDepsExtension getJavaVendor() {
-        return javaVendor;
-    }
 
     private final NativePlatforms nativePlatforms = new NativePlatforms();
 
@@ -218,23 +196,15 @@ public class WPINativeUtilsExtension {
         return frcHomeCache;
     }
 
-    public void addVendor() {
-        vendor = objects.newInstance(WPIVendorDepsExtension.class, project);
+    public void addVendorDeps() {
+        project.getPlugins().apply(WPIVendorDepsPlugin.class);
+        vendorDeps = project.getExtensions().getByType(WPIVendorDepsExtension.class);
+    }
 
-        project.getPlugins().withType(NativeComponentPlugin.class, p -> {
-            nativeVendor = objects.newInstance(WPINativeVendorDepsExtension.class, vendor, nativeExt, project);
-        });
+    private WPIVendorDepsExtension vendorDeps;
 
-        project.getPlugins().withType(JavaPlugin.class, p -> {
-            javaVendor = objects.newInstance(WPIJavaVendorDepsExtension.class, vendor, project);
-        });
-
-        vendor.loadAll();
-
-        project.getTasks().register("vendordep", VendorDepTask.class, task -> {
-            task.setGroup("NativeUtils");
-            task.setDescription("Install vendordep JSON file from URL or local wpilib folder");
-        });
+    public WPIVendorDepsExtension getVendorDeps() {
+        return vendorDeps;
     }
 
     private final Project project;

@@ -13,12 +13,16 @@ import javax.inject.Inject;
 import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.Project;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.provider.Property;
+import org.gradle.nativeplatform.plugins.NativeComponentPlugin;
 
 import com.google.gson.Gson;
 
 import edu.wpi.first.deployutils.log.ETLogger;
 import edu.wpi.first.deployutils.log.ETLoggerFactory;
+import edu.wpi.first.nativeutils.NativeUtilsExtension;
 
 public abstract class WPIVendorDepsExtension {
 
@@ -36,6 +40,17 @@ public abstract class WPIVendorDepsExtension {
 
     private final Project project;
 
+    private WPINativeVendorDepsExtension nativeVendor;
+    public WPINativeVendorDepsExtension getNativeVendor() {
+        return nativeVendor;
+    }
+
+    private WPIJavaVendorDepsExtension javaVendor;
+
+    public WPIJavaVendorDepsExtension getJavaVendor() {
+        return javaVendor;
+    }
+
     @Inject
     public WPIVendorDepsExtension(Project project) {
         this.log = ETLoggerFactory.INSTANCE.create("WPIVendorDeps");
@@ -43,6 +58,19 @@ public abstract class WPIVendorDepsExtension {
         dependencySet = project.getObjects().namedDomainObjectSet(NamedJsonDependency.class);
         vendorRepos = project.getObjects().namedDomainObjectSet(VendorMavenRepo.class);
         getFixedVersion().convention("0.0.0");
+
+        ObjectFactory objects = project.getObjects();
+
+        project.getPlugins().withType(NativeComponentPlugin.class, p -> {
+            NativeUtilsExtension nte = project.getExtensions().getByType(NativeUtilsExtension.class);
+            nativeVendor = objects.newInstance(WPINativeVendorDepsExtension.class, this, nte, project);
+        });
+
+        project.getPlugins().withType(JavaPlugin.class, p -> {
+            javaVendor = objects.newInstance(WPIJavaVendorDepsExtension.class, this, project);
+        });
+
+        loadAll();
     }
 
     private File vendorFolder(Project project) {

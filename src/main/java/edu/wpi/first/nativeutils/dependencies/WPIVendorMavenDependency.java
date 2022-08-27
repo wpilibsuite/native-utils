@@ -10,7 +10,6 @@ import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
 import org.gradle.nativeplatform.NativeBinarySpec;
 
-import edu.wpi.first.nativeutils.WPINativeUtilsExtension;
 import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension;
 
 public abstract class WPIVendorMavenDependency extends WPIMavenDependency {
@@ -32,8 +31,8 @@ public abstract class WPIVendorMavenDependency extends WPIMavenDependency {
         }
 
         if (artifact.version.equals("wpilib")) {
-            WPINativeUtilsExtension wpi = getProject().getExtensions().getByType(WPINativeUtilsExtension.class);
-            getVersion().set(wpi.getVendor().getFixedVersion());
+            WPIVendorDepsExtension wpi = getProject().getExtensions().getByType(WPIVendorDepsExtension.class);
+            getVersion().set(wpi.getFixedVersion());
         } else {
             getVersion().set(artifact.version);
         }
