@@ -7,10 +7,6 @@ import org.gradle.api.Project;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.platform.base.VariantComponentSpec;
 
-// import edu.wpi.first.gradlerio.wpi.dependencies.WPIVendorDepsExtension;
-// import edu.wpi.first.gradlerio.wpi.dependencies.WPIVendorDepsExtension.CppArtifact;
-// import edu.wpi.first.gradlerio.wpi.dependencies.WPIVendorDepsExtension.JsonDependency;
-// import edu.wpi.first.gradlerio.wpi.dependencies.WPIVendorDepsExtension.NamedJsonDependency;
 import edu.wpi.first.nativeutils.NativeUtilsExtension;
 import edu.wpi.first.nativeutils.dependencies.AllPlatformsCombinedNativeDependency;
 import edu.wpi.first.nativeutils.dependencies.WPIVendorMavenDependency;

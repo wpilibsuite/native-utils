@@ -89,5 +89,4 @@ public abstract class WPIVendorMavenDependency extends WPIMavenDependency {
     public WPIVendorDepsExtension.CppArtifact getArtifact() {
         return artifact;
     }
-
 }

@@ -271,5 +271,4 @@ public abstract class WPIVendorDepsExtension {
             });
         }
     }
-
 }
