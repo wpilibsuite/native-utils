@@ -173,7 +173,6 @@ public class WPINativeUtilsExtension {
 
     public void addVendorDeps() {
         project.getPlugins().apply(WPIVendorDepsPlugin.class);
-
     }
 
     private WPIVendorDepsExtension vendorDeps;
