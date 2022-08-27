@@ -1,5 +1,6 @@
 package edu.wpi.first.nativeutils;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,13 +9,22 @@ import javax.inject.Inject;
 
 import org.gradle.api.Action;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
+import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
+import org.gradle.internal.os.OperatingSystem;
+import org.gradle.nativeplatform.plugins.NativeComponentPlugin;
 
 import edu.wpi.first.nativeutils.platforms.PlatformConfig;
+import edu.wpi.first.nativeutils.vendordeps.VendorDepTask;
+import edu.wpi.first.nativeutils.vendordeps.WPIJavaVendorDepsExtension;
+import edu.wpi.first.nativeutils.vendordeps.WPINativeVendorDepsExtension;
+import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension;
+import edu.wpi.first.toolchain.NativePlatforms;
 import edu.wpi.first.nativeutils.dependencies.AllPlatformsCombinedNativeDependency;
 import edu.wpi.first.nativeutils.dependencies.CombinedIgnoreMissingPlatformNativeDependency;
 import edu.wpi.first.nativeutils.dependencies.NativeDependency;
@@ -23,6 +33,31 @@ import edu.wpi.first.nativeutils.dependencies.WPIStaticMavenDependency;
 
 public class WPINativeUtilsExtension {
     private NativeUtilsExtension nativeExt;
+
+    private WPIVendorDepsExtension vendor;
+
+    public WPIVendorDepsExtension getVendor() {
+        return vendor;
+    }
+
+    private WPINativeVendorDepsExtension nativeVendor;
+
+    public WPINativeVendorDepsExtension getNativeVendor() {
+        return nativeVendor;
+    }
+
+    private WPIJavaVendorDepsExtension javaVendor;
+
+    public WPIJavaVendorDepsExtension getJavaVendor() {
+        return javaVendor;
+    }
+
+    private final NativePlatforms nativePlatforms = new NativePlatforms();
+
+
+    public NativePlatforms getNativePlatforms() {
+        return nativePlatforms;
+    }
 
     public static class DefaultArguments {
 
@@ -160,11 +195,56 @@ public class WPINativeUtilsExtension {
     private final ObjectFactory objects;
     private final ProviderFactory provider;
 
+    private String frcHomeCache;
+
+    public String getFrcHome() {
+        if (frcHomeCache != null) {
+            return this.frcHomeCache;
+        }
+        String frcHome = "";
+        if (OperatingSystem.current().isWindows()) {
+            String publicFolder = System.getenv("PUBLIC");
+            if (publicFolder == null) {
+                publicFolder = "C:\\Users\\Public";
+            }
+            File homeRoot = new File(publicFolder, "wpilib");
+            frcHome = new File(homeRoot, this.frcYear).toString();
+        } else {
+            String userFolder = System.getProperty("user.home");
+            File homeRoot = new File(userFolder, "wpilib");
+            frcHome = new File(homeRoot, this.frcYear).toString();
+        }
+        frcHomeCache = frcHome;
+        return frcHomeCache;
+    }
+
+    public void addVendor() {
+        vendor = objects.newInstance(WPIVendorDepsExtension.class, project);
+
+        project.getPlugins().withType(NativeComponentPlugin.class, p -> {
+            nativeVendor = objects.newInstance(WPINativeVendorDepsExtension.class, vendor, nativeExt, project);
+        });
+
+        project.getPlugins().withType(JavaPlugin.class, p -> {
+            javaVendor = objects.newInstance(WPIJavaVendorDepsExtension.class, vendor, project);
+        });
+
+        vendor.loadAll();
+
+        project.getTasks().register("vendordep", VendorDepTask.class, task -> {
+            task.setGroup("NativeUtils");
+            task.setDescription("Install vendordep JSON file from URL or local wpilib folder");
+        });
+    }
+
+    private final Project project;
+
     @Inject
-    public WPINativeUtilsExtension(NativeUtilsExtension nativeExt, ObjectFactory objects, ProviderFactory provider) {
+    public WPINativeUtilsExtension(NativeUtilsExtension nativeExt, Project project) {
         this.nativeExt = nativeExt;
-        this.objects = objects;
-        this.provider = provider;
+        this.objects = project.getObjects();
+        this.provider = project.getProviders();
+        this.project = project;
 
         this.platforms = objects.newInstance(Platforms.class);
         defaultArguments = objects.newInstance(DefaultArguments.class);
@@ -406,17 +486,27 @@ public class WPINativeUtilsExtension {
         });
     }
 
-    private static String defaultDependencyYear = "frc2023";
+    private final String frcYear = "frc2023";
+
+    public String getFrcYear() {
+        return frcYear;
+    }
+
+    private DependencyVersions versions;
+    public DependencyVersions getVersions() {
+        return versions;
+    }
 
     public void configureDependencies(Action<DependencyVersions> dependencies) {
         if (dependencyVersions != null) {
             return;
         }
         dependencyVersions = objects.newInstance(DependencyVersions.class);
-        dependencyVersions.getGoogleTestYear().set(defaultDependencyYear);
-        dependencyVersions.getImguiYear().set(defaultDependencyYear);
-        dependencyVersions.getOpencvYear().set(defaultDependencyYear);
+        dependencyVersions.getGoogleTestYear().set(frcYear);
+        dependencyVersions.getImguiYear().set(frcYear);
+        dependencyVersions.getOpencvYear().set(frcYear);
         dependencies.execute(dependencyVersions);
+        versions = dependencyVersions;
         ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs = nativeExt.getNativeDependencyContainer();
         configs.register("netcomm", WPISharedMavenDependency.class, c -> {
             c.getGroupId().set("edu.wpi.first.ni-libraries");
