@@ -32,12 +32,13 @@ public abstract class ExportsGenerationTask extends DefaultTask implements Actio
 
     @Internal
     public abstract String getArchitecture();
+
     public abstract void setArchitecture(String architecture);
 
     @Internal
     public abstract ExportsConfig getExportsConfig();
-    public abstract void setExportsConfig(ExportsConfig config);
 
+    public abstract void setExportsConfig(ExportsConfig config);
 
     @TaskAction
     public void execute() {
@@ -49,7 +50,13 @@ public abstract class ExportsGenerationTask extends DefaultTask implements Actio
         final List<String> lines = new ArrayList<>();
         List<String> excludeSymbols;
         ExportsConfig config = getExportsConfig();
-        excludeSymbols = getExportsConfig().getX64ExcludeSymbols().get();
+
+        boolean isX86 = getArchitecture().equals("x86");
+        if (isX86) {
+            excludeSymbols = getExportsConfig().getX86ExcludeSymbols().get();
+        } else {
+            excludeSymbols = getExportsConfig().getX64ExcludeSymbols().get();
+        }
 
         if (excludeSymbols == null) {
             excludeSymbols = new ArrayList<>();
@@ -70,9 +77,16 @@ public abstract class ExportsGenerationTask extends DefaultTask implements Actio
 
         }
 
-        Action<List<String>> symbolFilter = config.getX64SymbolFilter().getOrElse(null);
-        if (symbolFilter != null) {
-            symbolFilter.execute(lines);
+        if (isX86) {
+            Action<List<String>> symbolFilter = config.getX86SymbolFilter().getOrElse(null);
+            if (symbolFilter != null) {
+                symbolFilter.execute(lines);
+            }
+        } else {
+            Action<List<String>> symbolFilter = config.getX64SymbolFilter().getOrElse(null);
+            if (symbolFilter != null) {
+                symbolFilter.execute(lines);
+            }
         }
 
         try (BufferedWriter writer = Files.newBufferedWriter(defFile.toPath())) {

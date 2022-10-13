@@ -8,9 +8,13 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 
 public interface ExportsConfig extends Named {
+    ListProperty<String> getX86ExcludeSymbols();
+
     ListProperty<String> getX64ExcludeSymbols();
 
     ListProperty<String> getExcludeBuildTypes();
+
+    Property<Action<List<String>>> getX86SymbolFilter();
 
     Property<Action<List<String>>> getX64SymbolFilter();
 }
