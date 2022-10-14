@@ -20,10 +20,6 @@ public class PrivateExportsConfigRules extends RuleSource {
 
   @BinaryTasks
   public void createPrivateExportsSharedBinaryTasks(ModelMap<Task> tasks, SharedLibraryBinarySpecInternal binary) {
-    if (!binary.getTargetPlatform().getOperatingSystem().isWindows()) {
-      return;
-    }
-
     Project project = binary.getBuildTask().getProject();
     NativeUtilsExtension nue = project.getExtensions().getByType(NativeUtilsExtension.class);
 

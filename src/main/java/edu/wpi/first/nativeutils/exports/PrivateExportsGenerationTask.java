@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 import org.gradle.api.DefaultTask;
@@ -102,7 +101,7 @@ public abstract class PrivateExportsGenerationTask extends DefaultTask {
     File toWrite = getExportsFile().get().getAsFile();
     toWrite.getParentFile().mkdirs();
 
-    try (BufferedWriter writer = Files.newBufferedWriter(toWrite.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+    try (BufferedWriter writer = Files.newBufferedWriter(toWrite.toPath())) {
       for (String export : exports) {
         writer.write("_");
         writer.write(export);
