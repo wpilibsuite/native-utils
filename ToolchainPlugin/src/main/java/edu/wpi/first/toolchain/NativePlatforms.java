@@ -2,6 +2,7 @@ package edu.wpi.first.toolchain;
 
 import java.io.ByteArrayOutputStream;
 
+import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.internal.os.OperatingSystem;
 
@@ -23,7 +24,6 @@ public class NativePlatforms {
     }
 
     public static String desktopPlatformArch(Project project) {
-        System.out.println("Getting Platform Arch");
         if (OperatingSystem.current().isWindows()) {
             String arch = System.getenv("PROCESSOR_ARCHITECTURE");
             String wow64Arch = System.getenv("PROCESSOR_ARCHITEW6432");
