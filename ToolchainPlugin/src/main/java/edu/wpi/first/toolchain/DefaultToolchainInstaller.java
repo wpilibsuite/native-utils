@@ -10,23 +10,25 @@ import org.gradle.internal.os.OperatingSystem;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.function.Supplier;
 
 public class DefaultToolchainInstaller extends AbstractToolchainInstaller {
 
     private OperatingSystem os;
-    private URL source;
+    private Supplier<URL> sourceSupplier;
     private File installDir;
     private String subdir;
 
-    public DefaultToolchainInstaller(OperatingSystem os, URL source, File installDir, String subdir) {
+    public DefaultToolchainInstaller(OperatingSystem os, Supplier<URL> source, File installDir, String subdir) {
         this.os = os;
-        this.source = source;
+        this.sourceSupplier = source;
         this.installDir = installDir;
         this.subdir = subdir;
     }
 
     @Override
     public void install(Project project) {
+        URL source = sourceSupplier.get();
         File cacheLoc = new File(ToolchainPlugin.gradleHome(), "cache");
         File dst = new File(cacheLoc, "download/" + source.getPath());
         dst.getParentFile().mkdirs();

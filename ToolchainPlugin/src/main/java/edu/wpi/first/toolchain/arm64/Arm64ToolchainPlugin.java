@@ -84,9 +84,10 @@ public class Arm64ToolchainPlugin implements Plugin<Project> {
     }
 
     private AbstractToolchainInstaller installerFor(OperatingSystem os, File installDir, String subdir) throws MalformedURLException {
-        URL url = toolchainDownloadUrl(toolchainRemoteFile());
-        return new DefaultToolchainInstaller(os, url, installDir, subdir);
+        return new DefaultToolchainInstaller(os, this::toolchainDownloadUrl, installDir, subdir);
     }
+
+    private final String baseToolchainName = "arm64-bullseye-";
 
     private String toolchainRemoteFile() {
         String[] desiredVersion = arm64Ext.toolchainVersion.split("-");
@@ -100,11 +101,16 @@ public class Arm64ToolchainPlugin implements Plugin<Project> {
             platformId = "x86_64-linux-gnu";
         }
         String ext = OperatingSystem.current().isWindows() ? "zip" : "tgz";
-        return "arm64-bullseye-" + desiredVersion[0] + "-" + platformId + "-Toolchain-" + desiredVersion[1] + "." + ext;
+        return baseToolchainName + desiredVersion[0] + "-" + platformId + "-Toolchain-" + desiredVersion[1] + "." + ext;
     }
 
-    private URL toolchainDownloadUrl(String file) throws MalformedURLException {
-        return new URL("https://github.com/wpilibsuite/opensdk/releases/download/" + arm64Ext.toolchainTag + "/" + file);
+    private URL toolchainDownloadUrl() {
+        String file = toolchainRemoteFile();
+        try {
+            return new URL("https://github.com/wpilibsuite/opensdk/releases/download/" + arm64Ext.toolchainTag + "/" + file);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
