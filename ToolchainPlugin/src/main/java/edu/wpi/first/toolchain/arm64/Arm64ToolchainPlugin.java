@@ -57,13 +57,12 @@ public class Arm64ToolchainPlugin implements Plugin<Project> {
     }
 
     public static File toolchainInstallLoc(String vers) {
-        return new File(ToolchainPlugin.pluginHome(), vers);
+        return new File(ToolchainPlugin.pluginHome(), "frc/" + vers + "/arm64");
     }
 
     public String composeTool(String toolName) {
-        String arm64Version = arm64Ext.toolchainVersion.split("-")[0].toLowerCase();
         String exeSuffix = OperatingSystem.current().isWindows() ? ".exe" : "";
-        return "aarch64-" + arm64Version + "-linux-gnu-" + toolName + exeSuffix;
+        return "aarch64-bullseye-linux-gnu-" + toolName + exeSuffix;
     }
 
     public void populateDescriptor(ToolchainDescriptor<Arm64Gcc> descriptor) {
@@ -73,10 +72,12 @@ public class Arm64ToolchainPlugin implements Plugin<Project> {
         descriptor.getDiscoverers().add(ToolchainDiscoverer.create("GradleUserDir", installLoc, this::composeTool, project));
         descriptor.getDiscoverers().addAll(ToolchainDiscoverer.forSystemPath(project, this::composeTool));
 
+        String installerSubdir = "bullseye";
+
         try {
-            descriptor.getInstallers().add(installerFor(OperatingSystem.LINUX, installLoc, arm64Version));
-            descriptor.getInstallers().add(installerFor(OperatingSystem.WINDOWS, installLoc, arm64Version));
-            descriptor.getInstallers().add(installerFor(OperatingSystem.MAC_OS, installLoc, arm64Version));
+            descriptor.getInstallers().add(installerFor(OperatingSystem.LINUX, installLoc, installerSubdir));
+            descriptor.getInstallers().add(installerFor(OperatingSystem.WINDOWS, installLoc, installerSubdir));
+            descriptor.getInstallers().add(installerFor(OperatingSystem.MAC_OS, installLoc, installerSubdir));
         } catch (MalformedURLException e) {
             throw new GradleException("Malformed Toolchain URL", e);
         }
@@ -92,18 +93,18 @@ public class Arm64ToolchainPlugin implements Plugin<Project> {
 
         String platformId;
         if (OperatingSystem.current().isWindows()) {
-            platformId = "Windows" + (NativePlatforms.desktopPlatformArch() == "x86-64" ? "64" : "32");
+            platformId = "x86_64-w64-mingw32";
         } else if (OperatingSystem.current().isMacOsX()) {
-            platformId = "Mac";
+            platformId = (NativePlatforms.desktopPlatformArch() == "x86-64" ? "x86_64" : "arm64") + "-apple-darwin";
         } else {
-            platformId = "Linux";
+            platformId = "x86_64-linux-gnu";
         }
-        String ext = OperatingSystem.current().isWindows() ? "zip" : "tar.gz";
-        return desiredVersion[0] + "-" + platformId + "-Toolchain-" + desiredVersion[1] + "." + ext;
+        String ext = OperatingSystem.current().isWindows() ? "zip" : "tgz";
+        return "arm64-bullseye-" + desiredVersion[0] + "-" + platformId + "-Toolchain-" + desiredVersion[1] + "." + ext;
     }
 
     private URL toolchainDownloadUrl(String file) throws MalformedURLException {
-        return new URL("https://github.com/wpilibsuite/aarch64-bionic-toolchain/releases/download/" + arm64Ext.toolchainTag + "/" + file);
+        return new URL("https://github.com/wpilibsuite/opensdk/releases/download/" + arm64Ext.toolchainTag + "/" + file);
     }
 
 }
