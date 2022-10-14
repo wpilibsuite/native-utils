@@ -57,26 +57,27 @@ public class Arm32ToolchainPlugin implements Plugin<Project> {
     }
 
     public static File toolchainInstallLoc(String vers) {
-        return new File(ToolchainPlugin.pluginHome(), vers);
+        return new File(ToolchainPlugin.pluginHome(), "frc/" + vers + "/arm32");
     }
 
     public String composeTool(String toolName) {
-        String arm32Version = arm32Ext.toolchainVersion.split("-")[0].toLowerCase();
         String exeSuffix = OperatingSystem.current().isWindows() ? ".exe" : "";
-        return "arm-" + arm32Version + "-linux-gnueabihf-" + toolName + exeSuffix;
+        return "armv6-bullseye-linux-gnueabihf-" + toolName + exeSuffix;
     }
 
     public void populateDescriptor(ToolchainDescriptor<Arm32Gcc> descriptor) {
-        String arm32Version = arm32Ext.toolchainVersion.split("-")[0].toLowerCase();
-        File installLoc = toolchainInstallLoc(arm32Version);
+        String arm64Version = arm32Ext.toolchainVersion.split("-")[0].toLowerCase();
+        File installLoc = toolchainInstallLoc(arm64Version);
 
         descriptor.getDiscoverers().add(ToolchainDiscoverer.create("GradleUserDir", installLoc, this::composeTool, project));
         descriptor.getDiscoverers().addAll(ToolchainDiscoverer.forSystemPath(project, this::composeTool));
 
+        String installerSubdir = "raspi-bullseye";
+
         try {
-            descriptor.getInstallers().add(installerFor(OperatingSystem.LINUX, installLoc, arm32Version));
-            descriptor.getInstallers().add(installerFor(OperatingSystem.WINDOWS, installLoc, arm32Version));
-            descriptor.getInstallers().add(installerFor(OperatingSystem.MAC_OS, installLoc, arm32Version));
+            descriptor.getInstallers().add(installerFor(OperatingSystem.LINUX, installLoc, installerSubdir));
+            descriptor.getInstallers().add(installerFor(OperatingSystem.WINDOWS, installLoc, installerSubdir));
+            descriptor.getInstallers().add(installerFor(OperatingSystem.MAC_OS, installLoc, installerSubdir));
         } catch (MalformedURLException e) {
             throw new GradleException("Malformed Toolchain URL", e);
         }
@@ -92,18 +93,18 @@ public class Arm32ToolchainPlugin implements Plugin<Project> {
 
         String platformId;
         if (OperatingSystem.current().isWindows()) {
-            platformId = "Windows" + (NativePlatforms.desktopPlatformArch() == "x86-64" ? "64" : "32");
+            platformId = "x86_64-w64-mingw32";
         } else if (OperatingSystem.current().isMacOsX()) {
-            platformId = "Mac";
+            platformId = (NativePlatforms.desktopPlatformArch() == "x86-64" ? "x86_64" : "arm64") + "-apple-darwin";
         } else {
-            platformId = "Linux";
+            platformId = "x86_64-linux-gnu";
         }
-        String ext = OperatingSystem.current().isWindows() ? "zip" : "tar.gz";
-        return desiredVersion[0] + "-" + platformId + "-Toolchain-" + desiredVersion[1] + "." + ext;
+        String ext = OperatingSystem.current().isWindows() ? "zip" : "tgz";
+        return "armhf-raspi-bullseye-" + desiredVersion[0] + "-" + platformId + "-Toolchain-" + desiredVersion[1] + "." + ext;
     }
 
     private URL toolchainDownloadUrl(String file) throws MalformedURLException {
-        return new URL("https://github.com/wpilibsuite/raspbian-toolchain/releases/download/" + arm32Ext.toolchainTag + "/" + file);
+        return new URL("https://github.com/wpilibsuite/opensdk/releases/download/" + arm32Ext.toolchainTag + "/" + file);
     }
 
 }

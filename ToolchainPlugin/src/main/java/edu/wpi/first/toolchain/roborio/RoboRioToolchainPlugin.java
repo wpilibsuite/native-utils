@@ -103,10 +103,6 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
         return "cortexa9_vfpv3-roborio-academic-" + desiredVersion[0] + "-" + platformId + "-Toolchain-" + desiredVersion[1] + "." + ext;
     }
 
-   // https://github.com/wpilibsuite/opensdk/releases/download/v2023-1/cortexa9_vfpv3-roborio-academic-2023-x86_64-linux-gnu-Toolchain-12.1.0.tgz
-   // https://github.com/wpilibsuite/opensdk/releases/download/v2023-1/cortexa9_vfpv3-roborio-academic-2023-x86_64-linux-gnu-Toolchain-12.1.0.tgz
-   // https://github.com/wpilibsuite/opensdk/releases/download/v2023-1/cortexa9_vfpv3-roborio-academic-2023-x86_64-linux-gnu-Toolchain-12.1.0.tar.gz
-
     private URL toolchainDownloadUrl(String file) throws MalformedURLException {
         return new URL("https://github.com/wpilibsuite/opensdk/releases/download/" + roborioExt.toolchainTag + "/" + file);
     }
