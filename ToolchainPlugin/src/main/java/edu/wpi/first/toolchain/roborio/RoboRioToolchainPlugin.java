@@ -56,7 +56,7 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
     }
 
     public static File toolchainInstallLoc(String year) {
-        return new File(ToolchainPlugin.pluginHome(), "frc/" + year + "/roborio");
+        return new File(ToolchainPlugin.pluginHome(), "frc/" + year + "/roborio-academic");
     }
 
     public String composeTool(String toolName) {
@@ -66,14 +66,14 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
 
 
     public void populateDescriptor(ToolchainDescriptor<RoboRioGcc> descriptor) {
-        File frcHomeLoc = new File(new FrcHome(roborioExt.year).get(), "roborio");
+        File frcHomeLoc = new File(new FrcHome(roborioExt.year).get(), "roborio-academic");
         File installLoc = toolchainInstallLoc(roborioExt.year);
 
         descriptor.getDiscoverers().add(ToolchainDiscoverer.create("FRCHome", frcHomeLoc, this::composeTool, project));
         descriptor.getDiscoverers().add(ToolchainDiscoverer.create("GradleUserDir", installLoc, this::composeTool, project));
         descriptor.getDiscoverers().addAll(ToolchainDiscoverer.forSystemPath(project, this::composeTool));
 
-        String installerSubdir = "frc" + roborioExt.year + "/roborio";
+        String installerSubdir = "roborio-academic";
         try {
             descriptor.getInstallers().add(installerFor(OperatingSystem.LINUX, installLoc, installerSubdir));
             descriptor.getInstallers().add(installerFor(OperatingSystem.WINDOWS, installLoc, installerSubdir));
@@ -93,18 +93,22 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
 
         String platformId;
         if (OperatingSystem.current().isWindows()) {
-            platformId = "Windows" + (NativePlatforms.desktopPlatformArch() == "x86-64" ? "64" : "32");
+            platformId = "x86_64-w64-mingw32";
         } else if (OperatingSystem.current().isMacOsX()) {
-            platformId = "Mac";
+            platformId = (NativePlatforms.desktopPlatformArch() == "x86-64" ? "x86_64" : "arm64") + "-apple-darwin";
         } else {
-            platformId = "Linux";
+            platformId = "x86_64-linux-gnu";
         }
-        String ext = OperatingSystem.current().isWindows() ? "zip" : "tar.gz";
-        return "FRC-" + desiredVersion[0] + "-" + platformId + "-Toolchain-" + desiredVersion[1] + "." + ext;
+        String ext = OperatingSystem.current().isWindows() ? "zip" : "tgz";
+        return "cortexa9_vfpv3-roborio-academic-" + desiredVersion[0] + "-" + platformId + "-Toolchain-" + desiredVersion[1] + "." + ext;
     }
 
+   // https://github.com/wpilibsuite/opensdk/releases/download/v2023-1/cortexa9_vfpv3-roborio-academic-2023-x86_64-linux-gnu-Toolchain-12.1.0.tgz
+   // https://github.com/wpilibsuite/opensdk/releases/download/v2023-1/cortexa9_vfpv3-roborio-academic-2023-x86_64-linux-gnu-Toolchain-12.1.0.tgz
+   // https://github.com/wpilibsuite/opensdk/releases/download/v2023-1/cortexa9_vfpv3-roborio-academic-2023-x86_64-linux-gnu-Toolchain-12.1.0.tar.gz
+
     private URL toolchainDownloadUrl(String file) throws MalformedURLException {
-        return new URL("https://github.com/wpilibsuite/roborio-toolchain/releases/download/" + roborioExt.toolchainTag + "/" + file);
+        return new URL("https://github.com/wpilibsuite/opensdk/releases/download/" + roborioExt.toolchainTag + "/" + file);
     }
 
 }
