@@ -95,7 +95,7 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
         if (OperatingSystem.current().isWindows()) {
             platformId = "x86_64-w64-mingw32";
         } else if (OperatingSystem.current().isMacOsX()) {
-            platformId = (NativePlatforms.desktopPlatformArch() == "x86-64" ? "x86_64" : "arm64") + "-apple-darwin";
+            platformId = (NativePlatforms.desktopPlatformArch(project) == "x86-64" ? "x86_64" : "arm64") + "-apple-darwin";
         } else {
             platformId = "x86_64-linux-gnu";
         }
