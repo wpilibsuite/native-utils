@@ -84,9 +84,10 @@ public class Arm32ToolchainPlugin implements Plugin<Project> {
     }
 
     private AbstractToolchainInstaller installerFor(OperatingSystem os, File installDir, String subdir) throws MalformedURLException {
-        URL url = toolchainDownloadUrl(toolchainRemoteFile());
-        return new DefaultToolchainInstaller(os, url, installDir, subdir);
+        return new DefaultToolchainInstaller(os, this::toolchainDownloadUrl, installDir, subdir);
     }
+
+    private final String baseToolchainName = "armhf-raspi-bullseye-";
 
     private String toolchainRemoteFile() {
         String[] desiredVersion = arm32Ext.toolchainVersion.split("-");
@@ -95,16 +96,21 @@ public class Arm32ToolchainPlugin implements Plugin<Project> {
         if (OperatingSystem.current().isWindows()) {
             platformId = "x86_64-w64-mingw32";
         } else if (OperatingSystem.current().isMacOsX()) {
-            platformId = (NativePlatforms.desktopPlatformArch() == "x86-64" ? "x86_64" : "arm64") + "-apple-darwin";
+            platformId = (NativePlatforms.desktopPlatformArch(project) == "x86-64" ? "x86_64" : "arm64") + "-apple-darwin";
         } else {
             platformId = "x86_64-linux-gnu";
         }
         String ext = OperatingSystem.current().isWindows() ? "zip" : "tgz";
-        return "armhf-raspi-bullseye-" + desiredVersion[0] + "-" + platformId + "-Toolchain-" + desiredVersion[1] + "." + ext;
+        return baseToolchainName + desiredVersion[0] + "-" + platformId + "-Toolchain-" + desiredVersion[1] + "." + ext;
     }
 
-    private URL toolchainDownloadUrl(String file) throws MalformedURLException {
-        return new URL("https://github.com/wpilibsuite/opensdk/releases/download/" + arm32Ext.toolchainTag + "/" + file);
+    private URL toolchainDownloadUrl() {
+        String file = toolchainRemoteFile();
+        try {
+            return new URL("https://github.com/wpilibsuite/opensdk/releases/download/" + arm32Ext.toolchainTag + "/" + file);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

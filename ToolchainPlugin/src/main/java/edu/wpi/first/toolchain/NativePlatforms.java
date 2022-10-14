@@ -1,5 +1,8 @@
 package edu.wpi.first.toolchain;
 
+import java.io.ByteArrayOutputStream;
+
+import org.gradle.api.Project;
 import org.gradle.internal.os.OperatingSystem;
 
 public class NativePlatforms {
@@ -19,11 +22,25 @@ public class NativePlatforms {
         return (arch.equals("amd64") || arch.equals("x86_64")) ? "x86-64" : "x86";
     }
 
-    public static String desktopPlatformArch() {
+    public static String desktopPlatformArch(Project project) {
         if (OperatingSystem.current().isWindows()) {
             String arch = System.getenv("PROCESSOR_ARCHITECTURE");
             String wow64Arch = System.getenv("PROCESSOR_ARCHITEW6432");
             return arch != null && arch.endsWith("64") || wow64Arch != null && wow64Arch.endsWith("64") ? "x86-64" : "x86";
+        } else if (OperatingSystem.current().isMacOsX()) {
+            String desktop = desktopArch();
+            if (desktop.equals("x86-64")) {
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                project.exec(spec -> {
+                    spec.commandLine("sysctl", "-in", "sysctl.proc_translated");
+                    spec.setStandardOutput(os);
+                    spec.setIgnoreExitValue(true);
+                });
+                String isTranslated = os.toString().trim();
+                return isTranslated.equals("1") ? "arm64" : desktop;
+            } else {
+                return desktop;
+            }
         } else {
             return desktopArch();
         }
