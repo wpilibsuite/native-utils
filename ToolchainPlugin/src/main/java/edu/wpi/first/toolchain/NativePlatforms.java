@@ -2,7 +2,6 @@ package edu.wpi.first.toolchain;
 
 import java.io.ByteArrayOutputStream;
 
-import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.internal.os.OperatingSystem;
 
