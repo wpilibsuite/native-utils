@@ -30,7 +30,6 @@ public class WPINativeUtilsExtension {
 
     private final NativePlatforms nativePlatforms = new NativePlatforms();
 
-
     public NativePlatforms getNativePlatforms() {
         return nativePlatforms;
     }
@@ -84,7 +83,8 @@ public class WPINativeUtilsExtension {
         public final List<String> macReleaseCompilerArgs = List.of("-O2");
         public final List<String> macDebugCompilerArgs = List.of("-O0");
         public final List<String> macLinkerArgs = List.of("-framework", "CoreFoundation", "-framework", "AVFoundation",
-                "-framework", "Foundation", "-framework", "CoreMedia", "-framework", "CoreVideo", "-headerpad_max_install_names");
+                "-framework", "Foundation", "-framework", "CoreMedia", "-framework", "CoreVideo",
+                "-headerpad_max_install_names");
     }
 
     public static class Platforms {
@@ -92,12 +92,13 @@ public class WPINativeUtilsExtension {
         public final String linuxarm32 = "linuxarm32";
         public final String linuxarm64 = "linuxarm64";
         public final String windowsx64 = "windowsx86-64";
+        public final String windowsx86 = "windowsx86";
         public final String osxx64 = "osxx86-64";
         public final String osxarm64 = "osxarm64";
         public final String linuxx64 = "linuxx86-64";
         public final List<String> allPlatforms = List.of(roborio, linuxarm32, linuxarm64, windowsx64,
-                osxx64, osxarm64, linuxx64);
-        public final List<String> desktopPlatforms = List.of(windowsx64, osxx64, osxarm64, linuxx64);
+                windowsx86, osxx64, osxarm64, linuxx64);
+        public final List<String> desktopPlatforms = List.of(windowsx64, windowsx86, osxx64, osxarm64, linuxx64);
     }
 
     public final Platforms platforms;
@@ -197,7 +198,9 @@ public class WPINativeUtilsExtension {
         defaultArguments = objects.newInstance(DefaultArguments.class);
 
         PlatformConfig windowsx86_64 = nativeExt.getPlatformConfigs().create(platforms.windowsx64);
+        PlatformConfig windowsx86 = nativeExt.getPlatformConfigs().create(platforms.windowsx86);
         windowsPlatforms.put(platforms.windowsx64, windowsx86_64);
+        windowsPlatforms.put(platforms.windowsx86, windowsx86);
         PlatformConfig linuxx86_64 = nativeExt.getPlatformConfigs().create(platforms.linuxx64);
         PlatformConfig osxx86_64 = nativeExt.getPlatformConfigs().create(platforms.osxx64);
         PlatformConfig osxarm64 = nativeExt.getPlatformConfigs().create(platforms.osxarm64);
@@ -219,6 +222,9 @@ public class WPINativeUtilsExtension {
 
         linuxarm64.getPlatformPath().set("linux/arm64");
         addLinuxCrossArgs(linuxarm64);
+
+        windowsx86.getPlatformPath().set("windows/x86");
+        addWindowsArgs(windowsx86);
 
         windowsx86_64.getPlatformPath().set("windows/x86-64");
         addWindowsArgs(windowsx86_64);
@@ -420,7 +426,8 @@ public class WPINativeUtilsExtension {
         });
     }
 
-    private void registerStaticOnlyStandardDependency(ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs,
+    private void registerStaticOnlyStandardDependency(
+            ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs,
             String name, Provider<String> groupId, String artifactId, Property<String> version) {
         configs.register(name + "_static", WPIStaticMavenDependency.class, c -> {
             c.getGroupId().set(groupId);
@@ -440,6 +447,7 @@ public class WPINativeUtilsExtension {
     }
 
     private DependencyVersions versions;
+
     public DependencyVersions getVersions() {
         return versions;
     }
@@ -508,35 +516,47 @@ public class WPINativeUtilsExtension {
         registerStandardDependency(configs, "ntcore", "edu.wpi.first.ntcore", "ntcore-cpp", wpiVersion);
         registerStandardDependency(configs, "hal", "edu.wpi.first.hal", "hal-cpp", wpiVersion);
         registerStandardDependency(configs, "cscore", "edu.wpi.first.cscore", "cscore-cpp", wpiVersion);
-        registerStandardDependency(configs, "cameraserver", "edu.wpi.first.cameraserver", "cameraserver-cpp", wpiVersion);
+        registerStandardDependency(configs, "cameraserver", "edu.wpi.first.cameraserver", "cameraserver-cpp",
+                wpiVersion);
         registerStandardDependency(configs, "wpilibc", "edu.wpi.first.wpilibc", "wpilibc-cpp", wpiVersion);
-        registerStandardDependency(configs, "wpilib_new_commands", "edu.wpi.first.wpilibNewCommands", "wpilibNewCommands-cpp", wpiVersion);
-        registerStandardDependency(configs, "wpilib_old_commands", "edu.wpi.first.wpilibOldCommands", "wpilibOldCommands-cpp", wpiVersion);
+        registerStandardDependency(configs, "wpilib_new_commands", "edu.wpi.first.wpilibNewCommands",
+                "wpilibNewCommands-cpp", wpiVersion);
+        registerStandardDependency(configs, "wpilib_old_commands", "edu.wpi.first.wpilibOldCommands",
+                "wpilibOldCommands-cpp", wpiVersion);
 
-        registerStandardDependency(configs, "wpimath", "edu.wpi.first.wpimath", "wpimath-cpp", dependencyVersions.getWpimathVersion());
+        registerStandardDependency(configs, "wpimath", "edu.wpi.first.wpimath", "wpimath-cpp",
+                dependencyVersions.getWpimathVersion());
 
-        Provider<String> opencvYearGroup = provider.provider(() -> "edu.wpi.first.thirdparty." + dependencyVersions.getOpencvYear().get() + ".opencv");
-        Provider<String> imguiYearGroup = provider.provider(() -> "edu.wpi.first.thirdparty." + dependencyVersions.getImguiYear().get());
-        Provider<String> googleTestYearGroup = provider.provider(() -> "edu.wpi.first.thirdparty." + dependencyVersions.getGoogleTestYear().get());
+        Provider<String> opencvYearGroup = provider
+                .provider(() -> "edu.wpi.first.thirdparty." + dependencyVersions.getOpencvYear().get() + ".opencv");
+        Provider<String> imguiYearGroup = provider
+                .provider(() -> "edu.wpi.first.thirdparty." + dependencyVersions.getImguiYear().get());
+        Provider<String> googleTestYearGroup = provider
+                .provider(() -> "edu.wpi.first.thirdparty." + dependencyVersions.getGoogleTestYear().get());
 
-        registerStandardDependency(configs, "opencv", opencvYearGroup, "opencv-cpp", dependencyVersions.getOpencvVersion());
-        registerStaticOnlyStandardDependency(configs, "googletest", googleTestYearGroup, "googletest", dependencyVersions.getGoogleTestVersion());
-        registerStaticOnlyStandardDependency(configs, "imgui", imguiYearGroup, "imgui", dependencyVersions.getImguiVersion());
-
+        registerStandardDependency(configs, "opencv", opencvYearGroup, "opencv-cpp",
+                dependencyVersions.getOpencvVersion());
+        registerStaticOnlyStandardDependency(configs, "googletest", googleTestYearGroup, "googletest",
+                dependencyVersions.getGoogleTestVersion());
+        registerStaticOnlyStandardDependency(configs, "imgui", imguiYearGroup, "imgui",
+                dependencyVersions.getImguiVersion());
 
         configs.register("wpilib_jni", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("ntcore_shared", "hal_shared", "wpimath_shared", "wpinet_shared", "wpiutil_shared", "ni_link_libraries"));
+            d.set(List.of("ntcore_shared", "hal_shared", "wpimath_shared", "wpinet_shared", "wpiutil_shared",
+                    "ni_link_libraries"));
         });
 
         configs.register("wpilib_static", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("wpilibc_static", "ntcore_static", "hal_static", "wpimath_static", "wpinet_static", "wpiutil_static", "ni_link_libraries"));
+            d.set(List.of("wpilibc_static", "ntcore_static", "hal_static", "wpimath_static", "wpinet_static",
+                    "wpiutil_static", "ni_link_libraries"));
         });
 
         configs.register("wpilib_shared", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("wpilibc_shared", "ntcore_shared", "hal_shared", "wpimath_shared", "wpinet_shared", "wpiutil_shared", "ni_link_libraries"));
+            d.set(List.of("wpilibc_shared", "ntcore_shared", "hal_shared", "wpimath_shared", "wpinet_shared",
+                    "wpiutil_shared", "ni_link_libraries"));
         });
 
         configs.register("driver_static", AllPlatformsCombinedNativeDependency.class, c -> {
