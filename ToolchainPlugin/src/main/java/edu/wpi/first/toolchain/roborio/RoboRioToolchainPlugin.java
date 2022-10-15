@@ -5,6 +5,7 @@ import java.io.File;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 
 import edu.wpi.first.toolchain.NativePlatforms;
 import edu.wpi.first.toolchain.ToolchainDescriptor;
@@ -32,11 +33,14 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
 
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
 
-        String year = roborioExt.toolchainVersion.split("-")[0].toLowerCase();
-        String prefix = "arm-frc" + year + "-linux-gnueabi";
+        Provider<String> prefixProvider = project.provider(() -> {
+            String year = roborioExt.getToolchainVersion().get().split("-")[0].toLowerCase();
+            String prefix = "arm-frc" + year + "-linux-gnueabi";
+            return prefix;
+        });
 
         opensdk = new OpenSdkToolchainBase(baseToolchainName, roborioExt, project,
-                RoboRioToolchainExtension.INSTALL_SUBDIR, "roborio-academic", prefix);
+                RoboRioToolchainExtension.INSTALL_SUBDIR, "roborio-academic", prefixProvider);
 
         Property<Boolean> optional = project.getObjects().property(Boolean.class);
         optional.set(true);
@@ -49,7 +53,8 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
                 optional);
         descriptor.setToolchainPlatforms(NativePlatforms.roborio);
         descriptor.getDiscoverers().all((ToolchainDiscoverer disc) -> {
-            disc.configureVersions(roborioExt.versionLow, roborioExt.versionHigh);
+            disc.getVersionLow().set(roborioExt.getVersionLow());
+            disc.getVersionHigh().set(roborioExt.getVersionHigh());
         });
 
         CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.roborio,
@@ -64,11 +69,13 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
     }
 
     public void populateDescriptor(ToolchainDescriptor<RoboRioGcc> descriptor) {
-        String year = roborioExt.toolchainVersion.split("-")[0].toLowerCase();
-        File frcHomeLoc = new File(new FrcHome(year).get(), "roborio");
+        Provider<File> fp = project.provider(() -> {
+            String year = roborioExt.getToolchainVersion().get().split("-")[0].toLowerCase();
+            File frcHomeLoc = new File(new FrcHome(year).get(), "roborio");
+            return frcHomeLoc;
+        });
 
-        descriptor.getDiscoverers()
-                .add(ToolchainDiscoverer.create("FRCHome", frcHomeLoc, opensdk::composeTool, project));
+        descriptor.getDiscoverers().add(ToolchainDiscoverer.create("FRCHome", fp, opensdk::composeTool, project));
 
         opensdk.populatePathAndDownloadDescriptors(descriptor);
     }

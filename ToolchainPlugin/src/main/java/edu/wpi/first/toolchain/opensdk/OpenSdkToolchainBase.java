@@ -6,6 +6,7 @@ import java.net.URL;
 
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
+import org.gradle.api.provider.Provider;
 import org.gradle.internal.os.OperatingSystem;
 
 import edu.wpi.first.toolchain.AbstractToolchainInstaller;
@@ -21,10 +22,10 @@ public class OpenSdkToolchainBase {
     private final Project project;
     private final String installSubdir;
     private final String archiveSubDir;
-    private final String toolchainPrefix;
+    private final Provider<String> toolchainPrefix;
 
     public OpenSdkToolchainBase(String baseToolchainName, OpenSdkToolchainExtension tcExt, Project project,
-            String installSubdir, String archiveSubdir, String toolchainPrefix) {
+            String installSubdir, String archiveSubdir, Provider<String> toolchainPrefix) {
         this.baseToolchainName = baseToolchainName;
         this.tcExt = tcExt;
         this.project = project;
@@ -34,7 +35,7 @@ public class OpenSdkToolchainBase {
     }
 
     private String toolchainRemoteFile() {
-        String[] desiredVersion = tcExt.toolchainVersion.split("-");
+        String[] desiredVersion = tcExt.getToolchainVersion().get().split("-");
 
         String platformId;
         if (OperatingSystem.current().isWindows()) {
@@ -53,8 +54,8 @@ public class OpenSdkToolchainBase {
     public URL toolchainDownloadUrl() {
         String file = toolchainRemoteFile();
         try {
-            return new URL(
-                    "https://github.com/wpilibsuite/opensdk/releases/download/" + tcExt.toolchainTag + "/" + file);
+            return new URL("https://github.com/wpilibsuite/opensdk/releases/download/" + tcExt.getToolchainTag().get()
+                    + "/" + file);
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
@@ -62,30 +63,32 @@ public class OpenSdkToolchainBase {
 
     public String composeTool(String toolName) {
         String exeSuffix = OperatingSystem.current().isWindows() ? ".exe" : "";
-        return toolchainPrefix + "-" + toolName + exeSuffix;
+        return toolchainPrefix.get() + "-" + toolName + exeSuffix;
     }
 
     public static File toolchainInstallLoc(String year, String installSubdir) {
         return new File(ToolchainPlugin.pluginHome(), "frc/" + year + "/" + installSubdir);
     }
 
-    public AbstractToolchainInstaller installerFor(OperatingSystem os, File installDir, String subdir)
+    public AbstractToolchainInstaller installerFor(OperatingSystem os, Provider<File> installDir, String subdir)
             throws MalformedURLException {
-        return new DefaultToolchainInstaller(os, this::toolchainDownloadUrl, installDir, subdir);
+        return new DefaultToolchainInstaller(os, project.provider(this::toolchainDownloadUrl), installDir, subdir);
     }
 
     public void populatePathAndDownloadDescriptors(ToolchainDescriptor<?> descriptor) {
-        String year = tcExt.toolchainVersion.split("-")[0].toLowerCase();
-        File installLoc = toolchainInstallLoc(year, installSubdir);
+        Provider<File> fp = project.provider(() -> {
+            String year = tcExt.getToolchainVersion().get().split("-")[0].toLowerCase();
+            File installLoc = toolchainInstallLoc(year, installSubdir);
+            return installLoc;
+        });
 
-        descriptor.getDiscoverers()
-                .add(ToolchainDiscoverer.create("GradleUserDir", installLoc, this::composeTool, project));
+        descriptor.getDiscoverers().add(ToolchainDiscoverer.create("GradleUserDir", fp, this::composeTool, project));
         descriptor.getDiscoverers().addAll(ToolchainDiscoverer.forSystemPath(project, this::composeTool));
 
         try {
-            descriptor.getInstallers().add(installerFor(OperatingSystem.LINUX, installLoc, archiveSubDir));
-            descriptor.getInstallers().add(installerFor(OperatingSystem.WINDOWS, installLoc, archiveSubDir));
-            descriptor.getInstallers().add(installerFor(OperatingSystem.MAC_OS, installLoc, archiveSubDir));
+            descriptor.getInstallers().add(installerFor(OperatingSystem.LINUX, fp, archiveSubDir));
+            descriptor.getInstallers().add(installerFor(OperatingSystem.WINDOWS, fp, archiveSubDir));
+            descriptor.getInstallers().add(installerFor(OperatingSystem.MAC_OS, fp, archiveSubDir));
         } catch (MalformedURLException e) {
             throw new GradleException("Malformed Toolchain URL", e);
         }
