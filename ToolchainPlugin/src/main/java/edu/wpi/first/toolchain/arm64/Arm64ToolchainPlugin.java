@@ -1,33 +1,33 @@
 package edu.wpi.first.toolchain.arm64;
 
-import edu.wpi.first.toolchain.*;
-import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
-import edu.wpi.first.toolchain.configurable.DefaultCrossCompilerConfiguration;
-
-import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.provider.Property;
-import org.gradle.internal.os.OperatingSystem;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import edu.wpi.first.toolchain.NativePlatforms;
+import edu.wpi.first.toolchain.ToolchainDescriptor;
+import edu.wpi.first.toolchain.ToolchainDiscoverer;
+import edu.wpi.first.toolchain.ToolchainExtension;
+import edu.wpi.first.toolchain.ToolchainRegistrar;
+import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
+import edu.wpi.first.toolchain.configurable.DefaultCrossCompilerConfiguration;
+import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainBase;
 
 public class Arm64ToolchainPlugin implements Plugin<Project> {
 
     public static final String toolchainName = "arm64";
+    public static final String baseToolchainName = "arm64-bullseye";
 
     private Arm64ToolchainExtension arm64Ext;
-    private Project project;
+    private OpenSdkToolchainBase opensdk;
 
     @Override
     public void apply(Project project) {
-        this.project = project;
-
         arm64Ext = project.getExtensions().create("arm64Toolchain", Arm64ToolchainExtension.class);
 
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
+
+        opensdk = new OpenSdkToolchainBase(baseToolchainName, arm64Ext, project, "arm64", "bullseye", "aarch64-bullseye-linux-gnu");
 
         Property<Boolean> optional = project.getObjects().property(Boolean.class);
         optional.set(true);
@@ -50,67 +50,11 @@ public class Arm64ToolchainPlugin implements Plugin<Project> {
 
         toolchainExt.getCrossCompilers().add(configuration);
 
-
-        project.afterEvaluate((Project proj) -> {
-            populateDescriptor(descriptor);
-        });
-    }
-
-    public static File toolchainInstallLoc(String vers) {
-        return new File(ToolchainPlugin.pluginHome(), "frc/" + vers + "/arm64");
-    }
-
-    public String composeTool(String toolName) {
-        String exeSuffix = OperatingSystem.current().isWindows() ? ".exe" : "";
-        return "aarch64-bullseye-linux-gnu-" + toolName + exeSuffix;
+        populateDescriptor(descriptor);
     }
 
     public void populateDescriptor(ToolchainDescriptor<Arm64Gcc> descriptor) {
-        String arm64Version = arm64Ext.toolchainVersion.split("-")[0].toLowerCase();
-        File installLoc = toolchainInstallLoc(arm64Version);
-
-        descriptor.getDiscoverers().add(ToolchainDiscoverer.create("GradleUserDir", installLoc, this::composeTool, project));
-        descriptor.getDiscoverers().addAll(ToolchainDiscoverer.forSystemPath(project, this::composeTool));
-
-        String installerSubdir = "bullseye";
-
-        try {
-            descriptor.getInstallers().add(installerFor(OperatingSystem.LINUX, installLoc, installerSubdir));
-            descriptor.getInstallers().add(installerFor(OperatingSystem.WINDOWS, installLoc, installerSubdir));
-            descriptor.getInstallers().add(installerFor(OperatingSystem.MAC_OS, installLoc, installerSubdir));
-        } catch (MalformedURLException e) {
-            throw new GradleException("Malformed Toolchain URL", e);
-        }
-    }
-
-    private AbstractToolchainInstaller installerFor(OperatingSystem os, File installDir, String subdir) throws MalformedURLException {
-        return new DefaultToolchainInstaller(os, this::toolchainDownloadUrl, installDir, subdir);
-    }
-
-    private final String baseToolchainName = "arm64-bullseye-";
-
-    private String toolchainRemoteFile() {
-        String[] desiredVersion = arm64Ext.toolchainVersion.split("-");
-
-        String platformId;
-        if (OperatingSystem.current().isWindows()) {
-            platformId = "x86_64-w64-mingw32";
-        } else if (OperatingSystem.current().isMacOsX()) {
-            platformId = (NativePlatforms.desktopPlatformArch(project) == "x86-64" ? "x86_64" : "arm64") + "-apple-darwin";
-        } else {
-            platformId = "x86_64-linux-gnu";
-        }
-        String ext = OperatingSystem.current().isWindows() ? "zip" : "tgz";
-        return baseToolchainName + desiredVersion[0] + "-" + platformId + "-Toolchain-" + desiredVersion[1] + "." + ext;
-    }
-
-    private URL toolchainDownloadUrl() {
-        String file = toolchainRemoteFile();
-        try {
-            return new URL("https://github.com/wpilibsuite/opensdk/releases/download/" + arm64Ext.toolchainTag + "/" + file);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
+        opensdk.populatePathAndDownloadDescriptors(descriptor);
     }
 
 }

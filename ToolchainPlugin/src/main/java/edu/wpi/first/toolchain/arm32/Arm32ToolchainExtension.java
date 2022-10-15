@@ -1,10 +1,16 @@
 package edu.wpi.first.toolchain.arm32;
 
-public class Arm32ToolchainExtension {
+import javax.inject.Inject;
 
-    public String versionLow = "10.2.0";
-    public String versionHigh = "10.2.0";
-    public String toolchainVersion = "2023-10.2.0";
-    public String toolchainTag = "v2023-3";
+import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainExtension;
 
+public abstract class Arm32ToolchainExtension extends OpenSdkToolchainExtension {
+
+    @Inject
+    public Arm32ToolchainExtension() {
+        super();
+        versionLow = "10.2.0";
+        versionHigh = "10.2.0";
+        toolchainVersion = "2023-10.2.0";
+    }
 }
