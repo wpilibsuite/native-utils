@@ -66,7 +66,7 @@ public class OpenSdkToolchainBase {
         return toolchainPrefix.get() + "-" + toolName + exeSuffix;
     }
 
-    public File toolchainInstallLoc(String year) {
+    public static File toolchainInstallLoc(String year, String installSubdir) {
         return new File(ToolchainPlugin.pluginHome(), "frc/" + year + "/" + installSubdir);
     }
 
@@ -78,7 +78,7 @@ public class OpenSdkToolchainBase {
     public void populatePathAndDownloadDescriptors(ToolchainDescriptor<?> descriptor) {
         Provider<File> fp = project.provider(() -> {
             String year = tcExt.getToolchainVersion().get().split("-")[0].toLowerCase();
-            File installLoc = toolchainInstallLoc(year);
+            File installLoc = toolchainInstallLoc(year, installSubdir);
             return installLoc;
         });
 
