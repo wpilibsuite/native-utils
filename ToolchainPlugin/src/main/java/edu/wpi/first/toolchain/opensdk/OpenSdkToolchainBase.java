@@ -23,7 +23,8 @@ public class OpenSdkToolchainBase {
     private final String archiveSubDir;
     private final String toolchainPrefix;
 
-    public OpenSdkToolchainBase(String baseToolchainName, OpenSdkToolchainExtension tcExt, Project project, String installSubdir, String archiveSubdir, String toolchainPrefix) {
+    public OpenSdkToolchainBase(String baseToolchainName, OpenSdkToolchainExtension tcExt, Project project,
+            String installSubdir, String archiveSubdir, String toolchainPrefix) {
         this.baseToolchainName = baseToolchainName;
         this.tcExt = tcExt;
         this.project = project;
@@ -39,18 +40,21 @@ public class OpenSdkToolchainBase {
         if (OperatingSystem.current().isWindows()) {
             platformId = "x86_64-w64-mingw32";
         } else if (OperatingSystem.current().isMacOsX()) {
-            platformId = (NativePlatforms.desktopPlatformArch(project) == "x86-64" ? "x86_64" : "arm64") + "-apple-darwin";
+            platformId = (NativePlatforms.desktopPlatformArch(project) == "x86-64" ? "x86_64" : "arm64")
+                    + "-apple-darwin";
         } else {
             platformId = "x86_64-linux-gnu";
         }
         String ext = OperatingSystem.current().isWindows() ? "zip" : "tgz";
-        return baseToolchainName + "-" + desiredVersion[0] + "-" + platformId + "-Toolchain-" + desiredVersion[1] + "." + ext;
+        return baseToolchainName + "-" + desiredVersion[0] + "-" + platformId + "-Toolchain-" + desiredVersion[1] + "."
+                + ext;
     }
 
     public URL toolchainDownloadUrl() {
         String file = toolchainRemoteFile();
         try {
-            return new URL("https://github.com/wpilibsuite/opensdk/releases/download/" + tcExt.toolchainTag + "/" + file);
+            return new URL(
+                    "https://github.com/wpilibsuite/opensdk/releases/download/" + tcExt.toolchainTag + "/" + file);
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
@@ -61,20 +65,21 @@ public class OpenSdkToolchainBase {
         return toolchainPrefix + "-" + toolName + exeSuffix;
     }
 
-    public File toolchainInstallLoc(String year) {
-        File f = new File(ToolchainPlugin.pluginHome(), "frc/" + year + "/" + installSubdir);
-        return f;
+    public static File toolchainInstallLoc(String year, String installSubdir) {
+        return new File(ToolchainPlugin.pluginHome(), "frc/" + year + "/" + installSubdir);
     }
 
-    public AbstractToolchainInstaller installerFor(OperatingSystem os, File installDir, String subdir) throws MalformedURLException {
+    public AbstractToolchainInstaller installerFor(OperatingSystem os, File installDir, String subdir)
+            throws MalformedURLException {
         return new DefaultToolchainInstaller(os, this::toolchainDownloadUrl, installDir, subdir);
     }
 
     public void populatePathAndDownloadDescriptors(ToolchainDescriptor<?> descriptor) {
         String year = tcExt.toolchainVersion.split("-")[0].toLowerCase();
-        File installLoc = toolchainInstallLoc(year);
+        File installLoc = toolchainInstallLoc(year, installSubdir);
 
-        descriptor.getDiscoverers().add(ToolchainDiscoverer.create("GradleUserDir", installLoc, this::composeTool, project));
+        descriptor.getDiscoverers()
+                .add(ToolchainDiscoverer.create("GradleUserDir", installLoc, this::composeTool, project));
         descriptor.getDiscoverers().addAll(ToolchainDiscoverer.forSystemPath(project, this::composeTool));
 
         try {

@@ -19,9 +19,8 @@ class Arm32DownloadTest extends Specification {
   }
 
   def setupSpec() {
-    Arm32ToolchainExtension ext = new Arm32ToolchainExtension()
-    String arm32Version = ext.toolchainVersion.split("-")[0].toLowerCase();
-    toolchainDir = Arm32ToolchainPlugin.toolchainInstallLoc(arm32Version)
+    String year = Arm32ToolchainExtension.TOOLCHAIN_VERSION.split("-")[0].toLowerCase();
+    toolchainDir = OpenSdkToolchainBase.toolchainInstallLoc(year, Arm32ToolchainExtension.INSTALL_SUBDIR);
     def result = toolchainDir.deleteDir()  // Returns true if all goes well, false otherwise.
     assert result
   }

@@ -19,9 +19,8 @@ class RoboRioDownloadTest extends Specification {
   }
 
   def setupSpec() {
-    RoboRioToolchainExtension ext = new RoboRioToolchainExtension()
-    String roborioVersion = ext.toolchainVersion.split("-")[0].toLowerCase();
-    toolchainDir = RoboRioToolchainPlugin.toolchainInstallLoc(roborioVersion)
+    String year = RoboRioToolchainExtension.TOOLCHAIN_VERSION.split("-")[0].toLowerCase();
+    toolchainDir = OpenSdkToolchainBase.toolchainInstallLoc(year, RoboRioToolchainExtension.INSTALL_SUBDIR);
     def result = toolchainDir.deleteDir()  // Returns true if all goes well, false otherwise.
     assert result
   }

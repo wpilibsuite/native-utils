@@ -35,23 +35,25 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
         String year = roborioExt.toolchainVersion.split("-")[0].toLowerCase();
         String prefix = "arm-frc" + year + "-linux-gnueabi";
 
-        opensdk = new OpenSdkToolchainBase(baseToolchainName, roborioExt, project, "roborio", "roborio-academic", prefix);
+        opensdk = new OpenSdkToolchainBase(baseToolchainName, roborioExt, project,
+                RoboRioToolchainExtension.INSTALL_SUBDIR, "roborio-academic", prefix);
 
         Property<Boolean> optional = project.getObjects().property(Boolean.class);
         optional.set(true);
 
         ToolchainDescriptor<RoboRioGcc> descriptor = new ToolchainDescriptor<>(
-            project,
-            toolchainName,
-            "roborioGcc",
-            new ToolchainRegistrar<RoboRioGcc>(RoboRioGcc.class, project),
-            optional);
+                project,
+                toolchainName,
+                "roborioGcc",
+                new ToolchainRegistrar<RoboRioGcc>(RoboRioGcc.class, project),
+                optional);
         descriptor.setToolchainPlatforms(NativePlatforms.roborio);
         descriptor.getDiscoverers().all((ToolchainDiscoverer disc) -> {
             disc.configureVersions(roborioExt.versionLow, roborioExt.versionHigh);
         });
 
-        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.roborio, descriptor, optional);
+        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.roborio,
+                descriptor, optional);
         configuration.setArchitecture("arm");
         configuration.setOperatingSystem("linux");
         configuration.setCompilerPrefix("");
@@ -65,7 +67,8 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
         String year = roborioExt.toolchainVersion.split("-")[0].toLowerCase();
         File frcHomeLoc = new File(new FrcHome(year).get(), "roborio");
 
-        descriptor.getDiscoverers().add(ToolchainDiscoverer.create("FRCHome", frcHomeLoc, opensdk::composeTool, project));
+        descriptor.getDiscoverers()
+                .add(ToolchainDiscoverer.create("FRCHome", frcHomeLoc, opensdk::composeTool, project));
 
         opensdk.populatePathAndDownloadDescriptors(descriptor);
     }
