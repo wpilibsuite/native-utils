@@ -56,7 +56,7 @@ public class WPINativeUtilsExtension {
         public final String unixRpathOriginArg = "-Wl,-rpath,'$ORIGIN'";
         public final String unixSymbolArg = "-g";
 
-        public final List<String> linuxCrossCompilerArgs = List.of("-std=c++17", "-Wformat=2", "-pedantic",
+        public final List<String> linuxCrossCompilerArgs = List.of("-std=c++20", "-Wformat=2", "-pedantic",
                 "-Wno-psabi", "-Wno-unused-parameter", "-Wno-error=deprecated-declarations", "-fPIC", "-pthread");
         public final List<String> linuxCrossCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
                 "-Wno-unused-parameter", "-fPIC", "-pthread");
@@ -64,7 +64,7 @@ public class WPINativeUtilsExtension {
         public final List<String> linuxCrossReleaseCompilerArgs = List.of("-O2");
         public final List<String> linuxCrossDebugCompilerArgs = List.of("-Og");
 
-        public final List<String> linuxCompilerArgs = List.of("-std=c++17", "-Wformat=2", "-pedantic", "-Wno-psabi",
+        public final List<String> linuxCompilerArgs = List.of("-std=c++20", "-Wformat=2", "-pedantic", "-Wno-psabi",
                 "-Wno-unused-parameter", "-Wno-error=deprecated-declarations", "-fPIC", "-pthread");
         public final List<String> linuxCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
                 "-Wno-unused-parameter", "-fPIC", "-pthread");
@@ -72,12 +72,12 @@ public class WPINativeUtilsExtension {
         public final List<String> linuxReleaseCompilerArgs = List.of("-O2");
         public final List<String> linuxDebugCompilerArgs = List.of("-O0");
 
-        public final List<String> macCompilerArgs = List.of("-std=c++17", "-pedantic", "-fPIC", "-Wno-unused-parameter",
+        public final List<String> macCompilerArgs = List.of("-std=c++20", "-pedantic", "-fPIC", "-Wno-unused-parameter",
                 "-Wno-error=deprecated-declarations", "-Wno-missing-field-initializers", "-Wno-unused-private-field",
                 "-Wno-unused-const-variable", "-Wno-error=c11-extensions", "-pthread");
         public final List<String> macCCompilerArgs = List.of("-pedantic", "-fPIC", "-Wno-unused-parameter",
                 "-Wno-missing-field-initializers", "-Wno-unused-private-field", "-Wno-fixed-enum-extension");
-        public final List<String> macObjcppCompilerArgs = List.of("-std=c++17", "-stdlib=libc++", "-fobjc-weak",
+        public final List<String> macObjcppCompilerArgs = List.of("-std=c++20", "-stdlib=libc++", "-fobjc-weak",
                 "-fobjc-arc", "-fPIC");
         public final List<String> macObjcCompilerArgs = List.of("-fobjc-weak", "-fobjc-arc", "-fPIC");
         public final List<String> macReleaseCompilerArgs = List.of("-O2");
