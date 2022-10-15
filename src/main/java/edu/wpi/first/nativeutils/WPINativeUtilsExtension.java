@@ -56,7 +56,10 @@ public class WPINativeUtilsExtension {
         public final String unixRpathOriginArg = "-Wl,-rpath,'$ORIGIN'";
         public final String unixSymbolArg = "-g";
 
+        // -Wdeprecated-enum-enum-conversion was introduced in GCC 11
         public final List<String> linuxCrossCompilerArgs = List.of("-std=c++20", "-Wformat=2", "-pedantic",
+                "-Wno-psabi", "-Wno-unused-parameter", "-Wno-error=deprecated-declarations", "-fPIC", "-pthread");
+        public final List<String> linuxCrossCompilerArgs11 = List.of("-std=c++20", "-Wformat=2", "-pedantic",
                 "-Wno-psabi", "-Wno-unused-parameter", "-Wno-error=deprecated-declarations",
                 "-Wno-error=deprecated-enum-enum-conversion", "-fPIC", "-pthread");
         public final List<String> linuxCrossCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
@@ -111,8 +114,12 @@ public class WPINativeUtilsExtension {
     private final Map<String, PlatformConfig> windowsPlatforms = new HashMap<>();
     private final Map<String, PlatformConfig> unixPlatforms = new HashMap<>();
 
-    public void addLinuxCrossArgs(PlatformConfig platform) {
-        platform.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerArgs);
+    public void addLinuxCrossArgs(PlatformConfig platform, int gccMajor) {
+        if (gccMajor < 11) {
+            platform.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerArgs);
+        } else {
+            platform.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerArgs11);
+        }
         platform.getcCompiler().getArgs().addAll(defaultArguments.linuxCrossCCompilerArgs);
         platform.getLinker().getArgs().addAll(defaultArguments.linuxCrossLinkerArgs);
         platform.getCppCompiler().getDebugArgs().addAll(defaultArguments.linuxCrossDebugCompilerArgs);
@@ -218,13 +225,13 @@ public class WPINativeUtilsExtension {
         unixPlatforms.put(platforms.linuxarm64, linuxarm64);
 
         linuxathena.getPlatformPath().set("linux/athena");
-        addLinuxCrossArgs(linuxathena);
+        addLinuxCrossArgs(linuxathena, 12);
 
         linuxarm32.getPlatformPath().set("linux/arm32");
-        addLinuxCrossArgs(linuxarm32);
+        addLinuxCrossArgs(linuxarm32, 10);
 
         linuxarm64.getPlatformPath().set("linux/arm64");
-        addLinuxCrossArgs(linuxarm64);
+        addLinuxCrossArgs(linuxarm64, 10);
 
         windowsx86.getPlatformPath().set("windows/x86");
         addWindowsArgs(windowsx86);
