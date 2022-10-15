@@ -5,12 +5,14 @@ import javax.inject.Inject;
 import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainExtension;
 
 public abstract class RoboRioToolchainExtension extends OpenSdkToolchainExtension {
+    public static final String TOOLCHAIN_VERSION = "2023-12.1.0";
+    public static final String INSTALL_SUBDIR = "roborio";
 
     @Inject
     public RoboRioToolchainExtension() {
         super();
         getVersionLow().convention("12.1.0");
         getVersionHigh().convention("12.1.0");
-        getToolchainVersion().convention("2023-12.1.0");
+        getToolchainVersion().convention(TOOLCHAIN_VERSION);
     }
 }

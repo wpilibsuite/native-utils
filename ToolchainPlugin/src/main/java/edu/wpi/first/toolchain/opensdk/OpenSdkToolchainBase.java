@@ -24,7 +24,8 @@ public class OpenSdkToolchainBase {
     private final String archiveSubDir;
     private final Provider<String> toolchainPrefix;
 
-    public OpenSdkToolchainBase(String baseToolchainName, OpenSdkToolchainExtension tcExt, Project project, String installSubdir, String archiveSubdir, Provider<String> toolchainPrefix) {
+    public OpenSdkToolchainBase(String baseToolchainName, OpenSdkToolchainExtension tcExt, Project project,
+            String installSubdir, String archiveSubdir, Provider<String> toolchainPrefix) {
         this.baseToolchainName = baseToolchainName;
         this.tcExt = tcExt;
         this.project = project;
@@ -40,18 +41,21 @@ public class OpenSdkToolchainBase {
         if (OperatingSystem.current().isWindows()) {
             platformId = "x86_64-w64-mingw32";
         } else if (OperatingSystem.current().isMacOsX()) {
-            platformId = (NativePlatforms.desktopPlatformArch(project) == "x86-64" ? "x86_64" : "arm64") + "-apple-darwin";
+            platformId = (NativePlatforms.desktopPlatformArch(project) == "x86-64" ? "x86_64" : "arm64")
+                    + "-apple-darwin";
         } else {
             platformId = "x86_64-linux-gnu";
         }
         String ext = OperatingSystem.current().isWindows() ? "zip" : "tgz";
-        return baseToolchainName + "-" + desiredVersion[0] + "-" + platformId + "-Toolchain-" + desiredVersion[1] + "." + ext;
+        return baseToolchainName + "-" + desiredVersion[0] + "-" + platformId + "-Toolchain-" + desiredVersion[1] + "."
+                + ext;
     }
 
     public URL toolchainDownloadUrl() {
         String file = toolchainRemoteFile();
         try {
-            return new URL("https://github.com/wpilibsuite/opensdk/releases/download/" + tcExt.getToolchainTag().get() + "/" + file);
+            return new URL("https://github.com/wpilibsuite/opensdk/releases/download/" + tcExt.getToolchainTag().get()
+                    + "/" + file);
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
@@ -66,7 +70,8 @@ public class OpenSdkToolchainBase {
         return new File(ToolchainPlugin.pluginHome(), "frc/" + year + "/" + installSubdir);
     }
 
-    public AbstractToolchainInstaller installerFor(OperatingSystem os, Provider<File> installDir, String subdir) throws MalformedURLException {
+    public AbstractToolchainInstaller installerFor(OperatingSystem os, Provider<File> installDir, String subdir)
+            throws MalformedURLException {
         return new DefaultToolchainInstaller(os, project.provider(this::toolchainDownloadUrl), installDir, subdir);
     }
 

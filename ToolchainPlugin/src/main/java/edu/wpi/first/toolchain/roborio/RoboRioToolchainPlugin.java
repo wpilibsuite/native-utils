@@ -39,24 +39,26 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
             return prefix;
         });
 
-        opensdk = new OpenSdkToolchainBase(baseToolchainName, roborioExt, project, "roborio", "roborio-academic", prefixProvider);
+        opensdk = new OpenSdkToolchainBase(baseToolchainName, roborioExt, project,
+                RoboRioToolchainExtension.INSTALL_SUBDIR, "roborio-academic", prefixProvider);
 
         Property<Boolean> optional = project.getObjects().property(Boolean.class);
         optional.set(true);
 
         ToolchainDescriptor<RoboRioGcc> descriptor = new ToolchainDescriptor<>(
-            project,
-            toolchainName,
-            "roborioGcc",
-            new ToolchainRegistrar<RoboRioGcc>(RoboRioGcc.class, project),
-            optional);
+                project,
+                toolchainName,
+                "roborioGcc",
+                new ToolchainRegistrar<RoboRioGcc>(RoboRioGcc.class, project),
+                optional);
         descriptor.setToolchainPlatforms(NativePlatforms.roborio);
         descriptor.getDiscoverers().all((ToolchainDiscoverer disc) -> {
             disc.getVersionLow().set(roborioExt.getVersionLow());
             disc.getVersionHigh().set(roborioExt.getVersionHigh());
         });
 
-        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.roborio, descriptor, optional);
+        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.roborio,
+                descriptor, optional);
         configuration.setArchitecture("arm");
         configuration.setOperatingSystem("linux");
         configuration.setCompilerPrefix("");
