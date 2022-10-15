@@ -2,6 +2,7 @@ package edu.wpi.first.toolchain.arm32
 
 import org.gradle.testkit.runner.GradleRunner
 import static org.gradle.testkit.runner.TaskOutcome.*
+import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainBase
 
 import spock.lang.Shared
 import spock.lang.TempDir
