@@ -5,30 +5,30 @@ import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.file.CopySpec;
 import org.gradle.api.file.FileTree;
+import org.gradle.api.provider.Provider;
 import org.gradle.internal.os.OperatingSystem;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.function.Supplier;
 
 public class DefaultToolchainInstaller extends AbstractToolchainInstaller {
 
     private OperatingSystem os;
-    private Supplier<URL> sourceSupplier;
-    private File installDir;
+    private Provider<URL> sourceProvider;
+    private Provider<File> installDirProvider;
     private String subdir;
 
-    public DefaultToolchainInstaller(OperatingSystem os, Supplier<URL> source, File installDir, String subdir) {
+    public DefaultToolchainInstaller(OperatingSystem os, Provider<URL> source, Provider<File> installDir, String subdir) {
         this.os = os;
-        this.sourceSupplier = source;
-        this.installDir = installDir;
+        this.sourceProvider = source;
+        this.installDirProvider = installDir;
         this.subdir = subdir;
     }
 
     @Override
     public void install(Project project) {
-        URL source = sourceSupplier.get();
+        URL source = sourceProvider.get();
         File cacheLoc = new File(ToolchainPlugin.gradleHome(), "cache");
         File dst = new File(cacheLoc, "download/" + source.getPath());
         dst.getParentFile().mkdirs();
@@ -69,6 +69,7 @@ public class DefaultToolchainInstaller extends AbstractToolchainInstaller {
         });
 
         System.out.println("Copying...");
+        File installDir = installDirProvider.get();
         if (installDir.exists())
             project.delete(installDir.getAbsolutePath());
         installDir.mkdirs();
@@ -88,6 +89,6 @@ public class DefaultToolchainInstaller extends AbstractToolchainInstaller {
 
     @Override
     public File sysrootLocation() {
-        return installDir;
+        return installDirProvider.get();
     }
 }

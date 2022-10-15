@@ -9,8 +9,8 @@ public abstract class RoboRioToolchainExtension extends OpenSdkToolchainExtensio
     @Inject
     public RoboRioToolchainExtension() {
         super();
-        versionLow = "12.1.0";
-        versionHigh = "12.1.0";
-        toolchainVersion = "2023-12.1.0";
+        getVersionLow().convention("12.1.0");
+        getVersionHigh().convention("12.1.0");
+        getToolchainVersion().convention("2023-12.1.0");
     }
 }
