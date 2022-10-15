@@ -2,6 +2,7 @@ package edu.wpi.first.toolchain.arm64
 
 import org.gradle.testkit.runner.GradleRunner
 import static org.gradle.testkit.runner.TaskOutcome.*
+import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainBase
 
 import spock.lang.Shared
 import spock.lang.TempDir
@@ -19,9 +20,8 @@ class Arm64DownloadTest extends Specification {
   }
 
   def setupSpec() {
-    Arm64ToolchainExtension ext = new Arm64ToolchainExtension()
-    String arm64Version = ext.toolchainVersion.split("-")[0].toLowerCase();
-    toolchainDir = Arm64ToolchainPlugin.toolchainInstallLoc(arm64Version)
+    String year = Arm64ToolchainExtension.TOOLCHAIN_VERSION.split("-")[0].toLowerCase();
+    toolchainDir = OpenSdkToolchainBase.toolchainInstallLoc(year, Arm64ToolchainExtension.INSTALL_SUBDIR);
     def result = toolchainDir.deleteDir()  // Returns true if all goes well, false otherwise.
     assert result
   }

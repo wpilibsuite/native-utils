@@ -2,6 +2,7 @@ package edu.wpi.first.toolchain.arm32
 
 import org.gradle.testkit.runner.GradleRunner
 import static org.gradle.testkit.runner.TaskOutcome.*
+import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainBase
 
 import spock.lang.Shared
 import spock.lang.TempDir
@@ -19,9 +20,8 @@ class Arm32DownloadTest extends Specification {
   }
 
   def setupSpec() {
-    Arm32ToolchainExtension ext = new Arm32ToolchainExtension()
-    String arm32Version = ext.toolchainVersion.split("-")[0].toLowerCase();
-    toolchainDir = Arm32ToolchainPlugin.toolchainInstallLoc(arm32Version)
+    String year = Arm32ToolchainExtension.TOOLCHAIN_VERSION.split("-")[0].toLowerCase();
+    toolchainDir = OpenSdkToolchainBase.toolchainInstallLoc(year, Arm32ToolchainExtension.INSTALL_SUBDIR);
     def result = toolchainDir.deleteDir()  // Returns true if all goes well, false otherwise.
     assert result
   }

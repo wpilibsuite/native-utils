@@ -1,12 +1,18 @@
 package edu.wpi.first.toolchain.roborio;
 
-public class RoboRioToolchainExtension {
+import javax.inject.Inject;
 
-    public String versionLow = "12.1.0";
-    public String versionHigh = "12.1.0";
-    public String toolchainVersion = "2023-12.1.0";
-    public String toolchainTag = "v2023-3";
+import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainExtension;
 
-    public String year = "2023";
+public abstract class RoboRioToolchainExtension extends OpenSdkToolchainExtension {
+    public static final String TOOLCHAIN_VERSION = "2023-12.1.0";
+    public static final String INSTALL_SUBDIR = "roborio";
 
+    @Inject
+    public RoboRioToolchainExtension() {
+        super();
+        versionLow = "12.1.0";
+        versionHigh = "12.1.0";
+        toolchainVersion = TOOLCHAIN_VERSION;
+    }
 }

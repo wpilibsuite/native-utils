@@ -8,14 +8,14 @@ import org.gradle.internal.logging.text.DiagnosticsVisitor;
 
 public class ToolchainDescriptor<T extends GccToolChain> implements ToolchainDescriptorBase {
 
-    private String name;
-    private String toolchainName;
+    private final String name;
+    private final String toolchainName;
     private String[] platforms;
-    private Property<Boolean> optional;
-    private NamedDomainObjectSet<ToolchainDiscoverer> discoverers;
-    private DomainObjectSet<AbstractToolchainInstaller> installers;
+    private final Property<Boolean> optional;
+    private final NamedDomainObjectSet<ToolchainDiscoverer> discoverers;
+    private final DomainObjectSet<AbstractToolchainInstaller> installers;
 
-    private ToolchainRegistrar<T> registrar;
+    private final ToolchainRegistrar<T> registrar;
 
     public ToolchainDescriptor(Project project, String name, String toolchainName, ToolchainRegistrar<T> registrar, Property<Boolean> optional) {
         this.name = name;

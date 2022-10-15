@@ -2,6 +2,7 @@ package edu.wpi.first.toolchain.roborio
 
 import org.gradle.testkit.runner.GradleRunner
 import static org.gradle.testkit.runner.TaskOutcome.*
+import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainBase
 
 import spock.lang.Shared
 import spock.lang.TempDir
@@ -19,9 +20,8 @@ class RoboRioDownloadTest extends Specification {
   }
 
   def setupSpec() {
-    RoboRioToolchainExtension ext = new RoboRioToolchainExtension()
-    String roborioVersion = ext.toolchainVersion.split("-")[0].toLowerCase();
-    toolchainDir = RoboRioToolchainPlugin.toolchainInstallLoc(roborioVersion)
+    String year = RoboRioToolchainExtension.TOOLCHAIN_VERSION.split("-")[0].toLowerCase();
+    toolchainDir = OpenSdkToolchainBase.toolchainInstallLoc(year, RoboRioToolchainExtension.INSTALL_SUBDIR);
     def result = toolchainDir.deleteDir()  // Returns true if all goes well, false otherwise.
     assert result
   }
