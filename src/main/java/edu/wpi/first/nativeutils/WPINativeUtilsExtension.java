@@ -37,7 +37,7 @@ public class WPINativeUtilsExtension {
     public static class DefaultArguments {
 
         public final List<String> windowsCompilerArgs = List.of("/EHsc", "/FS", "/Zc:inline", "/wd4244", "/wd4267",
-                "/wd4146", "/wd4996", "/Zc:throwingNew", "/D_CRT_SECURE_NO_WARNINGS", "/std:c++17", "/permissive-",
+                "/wd4146", "/wd4996", "/Zc:throwingNew", "/D_CRT_SECURE_NO_WARNINGS", "/std:c++20", "/permissive-",
                 "/bigobj", "/Zc:__cplusplus", "/Zc:preprocessor", "/wd5105"); // 5105 is thrown by windows sdk headers
         public final List<String> windowsCCompilerArgs = List.of("/FS", "/Zc:inline", "/D_CRT_SECURE_NO_WARNINGS");
         public final List<String> windowsReleaseCompilerArgs = List.of("/O2", "/MD");
