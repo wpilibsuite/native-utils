@@ -202,7 +202,7 @@ public abstract class ToolchainDiscoverer implements Named {
         });
         if (visitor != null)
             searchresult.explain(visitor);
-        return Optional.of(searchresult.getComponent());
+        return Optional.ofNullable(searchresult.getComponent());
     }
 
     public static List<File> systemPath(Project project, Function<String, String> composer) {
