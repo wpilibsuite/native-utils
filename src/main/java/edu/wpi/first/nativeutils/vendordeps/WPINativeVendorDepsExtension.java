@@ -34,14 +34,15 @@ public class WPINativeVendorDepsExtension {
     }
 
     private void initializeJsonDep(String uuid, String jsonName, List<CppArtifact> cppDeps, String prefix, ExtensiblePolymorphicDomainObjectContainer<NativeDependency> dependencyContainer) {
-        if (cppDeps.isEmpty()) {
-            return;
-        }
 
         String depName = prefix + "_" + uuid + "_" + jsonName;
 
         AllPlatformsCombinedNativeDependency combinedDep = dependencyContainer.create(depName,
                 AllPlatformsCombinedNativeDependency.class);
+
+        if (cppDeps.isEmpty()) {
+            return;
+        }
 
         for (CppArtifact cpp : cppDeps) {
             String name = depName + "_" + cpp.libName;
