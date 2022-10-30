@@ -32,17 +32,12 @@ public class WPIJavaVendorDepsExtension {
     public List<Provider<String>> java(String... ignore) {
         List<Provider<String>> deps = new ArrayList<>();
 
-        boolean hwSim = vendorDeps.isHwSimulation();
         for (NamedJsonDependency d : vendorDeps.getDependencySet()) {
             JsonDependency dep = d.getDependency();
             if (vendorDeps.isIgnored(ignore, dep)) {
                 continue;
             }
             for (JavaArtifact art : dep.javaDependencies) {
-                if (!(hwSim ? art.useInHwSim() : art.useInSwSim())) {
-                    continue;
-                }
-
                 String baseId = art.groupId + ":" + art.artifactId;
                 Callable<String> cbl = () -> baseId + ":"
                         + vendorDeps.getVersion(art.version);

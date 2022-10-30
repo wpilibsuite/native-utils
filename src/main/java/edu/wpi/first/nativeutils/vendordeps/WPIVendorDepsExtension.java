@@ -201,18 +201,9 @@ public abstract class WPIVendorDepsExtension {
     public static final String SW_SIM_FLAG = "swsim";
 
     public static class JavaArtifact {
-        public boolean useInHwSim() {
-            return !SW_SIM_FLAG.equals(simMode);
-        }
-
-        public boolean useInSwSim() {
-            return !HW_SIM_FLAG.equals(simMode);
-        }
-
         public String groupId;
         public String artifactId;
         public String version;
-        public String simMode;
     }
 
     public static class JniArtifact {
