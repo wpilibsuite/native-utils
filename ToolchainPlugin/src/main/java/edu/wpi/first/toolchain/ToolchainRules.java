@@ -184,8 +184,8 @@ public class ToolchainRules extends RuleSource {
                     continue;
                 }
                 NativePlatform configedPlatform = platforms.maybeCreate(config.getName(), NativePlatform.class);
-                configedPlatform.architecture(config.getArchitecture());
-                configedPlatform.operatingSystem(config.getOperatingSystem());
+                configedPlatform.architecture(config.getArchitecture().get());
+                configedPlatform.operatingSystem(config.getOperatingSystem().get());
             }
         }
     }
@@ -197,10 +197,7 @@ public class ToolchainRules extends RuleSource {
         for (NativeToolChain toolChain : toolChains) {
             if (toolChain instanceof GccToolChain) {
                 GccToolChain gccToolChain = (GccToolChain) toolChain;
-                for (String name : gccToolChain.getDescriptor().getToolchainPlatforms()) {
-                    gccToolChains.put(name, gccToolChain);
-                }
-
+                gccToolChains.put(gccToolChain.getDescriptor().getToolchainPlatform().get(), gccToolChain);
             }
         }
 

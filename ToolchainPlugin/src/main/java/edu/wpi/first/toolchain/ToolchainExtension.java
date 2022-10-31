@@ -15,7 +15,6 @@ import edu.wpi.first.toolchain.arm32.Arm32ToolchainPlugin;
 import edu.wpi.first.toolchain.arm64.Arm64ToolchainPlugin;
 import edu.wpi.first.toolchain.configurable.ConfigurableGcc;
 import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
-import edu.wpi.first.toolchain.configurable.DefaultCrossCompilerConfiguration;
 import edu.wpi.first.toolchain.roborio.RoboRioToolchainPlugin;
 
 public class ToolchainExtension {
@@ -33,13 +32,14 @@ public class ToolchainExtension {
         this.project = project;
 
         crossCompilers = project.container(CrossCompilerConfiguration.class, name -> {
-            return project.getObjects().newInstance(DefaultCrossCompilerConfiguration.class, name);
+            return project.getObjects().newInstance(CrossCompilerConfiguration.class, name);
         });
 
         toolchainDescriptors = project.container(ToolchainDescriptorBase.class);
 
         crossCompilers.all(config -> {
-            if (config.getToolchainDescriptor() == null) {
+            if (!config.getToolchainDescriptor().isPresent()) {
+                config.getOptional().convention(true);
                 ToolchainDescriptor<ConfigurableGcc> descriptor = new ToolchainDescriptor<>(
                         project,
                         config.getName(),
@@ -47,18 +47,20 @@ public class ToolchainExtension {
                         new ToolchainRegistrar<ConfigurableGcc>(ConfigurableGcc.class, project),
                         config.getOptional());
 
+                descriptor.getVersionLow().convention("0.0");
+                descriptor.getVersionHigh().convention("1000.0");
+
+                descriptor.getToolchainPlatform().set(project.provider(() -> config.getOperatingSystem().get() + config.getArchitecture().get()));
                 toolchainDescriptors.add(descriptor);
 
-                project.afterEvaluate(proj -> {
-                    descriptor.setToolchainPlatforms(config.getOperatingSystem() + config.getArchitecture());
-                    descriptor.getDiscoverers().addAll(ToolchainDiscoverer.forSystemPath(project, name -> {
-                        String exeSuffix = OperatingSystem.current().isWindows() ? ".exe" : "";
-                        return config.getCompilerPrefix() + name + exeSuffix;
-                    }));
-                });
-                config.setToolchainDescriptor(descriptor);
+                descriptor.getDiscoverers().add(ToolchainDiscoverer.forSystemPath(project, descriptor, name -> {
+                    String exeSuffix = OperatingSystem.current().isWindows() ? ".exe" : "";
+                    return config.getCompilerPrefix().get() + name + exeSuffix;
+                }));
+
+                config.getToolchainDescriptor().set(descriptor);
             } else {
-                toolchainDescriptors.add(config.getToolchainDescriptor());
+                toolchainDescriptors.add(config.getToolchainDescriptor().get());
             }
         });
 

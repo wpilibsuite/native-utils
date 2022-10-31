@@ -10,30 +10,46 @@ public class ToolchainDescriptor<T extends GccToolChain> implements ToolchainDes
 
     private final String name;
     private final String toolchainName;
-    private String[] platforms;
+    private final Property<String> versionHigh;
+
+    @Override
+    public Property<String> getVersionHigh() {
+        return versionHigh;
+    }
+
+    private final Property<String> versionLow;
+
+    @Override
+    public Property<String> getVersionLow() {
+        return versionLow;
+    }
+
+    private final Property<String> platform;
     private final Property<Boolean> optional;
-    private final NamedDomainObjectSet<ToolchainDiscoverer> discoverers;
+    private final NamedDomainObjectSet<ToolchainDiscovererProperty> discoverers;
     private final DomainObjectSet<AbstractToolchainInstaller> installers;
 
     private final ToolchainRegistrar<T> registrar;
 
     public ToolchainDescriptor(Project project, String name, String toolchainName, ToolchainRegistrar<T> registrar, Property<Boolean> optional) {
         this.name = name;
-        this.platforms = null;
+        this.platform = project.getObjects().property(String.class);
+        this.versionLow = project.getObjects().property(String.class);
+        this.versionHigh = project.getObjects().property(String.class);
         this.optional = optional;
         this.registrar = registrar;
         this.toolchainName = toolchainName;
-        this.discoverers = project.getObjects().namedDomainObjectSet(ToolchainDiscoverer.class);
+        this.discoverers = project.getObjects().namedDomainObjectSet(ToolchainDiscovererProperty.class);
         this.installers = project.getObjects().domainObjectSet(AbstractToolchainInstaller.class);
     }
 
     @Override
-    public void setToolchainPlatforms(String... platforms) {
-        this.platforms = platforms;
+    public Property<String> getToolchainPlatform() {
+        return platform;
     }
 
     @Override
-    public NamedDomainObjectSet<ToolchainDiscoverer> getDiscoverers() {
+    public NamedDomainObjectSet<ToolchainDiscovererProperty> getDiscoverers() {
         return discoverers;
     }
 
@@ -44,7 +60,7 @@ public class ToolchainDescriptor<T extends GccToolChain> implements ToolchainDes
 
     @Override
     public ToolchainDiscoverer discover() {
-        return discoverers.stream().filter(ToolchainDiscoverer::valid).findFirst().orElse(null);
+        return discoverers.stream().flatMap(x -> x.getDiscovererList().stream()).filter(ToolchainDiscoverer::valid).findFirst().orElse(null);
     }
 
     @Override
@@ -54,22 +70,19 @@ public class ToolchainDescriptor<T extends GccToolChain> implements ToolchainDes
 
     @Override
     public void explain(DiagnosticsVisitor visitor) {
-        for (ToolchainDiscoverer discoverer : discoverers) {
-            visitor.node(discoverer.getName());
-            visitor.startChildren();
-            discoverer.explain(visitor);
-            visitor.endChildren();
+        for (ToolchainDiscovererProperty pdiscoverer : discoverers) {
+            for (ToolchainDiscoverer discoverer : pdiscoverer.getDiscovererList()) {
+                visitor.node(discoverer.getName());
+                visitor.startChildren();
+                discoverer.explain(visitor);
+                visitor.endChildren();
+            }
         }
     }
 
     @Override
     public Property<Boolean> getOptional() {
         return optional;
-    }
-
-    @Override
-    public String[] getToolchainPlatforms() {
-        return platforms;
     }
 
     @Override
