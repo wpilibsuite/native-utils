@@ -1,16 +1,21 @@
 package edu.wpi.first.toolchain;
 
+import java.util.List;
+
 import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Named;
-import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.internal.logging.text.DiagnosticsVisitor;
 
 public interface ToolchainDescriptorBase extends Named {
 
-  public void setToolchainPlatforms(String... platforms);
+  public Provider<String> getVersionLow();
+  public Provider<String> getVersionHigh();
 
-  public NamedDomainObjectSet<ToolchainDiscoverer> getDiscoverers();
+  public Property<String> getToolchainPlatform();
+
+  public List<ToolchainDiscovererProperty> getDiscoverers();
 
   public DomainObjectSet<AbstractToolchainInstaller> getInstallers();
 
@@ -25,8 +30,6 @@ public interface ToolchainDescriptorBase extends Named {
   public String getInstallTaskName();
 
   public Property<Boolean> getOptional();
-
-  public String[] getToolchainPlatforms();
 
   public ToolchainRegistrarBase getRegistrar();
 }

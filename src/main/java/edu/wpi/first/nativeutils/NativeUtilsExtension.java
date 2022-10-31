@@ -10,7 +10,6 @@ import javax.inject.Inject;
 
 import org.gradle.api.Action;
 import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
-import org.gradle.api.GradleException;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.api.internal.PolymorphicDomainObjectContainerInternal;
@@ -119,14 +118,6 @@ public class NativeUtilsExtension {
       PrivateExportsConfig exports = objectFactory.newInstance(PrivateExportsConfig.class, name);
       exports.getPerformStripAllSymbols().convention(false);
       return exports;
-    });
-
-    project.afterEvaluate(proj -> {
-      for (PlatformConfig config : platformConfigs) {
-        if (config.getPlatformPath() == null) {
-          throw new GradleException("Platform Path cannot be null: " + config.getName());
-        }
-      }
     });
 
     printNativeDependenciesTask = project.getTasks().register("printNativeDependencyGraph", PrintNativeDependenciesTask.class);
