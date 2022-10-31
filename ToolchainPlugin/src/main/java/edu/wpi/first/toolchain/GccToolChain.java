@@ -34,7 +34,7 @@ public abstract class GccToolChain extends AbstractGccCompatibleToolChain {
 
         logger = ETLoggerFactory.INSTANCE.create(this.getClass().getSimpleName());
 
-        setTargets(descriptor.getToolchainPlatforms());
+        setTargets(descriptor.getToolchainPlatform().get());
 
         if (discoverer != null) {
             eachPlatform(toolchain -> {

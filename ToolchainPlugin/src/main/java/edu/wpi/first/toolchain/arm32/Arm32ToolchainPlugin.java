@@ -2,15 +2,12 @@ package edu.wpi.first.toolchain.arm32;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.provider.Property;
 
 import edu.wpi.first.toolchain.NativePlatforms;
 import edu.wpi.first.toolchain.ToolchainDescriptor;
-import edu.wpi.first.toolchain.ToolchainDiscoverer;
 import edu.wpi.first.toolchain.ToolchainExtension;
 import edu.wpi.first.toolchain.ToolchainRegistrar;
 import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
-import edu.wpi.first.toolchain.configurable.DefaultCrossCompilerConfiguration;
 import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainBase;
 
 public class Arm32ToolchainPlugin implements Plugin<Project> {
@@ -31,26 +28,23 @@ public class Arm32ToolchainPlugin implements Plugin<Project> {
         opensdk = new OpenSdkToolchainBase(baseToolchainName, arm32Ext, project, Arm32ToolchainExtension.INSTALL_SUBDIR,
                 "raspi-bullseye", project.provider(() -> "armv6-bullseye-linux-gnueabihf"));
 
-        Property<Boolean> optional = project.getObjects().property(Boolean.class);
-        optional.set(true);
+        CrossCompilerConfiguration configuration = project.getObjects().newInstance(CrossCompilerConfiguration.class, NativePlatforms.linuxarm32);
+
+        configuration.getArchitecture().set("arm");
+        configuration.getOperatingSystem().set("linux");
+        configuration.getCompilerPrefix().set("");
+        configuration.getOptional().convention(true);
 
         ToolchainDescriptor<Arm32Gcc> descriptor = new ToolchainDescriptor<>(
                 project,
                 toolchainName,
                 "arm32Gcc",
                 new ToolchainRegistrar<Arm32Gcc>(Arm32Gcc.class, project),
-                optional);
-        descriptor.setToolchainPlatforms(NativePlatforms.linuxarm32);
-        descriptor.getDiscoverers().all((ToolchainDiscoverer disc) -> {
-            disc.getVersionLow().set(arm32Ext.getVersionLow());
-            disc.getVersionHigh().set(arm32Ext.getVersionHigh());
-        });
-
-        CrossCompilerConfiguration configuration = new DefaultCrossCompilerConfiguration(NativePlatforms.linuxarm32,
-                descriptor, optional);
-        configuration.setArchitecture("arm");
-        configuration.setOperatingSystem("linux");
-        configuration.setCompilerPrefix("");
+                configuration.getOptional());
+        descriptor.getToolchainPlatform().set(NativePlatforms.linuxarm32);
+        descriptor.getVersionLow().set(arm32Ext.getVersionLow());
+        descriptor.getVersionHigh().set(arm32Ext.getVersionHigh());
+        configuration.getToolchainDescriptor().set(descriptor);
 
         toolchainExt.getCrossCompilers().add(configuration);
 

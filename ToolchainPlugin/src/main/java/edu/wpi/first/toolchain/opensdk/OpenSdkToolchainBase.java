@@ -82,8 +82,9 @@ public class OpenSdkToolchainBase {
             return installLoc;
         });
 
-        descriptor.getDiscoverers().add(ToolchainDiscoverer.create("GradleUserDir", fp, this::composeTool, project));
-        descriptor.getDiscoverers().addAll(ToolchainDiscoverer.forSystemPath(project, this::composeTool));
+        // Discoverer order matters. They will be searched from top to bottom.
+        descriptor.getDiscoverers().add(ToolchainDiscoverer.createProperty("GradleUserDir", descriptor, fp, this::composeTool, project));
+        descriptor.getDiscoverers().add(ToolchainDiscoverer.forSystemPath(project, descriptor, this::composeTool));
 
         try {
             descriptor.getInstallers().add(installerFor(OperatingSystem.LINUX, fp, archiveSubDir));

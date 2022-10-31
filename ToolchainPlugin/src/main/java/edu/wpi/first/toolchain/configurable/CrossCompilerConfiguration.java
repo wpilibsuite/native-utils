@@ -1,22 +1,34 @@
 package edu.wpi.first.toolchain.configurable;
 
+import javax.inject.Inject;
+
 import org.gradle.api.Named;
 import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
 
 import edu.wpi.first.toolchain.ToolchainDescriptorBase;
 
-public interface CrossCompilerConfiguration extends Named {
-  void setArchitecture(String arch);
-  String getArchitecture();
+public abstract class CrossCompilerConfiguration implements Named {
+  private final String name;
 
-  void setOperatingSystem(String os);
-  String getOperatingSystem();
+  @Inject
+  public CrossCompilerConfiguration(String name) {
+    this.name = name;
+  }
 
-  void setCompilerPrefix(String prefix);
-  String getCompilerPrefix();
+  @Override
+  public String getName() {
+    return name;
+  }
 
-  Property<Boolean> getOptional();
+  @Input
+  public abstract Property<String> getArchitecture();
+  @Input
+  public abstract Property<String> getOperatingSystem();
+  @Input
+  public abstract Property<String> getCompilerPrefix();
+  @Input
+  public abstract Property<Boolean> getOptional();
 
-  void setToolchainDescriptor(ToolchainDescriptorBase descriptor);
-  ToolchainDescriptorBase getToolchainDescriptor();
+  public abstract Property<ToolchainDescriptorBase> getToolchainDescriptor();
 }
