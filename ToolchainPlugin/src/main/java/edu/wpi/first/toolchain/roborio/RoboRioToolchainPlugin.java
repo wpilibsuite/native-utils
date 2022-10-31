@@ -70,6 +70,7 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
             return frcHomeLoc;
         });
 
+        // Add FRC Home first, as we want it searched first
         descriptor.getDiscoverers().add(ToolchainDiscoverer.createProperty("FRCHome", descriptor, fp, opensdk::composeTool, project));
 
         opensdk.populatePathAndDownloadDescriptors(descriptor);
