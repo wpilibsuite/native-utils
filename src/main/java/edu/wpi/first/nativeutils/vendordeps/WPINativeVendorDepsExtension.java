@@ -1,7 +1,11 @@
 package edu.wpi.first.nativeutils.vendordeps;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
 
+import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.nativeplatform.NativeBinarySpec;
@@ -9,6 +13,7 @@ import org.gradle.platform.base.VariantComponentSpec;
 
 import edu.wpi.first.nativeutils.NativeUtilsExtension;
 import edu.wpi.first.nativeutils.dependencies.AllPlatformsCombinedNativeDependency;
+import edu.wpi.first.nativeutils.dependencies.NativeDependency;
 import edu.wpi.first.nativeutils.dependencies.WPIVendorMavenDependency;
 import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.CppArtifact;
 import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.JsonDependency;
@@ -19,10 +24,32 @@ public class WPINativeVendorDepsExtension {
     private final Project project;
     private NativeUtilsExtension nte;
 
+    public static final String SW_SIM_PREFIX = "swsim";
+    public static final String HW_SIM_PREFIX = "hwsim";
+
     @Inject
     public WPINativeVendorDepsExtension(WPIVendorDepsExtension vendorDeps, Project project) {
         this.vendorDeps = vendorDeps;
         this.project = project;
+    }
+
+    private void initializeJsonDep(String uuid, String jsonName, List<CppArtifact> cppDeps, String prefix, ExtensiblePolymorphicDomainObjectContainer<NativeDependency> dependencyContainer) {
+
+        String depName = prefix + "_" + uuid + "_" + jsonName;
+
+        AllPlatformsCombinedNativeDependency combinedDep = dependencyContainer.create(depName,
+                AllPlatformsCombinedNativeDependency.class);
+
+        if (cppDeps.isEmpty()) {
+            return;
+        }
+
+        for (CppArtifact cpp : cppDeps) {
+            String name = depName + "_" + cpp.libName;
+            combinedDep.getDependencies().add(name);
+            WPIVendorMavenDependency vendorDep = dependencyContainer.create(name, WPIVendorMavenDependency.class);
+            vendorDep.setArtifact(cpp);
+        }
     }
 
     public void initializeNativeDependencies() {
@@ -34,22 +61,21 @@ public class WPINativeVendorDepsExtension {
 
         vendorDeps.getDependencySet().all(d -> {
             JsonDependency dep = d.getDependency();
-            // Individual dependencies
-            if (dep.cppDependencies.length <= 0) {
-                return;
+
+            List<CppArtifact> swSimDeps = new ArrayList<>();
+            List<CppArtifact> hwSimDeps = new ArrayList<>();
+
+            for (CppArtifact art : dep.cppDependencies) {
+                if (art.useInHwSim()) {
+                    hwSimDeps.add(art);
+                }
+                if (art.useInSwSim()) {
+                    swSimDeps.add(art);
+                }
             }
 
-            String depName = dep.uuid + "_" + dep.name;
-
-            AllPlatformsCombinedNativeDependency combinedDep = dependencyContainer.create(depName,
-                    AllPlatformsCombinedNativeDependency.class);
-
-            for (CppArtifact cpp : dep.cppDependencies) {
-                String name = depName + "_" + cpp.libName;
-                combinedDep.getDependencies().add(name);
-                WPIVendorMavenDependency vendorDep = dependencyContainer.create(name, WPIVendorMavenDependency.class);
-                vendorDep.setArtifact(cpp);
-            }
+            initializeJsonDep(dep.uuid, dep.name, hwSimDeps, HW_SIM_PREFIX, dependencyContainer);
+            initializeJsonDep(dep.uuid, dep.name, swSimDeps, SW_SIM_PREFIX, dependencyContainer);
         });
     }
 
@@ -72,7 +98,8 @@ public class WPINativeVendorDepsExtension {
             if (vendorDeps.isIgnored(ignore, dep)) {
                 continue;
             }
-            nte.useRequiredLibrary(bin, dep.uuid + "_" + dep.name);
+            String prefix = vendorDeps.isHwSimulation() ? HW_SIM_PREFIX : SW_SIM_PREFIX;
+            nte.useRequiredLibrary(bin, prefix + "_" + dep.uuid + "_" + dep.name);
         }
     }
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -31,31 +30,38 @@ public class WPIJavaVendorDepsExtension {
     }
 
     public List<Provider<String>> java(String... ignore) {
-        return vendorDeps.getDependencySet().stream().map(x -> x.getDependency())
-                .filter(x -> !vendorDeps.isIgnored(ignore, x))
-                .map(x -> List.of(x.javaDependencies)).flatMap(List<JavaArtifact>::stream).map(art -> {
-                    String baseId = art.groupId + ":" + art.artifactId;
-                    Callable<String> cbl = () -> baseId + ":"
-                            + vendorDeps.getVersion(art.version);
+        List<Provider<String>> deps = new ArrayList<>();
 
-                    try {
-                        project.getDependencies().getComponents().withModule(baseId, details -> {
-                            details.allVariants(varMeta -> {
-                                varMeta.withDependencies(col -> {
-                                    col.removeIf(item -> item.getGroup().startsWith("edu.wpi.first"));
-                                });
+        for (NamedJsonDependency d : vendorDeps.getDependencySet()) {
+            JsonDependency dep = d.getDependency();
+            if (vendorDeps.isIgnored(ignore, dep)) {
+                continue;
+            }
+            for (JavaArtifact art : dep.javaDependencies) {
+                String baseId = art.groupId + ":" + art.artifactId;
+                Callable<String> cbl = () -> baseId + ":"
+                        + vendorDeps.getVersion(art.version);
+
+                try {
+                    project.getDependencies().getComponents().withModule(baseId, details -> {
+                        details.allVariants(varMeta -> {
+                            varMeta.withDependencies(col -> {
+                                col.removeIf(item -> item.getGroup().startsWith("edu.wpi.first"));
                             });
                         });
-                    } catch (Exception ex) {
-                        Logger logger = Logging.getLogger(this.getClass());
-                        logger.warn("Issue setting component metadata for " + baseId
-                                + ". Build could have issues with incorrect transitive dependencies.");
-                        logger.warn(
-                                "Please create an issue at https://github.com/wpilibsuite/allwpilib with this message so we can investigate");
-                    }
+                    });
+                } catch (Exception ex) {
+                    Logger logger = Logging.getLogger(this.getClass());
+                    logger.warn("Issue setting component metadata for " + baseId
+                            + ". Build could have issues with incorrect transitive dependencies.");
+                    logger.warn(
+                            "Please create an issue at https://github.com/wpilibsuite/allwpilib with this message so we can investigate");
+                }
 
-                    return providerFactory.provider(cbl);
-                }).collect(Collectors.toList());
+                deps.add(providerFactory.provider(cbl));
+            }
+        }
+        return deps;
     }
 
     public List<Provider<String>> jniRelease(String platform, String... ignore) {
@@ -67,14 +73,14 @@ public class WPIJavaVendorDepsExtension {
     }
 
     private List<Provider<String>> jniInternal(boolean debug, String platform, String... ignore) {
-
+        boolean hwSim = vendorDeps.isHwSimulation();
         List<Provider<String>> deps = new ArrayList<>();
 
         for (NamedJsonDependency d : vendorDeps.getDependencySet()) {
             JsonDependency dep = d.getDependency();
             if (!vendorDeps.isIgnored(ignore, dep)) {
                 for (JniArtifact jni : dep.jniDependencies) {
-                    boolean applies = Arrays.asList(jni.validPlatforms).contains(platform);
+                    boolean applies = Arrays.asList(jni.validPlatforms).contains(platform) && (hwSim ? jni.useInHwSim() : jni.useInSwSim());
                     if (!applies && !jni.skipInvalidPlatforms)
                         throw new MissingVendorJniDependencyException(dep.name, platform, jni);
 

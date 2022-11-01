@@ -37,6 +37,7 @@ public abstract class WPIVendorDepsExtension {
 
     public static final String DEFAULT_VENDORDEPS_FOLDER_NAME = "vendordeps";
     public static final String NATIVEUTILS_VENDOR_FOLDER_PROPERTY = "nativeutils.vendordep.folder.path";
+    public static final String HW_SIM_SWITCH_PROPERTY = "hwSim";
 
     private final Project project;
 
@@ -55,6 +56,7 @@ public abstract class WPIVendorDepsExtension {
     public WPIVendorDepsExtension(Project project) {
         this.log = ETLoggerFactory.INSTANCE.create("WPIVendorDeps");
         this.project = project;
+        hwSimulation = project.hasProperty(HW_SIM_SWITCH_PROPERTY);
         dependencySet = project.getObjects().namedDomainObjectSet(NamedJsonDependency.class);
         vendorRepos = project.getObjects().namedDomainObjectSet(VendorMavenRepo.class);
         getFixedVersion().convention("0.0.0");
@@ -86,6 +88,16 @@ public abstract class WPIVendorDepsExtension {
             filepath = (String) prop;
         }
         return project.file(filepath);
+    }
+
+    private boolean hwSimulation;
+
+    public boolean isHwSimulation() {
+        return hwSimulation;
+    }
+
+    public void setHwSimulation(boolean value) {
+        hwSimulation = value;
     }
 
     public static List<File> vendorFiles(File directory) {
@@ -185,6 +197,9 @@ public abstract class WPIVendorDepsExtension {
         return false;
     }
 
+    public static final String HW_SIM_FLAG = "hwsim";
+    public static final String SW_SIM_FLAG = "swsim";
+
     public static class JavaArtifact {
         public String groupId;
         public String artifactId;
@@ -192,9 +207,18 @@ public abstract class WPIVendorDepsExtension {
     }
 
     public static class JniArtifact {
+        public boolean useInHwSim() {
+            return !SW_SIM_FLAG.equals(simMode);
+        }
+
+        public boolean useInSwSim() {
+            return !HW_SIM_FLAG.equals(simMode);
+        }
+
         public String groupId;
         public String artifactId;
         public String version;
+        public String simMode;
 
         public boolean isJar;
 
@@ -203,10 +227,19 @@ public abstract class WPIVendorDepsExtension {
     }
 
     public static class CppArtifact {
+        public boolean useInHwSim() {
+            return !SW_SIM_FLAG.equals(simMode);
+        }
+
+        public boolean useInSwSim() {
+            return !HW_SIM_FLAG.equals(simMode);
+        }
+
         public String groupId;
         public String artifactId;
         public String version;
         public String libName;
+        public String simMode;
 
         public String headerClassifier;
         public String sourcesClassifier;
