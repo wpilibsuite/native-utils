@@ -27,9 +27,15 @@ public class ToolchainExtension {
     public boolean registerPlatforms = true;
     public boolean registerReleaseBuildType = true;
     public boolean registerDebugBuildType = true;
+    private final ToolchainRootExtension rootExtension;
 
-    public ToolchainExtension(Project project) {
+    public ToolchainRootExtension getRootExtension() {
+        return rootExtension;
+    }
+
+    public ToolchainExtension(Project project, ToolchainRootExtension rootExtension) {
         this.project = project;
+        this.rootExtension = rootExtension;
 
         crossCompilers = project.container(CrossCompilerConfiguration.class, name -> {
             return project.getObjects().newInstance(CrossCompilerConfiguration.class, name);
@@ -67,7 +73,7 @@ public class ToolchainExtension {
     }
 
     public void setSinglePrintPerPlatform() {
-        ToolchainPlugin.singlePrintPerPlatform = true;
+        rootExtension.setSinglePrintPerPlatform();
         // ToolchainUtilExtension tcuExt = project.getExtensions().findByType(ToolchainUtilExtension.class);
         // if (tcuExt != null) {
         //     tcuExt.setSkipBinaryToolchainMissingWarning(true);
