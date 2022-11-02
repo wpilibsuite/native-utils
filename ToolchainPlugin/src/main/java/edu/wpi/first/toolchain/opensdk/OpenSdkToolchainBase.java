@@ -52,7 +52,7 @@ public class OpenSdkToolchainBase {
             } else {
                 platformId = "x86_64-linux-gnu";
             }
-            
+
         }
         String ext = OperatingSystem.current().isWindows() ? "zip" : "tgz";
         return baseToolchainName + "-" + desiredVersion[0] + "-" + platformId + "-Toolchain-" + desiredVersion[1] + "."
