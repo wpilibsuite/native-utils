@@ -35,11 +35,11 @@ public class Arm32ToolchainPlugin implements Plugin<Project> {
         configuration.getCompilerPrefix().set("");
         configuration.getOptional().convention(true);
 
-        ToolchainDescriptor<Arm32Gcc> descriptor = new ToolchainDescriptor<>(
+        ToolchainDescriptor descriptor = new ToolchainDescriptor(
                 project,
                 toolchainName,
                 "arm32Gcc",
-                new ToolchainRegistrar<Arm32Gcc>(Arm32Gcc.class, project),
+                new ToolchainRegistrar("arm32Gcc"),
                 configuration.getOptional());
         descriptor.getToolchainPlatform().set(NativePlatforms.linuxarm32);
         descriptor.getVersionLow().set(arm32Ext.getVersionLow());
@@ -51,7 +51,7 @@ public class Arm32ToolchainPlugin implements Plugin<Project> {
         populateDescriptor(descriptor);
     }
 
-    public void populateDescriptor(ToolchainDescriptor<Arm32Gcc> descriptor) {
+    public void populateDescriptor(ToolchainDescriptor descriptor) {
         opensdk.populatePathAndDownloadDescriptors(descriptor);
     }
 

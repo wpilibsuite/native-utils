@@ -78,7 +78,7 @@ public class OpenSdkToolchainBase {
         return new DefaultToolchainInstaller(os, project.provider(this::toolchainDownloadUrl), installDir, subdir);
     }
 
-    public void populatePathAndDownloadDescriptors(ToolchainDescriptor<?> descriptor) {
+    public void populatePathAndDownloadDescriptors(ToolchainDescriptor descriptor) {
         Provider<File> fp = project.provider(() -> {
             String year = tcExt.getToolchainVersion().get().split("-")[0].toLowerCase();
             File installLoc = toolchainInstallLoc(year, installSubdir);

@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
+import javax.inject.Inject;
+
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -18,7 +20,7 @@ public class OrderedStripTask implements Action<Task> {
     public final ToolchainExtension tcExt;
     public final NativeBinarySpec binary;
     public final AbstractLinkTask linkTask;
-    public final GccToolChain gcc;
+    public final GccExtension gcc;
     public final Project project;
     private boolean performStripAll = false;
     private boolean performDebugStrip = false;
@@ -40,8 +42,8 @@ public class OrderedStripTask implements Action<Task> {
         performDebugStrip = stripDebug;
     }
 
-
-    public OrderedStripTask(ToolchainExtension tcExt, NativeBinarySpec binary, AbstractLinkTask linkTask, GccToolChain gcc, Project project) {
+    @Inject
+    public OrderedStripTask(ToolchainExtension tcExt, NativeBinarySpec binary, AbstractLinkTask linkTask, GccExtension gcc, Project project) {
         this.tcExt = tcExt;
         this.binary = binary;
         this.linkTask = linkTask;

@@ -1,38 +1,24 @@
 package edu.wpi.first.toolchain;
 
-import edu.wpi.first.deployutils.log.ETLogger;
-import edu.wpi.first.deployutils.log.ETLoggerFactory;
-import org.gradle.api.NamedDomainObjectFactory;
-import org.gradle.api.Project;
-import org.gradle.internal.reflect.Instantiator;
+import org.gradle.nativeplatform.toolchain.Gcc;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInternal;
 
-public class ToolchainRegistrar<T extends GccToolChain> implements ToolchainRegistrarBase {
+public class ToolchainRegistrar implements ToolchainRegistrarBase {
 
-    private Class<T> implClass;
-    private Project project;
-    private ETLogger logger;
+    private final String name;
 
-    public ToolchainRegistrar(Class<T> clazz, Project project) {
-        this.implClass = clazz;
-        this.project = project;
-        this.logger = ETLoggerFactory.INSTANCE.create("ToolchainRegistrar");
+    public ToolchainRegistrar(String name) {
+        this.name = name;
     }
 
     @Override
-    public void register(ToolchainOptions options, NativeToolChainRegistryInternal registry, Instantiator instantiator) {
-        NamedDomainObjectFactory<T> factory = new NamedDomainObjectFactory<T>() {
-            @Override
-            public T create(String name) {
-                options.name = name;
-                options.project = project;
-                logger.info("Creating: " + name + " (desc: " + options.descriptor.getName() + ") for class " + implClass.getName());
-                return instantiator.newInstance(implClass, options);
-            }
-        };
-        logger.info("Registering: " + implClass.getName() + " for toolchain " + options.descriptor.getToolchainName() + " (desc: " + options.descriptor.getName() + ")");
-        registry.registerFactory(implClass, factory);
-        registry.registerDefaultToolChain(options.descriptor.getToolchainName(), implClass);
+    public void register(NativeToolChainRegistryInternal registry) {
+        registry.registerDefaultToolChain(name, Gcc.class);
+    }
+
+    @Override
+    public String getName() {
+        return name;
     };
 
 }

@@ -10,10 +10,10 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.internal.logging.text.DiagnosticsVisitor;
 import org.gradle.internal.os.OperatingSystem;
+import org.gradle.nativeplatform.toolchain.Gcc;
 
 import edu.wpi.first.toolchain.arm32.Arm32ToolchainPlugin;
 import edu.wpi.first.toolchain.arm64.Arm64ToolchainPlugin;
-import edu.wpi.first.toolchain.configurable.ConfigurableGcc;
 import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
 import edu.wpi.first.toolchain.roborio.RoboRioToolchainPlugin;
 
@@ -21,6 +21,11 @@ public class ToolchainExtension {
     private final NamedDomainObjectContainer<CrossCompilerConfiguration> crossCompilers;
     private final NamedDomainObjectContainer<ToolchainDescriptorBase> toolchainDescriptors;
     private final Map<String, List<String>> stripExcludeMap = new HashMap<>();
+    private final Map<Gcc, GccExtension> gccExtensionMap = new HashMap<>();
+
+    public Map<Gcc, GccExtension> getGccExtensionMap() {
+        return gccExtensionMap;
+    }
 
     private Project project;
 
@@ -46,11 +51,11 @@ public class ToolchainExtension {
         crossCompilers.all(config -> {
             if (!config.getToolchainDescriptor().isPresent()) {
                 config.getOptional().convention(true);
-                ToolchainDescriptor<ConfigurableGcc> descriptor = new ToolchainDescriptor<>(
+                ToolchainDescriptor descriptor = new ToolchainDescriptor(
                         project,
                         config.getName(),
                         config.getName() + "ConfiguredGcc",
-                        new ToolchainRegistrar<ConfigurableGcc>(ConfigurableGcc.class, project),
+                        new ToolchainRegistrar(config.getName() + "ConfiguredGcc"),
                         config.getOptional());
 
                 descriptor.getVersionLow().convention("0.0");

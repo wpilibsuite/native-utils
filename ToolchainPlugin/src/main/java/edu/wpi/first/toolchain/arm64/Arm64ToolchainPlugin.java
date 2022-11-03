@@ -34,11 +34,11 @@ public class Arm64ToolchainPlugin implements Plugin<Project> {
         configuration.getCompilerPrefix().set("");
         configuration.getOptional().convention(true);
 
-        ToolchainDescriptor<Arm64Gcc> descriptor = new ToolchainDescriptor<>(
+        ToolchainDescriptor descriptor = new ToolchainDescriptor(
                 project,
                 toolchainName,
                 "arm64Gcc",
-                new ToolchainRegistrar<Arm64Gcc>(Arm64Gcc.class, project),
+                new ToolchainRegistrar("arm64Gcc"),
                 configuration.getOptional());
         descriptor.getToolchainPlatform().set(NativePlatforms.linuxarm64);
         descriptor.getVersionLow().set(arm64Ext.getVersionLow());
@@ -50,7 +50,7 @@ public class Arm64ToolchainPlugin implements Plugin<Project> {
         populateDescriptor(descriptor);
     }
 
-    public void populateDescriptor(ToolchainDescriptor<Arm64Gcc> descriptor) {
+    public void populateDescriptor(ToolchainDescriptor descriptor) {
         opensdk.populatePathAndDownloadDescriptors(descriptor);
     }
 

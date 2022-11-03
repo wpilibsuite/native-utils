@@ -8,7 +8,7 @@ import org.gradle.api.Project;
 import org.gradle.api.provider.Property;
 import org.gradle.internal.logging.text.DiagnosticsVisitor;
 
-public class ToolchainDescriptor<T extends GccToolChain> implements ToolchainDescriptorBase {
+public class ToolchainDescriptor implements ToolchainDescriptorBase {
 
     private final String name;
     private final String toolchainName;
@@ -31,9 +31,9 @@ public class ToolchainDescriptor<T extends GccToolChain> implements ToolchainDes
     private final List<ToolchainDiscovererProperty> discoverers;
     private final DomainObjectSet<AbstractToolchainInstaller> installers;
 
-    private final ToolchainRegistrar<T> registrar;
+    private final ToolchainRegistrar registrar;
 
-    public ToolchainDescriptor(Project project, String name, String toolchainName, ToolchainRegistrar<T> registrar, Property<Boolean> optional) {
+    public ToolchainDescriptor(Project project, String name, String toolchainName, ToolchainRegistrar registrar, Property<Boolean> optional) {
         this.name = name;
         this.platform = project.getObjects().property(String.class);
         this.versionLow = project.getObjects().property(String.class);
@@ -103,7 +103,7 @@ public class ToolchainDescriptor<T extends GccToolChain> implements ToolchainDes
     }
 
     @Override
-    public ToolchainRegistrar<T> getRegistrar() {
+    public ToolchainRegistrar getRegistrar() {
         return registrar;
     }
 
