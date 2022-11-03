@@ -25,11 +25,9 @@ public interface ToolchainDescriptorBase extends Named {
 
   public AbstractToolchainInstaller getInstaller();
 
-  public String getToolchainName();
+  public String getGccName();
 
   public String getInstallTaskName();
 
   public Property<Boolean> getOptional();
-
-  public ToolchainRegistrarBase getRegistrar();
 }

@@ -10,7 +10,6 @@ import edu.wpi.first.toolchain.NativePlatforms;
 import edu.wpi.first.toolchain.ToolchainDescriptor;
 import edu.wpi.first.toolchain.ToolchainDiscoverer;
 import edu.wpi.first.toolchain.ToolchainExtension;
-import edu.wpi.first.toolchain.ToolchainRegistrar;
 import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
 import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainBase;
 
@@ -50,8 +49,7 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
         ToolchainDescriptor descriptor = new ToolchainDescriptor(
                 project,
                 toolchainName,
-                "roborioGcc",
-                new ToolchainRegistrar("roborioGcc"),
+                toolchainName + "Gcc",
                 configuration.getOptional());
         descriptor.getToolchainPlatform().set(NativePlatforms.roborio);
         descriptor.getVersionLow().set(roborioExt.getVersionLow());

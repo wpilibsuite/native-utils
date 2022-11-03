@@ -97,16 +97,15 @@ public class ToolchainRules extends RuleSource {
         ext.getToolchainDescriptors().all(desc -> {
             logger.info("Descriptor Register: " + desc.getName());
 
-            desc.getRegistrar().register(toolChainRegistry);
+            toolChainRegistry.registerDefaultToolChain(desc.getGccName(), Gcc.class);
 
             toolChainRegistry.containerWithType(Gcc.class).configureEach(tc -> {
-                if (tc.getName().equals(desc.getRegistrar().getName())) {
+                if (tc.getName().equals(desc.getGccName())) {
                     ToolchainDiscoverer discoverer = desc.discover();
                     GccExtension gccExt = new GccExtension(tc, desc, discoverer);
                     ext.getGccExtensionMap().put(tc, gccExt);
 
                     tc.setTargets(desc.getToolchainPlatform().get());
-
 
                     if (discoverer != null) {
                         tc.eachPlatform(toolchain -> {

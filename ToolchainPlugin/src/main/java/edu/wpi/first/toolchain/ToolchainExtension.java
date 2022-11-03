@@ -55,7 +55,6 @@ public class ToolchainExtension {
                         project,
                         config.getName(),
                         config.getName() + "ConfiguredGcc",
-                        new ToolchainRegistrar(config.getName() + "ConfiguredGcc"),
                         config.getOptional());
 
                 descriptor.getVersionLow().convention("0.0");

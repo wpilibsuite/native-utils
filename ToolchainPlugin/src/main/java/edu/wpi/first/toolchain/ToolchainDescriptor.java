@@ -11,7 +11,7 @@ import org.gradle.internal.logging.text.DiagnosticsVisitor;
 public class ToolchainDescriptor implements ToolchainDescriptorBase {
 
     private final String name;
-    private final String toolchainName;
+    private final String gccName;
     private final Property<String> versionHigh;
 
     @Override
@@ -31,16 +31,13 @@ public class ToolchainDescriptor implements ToolchainDescriptorBase {
     private final List<ToolchainDiscovererProperty> discoverers;
     private final DomainObjectSet<AbstractToolchainInstaller> installers;
 
-    private final ToolchainRegistrar registrar;
-
-    public ToolchainDescriptor(Project project, String name, String toolchainName, ToolchainRegistrar registrar, Property<Boolean> optional) {
+    public ToolchainDescriptor(Project project, String name, String gccName, Property<Boolean> optional) {
         this.name = name;
         this.platform = project.getObjects().property(String.class);
         this.versionLow = project.getObjects().property(String.class);
         this.versionHigh = project.getObjects().property(String.class);
         this.optional = optional;
-        this.registrar = registrar;
-        this.toolchainName = toolchainName;
+        this.gccName = gccName;
         this.discoverers = new ArrayList<>();
         this.installers = project.getObjects().domainObjectSet(AbstractToolchainInstaller.class);
     }
@@ -93,18 +90,13 @@ public class ToolchainDescriptor implements ToolchainDescriptorBase {
     }
 
     @Override
-    public String getToolchainName() {
-        return toolchainName;
+    public String getGccName() {
+        return gccName;
     }
 
     @Override
     public String getInstallTaskName() {
         return "install" + capitalize(getName()) + "Toolchain";
-    }
-
-    @Override
-    public ToolchainRegistrar getRegistrar() {
-        return registrar;
     }
 
     private static String capitalize(String s) {
