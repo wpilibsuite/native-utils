@@ -12,7 +12,7 @@ targetCompatibility = 11
 
 allprojects {
     group = "edu.wpi.first"
-    version = "2023.4.1"
+    version = "2023.4.2"
 
     if (project.hasProperty('publishVersion')) {
         version = project.publishVersion

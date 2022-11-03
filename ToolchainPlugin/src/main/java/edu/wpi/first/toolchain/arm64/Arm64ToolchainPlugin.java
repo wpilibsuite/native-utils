@@ -25,7 +25,7 @@ public class Arm64ToolchainPlugin implements Plugin<Project> {
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
 
         opensdk = new OpenSdkToolchainBase(baseToolchainName, arm64Ext, project, Arm64ToolchainExtension.INSTALL_SUBDIR,
-                "bullseye", project.provider(() -> "aarch64-bullseye-linux-gnu"));
+                "bullseye", project.provider(() -> "aarch64-bullseye-linux-gnu"), toolchainExt.getRootExtension());
 
         CrossCompilerConfiguration configuration = project.getObjects().newInstance(CrossCompilerConfiguration.class, NativePlatforms.linuxarm64);
 

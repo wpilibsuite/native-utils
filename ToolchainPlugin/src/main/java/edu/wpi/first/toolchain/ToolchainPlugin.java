@@ -20,6 +20,7 @@ public class ToolchainPlugin implements Plugin<Project> {
         if (tcr == null) {
             tcr = project.getRootProject().getExtensions().create("toolchainsRootExtension", ToolchainRootExtension.class, project.getGradle());
         }
+        ToolchainRootExtension tcrf = tcr;
 
         ext = project.getExtensions().create("toolchainsPlugin", ToolchainExtension.class, project, tcr);
 
@@ -35,11 +36,13 @@ public class ToolchainPlugin implements Plugin<Project> {
         });
 
         ext.getToolchainDescriptors().all((ToolchainDescriptorBase desc) -> {
-            project.getTasks().register(desc.getInstallTaskName(), InstallToolchainTask.class, (InstallToolchainTask t) -> {
-                t.setGroup("Toolchains");
-                t.setDescription("Install Toolchain for " + desc.getName() + " if installers are available.");
-                t.setDescriptor(desc);
-            });
+            if (tcrf.registerInstallTask(desc.getInstallTaskName())) {
+                project.getTasks().register(desc.getInstallTaskName(), InstallToolchainTask.class, (InstallToolchainTask t) -> {
+                    t.setGroup("Toolchains");
+                    t.setDescription("Install Toolchain for " + desc.getName() + " if installers are available.");
+                    t.setDescriptor(desc);
+                });
+            }
         });
 
         project.getGradle().getTaskGraph().whenReady((TaskExecutionGraph graph) -> {

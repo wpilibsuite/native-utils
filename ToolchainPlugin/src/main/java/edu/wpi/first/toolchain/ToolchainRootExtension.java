@@ -1,7 +1,9 @@
 package edu.wpi.first.toolchain;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -15,6 +17,26 @@ import edu.wpi.first.deployutils.log.ETLoggerFactory;
 
 public class ToolchainRootExtension {
     private boolean singlePrintPerPlatform = false;
+
+    private final List<String> registeredInstallTasks = new ArrayList<>();
+
+    public boolean registerInstallTask(String name) {
+        if (registeredInstallTasks.contains(name)) {
+            return false;
+        }
+        registeredInstallTasks.add(name);
+        return true;
+    }
+
+    private final Map<String, String> whichResults = new HashMap<>();
+
+    public String getWhichResult(String tool) {
+        return whichResults.getOrDefault(tool, null);
+    }
+
+    public void addWhichResult(String tool, String value) {
+        whichResults.put(tool, value);
+    }
 
     public void setSinglePrintPerPlatform() {
         singlePrintPerPlatform = true;

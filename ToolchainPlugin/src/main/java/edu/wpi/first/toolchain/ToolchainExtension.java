@@ -59,7 +59,7 @@ public class ToolchainExtension {
                 descriptor.getToolchainPlatform().set(project.provider(() -> config.getOperatingSystem().get() + config.getArchitecture().get()));
                 toolchainDescriptors.add(descriptor);
 
-                descriptor.getDiscoverers().add(ToolchainDiscoverer.forSystemPath(project, descriptor, name -> {
+                descriptor.getDiscoverers().add(ToolchainDiscoverer.forSystemPath(project, rootExtension, descriptor, name -> {
                     String exeSuffix = OperatingSystem.current().isWindows() ? ".exe" : "";
                     return config.getCompilerPrefix().get() + name + exeSuffix;
                 }));
