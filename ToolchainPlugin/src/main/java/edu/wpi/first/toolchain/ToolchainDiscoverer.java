@@ -224,8 +224,6 @@ public abstract class ToolchainDiscoverer implements Named {
 
             whichResult = os.toString().trim();
             tce.addWhichResult(tool, whichResult);
-        } else {
-            System.out.println("Using cache for " + tool);
         }
 
         return Arrays.stream(whichResult.split("\n"))
