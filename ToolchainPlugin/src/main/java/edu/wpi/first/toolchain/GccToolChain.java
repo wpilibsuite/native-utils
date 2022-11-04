@@ -1,17 +1,11 @@
 package edu.wpi.first.toolchain;
 
-import edu.wpi.first.deployutils.log.ETLogger;
-import edu.wpi.first.deployutils.log.ETLoggerFactory;
-import org.gradle.api.GradleException;
 import org.gradle.api.Project;
-import org.gradle.internal.logging.text.StyledTextOutput;
-import org.gradle.internal.logging.text.TreeFormatter;
 import org.gradle.nativeplatform.toolchain.internal.gcc.AbstractGccCompatibleToolChain;
 
 public abstract class GccToolChain extends AbstractGccCompatibleToolChain {
 
     private Project project;
-    private ETLogger logger;
     private ToolchainDescriptorBase descriptor;
     private ToolchainDiscoverer discoverer;
     private boolean isUsed;
@@ -32,8 +26,6 @@ public abstract class GccToolChain extends AbstractGccCompatibleToolChain {
         this.descriptor = options.descriptor;
         this.discoverer = descriptor.discover();
 
-        logger = ETLoggerFactory.INSTANCE.create(this.getClass().getSimpleName());
-
         setTargets(descriptor.getToolchainPlatform().get());
 
         if (discoverer != null) {
@@ -48,33 +40,7 @@ public abstract class GccToolChain extends AbstractGccCompatibleToolChain {
             if (discoverer.sysroot().isPresent())
                 path(discoverer.binDir().get());
         } else {
-            project.getGradle().getTaskGraph().whenReady(graph -> {
-                boolean installing = graph.getAllTasks().stream().anyMatch(t -> t instanceof InstallToolchainTask && ((InstallToolchainTask) t).getDescriptorName().equals(descriptor.getName()));
-                if (!installing) {
-                    TreeFormatter formatter = new TreeFormatter();
-                    descriptor.explain(formatter);
-                    logger.info(formatter.toString());
-
-                    boolean optional = descriptor.getOptional().get() || project.hasProperty("toolchain-optional-" + descriptor.getName());
-                    if (optional) {
-                        if (!ToolchainPlugin.singlePrintPerPlatform || !ToolchainPlugin.skippedPlatforms.contains(descriptor.getName())) {
-                            ToolchainPlugin.skippedPlatforms.add(descriptor.getName());
-                            logger.logStyle("Skipping builds for " + descriptor.getName() + " (toolchain is marked optional)", StyledTextOutput.Style.Description);
-                        }
-                    } else if (isUsed) {
-                        logger.logError("=============================");
-                        logger.logErrorHead("No Toolchain Found for " + descriptor.getName());
-                        logger.logErrorHead("Run `./gradlew " + descriptor.getInstallTaskName() + "` to install one!");
-                        logger.logErrorHead("");
-                        logger.logErrorHead("You can ignore this error with -Ptoolchain-optional-" + descriptor.getName());
-                        logger.logErrorHead("For more information, run with `--info`");
-                        logger.logError("=============================");
-
-                        throw new GradleException("No Toolchain Found! Scroll up for more information.");
-                    }
-                }
-            });
-
+            project.getExtensions().getByType(ToolchainExtension.class).getRootExtension().addMissingToolchain(this);
             path("NOTOOLCHAINPATH");
         }
     }
@@ -93,5 +59,9 @@ public abstract class GccToolChain extends AbstractGccCompatibleToolChain {
 
     public void setUsed(boolean used) {
         isUsed = used;
+    }
+
+    public boolean isUsed() {
+        return isUsed;
     }
 }

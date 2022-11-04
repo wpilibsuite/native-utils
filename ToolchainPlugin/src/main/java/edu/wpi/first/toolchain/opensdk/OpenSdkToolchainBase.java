@@ -15,6 +15,7 @@ import edu.wpi.first.toolchain.NativePlatforms;
 import edu.wpi.first.toolchain.ToolchainDescriptor;
 import edu.wpi.first.toolchain.ToolchainDiscoverer;
 import edu.wpi.first.toolchain.ToolchainPlugin;
+import edu.wpi.first.toolchain.ToolchainRootExtension;
 
 public class OpenSdkToolchainBase {
     private final String baseToolchainName;
@@ -23,15 +24,17 @@ public class OpenSdkToolchainBase {
     private final String installSubdir;
     private final String archiveSubDir;
     private final Provider<String> toolchainPrefix;
+    private final ToolchainRootExtension rootExtension;
 
     public OpenSdkToolchainBase(String baseToolchainName, OpenSdkToolchainExtension tcExt, Project project,
-            String installSubdir, String archiveSubdir, Provider<String> toolchainPrefix) {
+            String installSubdir, String archiveSubdir, Provider<String> toolchainPrefix, ToolchainRootExtension rootExtension) {
         this.baseToolchainName = baseToolchainName;
         this.tcExt = tcExt;
         this.project = project;
         this.installSubdir = installSubdir;
         this.archiveSubDir = archiveSubdir;
         this.toolchainPrefix = toolchainPrefix;
+        this.rootExtension = rootExtension;
     }
 
     private String toolchainRemoteFile() {
@@ -92,7 +95,7 @@ public class OpenSdkToolchainBase {
 
         // Discoverer order matters. They will be searched from top to bottom.
         descriptor.getDiscoverers().add(ToolchainDiscoverer.createProperty("GradleUserDir", descriptor, fp, this::composeTool, project));
-        descriptor.getDiscoverers().add(ToolchainDiscoverer.forSystemPath(project, descriptor, this::composeTool));
+        descriptor.getDiscoverers().add(ToolchainDiscoverer.forSystemPath(project, rootExtension, descriptor, this::composeTool));
 
         try {
             descriptor.getInstallers().add(installerFor(OperatingSystem.LINUX, fp, archiveSubDir));

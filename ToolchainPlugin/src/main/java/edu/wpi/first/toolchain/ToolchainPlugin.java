@@ -8,36 +8,21 @@ import org.gradle.api.execution.TaskExecutionGraph;
 import org.gradle.internal.logging.text.TreeFormatter;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ToolchainPlugin implements Plugin<Project> {
-    static List<String> skippedPlatforms = new ArrayList<>();
-    static boolean singlePrintPerPlatform = false;
-
-    // Necessary to have access to project.configurations and such in the RuleSource
-    class ProjectWrapper {
-        private Project project;
-
-        public Project getProject() {
-            return this.project;
-        }
-
-        ProjectWrapper(Project project) { this.project = project; }
-    }
-
     private ToolchainExtension ext;
 
     @Override
     public void apply(Project project) {
-        ext = project.getExtensions().create("toolchainsPlugin", ToolchainExtension.class, project);
-        project.getExtensions().add("toolchainProjectWrapper", new ProjectWrapper(project));
+        ToolchainRootExtension tcr = project.getRootProject().getExtensions().findByType(ToolchainRootExtension.class);
+        if (tcr == null) {
+            tcr = project.getRootProject().getExtensions().create("toolchainsRootExtension", ToolchainRootExtension.class, project.getGradle());
+        }
+        ToolchainRootExtension tcrf = tcr;
 
-        project.getGradle().buildFinished(res -> {
-            skippedPlatforms.clear();
-            singlePrintPerPlatform = false;
-        });
+        ext = project.getExtensions().create("toolchainsPlugin", ToolchainExtension.class, project, tcr);
 
         project.getTasks().register("explainToolchains", (Task t) -> {
             t.setGroup("Toolchains");
@@ -51,11 +36,13 @@ public class ToolchainPlugin implements Plugin<Project> {
         });
 
         ext.getToolchainDescriptors().all((ToolchainDescriptorBase desc) -> {
-            project.getTasks().register(desc.getInstallTaskName(), InstallToolchainTask.class, (InstallToolchainTask t) -> {
-                t.setGroup("Toolchains");
-                t.setDescription("Install Toolchain for " + desc.getName() + " if installers are available.");
-                t.setDescriptor(desc);
-            });
+            if (tcrf.registerInstallTask(desc.getInstallTaskName())) {
+                project.getTasks().register(desc.getInstallTaskName(), InstallToolchainTask.class, (InstallToolchainTask t) -> {
+                    t.setGroup("Toolchains");
+                    t.setDescription("Install Toolchain for " + desc.getName() + " if installers are available.");
+                    t.setDescriptor(desc);
+                });
+            }
         });
 
         project.getGradle().getTaskGraph().whenReady((TaskExecutionGraph graph) -> {

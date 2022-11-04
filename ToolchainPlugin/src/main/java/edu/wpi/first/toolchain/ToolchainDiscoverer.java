@@ -21,16 +21,16 @@ import org.gradle.internal.logging.text.DiagnosticsVisitor;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.toolchain.internal.SystemLibraries;
 import org.gradle.nativeplatform.toolchain.internal.gcc.metadata.GccMetadata;
-import org.gradle.nativeplatform.toolchain.internal.gcc.metadata.GccMetadataProvider;
+import org.gradle.nativeplatform.toolchain.internal.metadata.CompilerMetaDataProvider;
+import org.gradle.nativeplatform.toolchain.internal.metadata.CompilerMetaDataProviderFactory;
 import org.gradle.platform.base.internal.toolchain.SearchResult;
 import org.gradle.process.ExecSpec;
-import org.gradle.process.internal.ExecActionFactory;
 import org.gradle.util.internal.VersionNumber;
 
 public abstract class ToolchainDiscoverer implements Named {
 
     private final String name;
-    private final GccMetadataProvider metadataProvider;
+    private final CompilerMetaDataProvider<GccMetadata> metadataProvider;
     private Optional<GccMetadata> metadataLazy;
     private final Provider<File> rootDir;
     private final Function<String, String> composer;
@@ -48,14 +48,14 @@ public abstract class ToolchainDiscoverer implements Named {
     }
 
     @Inject
-    public ToolchainDiscoverer(String name, ToolchainDescriptorBase descriptor, Provider<File> rootDir, Function<String, String> composer, ExecActionFactory execFactory, ProviderFactory providers) {
+    public ToolchainDiscoverer(String name, ToolchainDescriptorBase descriptor, Provider<File> rootDir, Function<String, String> composer, CompilerMetaDataProviderFactory metaDataProviderFactory, ProviderFactory providers) {
         this.name = name;
         this.rootDir = rootDir;
         this.composer = composer;
         this.metadataLazy = Optional.empty();
         this.descriptor = descriptor;
 
-        this.metadataProvider = GccMetadataProvider.forGcc(execFactory);
+        this.metadataProvider = metaDataProviderFactory.gcc();
     }
 
     private Optional<File> rootDirFile;
@@ -208,32 +208,38 @@ public abstract class ToolchainDiscoverer implements Named {
         return Optional.ofNullable(searchresult.getComponent());
     }
 
-    public static List<File> systemPath(Project project, Function<String, String> composer) {
+    public static List<File> systemPath(Project project, ToolchainRootExtension tce, Function<String, String> composer) {
         String tool = composer == null ? "g++" : composer.apply("gcc");
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        ByteArrayOutputStream errStr = new ByteArrayOutputStream();
+        String whichResult = tce.getWhichResult(tool);
+        if (whichResult == null) {
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            ByteArrayOutputStream errStr = new ByteArrayOutputStream();
 
-        project.exec((ExecSpec spec) -> {
-            spec.commandLine(OperatingSystem.current().isWindows() ? "where.exe" : "which", tool);
-            spec.setStandardOutput(os);
-            spec.setErrorOutput(errStr);
-            spec.setIgnoreExitValue(true);
-        });
+            project.exec((ExecSpec spec) -> {
+                spec.commandLine(OperatingSystem.current().isWindows() ? "where.exe" : "which", tool);
+                spec.setStandardOutput(os);
+                spec.setErrorOutput(errStr);
+                spec.setIgnoreExitValue(true);
+            });
 
-        return Arrays.stream(os.toString().trim().split("\n"))
+            whichResult = os.toString().trim();
+            tce.addWhichResult(tool, whichResult);
+        }
+
+        return Arrays.stream(whichResult.split("\n"))
                 .map(String::trim)
                 .filter(((Predicate<String>)String::isEmpty).negate())
                 .map((String path) -> { return new File(path).getParentFile().getParentFile(); })
                 .collect(Collectors.toList());
     }
 
-    public static ToolchainDiscovererProperty forSystemPath(Project project, ToolchainDescriptorBase descriptor, Function<String, String> composer) {
+    public static ToolchainDiscovererProperty forSystemPath(Project project, ToolchainRootExtension tce, ToolchainDescriptorBase descriptor, Function<String, String> composer) {
         ToolchainDiscovererProperty prop = project.getObjects().newInstance(ToolchainDiscovererProperty.class, "PathList");
 
         Provider<List<ToolchainDiscoverer>> p = project.provider(() -> {
             List<ToolchainDiscoverer> disc = new ArrayList<>();
             int i = 0;
-            for (File f : systemPath(project, composer)) {
+            for (File f : systemPath(project, tce, composer)) {
                 Provider<File> fp = project.provider(() -> f);
                 disc.add(ToolchainDiscoverer.createDiscoverer("Path" + (i++), descriptor, fp, composer, project));
             }
