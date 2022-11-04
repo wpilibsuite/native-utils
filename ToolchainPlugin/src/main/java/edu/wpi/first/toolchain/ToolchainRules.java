@@ -7,15 +7,10 @@ import java.util.Map;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.specs.Spec;
-import org.gradle.internal.operations.BuildOperationExecutor;
 import org.gradle.internal.os.OperatingSystem;
-import org.gradle.internal.reflect.Instantiator;
-import org.gradle.internal.service.ServiceRegistry;
-import org.gradle.internal.work.WorkerLeaseService;
 import org.gradle.model.Defaults;
 import org.gradle.model.Finalize;
 import org.gradle.model.ModelMap;
@@ -24,23 +19,19 @@ import org.gradle.model.RuleSource;
 import org.gradle.model.Validate;
 import org.gradle.nativeplatform.BuildTypeContainer;
 import org.gradle.nativeplatform.NativeBinarySpec;
-import org.gradle.nativeplatform.internal.CompilerOutputFileNamingSchemeFactory;
 import org.gradle.nativeplatform.platform.NativePlatform;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 import org.gradle.nativeplatform.test.googletest.GoogleTestTestSuiteBinarySpec;
 import org.gradle.nativeplatform.test.tasks.RunTestExecutable;
+import org.gradle.nativeplatform.toolchain.Clang;
+import org.gradle.nativeplatform.toolchain.Gcc;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInternal;
-import org.gradle.nativeplatform.toolchain.internal.clang.ClangToolChain;
-import org.gradle.nativeplatform.toolchain.internal.gcc.AbstractGccCompatibleToolChain;
-import org.gradle.nativeplatform.toolchain.internal.gcc.metadata.SystemLibraryDiscovery;
-import org.gradle.nativeplatform.toolchain.internal.metadata.CompilerMetaDataProviderFactory;
 import org.gradle.platform.base.BinaryContainer;
 import org.gradle.platform.base.BinarySpec;
 import org.gradle.platform.base.BinaryTasks;
 import org.gradle.platform.base.PlatformContainer;
-import org.gradle.process.internal.ExecActionFactory;
 
 import edu.wpi.first.deployutils.log.ETLogger;
 import edu.wpi.first.deployutils.log.ETLoggerFactory;
@@ -53,15 +44,15 @@ public class ToolchainRules extends RuleSource {
     @Finalize
     void addClangArm(NativeToolChainRegistryInternal toolChainRegistry) {
         toolChainRegistry.all(n -> {
-            if (n instanceof org.gradle.nativeplatform.toolchain.internal.gcc.GccToolChain && OperatingSystem.current().equals(OperatingSystem.LINUX)) {
-                AbstractGccCompatibleToolChain gcc = (AbstractGccCompatibleToolChain)n;
+            if (n instanceof Gcc && OperatingSystem.current().equals(OperatingSystem.LINUX)) {
+                Gcc gcc = (Gcc)n;
                 if (NativePlatforms.desktop.equals(NativePlatforms.linuxarm32) || NativePlatforms.desktop.equals(NativePlatforms.linuxarm64)) {
                     gcc.setTargets();
                     gcc.target(NativePlatforms.desktop);
                 }
             }
-            if (n instanceof ClangToolChain && OperatingSystem.current().equals(OperatingSystem.MAC_OS)) {
-                AbstractGccCompatibleToolChain gcc = (AbstractGccCompatibleToolChain)n;
+            if (n instanceof Clang && OperatingSystem.current().equals(OperatingSystem.MAC_OS)) {
+                Clang gcc = (Clang)n;
                 gcc.setTargets();
                 gcc.target("osxarm64", gccToolChain -> {
                     Action<List<String>> m64args = new Action<List<String>>() {
@@ -98,30 +89,44 @@ public class ToolchainRules extends RuleSource {
     }
 
     @Defaults
-    void addDefaultToolchains(NativeToolChainRegistryInternal toolChainRegistry, ServiceRegistry serviceRegistry,
+    void addDefaultToolchains(NativeToolChainRegistryInternal toolChainRegistry,
             ExtensionContainer extContainer) {
-        final FileResolver fileResolver = serviceRegistry.get(FileResolver.class);
-        final ExecActionFactory execActionFactory = serviceRegistry.get(ExecActionFactory.class);
-        final CompilerOutputFileNamingSchemeFactory compilerOutputFileNamingSchemeFactory = serviceRegistry
-                .get(CompilerOutputFileNamingSchemeFactory.class);
-        final Instantiator instantiator = serviceRegistry.get(Instantiator.class);
-        final BuildOperationExecutor buildOperationExecutor = serviceRegistry.get(BuildOperationExecutor.class);
-        final CompilerMetaDataProviderFactory metaDataProviderFactory = serviceRegistry
-                .get(CompilerMetaDataProviderFactory.class);
-        final WorkerLeaseService workerLeaseService = serviceRegistry.get(WorkerLeaseService.class);
-        final SystemLibraryDiscovery standardLibraryDiscovery = serviceRegistry.get(SystemLibraryDiscovery.class);
 
         final ToolchainExtension ext = extContainer.getByType(ToolchainExtension.class);
 
         ext.getToolchainDescriptors().all(desc -> {
             logger.info("Descriptor Register: " + desc.getName());
-            ToolchainOptions options = new ToolchainOptions(instantiator, buildOperationExecutor,
-                    OperatingSystem.current(), fileResolver, execActionFactory, compilerOutputFileNamingSchemeFactory,
-                    metaDataProviderFactory, workerLeaseService, standardLibraryDiscovery);
-            options.descriptor = desc;
 
-            desc.getRegistrar().register(options, toolChainRegistry, instantiator);
+            toolChainRegistry.registerDefaultToolChain(desc.getGccName(), Gcc.class);
+
+            toolChainRegistry.containerWithType(Gcc.class).configureEach(tc -> {
+                if (tc.getName().equals(desc.getGccName())) {
+                    ToolchainDiscoverer discoverer = desc.discover();
+                    GccExtension gccExt = new GccExtension(tc, desc, discoverer);
+                    ext.getGccExtensionMap().put(tc, gccExt);
+
+                    tc.setTargets(desc.getToolchainPlatform().get());
+
+                    if (discoverer != null) {
+                        tc.eachPlatform(toolchain -> {
+                            toolchain.getcCompiler().setExecutable(discoverer.toolName("gcc"));
+                            toolchain.getCppCompiler().setExecutable(discoverer.toolName("g++"));
+                            toolchain.getLinker().setExecutable(discoverer.toolName("g++"));
+                            toolchain.getAssembler().setExecutable(discoverer.toolName("as"));
+                            toolchain.getStaticLibArchiver().setExecutable(discoverer.toolName("ar"));
+                        });
+
+                        if (discoverer.sysroot().isPresent())
+                            tc.path(discoverer.binDir().get());
+                    } else {
+                        ext.getRootExtension().addMissingToolchain(gccExt);
+                        tc.path("NOTOOLCHAINPATH");
+                    }
+                }
+            });
         });
+
+
     }
 
     @Mutate
@@ -191,13 +196,14 @@ public class ToolchainRules extends RuleSource {
     }
 
     @Validate
-    void checkEnabledToolchains(final BinaryContainer binaries, final NativeToolChainRegistry toolChains) {
+    void checkEnabledToolchains(final BinaryContainer binaries, final NativeToolChainRegistry toolChains, final ExtensionContainer extContainer) {
+        final ToolchainExtension ext = extContainer.getByType(ToolchainExtension.class);
         // Map of platform to toolchains
-        Map<String, GccToolChain> gccToolChains = new HashMap<>();
+        Map<String, GccExtension> gccToolChains = new HashMap<>();
         for (NativeToolChain toolChain : toolChains) {
-            if (toolChain instanceof GccToolChain) {
-                GccToolChain gccToolChain = (GccToolChain) toolChain;
-                gccToolChains.put(gccToolChain.getDescriptor().getToolchainPlatform().get(), gccToolChain);
+            GccExtension gccExt = ext.getGccExtensionMap().getOrDefault(toolChain, null);
+            if (gccExt != null) {
+                gccToolChains.put(gccExt.getDescriptor().getToolchainPlatform().get(), gccExt);
             }
         }
 
@@ -206,7 +212,7 @@ public class ToolchainRules extends RuleSource {
                 continue;
             }
             NativeBinarySpec binary = (NativeBinarySpec) oBinary;
-            GccToolChain chain = gccToolChains.getOrDefault(binary.getTargetPlatform().getName(), null);
+            GccExtension chain = gccToolChains.getOrDefault(binary.getTargetPlatform().getName(), null);
             // Can't use getToolChain, as that is invalid for unknown platforms
             if (chain != null) {
                 chain.setUsed(true);
@@ -214,7 +220,7 @@ public class ToolchainRules extends RuleSource {
         }
     }
 
-    public static OrderedStripTask configureOrderedStrip(AbstractLinkTask link, GccToolChain gcc, NativeBinarySpec binary) {
+    public static OrderedStripTask configureOrderedStrip(AbstractLinkTask link, GccExtension gcc, NativeBinarySpec binary) {
         ExtensionAware linkExt = (ExtensionAware)link;
         OrderedStripTask strip = linkExt.getExtensions().findByType(OrderedStripTask.class);
         if (strip == null) {
@@ -233,18 +239,15 @@ public class ToolchainRules extends RuleSource {
 
     @BinaryTasks
     void createNativeStripTasks(final ModelMap<Task> tasks, NativeBinarySpec binary, final ExtensionContainer extContainer) {
-
-        GccToolChain gcc = null;
-            if (binary.getToolChain() instanceof GccToolChain) {
-                gcc = (GccToolChain) binary.getToolChain();
-            } else {
-                return;
-            }
-
-        GccToolChain gccFinal = gcc;
+        final ToolchainExtension ext = extContainer.getByType(ToolchainExtension.class);
+        NativeToolChain tc = binary.getToolChain();
+        GccExtension gccExt = ext.getGccExtensionMap().getOrDefault(tc, null);
+        if (gccExt == null) {
+            return;
+        }
 
         binary.getTasks().withType(AbstractLinkTask.class, link -> {
-            configureOrderedStrip(link, gccFinal, binary).setPerformDebugStrip(true);
+            configureOrderedStrip(link, gccExt, binary).setPerformDebugStrip(true);
         });
     }
 }

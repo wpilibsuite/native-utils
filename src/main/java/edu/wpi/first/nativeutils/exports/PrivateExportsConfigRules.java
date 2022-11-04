@@ -9,11 +9,13 @@ import org.gradle.model.ModelMap;
 import org.gradle.model.RuleSource;
 import org.gradle.nativeplatform.internal.SharedLibraryBinarySpecInternal;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
+import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.gradle.platform.base.BinaryTasks;
 
 import edu.wpi.first.nativeutils.NativeUtilsExtension;
-import edu.wpi.first.toolchain.GccToolChain;
+import edu.wpi.first.toolchain.GccExtension;
 import edu.wpi.first.toolchain.OrderedStripTask;
+import edu.wpi.first.toolchain.ToolchainExtension;
 import edu.wpi.first.toolchain.ToolchainRules;
 
 public class PrivateExportsConfigRules extends RuleSource {
@@ -64,9 +66,10 @@ public class PrivateExportsConfigRules extends RuleSource {
       binary.getTasks().add(exportsTask.get());
 
       if (config.getPerformStripAllSymbols().get()) {
-        if (binary.getToolChain() instanceof GccToolChain) {
-          GccToolChain gcc = (GccToolChain) binary.getToolChain();
-          OrderedStripTask stripTask = ToolchainRules.configureOrderedStrip(link, gcc, binary);
+        NativeToolChain tc = binary.getToolChain();
+        GccExtension gccExt = project.getExtensions().getByType(ToolchainExtension.class).getGccExtensionMap().getOrDefault(tc, null);
+        if (gccExt != null) {
+          OrderedStripTask stripTask = ToolchainRules.configureOrderedStrip(link, gccExt, binary);
           if (stripTask != null) {
             stripTask.setPerformStripAll(true);
           }

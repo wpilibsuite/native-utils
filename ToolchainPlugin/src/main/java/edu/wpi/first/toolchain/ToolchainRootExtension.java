@@ -42,9 +42,9 @@ public class ToolchainRootExtension {
         singlePrintPerPlatform = true;
     }
 
-    private final List<GccToolChain> missingToolChains = new ArrayList<>();
+    private final List<GccExtension> missingToolChains = new ArrayList<>();
 
-    public void addMissingToolchain(GccToolChain toolchain) {
+    public void addMissingToolchain(GccExtension toolchain) {
         missingToolChains.add(toolchain);
     }
 
@@ -52,8 +52,8 @@ public class ToolchainRootExtension {
     public ToolchainRootExtension(Gradle gradle) {
         gradle.getTaskGraph().whenReady(graph -> {
             List<String> skippedPlatforms = new ArrayList<>();
-            for (GccToolChain toolchain : missingToolChains) {
-                ToolchainDescriptorBase descriptor = toolchain.getDescriptor();
+            for (GccExtension tcExt : missingToolChains) {
+                ToolchainDescriptorBase descriptor = tcExt.getDescriptor();
                 boolean installing = graph.getAllTasks().stream().anyMatch(t -> t instanceof InstallToolchainTask && ((InstallToolchainTask) t).getDescriptorName().equals(descriptor.getName()));
                 if (!installing) {
                     ETLogger logger = ETLoggerFactory.INSTANCE.create(this.getClass().getSimpleName());
@@ -67,7 +67,7 @@ public class ToolchainRootExtension {
                             skippedPlatforms.add(descriptor.getName());
                             logger.logStyle("Skipping builds for " + descriptor.getName() + " (toolchain is marked optional)", StyledTextOutput.Style.Description);
                         }
-                    } else if (toolchain.isUsed()) {
+                    } else if (tcExt.isUsed()) {
                         logger.logError("=============================");
                         logger.logErrorHead("No Toolchain Found for " + descriptor.getName());
                         logger.logErrorHead("Run `./gradlew " + descriptor.getInstallTaskName() + "` to install one!");

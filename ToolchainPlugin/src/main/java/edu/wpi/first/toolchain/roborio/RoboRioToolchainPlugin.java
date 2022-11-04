@@ -10,7 +10,6 @@ import edu.wpi.first.toolchain.NativePlatforms;
 import edu.wpi.first.toolchain.ToolchainDescriptor;
 import edu.wpi.first.toolchain.ToolchainDiscoverer;
 import edu.wpi.first.toolchain.ToolchainExtension;
-import edu.wpi.first.toolchain.ToolchainRegistrar;
 import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
 import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainBase;
 
@@ -47,11 +46,10 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
         configuration.getCompilerPrefix().set("");
         configuration.getOptional().convention(true);
 
-        ToolchainDescriptor<RoboRioGcc> descriptor = new ToolchainDescriptor<>(
+        ToolchainDescriptor descriptor = new ToolchainDescriptor(
                 project,
                 toolchainName,
-                "roborioGcc",
-                new ToolchainRegistrar<RoboRioGcc>(RoboRioGcc.class, project),
+                toolchainName + "Gcc",
                 configuration.getOptional());
         descriptor.getToolchainPlatform().set(NativePlatforms.roborio);
         descriptor.getVersionLow().set(roborioExt.getVersionLow());
@@ -63,7 +61,7 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
         populateDescriptor(descriptor);
     }
 
-    public void populateDescriptor(ToolchainDescriptor<RoboRioGcc> descriptor) {
+    public void populateDescriptor(ToolchainDescriptor descriptor) {
         Provider<File> fp = project.provider(() -> {
             String year = roborioExt.getToolchainVersion().get().split("-")[0].toLowerCase();
             File frcHomeLoc = new File(new FrcHome(year).get(), "roborio");

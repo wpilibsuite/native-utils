@@ -6,7 +6,6 @@ import org.gradle.api.Project;
 import edu.wpi.first.toolchain.NativePlatforms;
 import edu.wpi.first.toolchain.ToolchainDescriptor;
 import edu.wpi.first.toolchain.ToolchainExtension;
-import edu.wpi.first.toolchain.ToolchainRegistrar;
 import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
 import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainBase;
 
@@ -35,11 +34,10 @@ public class Arm32ToolchainPlugin implements Plugin<Project> {
         configuration.getCompilerPrefix().set("");
         configuration.getOptional().convention(true);
 
-        ToolchainDescriptor<Arm32Gcc> descriptor = new ToolchainDescriptor<>(
+        ToolchainDescriptor descriptor = new ToolchainDescriptor(
                 project,
                 toolchainName,
-                "arm32Gcc",
-                new ToolchainRegistrar<Arm32Gcc>(Arm32Gcc.class, project),
+                toolchainName + "Gcc",
                 configuration.getOptional());
         descriptor.getToolchainPlatform().set(NativePlatforms.linuxarm32);
         descriptor.getVersionLow().set(arm32Ext.getVersionLow());
@@ -51,7 +49,7 @@ public class Arm32ToolchainPlugin implements Plugin<Project> {
         populateDescriptor(descriptor);
     }
 
-    public void populateDescriptor(ToolchainDescriptor<Arm32Gcc> descriptor) {
+    public void populateDescriptor(ToolchainDescriptor descriptor) {
         opensdk.populatePathAndDownloadDescriptors(descriptor);
     }
 
