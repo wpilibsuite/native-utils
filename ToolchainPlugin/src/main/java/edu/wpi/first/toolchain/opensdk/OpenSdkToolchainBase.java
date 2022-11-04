@@ -41,10 +41,18 @@ public class OpenSdkToolchainBase {
         if (OperatingSystem.current().isWindows()) {
             platformId = "x86_64-w64-mingw32";
         } else if (OperatingSystem.current().isMacOsX()) {
-            platformId = (NativePlatforms.desktopPlatformArch(project) == "x86-64" ? "x86_64" : "arm64")
+            platformId = (NativePlatforms.desktopPlatformArch(project) == NativePlatforms.x64arch ? "x86_64" : "arm64")
                     + "-apple-darwin";
         } else {
-            platformId = "x86_64-linux-gnu";
+            String desktopPlatformArch = NativePlatforms.desktopPlatformArch(project);
+            if (desktopPlatformArch.equals(NativePlatforms.arm64arch)) {
+                platformId = "aarch64-linux-gnu";
+            } else if (desktopPlatformArch.equals(NativePlatforms.arm32arch)) {
+                platformId = "arm-linux-gnueabihf";
+            } else {
+                platformId = "x86_64-linux-gnu";
+            }
+
         }
         String ext = OperatingSystem.current().isWindows() ? "zip" : "tgz";
         return baseToolchainName + "-" + desiredVersion[0] + "-" + platformId + "-Toolchain-" + desiredVersion[1] + "."
