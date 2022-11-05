@@ -5,6 +5,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.execution.TaskExecutionGraph;
+import org.gradle.api.provider.Provider;
 import org.gradle.internal.logging.text.TreeFormatter;
 
 import java.io.File;
@@ -16,17 +17,16 @@ public class ToolchainPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        ToolchainRootExtension tcr = project.getRootProject().getExtensions().findByType(ToolchainRootExtension.class);
-        if (tcr == null) {
-            tcr = project.getRootProject().getExtensions().create("toolchainsRootExtension", ToolchainRootExtension.class, project.getGradle());
-        }
-        ToolchainRootExtension tcrf = tcr;
+        Provider<ToolchainGraphBuildService> serviceProvider = project.getGradle().getSharedServices().registerIfAbsent("toolchainGraph", ToolchainGraphBuildService.class, spec -> {
+        });
+        serviceProvider.get().configure(project.getGradle());
 
-        ext = project.getExtensions().create("toolchainsPlugin", ToolchainExtension.class, project, tcr);
+        ext = project.getExtensions().create("toolchainsPlugin", ToolchainExtension.class, project, serviceProvider.get());
 
         project.getTasks().register("explainToolchains", (Task t) -> {
             t.setGroup("Toolchains");
             t.setDescription("Explain Toolchains Plugin extension");
+            t.usesService(serviceProvider);
 
             t.doLast((task) -> {
                 TreeFormatter formatter = new TreeFormatter();
@@ -36,11 +36,12 @@ public class ToolchainPlugin implements Plugin<Project> {
         });
 
         ext.getToolchainDescriptors().all((ToolchainDescriptorBase desc) -> {
-            if (tcrf.registerInstallTask(desc.getInstallTaskName())) {
+            if (serviceProvider.get().registerInstallTask(desc.getInstallTaskName())) {
                 project.getTasks().register(desc.getInstallTaskName(), InstallToolchainTask.class, (InstallToolchainTask t) -> {
                     t.setGroup("Toolchains");
                     t.setDescription("Install Toolchain for " + desc.getName() + " if installers are available.");
                     t.setDescriptor(desc);
+                    t.usesService(serviceProvider);
                 });
             }
         });

@@ -102,7 +102,7 @@ public class ToolchainRules extends RuleSource {
             toolChainRegistry.containerWithType(Gcc.class).configureEach(tc -> {
                 if (tc.getName().equals(desc.getGccName())) {
                     ToolchainDiscoverer discoverer = desc.discover();
-                    GccExtension gccExt = new GccExtension(tc, desc, discoverer);
+                    GccExtension gccExt = new GccExtension(tc, desc, discoverer, ext.getProject());
                     ext.getGccExtensionMap().put(tc, gccExt);
 
                     tc.setTargets(desc.getToolchainPlatform().get());
@@ -119,7 +119,7 @@ public class ToolchainRules extends RuleSource {
                         if (discoverer.sysroot().isPresent())
                             tc.path(discoverer.binDir().get());
                     } else {
-                        ext.getRootExtension().addMissingToolchain(gccExt);
+                        ext.getToolchainGraphService().addMissingToolchain(gccExt);
                         tc.path("NOTOOLCHAINPATH");
                     }
                 }

@@ -9,13 +9,16 @@ import javax.inject.Inject;
 
 import org.gradle.api.GradleException;
 import org.gradle.api.invocation.Gradle;
+import org.gradle.api.services.BuildService;
+import org.gradle.api.services.BuildServiceParameters;
 import org.gradle.internal.logging.text.TreeFormatter;
 import org.gradle.internal.logging.text.StyledTextOutput;
 
 import edu.wpi.first.deployutils.log.ETLogger;
 import edu.wpi.first.deployutils.log.ETLoggerFactory;
 
-public class ToolchainRootExtension {
+public abstract class ToolchainGraphBuildService implements BuildService<BuildServiceParameters.None> {
+
     private boolean singlePrintPerPlatform = false;
 
     private final List<String> registeredInstallTasks = new ArrayList<>();
@@ -48,8 +51,7 @@ public class ToolchainRootExtension {
         missingToolChains.add(toolchain);
     }
 
-    @Inject
-    public ToolchainRootExtension(Gradle gradle) {
+    public void configure(Gradle gradle) {
         gradle.getTaskGraph().whenReady(graph -> {
             List<String> skippedPlatforms = new ArrayList<>();
             for (GccExtension tcExt : missingToolChains) {
@@ -61,7 +63,7 @@ public class ToolchainRootExtension {
                     descriptor.explain(formatter);
                     logger.info(formatter.toString());
 
-                    boolean optional = descriptor.getOptional().get();
+                    boolean optional = descriptor.getOptional().get() ||tcExt.getProject().hasProperty("toolchain-optional-" + descriptor.getName());;
                     if (optional) {
                         if (!singlePrintPerPlatform || !skippedPlatforms.contains(descriptor.getName())) {
                             skippedPlatforms.add(descriptor.getName());
@@ -81,5 +83,9 @@ public class ToolchainRootExtension {
                 }
             }
         });
+    }
+
+    @Inject
+    public ToolchainGraphBuildService() {
     }
 }
