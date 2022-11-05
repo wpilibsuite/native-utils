@@ -14,6 +14,7 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.api.internal.PolymorphicDomainObjectContainerInternal;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.NativeBinarySpec;
@@ -75,16 +76,16 @@ public class NativeUtilsExtension {
 
   public Class<? extends NativeDependency> getNativeDependencyTypeClass(String name) {
     @SuppressWarnings("unchecked")
-    PolymorphicDomainObjectContainerInternal<NativeDependency> internalDependencies =
-        (PolymorphicDomainObjectContainerInternal<NativeDependency>) dependencyContainer;
-    Set<? extends java.lang.Class<? extends NativeDependency>> dependencyTypeSet = internalDependencies.getCreateableTypes();
+    PolymorphicDomainObjectContainerInternal<NativeDependency> internalDependencies = (PolymorphicDomainObjectContainerInternal<NativeDependency>) dependencyContainer;
+    Set<? extends java.lang.Class<? extends NativeDependency>> dependencyTypeSet = internalDependencies
+        .getCreateableTypes();
     for (Class<? extends NativeDependency> dependencyType : dependencyTypeSet) {
-        if (dependencyType.getSimpleName().equals(name)) {
-            return dependencyType;
-        }
+      if (dependencyType.getSimpleName().equals(name)) {
+        return dependencyType;
+      }
     }
     return null;
-}
+  }
 
   private <T extends NativeDependency> void addNativeDependencyType(Class<T> cls, Object arg) {
     dependencyContainer.registerFactory(cls, name -> {
@@ -111,7 +112,7 @@ public class NativeUtilsExtension {
     addNativeDependencyType(CombinedNativeDependency.class, dependencyContainer);
 
     platformConfigs = objectFactory.domainObjectContainer(PlatformConfig.class, name -> {
-      return (PlatformConfig)objectFactory.newInstance(DefaultPlatformConfig.class, name);
+      return (PlatformConfig) objectFactory.newInstance(DefaultPlatformConfig.class, name);
     });
 
     privateExportsConfigs = objectFactory.domainObjectContainer(PrivateExportsConfig.class, name -> {
@@ -120,7 +121,8 @@ public class NativeUtilsExtension {
       return exports;
     });
 
-    printNativeDependenciesTask = project.getTasks().register("printNativeDependencyGraph", PrintNativeDependenciesTask.class);
+    printNativeDependenciesTask = project.getTasks().register("printNativeDependencyGraph",
+        PrintNativeDependenciesTask.class);
   }
 
   public ExtensiblePolymorphicDomainObjectContainer<NativeDependency> getNativeDependencyContainer() {
@@ -205,6 +207,7 @@ public class NativeUtilsExtension {
   }
 
   private Map<NativeBinarySpec, FastDownloadDependencySet> depSetMap = new HashMap<>();
+
   private FastDownloadDependencySet getFastDepSet(NativeBinarySpec binary) {
     FastDownloadDependencySet fastDepSet = depSetMap.get(binary);
     if (fastDepSet == null) {
@@ -219,7 +222,8 @@ public class NativeUtilsExtension {
     FastDownloadDependencySet fastDepSet = getFastDepSet(binary);
 
     for (String library : libraries) {
-      DelegatedDependencySet dds = objectFactory.newInstance(DelegatedDependencySet.class, library, dependencyContainer, true, binary, fastDepSet);
+      DelegatedDependencySet dds = objectFactory.newInstance(DelegatedDependencySet.class, library, dependencyContainer,
+          true, binary, fastDepSet);
       binary.lib(dds);
     }
   }
@@ -234,7 +238,8 @@ public class NativeUtilsExtension {
     FastDownloadDependencySet fastDepSet = getFastDepSet(binary);
 
     for (String library : libraries) {
-      DelegatedDependencySet dds = objectFactory.newInstance(DelegatedDependencySet.class, library, dependencyContainer, false, binary, fastDepSet);
+      DelegatedDependencySet dds = objectFactory.newInstance(DelegatedDependencySet.class, library, dependencyContainer,
+          false, binary, fastDepSet);
       binary.lib(dds);
     }
   }
@@ -346,20 +351,25 @@ public class NativeUtilsExtension {
     return project.getTasks().register(name, ResourceGenerationTask.class, configure);
   }
 
-  public void withCrossRoboRIO() {
+  public Property<Boolean> withCrossRoboRIO() {
     project.getPluginManager().apply(RoboRioToolchainPlugin.class);
+    return getCrossCompilers().getByName(NativePlatforms.roborio).getOptional();
   }
 
-  public void withCrossLinuxArm32() {
+  public Property<Boolean> withCrossLinuxArm32() {
     if (!NativePlatforms.desktop.equals(NativePlatforms.linuxarm32)) {
       project.getPluginManager().apply(Arm32ToolchainPlugin.class);
+      return getCrossCompilers().getByName(NativePlatforms.linuxarm32).getOptional();
     }
+    return project.getObjects().property(Boolean.class);
   }
 
-  public void withCrossLinuxArm64() {
+  public Property<Boolean> withCrossLinuxArm64() {
     if (!NativePlatforms.desktop.equals(NativePlatforms.linuxarm64)) {
       project.getPluginManager().apply(Arm64ToolchainPlugin.class);
+      return getCrossCompilers().getByName(NativePlatforms.linuxarm64).getOptional();
     }
+    return project.getObjects().property(Boolean.class);
   }
 
   public boolean isNativeDesktopPlatform(NativePlatform platform) {

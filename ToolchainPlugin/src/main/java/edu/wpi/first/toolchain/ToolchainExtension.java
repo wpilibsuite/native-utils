@@ -8,6 +8,7 @@ import java.util.Map;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
+import org.gradle.api.provider.Property;
 import org.gradle.internal.logging.text.DiagnosticsVisitor;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.toolchain.Gcc;
@@ -60,13 +61,15 @@ public class ToolchainExtension {
                 descriptor.getVersionLow().convention("0.0");
                 descriptor.getVersionHigh().convention("1000.0");
 
-                descriptor.getToolchainPlatform().set(project.provider(() -> config.getOperatingSystem().get() + config.getArchitecture().get()));
+                descriptor.getToolchainPlatform().set(
+                        project.provider(() -> config.getOperatingSystem().get() + config.getArchitecture().get()));
                 toolchainDescriptors.add(descriptor);
 
-                descriptor.getDiscoverers().add(ToolchainDiscoverer.forSystemPath(project, rootExtension, descriptor, name -> {
-                    String exeSuffix = OperatingSystem.current().isWindows() ? ".exe" : "";
-                    return config.getCompilerPrefix().get() + name + exeSuffix;
-                }));
+                descriptor.getDiscoverers()
+                        .add(ToolchainDiscoverer.forSystemPath(project, rootExtension, descriptor, name -> {
+                            String exeSuffix = OperatingSystem.current().isWindows() ? ".exe" : "";
+                            return config.getCompilerPrefix().get() + name + exeSuffix;
+                        }));
 
                 config.getToolchainDescriptor().set(descriptor);
             } else {
@@ -78,26 +81,32 @@ public class ToolchainExtension {
 
     public void setSinglePrintPerPlatform() {
         rootExtension.setSinglePrintPerPlatform();
-        // ToolchainUtilExtension tcuExt = project.getExtensions().findByType(ToolchainUtilExtension.class);
+        // ToolchainUtilExtension tcuExt =
+        // project.getExtensions().findByType(ToolchainUtilExtension.class);
         // if (tcuExt != null) {
-        //     tcuExt.setSkipBinaryToolchainMissingWarning(true);
+        // tcuExt.setSkipBinaryToolchainMissingWarning(true);
         // }
     }
 
-    public void withCrossRoboRIO() {
+    public Property<Boolean> withCrossRoboRIO() {
         project.getPluginManager().apply(RoboRioToolchainPlugin.class);
+        return getCrossCompilers().getByName(NativePlatforms.roborio).getOptional();
     }
 
-    public void withCrossLinuxArm32() {
+    public Property<Boolean> withCrossLinuxArm32() {
         if (!NativePlatforms.desktop.equals(NativePlatforms.linuxarm32)) {
             project.getPluginManager().apply(Arm32ToolchainPlugin.class);
+            return getCrossCompilers().getByName(NativePlatforms.linuxarm32).getOptional();
         }
+        return project.getObjects().property(Boolean.class);
     }
 
-    public void withCrossLinuxArm64() {
+    public Property<Boolean> withCrossLinuxArm64() {
         if (!NativePlatforms.desktop.equals(NativePlatforms.linuxarm64)) {
             project.getPluginManager().apply(Arm64ToolchainPlugin.class);
+            return getCrossCompilers().getByName(NativePlatforms.linuxarm64).getOptional();
         }
+        return project.getObjects().property(Boolean.class);
     }
 
     public NamedDomainObjectContainer<ToolchainDescriptorBase> getToolchainDescriptors() {
