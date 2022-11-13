@@ -99,12 +99,11 @@ public class WPINativeUtilsExtension {
         public final String linuxarm64 = "linuxarm64";
         public final String windowsx64 = "windowsx86-64";
         public final String windowsx86 = "windowsx86";
-        public final String osxx64 = "osxx86-64";
-        public final String osxarm64 = "osxarm64";
+        public final String osxuniversal = "osxuniversal";
         public final String linuxx64 = "linuxx86-64";
         public final List<String> allPlatforms = List.of(roborio, linuxarm32, linuxarm64, windowsx64,
-                windowsx86, osxx64, osxarm64, linuxx64);
-        public final List<String> desktopPlatforms = List.of(windowsx64, windowsx86, osxx64, osxarm64, linuxx64);
+                windowsx86, osxuniversal, linuxx64);
+        public final List<String> desktopPlatforms = List.of(windowsx64, windowsx86, osxuniversal, linuxx64);
     }
 
     public final Platforms platforms;
@@ -212,14 +211,12 @@ public class WPINativeUtilsExtension {
         windowsPlatforms.put(platforms.windowsx64, windowsx86_64);
         windowsPlatforms.put(platforms.windowsx86, windowsx86);
         PlatformConfig linuxx86_64 = nativeExt.getPlatformConfigs().create(platforms.linuxx64);
-        PlatformConfig osxx86_64 = nativeExt.getPlatformConfigs().create(platforms.osxx64);
-        PlatformConfig osxarm64 = nativeExt.getPlatformConfigs().create(platforms.osxarm64);
+        PlatformConfig osxuniversal = nativeExt.getPlatformConfigs().create(platforms.osxuniversal);
         PlatformConfig linuxathena = nativeExt.getPlatformConfigs().create(platforms.roborio);
         PlatformConfig linuxarm32 = nativeExt.getPlatformConfigs().create(platforms.linuxarm32);
         PlatformConfig linuxarm64 = nativeExt.getPlatformConfigs().create(platforms.linuxarm64);
         unixPlatforms.put(platforms.linuxx64, linuxx86_64);
-        unixPlatforms.put(platforms.osxx64, osxx86_64);
-        unixPlatforms.put(platforms.osxarm64, osxarm64);
+        unixPlatforms.put(platforms.osxuniversal, osxuniversal);
         unixPlatforms.put(platforms.linuxarm32, linuxarm32);
         unixPlatforms.put(platforms.roborio, linuxathena);
         unixPlatforms.put(platforms.linuxarm64, linuxarm64);
@@ -242,11 +239,8 @@ public class WPINativeUtilsExtension {
         linuxx86_64.getPlatformPath().set("linux/x86-64");
         addLinuxArgs(linuxx86_64);
 
-        osxx86_64.getPlatformPath().set("osx/x86-64");
-        addMacArgs(osxx86_64);
-
-        osxarm64.getPlatformPath().set("osx/arm64");
-        addMacArgs(osxarm64);
+        osxuniversal.getPlatformPath().set("osx/universal");
+        addMacArgs(osxuniversal);
     }
 
     public static abstract class DependencyVersions {
@@ -280,7 +274,7 @@ public class WPINativeUtilsExtension {
         if (plat != null) {
             plat.getCppCompiler().getArgs().add(defaultArguments.unixSymbolArg);
             plat.getcCompiler().getArgs().add(defaultArguments.unixSymbolArg);
-            if (platform.equals(platforms.osxx64) || platform.equals(platforms.osxarm64)) {
+            if (platform.equals(platforms.osxuniversal)) {
                 plat.getObjcCompiler().getArgs().add(defaultArguments.unixSymbolArg);
                 plat.getObjcppCompiler().getArgs().add(defaultArguments.unixSymbolArg);
             }
@@ -311,7 +305,7 @@ public class WPINativeUtilsExtension {
         if (plat != null) {
             plat.getCppCompiler().getArgs().addAll(0, defaultArguments.unixWarningArgs);
             plat.getcCompiler().getArgs().addAll(0, defaultArguments.unixWarningArgs);
-            if (platform.equals(platforms.osxx64) || platform.equals(platforms.osxarm64)) {
+            if (platform.equals(platforms.osxuniversal)) {
                 plat.getObjcCompiler().getArgs().addAll(0, defaultArguments.unixWarningArgs);
                 plat.getObjcppCompiler().getArgs().addAll(0, defaultArguments.unixWarningArgs);
             }
@@ -342,7 +336,7 @@ public class WPINativeUtilsExtension {
         if (plat != null) {
             plat.getCppCompiler().getArgs().addAll(0, defaultArguments.unixWarningsAsErrorsArgs);
             plat.getcCompiler().getArgs().addAll(0, defaultArguments.unixWarningsAsErrorsArgs);
-            if (platform.equals(platforms.osxx64) || platform.equals(platforms.osxarm64)) {
+            if (platform.equals(platforms.osxuniversal)) {
                 plat.getObjcCompiler().getArgs().addAll(0, defaultArguments.unixWarningArgs);
                 plat.getObjcppCompiler().getArgs().addAll(0, defaultArguments.unixWarningsAsErrorsArgs);
             }

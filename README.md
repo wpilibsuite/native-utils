@@ -136,8 +136,7 @@ nativeUtils.wpi.platforms.roborio
 nativeUtils.wpi.platforms.linuxarm32
 nativeUtils.wpi.platforms.linuxarm64
 nativeUtils.wpi.platforms.windowsx64
-nativeUtils.wpi.platforms.osxx64
-nativeUtils.wpi.platforms.osxarm64
+nativeUtils.wpi.platforms.osxuniversal
 nativeUtils.wpi.platforms.linuxx64
 
 // An immutable list of all wpi platforms

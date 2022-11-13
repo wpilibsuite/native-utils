@@ -275,13 +275,6 @@ public class NativeUtilsExtension {
     if (!only) {
       platformsToConfigure.addAll(tmpList);
     }
-
-    if (!project.hasProperty("buildalldesktop")) {
-      NativePlatforms.PlatformArchPair[] extraPlatforms = NativePlatforms.desktopExtraPlatforms();
-      for (NativePlatforms.PlatformArchPair platform : extraPlatforms) {
-        platformsToConfigure.remove(platform.platformName);
-      }
-    }
   }
 
   public void configurePlatform(String name, Action<? super PlatformConfig> action) {

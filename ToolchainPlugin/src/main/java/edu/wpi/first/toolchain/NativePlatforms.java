@@ -17,6 +17,9 @@ public class NativePlatforms {
     public static final String x86arch = "x86";
 
     public static String desktopArch() {
+        if (OperatingSystem.current().isMacOsX()) {
+            return "universal";
+        }
         String arch = System.getProperty("os.arch");
         if (arch.equals("arm64") || arch.equals("aarch64")) {
             return arm64arch;
@@ -53,28 +56,5 @@ public class NativePlatforms {
 
     public static String desktopOS() {
         return OperatingSystem.current().isWindows() ? "windows" : OperatingSystem.current().isMacOsX() ? "osx" : "linux";
-    }
-
-    public static class PlatformArchPair {
-        public String platformName;
-        public String arch;
-
-        public PlatformArchPair(String platformName, String arch) {
-            this.platformName = platformName;
-            this.arch = arch;
-        }
-    }
-
-    public static PlatformArchPair[] desktopExtraPlatforms() {
-        if (OperatingSystem.current().isMacOsX()) {
-            String currentArch = desktopArch();
-            if (currentArch.equals("x86-64")) {
-                return new PlatformArchPair[] {new PlatformArchPair("osxarm64", "arm64")};
-            } else {
-                return new PlatformArchPair[] {new PlatformArchPair("osxx86-64", "x86-64")};
-            }
-        } else {
-            return new PlatformArchPair[0];
-        }
     }
 }
