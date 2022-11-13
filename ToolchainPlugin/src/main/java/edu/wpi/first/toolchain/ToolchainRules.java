@@ -54,25 +54,12 @@ public class ToolchainRules extends RuleSource {
             if (n instanceof Clang && OperatingSystem.current().equals(OperatingSystem.MAC_OS)) {
                 Clang gcc = (Clang)n;
                 gcc.setTargets();
-                gcc.target("osxarm64", gccToolChain -> {
+                gcc.target("osxuniversal", gccToolChain -> {
                     Action<List<String>> m64args = new Action<List<String>>() {
                         @Override
                         public void execute(List<String> args) {
                             args.add("-arch");
                             args.add("arm64");
-                        }
-                    };
-                    gccToolChain.getCppCompiler().withArguments(m64args);
-                    gccToolChain.getcCompiler().withArguments(m64args);
-                    gccToolChain.getObjcCompiler().withArguments(m64args);
-                    gccToolChain.getObjcppCompiler().withArguments(m64args);
-                    gccToolChain.getLinker().withArguments(m64args);
-                    gccToolChain.getAssembler().withArguments(m64args);
-                });
-                gcc.target("osxx86-64", gccToolChain -> {
-                    Action<List<String>> m64args = new Action<List<String>>() {
-                        @Override
-                        public void execute(List<String> args) {
                             args.add("-arch");
                             args.add("x86_64");
                         }
@@ -176,13 +163,6 @@ public class ToolchainRules extends RuleSource {
         if (ext.registerPlatforms) {
             NativePlatform desktop = platforms.maybeCreate(NativePlatforms.desktop, NativePlatform.class);
             desktop.architecture(NativePlatforms.desktopArch().replaceAll("-", "_"));
-
-            NativePlatforms.PlatformArchPair[] extraPlatforms = NativePlatforms.desktopExtraPlatforms();
-
-            for (NativePlatforms.PlatformArchPair platform : extraPlatforms) {
-                NativePlatform toCreate = platforms.maybeCreate(platform.platformName, NativePlatform.class);
-                toCreate.architecture(platform.arch);
-            }
 
             for (CrossCompilerConfiguration config : ext.getCrossCompilers()) {
                 if (config.getName().equals(NativePlatforms.desktop)) {
