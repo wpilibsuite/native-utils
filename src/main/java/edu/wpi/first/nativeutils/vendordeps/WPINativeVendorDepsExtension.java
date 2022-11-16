@@ -18,6 +18,7 @@ import edu.wpi.first.nativeutils.dependencies.WPIVendorMavenDependency;
 import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.CppArtifact;
 import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.JsonDependency;
 import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.NamedJsonDependency;
+import edu.wpi.first.toolchain.NativePlatforms;
 
 public class WPINativeVendorDepsExtension {
     private final WPIVendorDepsExtension vendorDeps;
@@ -26,6 +27,7 @@ public class WPINativeVendorDepsExtension {
 
     public static final String SW_SIM_PREFIX = "swsim";
     public static final String HW_SIM_PREFIX = "hwsim";
+    public static final String RIO_PREFIX = "rio";
 
     @Inject
     public WPINativeVendorDepsExtension(WPIVendorDepsExtension vendorDeps, Project project) {
@@ -64,6 +66,7 @@ public class WPINativeVendorDepsExtension {
 
             List<CppArtifact> swSimDeps = new ArrayList<>();
             List<CppArtifact> hwSimDeps = new ArrayList<>();
+            List<CppArtifact> rioDeps = new ArrayList<>();
 
             for (CppArtifact art : dep.cppDependencies) {
                 if (art.useInHwSim()) {
@@ -72,10 +75,14 @@ public class WPINativeVendorDepsExtension {
                 if (art.useInSwSim()) {
                     swSimDeps.add(art);
                 }
+                if (art.useInRio()) {
+                    rioDeps.add(art);
+                }
             }
 
             initializeJsonDep(dep.uuid, dep.name, hwSimDeps, HW_SIM_PREFIX, dependencyContainer);
             initializeJsonDep(dep.uuid, dep.name, swSimDeps, SW_SIM_PREFIX, dependencyContainer);
+            initializeJsonDep(dep.uuid, dep.name, rioDeps, RIO_PREFIX, dependencyContainer);
         });
     }
 
@@ -93,12 +100,15 @@ public class WPINativeVendorDepsExtension {
     }
 
     private void cppVendorLibForBin(NativeBinarySpec bin, String[] ignore) {
+        String prefix = vendorDeps.isHwSimulation() ? HW_SIM_PREFIX : SW_SIM_PREFIX;
+        if (bin.getTargetPlatform().getName().equals(NativePlatforms.roborio)) {
+            prefix = RIO_PREFIX;
+        }
         for (NamedJsonDependency namedDep : vendorDeps.getDependencySet()) {
             JsonDependency dep = namedDep.getDependency();
             if (vendorDeps.isIgnored(ignore, dep)) {
                 continue;
             }
-            String prefix = vendorDeps.isHwSimulation() ? HW_SIM_PREFIX : SW_SIM_PREFIX;
             nte.useRequiredLibrary(bin, prefix + "_" + dep.uuid + "_" + dep.name);
         }
     }
