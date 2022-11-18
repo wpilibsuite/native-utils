@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
@@ -29,16 +31,21 @@ public class ToolchainExtension {
 
     private Project project;
 
+    public Project getProject() {
+        return project;
+    }
+
     public boolean registerPlatforms = true;
     public boolean registerReleaseBuildType = true;
     public boolean registerDebugBuildType = true;
-    private final ToolchainRootExtension rootExtension;
+    private final ToolchainGraphBuildService rootExtension;
 
-    public ToolchainRootExtension getRootExtension() {
+    public ToolchainGraphBuildService getToolchainGraphService() {
         return rootExtension;
     }
 
-    public ToolchainExtension(Project project, ToolchainRootExtension rootExtension) {
+    @Inject
+    public ToolchainExtension(Project project, ToolchainGraphBuildService rootExtension) {
         this.project = project;
         this.rootExtension = rootExtension;
 

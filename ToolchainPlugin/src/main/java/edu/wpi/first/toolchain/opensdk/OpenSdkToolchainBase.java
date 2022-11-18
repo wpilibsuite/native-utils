@@ -14,8 +14,8 @@ import edu.wpi.first.toolchain.DefaultToolchainInstaller;
 import edu.wpi.first.toolchain.NativePlatforms;
 import edu.wpi.first.toolchain.ToolchainDescriptor;
 import edu.wpi.first.toolchain.ToolchainDiscoverer;
+import edu.wpi.first.toolchain.ToolchainGraphBuildService;
 import edu.wpi.first.toolchain.ToolchainPlugin;
-import edu.wpi.first.toolchain.ToolchainRootExtension;
 
 public class OpenSdkToolchainBase {
     private final String baseToolchainName;
@@ -24,10 +24,10 @@ public class OpenSdkToolchainBase {
     private final String installSubdir;
     private final String archiveSubDir;
     private final Provider<String> toolchainPrefix;
-    private final ToolchainRootExtension rootExtension;
+    private final ToolchainGraphBuildService rootExtension;
 
     public OpenSdkToolchainBase(String baseToolchainName, OpenSdkToolchainExtension tcExt, Project project,
-            String installSubdir, String archiveSubdir, Provider<String> toolchainPrefix, ToolchainRootExtension rootExtension) {
+            String installSubdir, String archiveSubdir, Provider<String> toolchainPrefix, ToolchainGraphBuildService rootExtension) {
         this.baseToolchainName = baseToolchainName;
         this.tcExt = tcExt;
         this.project = project;

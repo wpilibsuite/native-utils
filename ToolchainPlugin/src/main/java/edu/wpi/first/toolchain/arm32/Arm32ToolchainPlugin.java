@@ -25,7 +25,7 @@ public class Arm32ToolchainPlugin implements Plugin<Project> {
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
 
         opensdk = new OpenSdkToolchainBase(baseToolchainName, arm32Ext, project, Arm32ToolchainExtension.INSTALL_SUBDIR,
-                "raspi-bullseye", project.provider(() -> "armv6-bullseye-linux-gnueabihf"), toolchainExt.getRootExtension());
+                "raspi-bullseye", project.provider(() -> "armv6-bullseye-linux-gnueabihf"), toolchainExt.getToolchainGraphService());
 
         CrossCompilerConfiguration configuration = project.getObjects().newInstance(CrossCompilerConfiguration.class, NativePlatforms.linuxarm32);
 

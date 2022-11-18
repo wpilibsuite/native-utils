@@ -208,7 +208,7 @@ public abstract class ToolchainDiscoverer implements Named {
         return Optional.ofNullable(searchresult.getComponent());
     }
 
-    public static List<File> systemPath(Project project, ToolchainRootExtension tce, Function<String, String> composer) {
+    public static List<File> systemPath(Project project, ToolchainGraphBuildService tce, Function<String, String> composer) {
         String tool = composer == null ? "g++" : composer.apply("gcc");
         String whichResult = tce.getWhichResult(tool);
         if (whichResult == null) {
@@ -233,7 +233,7 @@ public abstract class ToolchainDiscoverer implements Named {
                 .collect(Collectors.toList());
     }
 
-    public static ToolchainDiscovererProperty forSystemPath(Project project, ToolchainRootExtension tce, ToolchainDescriptorBase descriptor, Function<String, String> composer) {
+    public static ToolchainDiscovererProperty forSystemPath(Project project, ToolchainGraphBuildService tce, ToolchainDescriptorBase descriptor, Function<String, String> composer) {
         ToolchainDiscovererProperty prop = project.getObjects().newInstance(ToolchainDiscovererProperty.class, "PathList");
 
         Provider<List<ToolchainDiscoverer>> p = project.provider(() -> {

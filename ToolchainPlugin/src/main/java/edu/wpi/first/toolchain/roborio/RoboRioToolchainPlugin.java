@@ -37,7 +37,7 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
         });
 
         opensdk = new OpenSdkToolchainBase(baseToolchainName, roborioExt, project,
-                RoboRioToolchainExtension.INSTALL_SUBDIR, "roborio-academic", prefixProvider, toolchainExt.getRootExtension());
+                RoboRioToolchainExtension.INSTALL_SUBDIR, "roborio-academic", prefixProvider, toolchainExt.getToolchainGraphService());
 
         CrossCompilerConfiguration configuration = project.getObjects().newInstance(CrossCompilerConfiguration.class, NativePlatforms.roborio);
 
