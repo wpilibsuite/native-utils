@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +24,7 @@ import com.google.gson.Gson;
 
 import edu.wpi.first.deployutils.log.ETLogger;
 import edu.wpi.first.deployutils.log.ETLoggerFactory;
+import edu.wpi.first.toolchain.NativePlatforms;
 
 public abstract class WPIVendorDepsExtension {
 
@@ -233,6 +235,10 @@ public abstract class WPIVendorDepsExtension {
 
         public boolean useInSwSim() {
             return !HW_SIM_FLAG.equals(simMode);
+        }
+
+        public boolean useInRio() {
+            return Arrays.asList(binaryPlatforms).contains(NativePlatforms.roborio);
         }
 
         public String groupId;

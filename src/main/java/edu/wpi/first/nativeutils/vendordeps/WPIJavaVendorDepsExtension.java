@@ -16,6 +16,7 @@ import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.JavaArtifact;
 import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.JniArtifact;
 import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.JsonDependency;
 import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.NamedJsonDependency;
+import edu.wpi.first.toolchain.NativePlatforms;
 
 public class WPIJavaVendorDepsExtension {
     private final WPIVendorDepsExtension vendorDeps;
@@ -73,6 +74,7 @@ public class WPIJavaVendorDepsExtension {
     }
 
     private List<Provider<String>> jniInternal(boolean debug, String platform, String... ignore) {
+        boolean isRio = platform.equals(NativePlatforms.roborio);
         boolean hwSim = vendorDeps.isHwSimulation();
         List<Provider<String>> deps = new ArrayList<>();
 
@@ -80,7 +82,7 @@ public class WPIJavaVendorDepsExtension {
             JsonDependency dep = d.getDependency();
             if (!vendorDeps.isIgnored(ignore, dep)) {
                 for (JniArtifact jni : dep.jniDependencies) {
-                    boolean applies = Arrays.asList(jni.validPlatforms).contains(platform) && (hwSim ? jni.useInHwSim() : jni.useInSwSim());
+                    boolean applies = Arrays.asList(jni.validPlatforms).contains(platform) && (isRio || (hwSim ? jni.useInHwSim() : jni.useInSwSim()));
                     if (!applies && !jni.skipInvalidPlatforms)
                         throw new MissingVendorJniDependencyException(dep.name, platform, jni);
 
