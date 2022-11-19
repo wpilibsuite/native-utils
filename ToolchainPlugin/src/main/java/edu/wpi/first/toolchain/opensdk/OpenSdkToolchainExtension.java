@@ -12,6 +12,6 @@ public abstract class OpenSdkToolchainExtension {
 
     @Inject
     public OpenSdkToolchainExtension() {
-        getToolchainTag().convention("v2023-6");
+        getToolchainTag().convention("v2023-5");
     }
 }
