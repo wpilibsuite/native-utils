@@ -15,6 +15,20 @@ jobs:
         java-version: 11
     - name: Build
       run: ./gradlew build -PRunToolchainTests
+    - name: Publish
+      run: ./gradlew publishToMavenLocal
+    - name: InstallRioTC
+      run: ./gradlew installRoboRioToolchain
+      working-directory: testing/cpp
+    - name: InstallArm32Tc
+      run: ./gradlew installArm32Toolchain
+      working-directory: testing/cpp
+    - name: InstallArm64Tc
+      run: ./gradlew installArm64Toolchain
+      working-directory: testing/cpp
+    - name: Build Test
+      run: ./gradlew build
+      working-directory: testing/cpp
 
   publish:
     needs: build
