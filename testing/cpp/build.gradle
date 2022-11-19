@@ -1,0 +1,70 @@
+import edu.wpi.first.toolchain.NativePlatforms
+
+plugins {
+    id "cpp"
+    id "edu.wpi.first.NativeUtils" version "2023.8.1"
+}
+
+nativeUtils.addWpiNativeUtils()
+nativeUtils.withCrossRoboRIO()
+nativeUtils.withCrossLinuxArm32()
+nativeUtils.withCrossLinuxArm64()
+
+nativeUtils.crossCompilers.getByName(NativePlatforms.roborio).optional = false
+nativeUtils.crossCompilers.getByName(NativePlatforms.linuxarm32).optional = false
+nativeUtils.crossCompilers.getByName(NativePlatforms.linuxarm64).optional = false
+
+model {
+    components {
+        all {
+            nativeUtils.useAllPlatforms(it)
+        }
+    }
+    binaries {
+        withType(NativeBinarySpec).all {
+            nativeUtils.usePlatformArguments(it)
+        }
+    }
+}
+
+nativeUtils {
+    exportsConfigs {
+        // Main library is just default empty. This will export everything
+        TestLib {
+        }
+    }
+}
+
+model {
+    components {
+        TestLib(NativeLibrarySpec) {
+            sources {
+                cpp {
+                    source {
+                        srcDirs 'src/main/native/lib'
+                        include '**/*.cpp'
+                    }
+                    exportedHeaders {
+                        srcDirs 'src/main/native/include'
+                    }
+                }
+            }
+        }
+        TestExe(NativeExecutableSpec) {
+            sources {
+                cpp {
+                    source {
+                        srcDirs 'src/main/native/exe'
+                        include '**/*.cpp'
+                    }
+                    exportedHeaders {
+                        srcDirs 'src/main/native/include'
+                    }
+                }
+            }
+            binaries.all {
+                lib library: 'TestLib', linkage: 'shared'
+            }
+        }
+    }
+}
