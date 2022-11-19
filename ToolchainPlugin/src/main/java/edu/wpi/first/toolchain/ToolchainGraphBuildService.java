@@ -20,6 +20,7 @@ import edu.wpi.first.deployutils.log.ETLoggerFactory;
 public abstract class ToolchainGraphBuildService implements BuildService<BuildServiceParameters.None> {
 
     private boolean singlePrintPerPlatform = false;
+    private boolean configured = false;
 
     private final List<String> registeredInstallTasks = new ArrayList<>();
 
@@ -52,6 +53,10 @@ public abstract class ToolchainGraphBuildService implements BuildService<BuildSe
     }
 
     public void configure(Gradle gradle) {
+        if (configured) {
+            return;
+        }
+        configured = true;
         gradle.getTaskGraph().whenReady(graph -> {
             List<String> skippedPlatforms = new ArrayList<>();
             for (GccExtension tcExt : missingToolChains) {
