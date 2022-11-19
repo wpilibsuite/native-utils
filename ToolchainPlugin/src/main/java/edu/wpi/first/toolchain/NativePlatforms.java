@@ -20,6 +20,10 @@ public class NativePlatforms {
         if (OperatingSystem.current().isMacOsX()) {
             return "universal";
         }
+        return desktopArchDirect();
+    }
+
+    public static String desktopArchDirect() {
         String arch = System.getProperty("os.arch");
         if (arch.equals("arm64") || arch.equals("aarch64")) {
             return arm64arch;
@@ -36,7 +40,7 @@ public class NativePlatforms {
             String wow64Arch = System.getenv("PROCESSOR_ARCHITEW6432");
             return arch != null && arch.endsWith("64") || wow64Arch != null && wow64Arch.endsWith("64") ? "x86-64" : "x86";
         } else if (OperatingSystem.current().isMacOsX()) {
-            String desktop = desktopArch();
+            String desktop = desktopArchDirect();
             if (desktop.equals("x86-64")) {
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
                 project.exec(spec -> {
