@@ -537,7 +537,7 @@ public class WPINativeUtilsExtension {
 
         registerStandardDependency(configs, "wpimath", "edu.wpi.first.wpimath", "wpimath-cpp",
                 wpiVersion);
-        registerStandardDependency(configs, "apriltags", "edu.wpi.first.apriltags", "apriltags-cpp",
+        registerStandardDependency(configs, "apriltag", "edu.wpi.first.apriltag", "apriltag-cpp",
                 wpiVersion);
 
         Provider<String> opencvYearGroup = provider
@@ -590,22 +590,22 @@ public class WPINativeUtilsExtension {
 
         configs.register("vision_jni_shared", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("cscore_shared", "apriltags_shared", "opencv_shared"));
+            d.set(List.of("cscore_shared", "apriltag_shared", "opencv_shared"));
         });
 
         configs.register("vision_jni_static", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("cscore_static", "apriltags_static", "opencv_static"));
+            d.set(List.of("cscore_static", "apriltag_static", "opencv_static"));
         });
 
         configs.register("vision_shared", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("cameraserver_shared", "cscore_shared", "apriltags_shared", "opencv_shared"));
+            d.set(List.of("cameraserver_shared", "cscore_shared", "apriltag_shared", "opencv_shared"));
         });
 
         configs.register("vision_static", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("cameraserver_static", "cscore_static", "apriltags_static", "opencv_static"));
+            d.set(List.of("cameraserver_static", "cscore_static", "apriltag_static", "opencv_static"));
         });
     }
 }
