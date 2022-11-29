@@ -252,15 +252,17 @@ public class WPINativeUtilsExtension {
 
         public abstract Property<String> getGoogleTestVersion();
 
-        public abstract Property<String> getImguiVersion();
+        public abstract Property<String> getOpencvYear();
+
+        public abstract Property<String> getGoogleTestYear();
+
+
 
         public abstract Property<String> getWpimathVersion();
 
-        public abstract Property<String> getOpencvYear();
-
         public abstract Property<String> getImguiYear();
 
-        public abstract Property<String> getGoogleTestYear();
+        public abstract Property<String> getImguiVersion();
     }
 
     private void addPlatformReleaseSymbolGeneration(String platform) {
@@ -462,8 +464,17 @@ public class WPINativeUtilsExtension {
         }
         dependencyVersions = objects.newInstance(DependencyVersions.class);
         dependencyVersions.getGoogleTestYear().set(frcYear);
-        dependencyVersions.getImguiYear().set(frcYear);
         dependencyVersions.getOpencvYear().set(frcYear);
+
+        dependencyVersions.getWpiVersion().set("-1");
+        dependencyVersions.getNiLibVersion().set("-1");
+        dependencyVersions.getOpencvVersion().set("-1");
+        dependencyVersions.getGoogleTestVersion().set("-1");
+
+        dependencyVersions.getWpimathVersion().set("-1");
+        dependencyVersions.getImguiYear().set("-1");
+        dependencyVersions.getImguiVersion().set("-1");
+
         dependencies.execute(dependencyVersions);
         versions = dependencyVersions;
         ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs = nativeExt.getNativeDependencyContainer();
@@ -523,18 +534,14 @@ public class WPINativeUtilsExtension {
         registerStandardDependency(configs, "cameraserver", "edu.wpi.first.cameraserver", "cameraserver-cpp",
                 wpiVersion);
         registerStandardDependency(configs, "wpilibc", "edu.wpi.first.wpilibc", "wpilibc-cpp", wpiVersion);
-        registerStandardDependency(configs, "wpilib_new_commands", "edu.wpi.first.wpilibNewCommands",
-                "wpilibNewCommands-cpp", wpiVersion);
-        registerStandardDependency(configs, "wpilib_old_commands", "edu.wpi.first.wpilibOldCommands",
-                "wpilibOldCommands-cpp", wpiVersion);
 
         registerStandardDependency(configs, "wpimath", "edu.wpi.first.wpimath", "wpimath-cpp",
-                dependencyVersions.getWpimathVersion());
+                wpiVersion);
+        registerStandardDependency(configs, "apriltag", "edu.wpi.first.apriltag", "apriltag-cpp",
+                wpiVersion);
 
         Provider<String> opencvYearGroup = provider
                 .provider(() -> "edu.wpi.first.thirdparty." + dependencyVersions.getOpencvYear().get() + ".opencv");
-        Provider<String> imguiYearGroup = provider
-                .provider(() -> "edu.wpi.first.thirdparty." + dependencyVersions.getImguiYear().get());
         Provider<String> googleTestYearGroup = provider
                 .provider(() -> "edu.wpi.first.thirdparty." + dependencyVersions.getGoogleTestYear().get());
 
@@ -542,8 +549,6 @@ public class WPINativeUtilsExtension {
                 dependencyVersions.getOpencvVersion());
         registerStaticOnlyStandardDependency(configs, "googletest", googleTestYearGroup, "googletest",
                 dependencyVersions.getGoogleTestVersion());
-        registerStaticOnlyStandardDependency(configs, "imgui", imguiYearGroup, "imgui",
-                dependencyVersions.getImguiVersion());
 
         configs.register("wpilib_jni", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
