@@ -465,6 +465,16 @@ public class WPINativeUtilsExtension {
         dependencyVersions = objects.newInstance(DependencyVersions.class);
         dependencyVersions.getGoogleTestYear().set(frcYear);
         dependencyVersions.getOpencvYear().set(frcYear);
+
+        dependencyVersions.getWpiVersion().set("-1");
+        dependencyVersions.getNiLibVersion().set("-1");
+        dependencyVersions.getOpencvVersion().set("-1");
+        dependencyVersions.getGoogleTestVersion().set("-1");
+
+        dependencyVersions.getWpimathVersion().set("-1");
+        dependencyVersions.getImguiYear().set("-1");
+        dependencyVersions.getImguiVersion().set("-1");
+
         dependencies.execute(dependencyVersions);
         versions = dependencyVersions;
         ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs = nativeExt.getNativeDependencyContainer();
