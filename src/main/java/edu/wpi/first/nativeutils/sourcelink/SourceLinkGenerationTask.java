@@ -87,6 +87,11 @@ public class SourceLinkGenerationTask extends DefaultTask {
             Map<String, SubmoduleStatus> submodules = git.submoduleStatus().call();
             for (Entry<String, SubmoduleStatus> sm : submodules.entrySet()) {
                 try (Repository subRepo = SubmoduleWalk.getSubmoduleRepository(repo, sm.getValue().getPath())) {
+                    if (subRepo == null) {
+                        getLogger().warn("Invalid submodule found at subpath " + sm.getValue().getPath());
+                        getLogger().warn("Likely caused by submodules not initialized. SourceLink will not work correctly");
+                        continue;
+                    }
                     resolveSubmodules(subRepo);
                 }
             }
