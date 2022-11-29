@@ -1,5 +1,3 @@
-include ':ToolchainPlugin'
-
 pluginManagement {
     repositories {
         mavenLocal()
@@ -10,3 +8,5 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
+include ':ToolchainPlugin'
