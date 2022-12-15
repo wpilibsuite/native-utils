@@ -256,8 +256,6 @@ public class WPINativeUtilsExtension {
 
         public abstract Property<String> getGoogleTestYear();
 
-
-
         public abstract Property<String> getWpimathVersion();
 
         public abstract Property<String> getImguiYear();
@@ -432,6 +430,22 @@ public class WPINativeUtilsExtension {
         });
     }
 
+    private void registerSharedOnlyStandardDependency(
+            ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs,
+            String name, String groupId, String artifactId, Property<String> version) {
+        configs.register(name + "_shared", WPISharedMavenDependency.class, c -> {
+            c.getGroupId().set(groupId);
+            c.getArtifactId().set(artifactId);
+            c.getHeaderClassifier().set("headers");
+            c.getSourceClassifier().set("sources");
+            c.getExt().set("zip");
+            c.getVersion().set(version);
+            c.getExtraSharedExcludes().add("**/*java*");
+            c.getExtraSharedExcludes().add("**/*jni*");
+            c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
+        });
+    }
+
     private void registerStaticOnlyStandardDependency(
             ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs,
             String name, Provider<String> groupId, String artifactId, Property<String> version) {
@@ -537,7 +551,7 @@ public class WPINativeUtilsExtension {
 
         registerStandardDependency(configs, "wpimath", "edu.wpi.first.wpimath", "wpimath-cpp",
                 wpiVersion);
-        registerStandardDependency(configs, "apriltag", "edu.wpi.first.apriltag", "apriltag-cpp",
+        registerSharedOnlyStandardDependency(configs, "apriltag", "edu.wpi.first.apriltag", "apriltag-cpp",
                 wpiVersion);
 
         Provider<String> opencvYearGroup = provider
@@ -553,7 +567,7 @@ public class WPINativeUtilsExtension {
         configs.register("wpilib_jni", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
             d.set(List.of("ntcore_shared", "hal_shared", "wpimath_shared", "wpinet_shared", "wpiutil_shared",
-                "ni_link_libraries"));
+                    "ni_link_libraries"));
         });
 
         configs.register("wpilib_static", AllPlatformsCombinedNativeDependency.class, c -> {
@@ -595,7 +609,7 @@ public class WPINativeUtilsExtension {
 
         configs.register("vision_jni_static", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("cscore_static", "apriltag_static", "opencv_static"));
+            d.set(List.of("cscore_static", "opencv_static"));
         });
 
         configs.register("vision_shared", AllPlatformsCombinedNativeDependency.class, c -> {
@@ -605,7 +619,7 @@ public class WPINativeUtilsExtension {
 
         configs.register("vision_static", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("cameraserver_static", "cscore_static", "apriltag_static", "opencv_static"));
+            d.set(List.of("cameraserver_static", "cscore_static", "opencv_static"));
         });
     }
 }
