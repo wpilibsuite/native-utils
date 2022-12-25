@@ -59,9 +59,7 @@ public class WPINativeUtilsExtension {
         // -Wdeprecated-enum-enum-conversion was introduced in GCC 11
         public final List<String> linuxCrossCompilerArgs = List.of("-std=c++20", "-Wformat=2", "-pedantic",
                 "-Wno-psabi", "-Wno-unused-parameter", "-Wno-error=deprecated-declarations", "-fPIC", "-pthread");
-        public final List<String> linuxCrossCompilerArgs11 = List.of("-std=c++20", "-Wformat=2", "-pedantic",
-                "-Wno-psabi", "-Wno-unused-parameter", "-Wno-error=deprecated-declarations",
-                "-Wno-error=deprecated-enum-enum-conversion", "-fPIC", "-pthread");
+        public final List<String> linuxCrossCompilerExtraArgs11 = List.of("-Wno-error=deprecated-enum-enum-conversion");
         public final List<String> linuxCrossCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
                 "-Wno-unused-parameter", "-fPIC", "-pthread");
         public final List<String> linuxCrossLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic");
@@ -76,6 +74,8 @@ public class WPINativeUtilsExtension {
         public final List<String> linuxLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic");
         public final List<String> linuxReleaseCompilerArgs = List.of("-O2");
         public final List<String> linuxDebugCompilerArgs = List.of("-O0");
+
+        public final String macMinimumVersionArg = "-mmacosx-version-min=10.15";
 
         public final List<String> macCompilerArgs = List.of("-std=c++20", "-pedantic", "-fPIC", "-Wno-unused-parameter",
                 "-Wno-error=deprecated-declarations", "-Wno-error=deprecated-enum-enum-conversion",
@@ -114,10 +114,9 @@ public class WPINativeUtilsExtension {
     private final Map<String, PlatformConfig> unixPlatforms = new HashMap<>();
 
     public void addLinuxCrossArgs(PlatformConfig platform, int gccMajor) {
-        if (gccMajor < 11) {
-            platform.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerArgs);
-        } else {
-            platform.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerArgs11);
+        platform.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerArgs);
+        if (gccMajor >= 11) {
+            platform.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerExtraArgs11);
         }
         platform.getcCompiler().getArgs().addAll(defaultArguments.linuxCrossCCompilerArgs);
         platform.getLinker().getArgs().addAll(defaultArguments.linuxCrossLinkerArgs);
@@ -241,6 +240,21 @@ public class WPINativeUtilsExtension {
 
         osxuniversal.getPlatformPath().set("osx/universal");
         addMacArgs(osxuniversal);
+    }
+
+    public void addGcc11CrossArgs(String platform) {
+        PlatformConfig config = unixPlatforms.get(platform);
+        if (config != null) {
+            config.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerExtraArgs11);
+        }
+    }
+
+    public void addMacMinimumVersionArg() {
+        PlatformConfig platform = unixPlatforms.get(platforms.osxuniversal);
+        platform.getcCompiler().getArgs().add(defaultArguments.macMinimumVersionArg);
+        platform.getCppCompiler().getArgs().add(defaultArguments.macMinimumVersionArg);
+        platform.getObjcCompiler().getArgs().add(defaultArguments.macMinimumVersionArg);
+        platform.getObjcppCompiler().getArgs().add(defaultArguments.macMinimumVersionArg);
     }
 
     public static abstract class DependencyVersions {
