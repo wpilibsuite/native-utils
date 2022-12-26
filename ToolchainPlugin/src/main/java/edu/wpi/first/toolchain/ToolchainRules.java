@@ -46,7 +46,7 @@ public class ToolchainRules extends RuleSource {
         toolChainRegistry.all(n -> {
             if (n instanceof Gcc && OperatingSystem.current().equals(OperatingSystem.LINUX)) {
                 Gcc gcc = (Gcc)n;
-                if (NativePlatforms.desktop.equals(NativePlatforms.linuxarm32) || NativePlatforms.desktop.equals(NativePlatforms.linuxarm64)) {
+                if ((NativePlatforms.desktop.equals(NativePlatforms.linuxarm32) || NativePlatforms.desktop.equals(NativePlatforms.linuxarm64)) && gcc.getName().equals("gcc")) {
                     gcc.setTargets();
                     gcc.target(NativePlatforms.desktop);
                 }
