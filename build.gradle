@@ -53,7 +53,14 @@ pluginBundle {
     website = 'https://github.com/wpilibsuite/native-utils'
     vcsUrl = 'https://github.com/wpilibsuite/native-utils'
     description = 'This plugin provides native build utilities for FRC projects.'
-    tags = ['groovy', 'native', 'utils', 'maven', 'frc', 'wpilib']
+    tags = [
+        'groovy',
+        'native',
+        'utils',
+        'maven',
+        'frc',
+        'wpilib'
+    ]
 }
 
 gradlePlugin {

@@ -1,7 +1,6 @@
 package edu.wpi.first.nativeutils.platforms;
 
 import javax.inject.Inject;
-
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 
@@ -78,5 +77,4 @@ public class DefaultPlatformConfig implements PlatformConfig {
   public String getName() {
     return name;
   }
-
 }
