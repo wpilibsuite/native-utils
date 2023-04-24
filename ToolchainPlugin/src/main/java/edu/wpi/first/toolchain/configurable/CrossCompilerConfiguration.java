@@ -1,12 +1,10 @@
 package edu.wpi.first.toolchain.configurable;
 
+import edu.wpi.first.toolchain.ToolchainDescriptorBase;
 import javax.inject.Inject;
-
 import org.gradle.api.Named;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
-
-import edu.wpi.first.toolchain.ToolchainDescriptorBase;
 
 public abstract class CrossCompilerConfiguration implements Named {
   private final String name;
@@ -23,10 +21,13 @@ public abstract class CrossCompilerConfiguration implements Named {
 
   @Input
   public abstract Property<String> getArchitecture();
+
   @Input
   public abstract Property<String> getOperatingSystem();
+
   @Input
   public abstract Property<String> getCompilerPrefix();
+
   @Input
   public abstract Property<Boolean> getOptional();
 

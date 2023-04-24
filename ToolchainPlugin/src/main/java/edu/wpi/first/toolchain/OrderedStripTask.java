@@ -1,98 +1,103 @@
 package edu.wpi.first.toolchain;
 
+import edu.wpi.first.deployutils.log.ETLogger;
+import edu.wpi.first.deployutils.log.ETLoggerFactory;
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
-
 import javax.inject.Inject;
-
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 
-import edu.wpi.first.deployutils.log.ETLogger;
-import edu.wpi.first.deployutils.log.ETLoggerFactory;
-
 public class OrderedStripTask implements Action<Task> {
 
-    public final ToolchainExtension tcExt;
-    public final NativeBinarySpec binary;
-    public final AbstractLinkTask linkTask;
-    public final GccExtension gcc;
-    public final Project project;
-    private boolean performStripAll = false;
-    private boolean performDebugStrip = false;
+  public final ToolchainExtension tcExt;
+  public final NativeBinarySpec binary;
+  public final AbstractLinkTask linkTask;
+  public final GccExtension gcc;
+  public final Project project;
+  private boolean performStripAll = false;
+  private boolean performDebugStrip = false;
 
+  public boolean getPerformStripAll() {
+    return performStripAll;
+  }
 
-    public boolean getPerformStripAll() {
-        return performStripAll;
+  public void setPerformStripAll(boolean stripAll) {
+    performStripAll = stripAll;
+  }
+
+  public boolean getPerformDebugStrip() {
+    return performDebugStrip;
+  }
+
+  public void setPerformDebugStrip(boolean stripDebug) {
+    performDebugStrip = stripDebug;
+  }
+
+  @Inject
+  public OrderedStripTask(
+      ToolchainExtension tcExt,
+      NativeBinarySpec binary,
+      AbstractLinkTask linkTask,
+      GccExtension gcc,
+      Project project) {
+    this.tcExt = tcExt;
+    this.binary = binary;
+    this.linkTask = linkTask;
+    this.project = project;
+    this.gcc = gcc;
+  }
+
+  @Override
+  public void execute(Task task) {
+    if (!performDebugStrip) return;
+    List<String> excludeComponents =
+        tcExt.getStripExcludeComponentsForPlatform(binary.getTargetPlatform().getName());
+    if (excludeComponents != null && excludeComponents.contains(binary.getComponent().getName())) {
+      return;
     }
 
-    public void setPerformStripAll(boolean stripAll) {
-        performStripAll = stripAll;
-    }
+    File mainFile = linkTask.getLinkedFile().get().getAsFile();
 
-    public boolean getPerformDebugStrip() {
-        return performDebugStrip;
-    }
+    if (mainFile.exists()) {
+      String mainFileStr = mainFile.toString();
+      String debugFile = mainFileStr + ".debug";
 
-    public void setPerformDebugStrip(boolean stripDebug) {
-        performDebugStrip = stripDebug;
-    }
+      ToolchainDiscoverer disc = gcc.getDiscoverer();
 
-    @Inject
-    public OrderedStripTask(ToolchainExtension tcExt, NativeBinarySpec binary, AbstractLinkTask linkTask, GccExtension gcc, Project project) {
-        this.tcExt = tcExt;
-        this.binary = binary;
-        this.linkTask = linkTask;
-        this.project = project;
-        this.gcc = gcc;
-    }
+      Optional<File> objcopyOptional = disc.tool("objcopy");
+      Optional<File> stripOptional = disc.tool("strip");
+      if (!objcopyOptional.isPresent() || !stripOptional.isPresent()) {
+        ETLogger logger = ETLoggerFactory.INSTANCE.create("NativeBinaryStrip");
+        logger.logError("Failed to strip binaries because of unknown tool objcopy and strip");
+        return;
+      }
 
-    @Override
-    public void execute(Task task) {
-        if (!performDebugStrip) return;
-        List<String> excludeComponents = tcExt
-                .getStripExcludeComponentsForPlatform(binary.getTargetPlatform().getName());
-        if (excludeComponents != null && excludeComponents.contains(binary.getComponent().getName())) {
-            return;
-        }
+      String objcopy = disc.tool("objcopy").get().toString();
+      String strip = disc.tool("strip").get().toString();
 
-        File mainFile = linkTask.getLinkedFile().get().getAsFile();
-
-        if (mainFile.exists()) {
-            String mainFileStr = mainFile.toString();
-            String debugFile = mainFileStr + ".debug";
-
-            ToolchainDiscoverer disc = gcc.getDiscoverer();
-
-            Optional<File> objcopyOptional = disc.tool("objcopy");
-            Optional<File> stripOptional = disc.tool("strip");
-            if (!objcopyOptional.isPresent() || !stripOptional.isPresent()) {
-                ETLogger logger = ETLoggerFactory.INSTANCE.create("NativeBinaryStrip");
-                logger.logError("Failed to strip binaries because of unknown tool objcopy and strip");
-                return;
-            }
-
-            String objcopy = disc.tool("objcopy").get().toString();
-            String strip = disc.tool("strip").get().toString();
-
-            project.exec((ex) -> {
-                ex.commandLine(objcopy, "--only-keep-debug", mainFileStr, debugFile);
+      project.exec(
+          (ex) -> {
+            ex.commandLine(objcopy, "--only-keep-debug", mainFileStr, debugFile);
+          });
+      project.exec(
+          (ex) -> {
+            ex.commandLine(strip, "-g", mainFileStr);
+          });
+      project.exec(
+          (ex) -> {
+            ex.commandLine(objcopy, "--add-gnu-debuglink=" + debugFile, mainFileStr);
+          });
+      if (performStripAll) {
+        project.exec(
+            (ex) -> {
+              ex.commandLine(strip, "--strip-all", "--discard-all", mainFileStr);
             });
-            project.exec((ex) -> {
-                ex.commandLine(strip, "-g", mainFileStr);
-            });
-            project.exec((ex) -> {
-                ex.commandLine(objcopy, "--add-gnu-debuglink=" + debugFile, mainFileStr);
-            });
-            if (performStripAll) {
-                project.exec((ex) -> {
-                    ex.commandLine(strip, "--strip-all", "--discard-all", mainFileStr);
-                });
-            }
-        }
+      }
     }
+  }
 }

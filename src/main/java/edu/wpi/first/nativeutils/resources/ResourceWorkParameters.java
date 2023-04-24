@@ -5,8 +5,11 @@ import org.gradle.api.provider.Property;
 import org.gradle.workers.WorkParameters;
 
 public interface ResourceWorkParameters extends WorkParameters {
-    RegularFileProperty getSourceFile();
-    RegularFileProperty getOutputFile();
-    Property<String> getNamespace();
-    Property<String> getFuncName();
+  RegularFileProperty getSourceFile();
+
+  RegularFileProperty getOutputFile();
+
+  Property<String> getNamespace();
+
+  Property<String> getFuncName();
 }

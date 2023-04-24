@@ -1,29 +1,5 @@
 package edu.wpi.first.nativeutils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.inject.Inject;
-
-import org.gradle.api.Action;
-import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
-import org.gradle.api.NamedDomainObjectContainer;
-import org.gradle.api.Project;
-import org.gradle.api.internal.PolymorphicDomainObjectContainerInternal;
-import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.tasks.TaskProvider;
-import org.gradle.internal.os.OperatingSystem;
-import org.gradle.nativeplatform.NativeBinarySpec;
-import org.gradle.nativeplatform.StaticLibraryBinarySpec;
-import org.gradle.nativeplatform.platform.NativePlatform;
-import org.gradle.platform.base.Platform;
-import org.gradle.platform.base.PlatformAwareComponentSpec;
-import org.gradle.platform.base.PlatformContainer;
-import org.gradle.platform.base.VariantComponentSpec;
-
 import edu.wpi.first.nativeutils.dependencies.AllPlatformsCombinedNativeDependency;
 import edu.wpi.first.nativeutils.dependencies.CombinedIgnoreMissingPlatformNativeDependency;
 import edu.wpi.first.nativeutils.dependencies.CombinedNativeDependency;
@@ -48,6 +24,27 @@ import edu.wpi.first.toolchain.arm32.Arm32ToolchainPlugin;
 import edu.wpi.first.toolchain.arm64.Arm64ToolchainPlugin;
 import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
 import edu.wpi.first.toolchain.roborio.RoboRioToolchainPlugin;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.inject.Inject;
+import org.gradle.api.Action;
+import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer;
+import org.gradle.api.NamedDomainObjectContainer;
+import org.gradle.api.Project;
+import org.gradle.api.internal.PolymorphicDomainObjectContainerInternal;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.tasks.TaskProvider;
+import org.gradle.internal.os.OperatingSystem;
+import org.gradle.nativeplatform.NativeBinarySpec;
+import org.gradle.nativeplatform.StaticLibraryBinarySpec;
+import org.gradle.nativeplatform.platform.NativePlatform;
+import org.gradle.platform.base.Platform;
+import org.gradle.platform.base.PlatformAwareComponentSpec;
+import org.gradle.platform.base.PlatformContainer;
+import org.gradle.platform.base.VariantComponentSpec;
 
 public class NativeUtilsExtension {
 
@@ -77,19 +74,22 @@ public class NativeUtilsExtension {
     @SuppressWarnings("unchecked")
     PolymorphicDomainObjectContainerInternal<NativeDependency> internalDependencies =
         (PolymorphicDomainObjectContainerInternal<NativeDependency>) dependencyContainer;
-    Set<? extends java.lang.Class<? extends NativeDependency>> dependencyTypeSet = internalDependencies.getCreateableTypes();
+    Set<? extends java.lang.Class<? extends NativeDependency>> dependencyTypeSet =
+        internalDependencies.getCreateableTypes();
     for (Class<? extends NativeDependency> dependencyType : dependencyTypeSet) {
-        if (dependencyType.getSimpleName().equals(name)) {
-            return dependencyType;
-        }
+      if (dependencyType.getSimpleName().equals(name)) {
+        return dependencyType;
+      }
     }
     return null;
-}
+  }
 
   private <T extends NativeDependency> void addNativeDependencyType(Class<T> cls, Object arg) {
-    dependencyContainer.registerFactory(cls, name -> {
-      return objectFactory.newInstance(cls, name, arg);
-    });
+    dependencyContainer.registerFactory(
+        cls,
+        name -> {
+          return objectFactory.newInstance(cls, name, arg);
+        });
   }
 
   @Inject
@@ -98,32 +98,47 @@ public class NativeUtilsExtension {
     this.tcExt = tcExt;
     this.objectFactory = project.getObjects();
 
-    exportsConfigs = objectFactory.domainObjectContainer(ExportsConfig.class, name -> {
-      return objectFactory.newInstance(DefaultExportsConfig.class, name);
-    });
+    exportsConfigs =
+        objectFactory.domainObjectContainer(
+            ExportsConfig.class,
+            name -> {
+              return objectFactory.newInstance(DefaultExportsConfig.class, name);
+            });
 
     dependencyContainer = objectFactory.polymorphicDomainObjectContainer(NativeDependency.class);
     addNativeDependencyType(WPIStaticMavenDependency.class, project);
     addNativeDependencyType(WPISharedMavenDependency.class, project);
 
-    addNativeDependencyType(CombinedIgnoreMissingPlatformNativeDependency.class, dependencyContainer);
+    addNativeDependencyType(
+        CombinedIgnoreMissingPlatformNativeDependency.class, dependencyContainer);
     addNativeDependencyType(AllPlatformsCombinedNativeDependency.class, dependencyContainer);
     addNativeDependencyType(CombinedNativeDependency.class, dependencyContainer);
 
-    platformConfigs = objectFactory.domainObjectContainer(PlatformConfig.class, name -> {
-      return (PlatformConfig)objectFactory.newInstance(DefaultPlatformConfig.class, name);
-    });
+    platformConfigs =
+        objectFactory.domainObjectContainer(
+            PlatformConfig.class,
+            name -> {
+              return (PlatformConfig) objectFactory.newInstance(DefaultPlatformConfig.class, name);
+            });
 
-    privateExportsConfigs = objectFactory.domainObjectContainer(PrivateExportsConfig.class, name -> {
-      PrivateExportsConfig exports = objectFactory.newInstance(PrivateExportsConfig.class, name);
-      exports.getPerformStripAllSymbols().convention(false);
-      return exports;
-    });
+    privateExportsConfigs =
+        objectFactory.domainObjectContainer(
+            PrivateExportsConfig.class,
+            name -> {
+              PrivateExportsConfig exports =
+                  objectFactory.newInstance(PrivateExportsConfig.class, name);
+              exports.getPerformStripAllSymbols().convention(false);
+              return exports;
+            });
 
-    printNativeDependenciesTask = project.getTasks().register("printNativeDependencyGraph", PrintNativeDependenciesTask.class);
+    printNativeDependenciesTask =
+        project
+            .getTasks()
+            .register("printNativeDependencyGraph", PrintNativeDependenciesTask.class);
   }
 
-  public ExtensiblePolymorphicDomainObjectContainer<NativeDependency> getNativeDependencyContainer() {
+  public ExtensiblePolymorphicDomainObjectContainer<NativeDependency>
+      getNativeDependencyContainer() {
     return dependencyContainer;
   }
 
@@ -135,7 +150,8 @@ public class NativeUtilsExtension {
     return tcExt.getToolchainDescriptors();
   }
 
-  void toolchainDescriptors(final Action<? super NamedDomainObjectContainer<ToolchainDescriptorBase>> closure) {
+  void toolchainDescriptors(
+      final Action<? super NamedDomainObjectContainer<ToolchainDescriptorBase>> closure) {
     closure.execute(tcExt.getToolchainDescriptors());
   }
 
@@ -143,7 +159,8 @@ public class NativeUtilsExtension {
     return tcExt.getCrossCompilers();
   }
 
-  void crossCompilers(final Action<? super NamedDomainObjectContainer<CrossCompilerConfiguration>> closure) {
+  void crossCompilers(
+      final Action<? super NamedDomainObjectContainer<CrossCompilerConfiguration>> closure) {
     closure.execute(tcExt.getCrossCompilers());
   }
 
@@ -163,14 +180,16 @@ public class NativeUtilsExtension {
     return privateExportsConfigs;
   }
 
-  void privateExportsConfigs(final Action<? super NamedDomainObjectContainer<PrivateExportsConfig>> closure) {
+  void privateExportsConfigs(
+      final Action<? super NamedDomainObjectContainer<PrivateExportsConfig>> closure) {
     closure.execute(privateExportsConfigs);
   }
 
   public String getPlatformPath(NativeBinarySpec binary) {
     PlatformConfig platform = platformConfigs.findByName(binary.getTargetPlatform().getName());
     if (platform == null) {
-      return binary.getTargetPlatform().getOperatingSystem().getName() + "/"
+      return binary.getTargetPlatform().getOperatingSystem().getName()
+          + "/"
           + binary.getTargetPlatform().getArchitecture().getName();
     }
     return platform.getPlatformPath().get();
@@ -199,16 +218,23 @@ public class NativeUtilsExtension {
   }
 
   public void useRequiredLibrary(VariantComponentSpec component, String... libraries) {
-    component.getBinaries().withType(NativeBinarySpec.class).all(binary -> {
-      useRequiredLibrary((NativeBinarySpec) binary, libraries);
-    });
+    component
+        .getBinaries()
+        .withType(NativeBinarySpec.class)
+        .all(
+            binary -> {
+              useRequiredLibrary((NativeBinarySpec) binary, libraries);
+            });
   }
 
   private Map<NativeBinarySpec, FastDownloadDependencySet> depSetMap = new HashMap<>();
+
   private FastDownloadDependencySet getFastDepSet(NativeBinarySpec binary) {
     FastDownloadDependencySet fastDepSet = depSetMap.get(binary);
     if (fastDepSet == null) {
-      fastDepSet = new FastDownloadDependencySet(binary.getComponent().getName() + binary.getName(), project);
+      fastDepSet =
+          new FastDownloadDependencySet(
+              binary.getComponent().getName() + binary.getName(), project);
       depSetMap.put(binary, fastDepSet);
       binary.lib(fastDepSet);
     }
@@ -219,22 +245,35 @@ public class NativeUtilsExtension {
     FastDownloadDependencySet fastDepSet = getFastDepSet(binary);
 
     for (String library : libraries) {
-      DelegatedDependencySet dds = objectFactory.newInstance(DelegatedDependencySet.class, library, dependencyContainer, true, binary, fastDepSet);
+      DelegatedDependencySet dds =
+          objectFactory.newInstance(
+              DelegatedDependencySet.class, library, dependencyContainer, true, binary, fastDepSet);
       binary.lib(dds);
     }
   }
 
   public void useOptionalLibrary(VariantComponentSpec component, String... libraries) {
-    component.getBinaries().withType(NativeBinarySpec.class).all(binary -> {
-      useOptionalLibrary((NativeBinarySpec) binary, libraries);
-    });
+    component
+        .getBinaries()
+        .withType(NativeBinarySpec.class)
+        .all(
+            binary -> {
+              useOptionalLibrary((NativeBinarySpec) binary, libraries);
+            });
   }
 
   public void useOptionalLibrary(NativeBinarySpec binary, String... libraries) {
     FastDownloadDependencySet fastDepSet = getFastDepSet(binary);
 
     for (String library : libraries) {
-      DelegatedDependencySet dds = objectFactory.newInstance(DelegatedDependencySet.class, library, dependencyContainer, false, binary, fastDepSet);
+      DelegatedDependencySet dds =
+          objectFactory.newInstance(
+              DelegatedDependencySet.class,
+              library,
+              dependencyContainer,
+              false,
+              binary,
+              fastDepSet);
       binary.lib(dds);
     }
   }
@@ -298,9 +337,13 @@ public class NativeUtilsExtension {
   }
 
   public void usePlatformArguments(PlatformAwareComponentSpec component) {
-    component.getBinaries().withType(NativeBinarySpec.class).all(binary -> {
-      usePlatformArguments(binary);
-    });
+    component
+        .getBinaries()
+        .withType(NativeBinarySpec.class)
+        .all(
+            binary -> {
+              usePlatformArguments(binary);
+            });
   }
 
   public void addWpiNativeUtils() {
@@ -322,7 +365,8 @@ public class NativeUtilsExtension {
   }
 
   public CustomDependencySet customDependencySet(Action<CustomDependencySet> action) {
-    CustomDependencySet set = project.getObjects().newInstance(CustomDependencySet.class, project.getObjects());
+    CustomDependencySet set =
+        project.getObjects().newInstance(CustomDependencySet.class, project.getObjects());
     action.execute(set);
     return set;
   }
@@ -335,7 +379,8 @@ public class NativeUtilsExtension {
     return project.getTasks().register(name, ResourceGenerationTask.class);
   }
 
-  public TaskProvider<ResourceGenerationTask> generateResources(String name, Action<ResourceGenerationTask> configure) {
+  public TaskProvider<ResourceGenerationTask> generateResources(
+      String name, Action<ResourceGenerationTask> configure) {
     return project.getTasks().register(name, ResourceGenerationTask.class, configure);
   }
 
@@ -360,13 +405,19 @@ public class NativeUtilsExtension {
   }
 
   public void excludeBinariesFromStrip(VariantComponentSpec component) {
-    component.getBinaries().withType(NativeBinarySpec.class).all(bin -> {
-      tcExt.addStripExcludeComponentsForPlatform(bin.getTargetPlatform().getName(), component.getName());
-    });
+    component
+        .getBinaries()
+        .withType(NativeBinarySpec.class)
+        .all(
+            bin -> {
+              tcExt.addStripExcludeComponentsForPlatform(
+                  bin.getTargetPlatform().getName(), component.getName());
+            });
   }
 
   public void excludeBinaryFromStrip(NativeBinarySpec binary) {
-    tcExt.addStripExcludeComponentsForPlatform(binary.getTargetPlatform().getName(), binary.getComponent().getName());
+    tcExt.addStripExcludeComponentsForPlatform(
+        binary.getTargetPlatform().getName(), binary.getComponent().getName());
   }
 
   public void enableSourceLink() {

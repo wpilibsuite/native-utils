@@ -1,0 +1,22 @@
+name: Check Formatting
+
+on: [push, pull_request]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  java-format:
+    name: "Check Java Format"
+    runs-on: ubuntu-22.04
+    container: wpilib/ubuntu-base:22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Fetch all history and metadata
+        run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Run Java format
+        run: ./gradlew spotlessCheck

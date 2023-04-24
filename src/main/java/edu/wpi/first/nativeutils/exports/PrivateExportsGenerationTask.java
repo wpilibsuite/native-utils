@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
-
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
@@ -46,7 +45,6 @@ public abstract class PrivateExportsGenerationTask extends DefaultTask {
     getExportsList().addAll(exports);
     getExportsList().finalizeValue();
 
-
     File toWrite = getExportsFile().get().getAsFile();
     toWrite.getParentFile().mkdirs();
 
@@ -69,7 +67,6 @@ public abstract class PrivateExportsGenerationTask extends DefaultTask {
     List<String> exports = Files.readAllLines(getSymbolsToExportFile().get().getAsFile().toPath());
     getExportsList().addAll(exports);
     getExportsList().finalizeValue();
-
 
     File toWrite = getExportsFile().get().getAsFile();
     toWrite.getParentFile().mkdirs();
@@ -96,7 +93,6 @@ public abstract class PrivateExportsGenerationTask extends DefaultTask {
     List<String> exports = Files.readAllLines(getSymbolsToExportFile().get().getAsFile().toPath());
     getExportsList().addAll(exports);
     getExportsList().finalizeValue();
-
 
     File toWrite = getExportsFile().get().getAsFile();
     toWrite.getParentFile().mkdirs();

@@ -1,7 +1,11 @@
 package edu.wpi.first.nativeutils.exports;
 
+import edu.wpi.first.nativeutils.NativeUtilsExtension;
+import edu.wpi.first.toolchain.GccExtension;
+import edu.wpi.first.toolchain.OrderedStripTask;
+import edu.wpi.first.toolchain.ToolchainExtension;
+import edu.wpi.first.toolchain.ToolchainRules;
 import java.util.List;
-
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
@@ -12,69 +16,107 @@ import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.gradle.platform.base.BinaryTasks;
 
-import edu.wpi.first.nativeutils.NativeUtilsExtension;
-import edu.wpi.first.toolchain.GccExtension;
-import edu.wpi.first.toolchain.OrderedStripTask;
-import edu.wpi.first.toolchain.ToolchainExtension;
-import edu.wpi.first.toolchain.ToolchainRules;
-
 public class PrivateExportsConfigRules extends RuleSource {
 
   @BinaryTasks
-  public void createPrivateExportsSharedBinaryTasks(ModelMap<Task> tasks, SharedLibraryBinarySpecInternal binary) {
+  public void createPrivateExportsSharedBinaryTasks(
+      ModelMap<Task> tasks, SharedLibraryBinarySpecInternal binary) {
     Project project = binary.getBuildTask().getProject();
     NativeUtilsExtension nue = project.getExtensions().getByType(NativeUtilsExtension.class);
 
-    PrivateExportsConfig config = nue.getPrivateExportsConfigs().findByName(binary.getComponent().getName());
+    PrivateExportsConfig config =
+        nue.getPrivateExportsConfigs().findByName(binary.getComponent().getName());
     if (config == null) {
       return;
     }
 
-    binary.getTasks().withType(AbstractLinkTask.class, link -> {
-      String exportsTaskName = binary.getNamingScheme().getTaskName("generatePrivateExports");
+    binary
+        .getTasks()
+        .withType(
+            AbstractLinkTask.class,
+            link -> {
+              String exportsTaskName =
+                  binary.getNamingScheme().getTaskName("generatePrivateExports");
 
-      TaskProvider<PrivateExportsGenerationTask> exportsTask = project.getTasks().register(exportsTaskName,
-          PrivateExportsGenerationTask.class, task -> {
-            task.getSymbolsToExportFile().set(config.getExportsFile());
-            task.getLibraryName().set(binary.getComponent().getBaseName());
+              TaskProvider<PrivateExportsGenerationTask> exportsTask =
+                  project
+                      .getTasks()
+                      .register(
+                          exportsTaskName,
+                          PrivateExportsGenerationTask.class,
+                          task -> {
+                            task.getSymbolsToExportFile().set(config.getExportsFile());
+                            task.getLibraryName().set(binary.getComponent().getBaseName());
 
-            if (binary.getTargetPlatform().getOperatingSystem().isWindows()) {
-              task.setIsWindows(true);
-              task.getExportsFile()
-                  .set(project.getLayout().getBuildDirectory().file("tmp/" + exportsTaskName + "/exports.def"));
-              link.getLinkerArgs().add(task.getExportsFile().map(x -> "/DEF:" + x.getAsFile().toString()));
-              link.getInputs().file(task.getExportsFile());
+                            if (binary.getTargetPlatform().getOperatingSystem().isWindows()) {
+                              task.setIsWindows(true);
+                              task.getExportsFile()
+                                  .set(
+                                      project
+                                          .getLayout()
+                                          .getBuildDirectory()
+                                          .file("tmp/" + exportsTaskName + "/exports.def"));
+                              link.getLinkerArgs()
+                                  .add(
+                                      task.getExportsFile()
+                                          .map(x -> "/DEF:" + x.getAsFile().toString()));
+                              link.getInputs().file(task.getExportsFile());
 
-            } else if (binary.getTargetPlatform().getOperatingSystem().isMacOsX()) {
-              task.setIsMac(true);
-              task.getExportsFile()
-                  .set(project.getLayout().getBuildDirectory().file("tmp/" + exportsTaskName + "/exports.txt"));
-              link.getLinkerArgs()
-                  .addAll(task.getExportsFile().map(x -> List.of("-exported_symbols_list", x.getAsFile().toString())));
-              link.getInputs().file(task.getExportsFile());
+                            } else if (binary.getTargetPlatform().getOperatingSystem().isMacOsX()) {
+                              task.setIsMac(true);
+                              task.getExportsFile()
+                                  .set(
+                                      project
+                                          .getLayout()
+                                          .getBuildDirectory()
+                                          .file("tmp/" + exportsTaskName + "/exports.txt"));
+                              link.getLinkerArgs()
+                                  .addAll(
+                                      task.getExportsFile()
+                                          .map(
+                                              x ->
+                                                  List.of(
+                                                      "-exported_symbols_list",
+                                                      x.getAsFile().toString())));
+                              link.getInputs().file(task.getExportsFile());
 
-            } else {
-              task.getExportsFile()
-                  .set(project.getLayout().getBuildDirectory().file("tmp/" + exportsTaskName + "/exports.txt"));
-              link.getLinkerArgs()
-                  .add(task.getExportsFile().map(x -> "-Wl,--version-script=" + x.getAsFile().toString()));
-              link.getInputs().file(task.getExportsFile());
-            }
-          });
+                            } else {
+                              task.getExportsFile()
+                                  .set(
+                                      project
+                                          .getLayout()
+                                          .getBuildDirectory()
+                                          .file("tmp/" + exportsTaskName + "/exports.txt"));
+                              link.getLinkerArgs()
+                                  .add(
+                                      task.getExportsFile()
+                                          .map(
+                                              x ->
+                                                  "-Wl,--version-script="
+                                                      + x.getAsFile().toString()));
+                              link.getInputs().file(task.getExportsFile());
+                            }
+                          });
 
-      link.dependsOn(exportsTask);
-      binary.getTasks().add(exportsTask.get());
+              link.dependsOn(exportsTask);
+              binary.getTasks().add(exportsTask.get());
 
-      if (config.getPerformStripAllSymbols().get()) {
-        NativeToolChain tc = binary.getToolChain();
-        GccExtension gccExt = project.getExtensions().getByType(ToolchainExtension.class).getGccExtensionMap().getOrDefault(tc, null);
-        if (gccExt != null) {
-          OrderedStripTask stripTask = ToolchainRules.configureOrderedStrip(link, gccExt, binary);
-          if (stripTask != null) {
-            stripTask.setPerformStripAll(true);
-          }
-        }
-      }
-    });
+              if (config.getPerformStripAllSymbols().get()) {
+                NativeToolChain tc = binary.getToolChain();
+                GccExtension gccExt =
+                    project
+                        .getExtensions()
+                        .getByType(ToolchainExtension.class)
+                        .getGccExtensionMap()
+                        .getOrDefault(tc, null);
+                if (gccExt != null) {
+                  OrderedStripTask stripTask =
+                      ToolchainRules.configureOrderedStrip(link, gccExt, binary);
+                  if (stripTask != null) {
+                    stripTask.setPerformStripAll(true);
+                  }
+                }
+              }
+            });
   }
 }

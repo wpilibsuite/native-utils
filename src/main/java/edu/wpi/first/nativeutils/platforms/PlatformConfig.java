@@ -7,9 +7,14 @@ public interface PlatformConfig extends Named {
   Property<String> getPlatformPath();
 
   CompilerArgsConfig getCppCompiler();
+
   CompilerArgsConfig getLinker();
+
   CompilerArgsConfig getcCompiler();
+
   CompilerArgsConfig getAssembler();
+
   CompilerArgsConfig getObjcppCompiler();
+
   CompilerArgsConfig getObjcCompiler();
 }

@@ -1,7 +1,6 @@
 package edu.wpi.first.nativeutils.platforms;
 
 import java.util.List;
-
 import org.gradle.nativeplatform.Tool;
 
 public interface CompilerArgsConfig {
