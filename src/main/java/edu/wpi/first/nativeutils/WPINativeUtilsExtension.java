@@ -99,11 +99,12 @@ public class WPINativeUtilsExtension {
         public final String linuxarm64 = "linuxarm64";
         public final String windowsx64 = "windowsx86-64";
         public final String windowsx86 = "windowsx86";
+        public final String windowsarm64 = "windowsarm64";
         public final String osxuniversal = "osxuniversal";
         public final String linuxx64 = "linuxx86-64";
         public final List<String> allPlatforms = List.of(roborio, linuxarm32, linuxarm64, windowsx64,
-                windowsx86, osxuniversal, linuxx64);
-        public final List<String> desktopPlatforms = List.of(windowsx64, windowsx86, osxuniversal, linuxx64);
+                windowsx86, windowsarm64, osxuniversal, linuxx64);
+        public final List<String> desktopPlatforms = List.of(windowsx64, windowsx86, windowsarm64, osxuniversal, linuxx64);
     }
 
     public final Platforms platforms;
@@ -207,8 +208,10 @@ public class WPINativeUtilsExtension {
 
         PlatformConfig windowsx86_64 = nativeExt.getPlatformConfigs().create(platforms.windowsx64);
         PlatformConfig windowsx86 = nativeExt.getPlatformConfigs().create(platforms.windowsx86);
+        PlatformConfig windowsarm64 = nativeExt.getPlatformConfigs().create(platforms.windowsarm64);
         windowsPlatforms.put(platforms.windowsx64, windowsx86_64);
         windowsPlatforms.put(platforms.windowsx86, windowsx86);
+        windowsPlatforms.put(platforms.windowsarm64, windowsarm64);
         PlatformConfig linuxx86_64 = nativeExt.getPlatformConfigs().create(platforms.linuxx64);
         PlatformConfig osxuniversal = nativeExt.getPlatformConfigs().create(platforms.osxuniversal);
         PlatformConfig linuxathena = nativeExt.getPlatformConfigs().create(platforms.roborio);
@@ -234,6 +237,9 @@ public class WPINativeUtilsExtension {
 
         windowsx86_64.getPlatformPath().set("windows/x86-64");
         addWindowsArgs(windowsx86_64);
+
+        windowsarm64.getPlatformPath().set("windows/arm64");
+        addWindowsArgs(windowsarm64);
 
         linuxx86_64.getPlatformPath().set("linux/x86-64");
         addLinuxArgs(linuxx86_64);

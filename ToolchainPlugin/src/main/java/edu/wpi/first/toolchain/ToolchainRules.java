@@ -164,6 +164,11 @@ public class ToolchainRules extends RuleSource {
             NativePlatform desktop = platforms.maybeCreate(NativePlatforms.desktop, NativePlatform.class);
             desktop.architecture(NativePlatforms.desktopArch().replaceAll("-", "_"));
 
+            if (OperatingSystem.current().isWindows() && NativePlatforms.desktopArch().equals("x86-64")) {
+                NativePlatform winarm64 = platforms.maybeCreate("windowsarm64", NativePlatform.class);
+                winarm64.architecture("arm64");
+            }
+
             for (CrossCompilerConfiguration config : ext.getCrossCompilers()) {
                 if (config.getName().equals(NativePlatforms.desktop)) {
                     continue;

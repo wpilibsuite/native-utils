@@ -52,8 +52,11 @@ public abstract class ExportsGenerationTask extends DefaultTask implements Actio
         ExportsConfig config = getExportsConfig();
 
         boolean isX86 = getArchitecture().equals("x86");
+        boolean isArm64 = getArchitecture().equals("arm64");
         if (isX86) {
             excludeSymbols = getExportsConfig().getX86ExcludeSymbols().get();
+        } else if (isArm64) {
+            excludeSymbols = getExportsConfig().getArm64ExcludeSymbols().get();
         } else {
             excludeSymbols = getExportsConfig().getX64ExcludeSymbols().get();
         }
@@ -79,6 +82,11 @@ public abstract class ExportsGenerationTask extends DefaultTask implements Actio
 
         if (isX86) {
             Action<List<String>> symbolFilter = config.getX86SymbolFilter().getOrElse(null);
+            if (symbolFilter != null) {
+                symbolFilter.execute(lines);
+            }
+        } else if (isArm64) {
+            Action<List<String>> symbolFilter = config.getArm64SymbolFilter().getOrElse(null);
             if (symbolFilter != null) {
                 symbolFilter.execute(lines);
             }
