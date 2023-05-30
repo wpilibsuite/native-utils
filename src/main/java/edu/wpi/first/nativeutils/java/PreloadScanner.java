@@ -3,16 +3,16 @@ package edu.wpi.first.nativeutils.java;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -22,17 +22,54 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 public class PreloadScanner implements AutoCloseable {
-  private static class JarClass {
-    JarClass(JarFile file, JarEntry entry) {
-      this.file = file;
-      this.entry = entry;
+  private interface ClassPathElement extends AutoCloseable {
+    InputStream openClass(String className);
+  }
+
+  private static class JarElement implements ClassPathElement {
+    JarElement(JarFile file) {
+      m_file = file;
     }
 
-    final JarFile file;
-    final JarEntry entry;
+    @Override
+    public void close() throws Exception {
+      m_file.close();
+    }
+
+    @Override
+    public InputStream openClass(String className) {
+      ZipEntry entry = m_file.getEntry(className + ".class");
+      try {
+        return entry == null ? null : m_file.getInputStream(entry);
+      } catch (IOException e) {
+        return null;
+      }
+    }
+
+    final JarFile m_file;
   }
-  final List<JarFile> m_jarFiles = new ArrayList<>();
-  final Map<String, JarClass> m_jarClasses = new HashMap<>();
+
+  private static class DirElement implements ClassPathElement {
+    DirElement(Path path) {
+      m_path = path;
+    }
+
+    @Override
+    public void close() {}
+
+    @Override
+    public InputStream openClass(String className) {
+      try {
+        return Files.newInputStream(m_path.resolve(className + ".class"));
+      } catch (IOException e) {
+        return null;
+      }
+    }
+
+    Path m_path;
+  }
+
+  final List<ClassPathElement> m_classPath = new ArrayList<>();
   final Set<String> m_seen = new HashSet<>(500);
   final Set<String> m_ignored = new HashSet<>(500);
   final Set<String> m_ignoredPrefixes = new HashSet<>(20);
@@ -156,25 +193,26 @@ public class PreloadScanner implements AutoCloseable {
   }
 
   private InputStream openClass(String className) throws IOException {
-    String filename = className + ".class";
-    JarClass jarClass = m_jarClasses.get(filename);
-    if (jarClass != null) {
-      return jarClass.file.getInputStream(jarClass.entry);
+    for (ClassPathElement elem : m_classPath) {
+      InputStream stream = elem.openClass(className);
+      if (stream != null) {
+        return stream;
+      }
     }
-    return ClassLoader.getSystemResourceAsStream(filename);
+    // fall back to Java system class loader
+    return ClassLoader.getSystemResourceAsStream(className + ".class");
   }
 
   @Override
   public void close() {
-    m_jarClasses.clear();
-    for (JarFile jarFile : m_jarFiles) {
+    for (ClassPathElement elem : m_classPath) {
       try {
-        jarFile.close();
-      } catch (IOException e) {
-        // ignored
+        elem.close();
+      } catch (Exception e) {
+        // ignore
       }
     }
-    m_jarFiles.clear();
+    m_classPath.clear();
   }
 
   public void addIgnoredPrefix(String prefix) {
@@ -189,20 +227,22 @@ public class PreloadScanner implements AutoCloseable {
     m_ignored.add(className);
   }
 
-  public void addJar(File jar) {
-    try {
-      JarFile jarFile = new JarFile(jar);
-      m_jarFiles.add(jarFile);
-      Enumeration<JarEntry> e = jarFile.entries();
-      while (e.hasMoreElements()) {
-        JarEntry je = e.nextElement();
-        if (je.isDirectory() || !je.getName().endsWith(".class")) {
-          continue;
+  public void setClassPath(Iterable<File> classPath) {
+    m_classPath.clear();
+    for (File file : classPath) {
+      if (file.isDirectory()) {
+        try {
+          m_classPath.add(new DirElement(file.toPath()));
+        } catch (InvalidPathException e) {
+          System.err.println("Could not resolve directory " + file + ": " + e);
         }
-        m_jarClasses.put(je.getName(), new JarClass(jarFile, je));
+      } else if (file.isFile() && file.getName().endsWith(".jar")) {
+        try {
+          m_classPath.add(new JarElement(new JarFile(file)));
+        } catch (IOException e) {
+          System.err.println("Could not open JAR file " + file + ": " + e);
+        }
       }
-    } catch (IOException e) {
-      System.err.println("Could not open JAR file " + jar + ": " + e);
     }
   }
 

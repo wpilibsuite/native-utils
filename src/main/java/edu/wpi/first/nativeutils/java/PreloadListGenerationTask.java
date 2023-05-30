@@ -18,7 +18,7 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
 public class PreloadListGenerationTask extends DefaultTask {
-  private final ListProperty<File> jarFiles;
+  private final ListProperty<File> classPath;
   private final RegularFileProperty preloadListFile;
   private final ListProperty<String> excludePrefixes;
   private final ListProperty<String> includePrefixes;
@@ -26,8 +26,8 @@ public class PreloadListGenerationTask extends DefaultTask {
   private final ListProperty<String> includeClasses;
 
   @InputFiles
-  public ListProperty<File> getJarFiles() {
-    return jarFiles;
+  public ListProperty<File> getClassPath() {
+    return classPath;
   }
 
   @OutputFile
@@ -58,7 +58,7 @@ public class PreloadListGenerationTask extends DefaultTask {
   @Inject
   public PreloadListGenerationTask() {
     ObjectFactory objects = getProject().getObjects();
-    jarFiles = objects.listProperty(File.class);
+    classPath = objects.listProperty(File.class);
     preloadListFile = objects.fileProperty();
     excludePrefixes = objects.listProperty(String.class);
     includePrefixes = objects.listProperty(String.class);
@@ -69,9 +69,7 @@ public class PreloadListGenerationTask extends DefaultTask {
   @TaskAction
   public void execute() throws IOException {
     try (PreloadScanner scanner = new PreloadScanner()) {
-      for (File jar : jarFiles.get()) {
-        scanner.addJar(jar);
-      }
+      scanner.setClassPath(classPath.get());
       for (String prefix : excludePrefixes.get()) {
         scanner.addIgnoredPrefix(prefix);
       }
