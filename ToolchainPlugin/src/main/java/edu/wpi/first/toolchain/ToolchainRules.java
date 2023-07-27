@@ -99,7 +99,7 @@ public class ToolchainRules extends RuleSource {
                             toolchain.getcCompiler().setExecutable(discoverer.toolName("gcc"));
                             toolchain.getCppCompiler().setExecutable(discoverer.toolName("g++"));
                             toolchain.getLinker().setExecutable(discoverer.toolName("g++"));
-                            toolchain.getAssembler().setExecutable(discoverer.toolName("as"));
+                            toolchain.getAssembler().setExecutable(discoverer.toolName("gcc"));
                             toolchain.getStaticLibArchiver().setExecutable(discoverer.toolName("ar"));
                         });
 
