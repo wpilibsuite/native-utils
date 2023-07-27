@@ -58,7 +58,7 @@ public abstract class WPIVendorMavenDependency extends WPIMavenDependency {
                 resolvedDependencies.put(binary, dep);
                 return dep;
             } else {
-                return null;
+                throw new MissingVendorDependencyPlatformException(artifact.artifactId, platformName);
             }
         }
 
