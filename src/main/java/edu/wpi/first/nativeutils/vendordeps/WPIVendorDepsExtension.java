@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -17,6 +18,7 @@ import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.provider.Property;
+import org.gradle.api.resources.TextResourceFactory;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.plugins.NativeComponentPlugin;
 
@@ -54,10 +56,13 @@ public abstract class WPIVendorDepsExtension {
         return javaVendor;
     }
 
+    private final TextResourceFactory resources;
+
     @Inject
     public WPIVendorDepsExtension(Project project) {
         this.log = ETLoggerFactory.INSTANCE.create("WPIVendorDeps");
         this.project = project;
+        this.resources = project.getResources().getText();
         hwSimulation = project.hasProperty(HW_SIM_SWITCH_PROPERTY);
         dependencySet = project.getObjects().namedDomainObjectSet(NamedJsonDependency.class);
         vendorRepos = project.getObjects().namedDomainObjectSet(VendorMavenRepo.class);
@@ -109,6 +114,32 @@ public abstract class WPIVendorDepsExtension {
             }));
         } else {
             return List.of();
+        }
+    }
+
+    private void applyIncludedGradleScriptInternal(NamedJsonDependency dep) {
+        String includedGradle = dep.getDependency().includedGradle;
+        if (includedGradle == null) {
+            return;
+        }
+
+        if (includedGradle.isBlank()) {
+            return;
+        }
+
+        project.apply(Map.of("from", resources.fromString(includedGradle)));
+    }
+
+    public void applyIncludedGradleScripts() {
+        for (NamedJsonDependency dep : dependencySet) {
+            applyIncludedGradleScriptInternal(dep);
+        }
+    }
+
+    public void applyIncludedGradleScript(String uuid) {
+        NamedJsonDependency dep = dependencySet.findByName(uuid);
+        if (dep != null) {
+            applyIncludedGradleScriptInternal(dep);
         }
     }
 
@@ -266,6 +297,7 @@ public abstract class WPIVendorDepsExtension {
         public JavaArtifact[] javaDependencies;
         public JniArtifact[] jniDependencies;
         public CppArtifact[] cppDependencies;
+        public String includedGradle;
     }
 
     public static class NamedJsonDependency implements Named {
