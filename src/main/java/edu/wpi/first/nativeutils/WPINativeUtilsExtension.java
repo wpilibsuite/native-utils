@@ -480,7 +480,7 @@ public class WPINativeUtilsExtension {
         });
     }
 
-    private final String frcYear = "frc2023";
+    private final String frcYear = "frc2024";
 
     public String getFrcYear() {
         return frcYear;

@@ -339,7 +339,7 @@ public abstract class WPIVendorDepsExtension {
     }
 
     private String frcHomeCache;
-    private final String frcYear = "2023";
+    private final String frcYear = "2024";
 
     public String getFrcHome() {
         if (frcHomeCache != null) {
