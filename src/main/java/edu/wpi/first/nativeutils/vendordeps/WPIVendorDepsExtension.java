@@ -263,6 +263,7 @@ public abstract class WPIVendorDepsExtension {
         public String[] extraGroupIds;
         public String jsonUrl;
         public String fileName;
+        public String frcYear;
         public JavaArtifact[] javaDependencies;
         public JniArtifact[] jniDependencies;
         public CppArtifact[] cppDependencies;
