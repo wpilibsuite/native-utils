@@ -114,7 +114,6 @@ public abstract class WPIVendorDepsExtension {
 
     public void loadAll() {
         loadFrom(vendorFolder(project));
-        validateDependencies();
     }
 
     public void validateDependencies() {
