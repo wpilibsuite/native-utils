@@ -116,6 +116,29 @@ public abstract class WPIVendorDepsExtension {
         loadFrom(vendorFolder(project));
     }
 
+    public void validateDependencies() {
+        for (NamedJsonDependency jsonDep : dependencySet) {
+            VendorDependency[] requiredDependencies = jsonDep.dependency.requires;
+            if (requiredDependencies != null) {
+                for (VendorDependency requiredDep : requiredDependencies) {
+                    if (dependencySet.findByName(requiredDep.uuid) == null) {
+                        throw new ConflictingVendorDependencyException(jsonDep.name, requiredDep.uuid,
+                                requiredDep.errorMessage);
+                    }
+                }
+            }
+            VendorDependency[] conflictsWithDependencies = jsonDep.dependency.conflictsWith;
+            if (conflictsWithDependencies != null) {
+                for (VendorDependency conflictsWithDep : conflictsWithDependencies) {
+                    if (dependencySet.findByName(conflictsWithDep.uuid) != null) {
+                        throw new ConflictingVendorDependencyException(jsonDep.name, conflictsWithDep.uuid,
+                                conflictsWithDep.errorMessage);
+                    }
+                }
+            }
+        }
+    }
+
     public void loadFrom(File directory) {
         for (File f : vendorFiles(directory)) {
             JsonDependency dep = parse(f);
@@ -255,10 +278,19 @@ public abstract class WPIVendorDepsExtension {
         public boolean sharedLibrary;
     }
 
+    public static class VendorDependency {
+        public String uuid;
+        public String errorMessage;
+        public String offlineFileName;
+        public String onlineUrl;
+    }
+
     public static class JsonDependency {
         public String name;
         public String version;
         public String uuid;
+        public VendorDependency[] requires;
+        public VendorDependency[] conflictsWith;
         public String[] mavenUrls;
         public String[] extraGroupIds;
         public String jsonUrl;
