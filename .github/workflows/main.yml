@@ -18,6 +18,8 @@ jobs:
       run: ./gradlew build -PRunToolchainTests
     - name: Publish
       run: ./gradlew publishToMavenLocal
+    - name: Check output
+      run: git --no-pager diff --exit-code HEAD
     - name: InstallRioTC
       run: ./gradlew installRoboRioToolchain
       working-directory: testing/cpp
