@@ -480,12 +480,6 @@ public class WPINativeUtilsExtension {
         });
     }
 
-    private final String frcYear = "frc2023";
-
-    public String getFrcYear() {
-        return frcYear;
-    }
-
     private DependencyVersions versions;
 
     public DependencyVersions getVersions() {
@@ -497,8 +491,8 @@ public class WPINativeUtilsExtension {
             return;
         }
         dependencyVersions = objects.newInstance(DependencyVersions.class);
-        dependencyVersions.getGoogleTestYear().set(frcYear);
-        dependencyVersions.getOpencvYear().set(frcYear);
+        dependencyVersions.getGoogleTestYear().set("Unknown");
+        dependencyVersions.getOpencvYear().set("Unknown");
 
         dependencyVersions.getWpiVersion().set("-1");
         dependencyVersions.getNiLibVersion().set("-1");
