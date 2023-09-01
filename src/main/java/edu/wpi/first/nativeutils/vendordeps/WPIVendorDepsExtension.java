@@ -14,10 +14,12 @@ import javax.inject.Inject;
 import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.Project;
+import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.provider.Property;
-import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.plugins.NativeComponentPlugin;
 
 import com.google.gson.Gson;
@@ -27,6 +29,18 @@ import edu.wpi.first.deployutils.log.ETLoggerFactory;
 import edu.wpi.first.toolchain.NativePlatforms;
 
 public abstract class WPIVendorDepsExtension {
+
+    private final Property<String> frcYear;
+
+    public Property<String> getFrcYear() {
+        return frcYear;
+    }
+
+    private final DirectoryProperty frcHome;
+
+    public DirectoryProperty getFrcHome() {
+        return frcHome;
+    }
 
     private final NamedDomainObjectSet<NamedJsonDependency> dependencySet;
 
@@ -44,6 +58,7 @@ public abstract class WPIVendorDepsExtension {
     private final Project project;
 
     private WPINativeVendorDepsExtension nativeVendor;
+
     public WPINativeVendorDepsExtension getNativeVendor() {
         return nativeVendor;
     }
@@ -56,6 +71,9 @@ public abstract class WPIVendorDepsExtension {
 
     @Inject
     public WPIVendorDepsExtension(Project project) {
+
+        frcYear = project.getObjects().property(String.class);
+        frcHome = project.getObjects().directoryProperty();
         this.log = ETLoggerFactory.INSTANCE.create("WPIVendorDeps");
         this.project = project;
         hwSimulation = project.hasProperty(HW_SIM_SWITCH_PROPERTY);
@@ -79,7 +97,8 @@ public abstract class WPIVendorDepsExtension {
         String filepath = DEFAULT_VENDORDEPS_FOLDER_NAME;
         if (prop != null && !prop.equals(DEFAULT_VENDORDEPS_FOLDER_NAME)) {
             log.logErrorHead(
-                    "Warning! You have the property " + NATIVEUTILS_VENDOR_FOLDER_PROPERTY + " set to a non-default value: " + prop);
+                    "Warning! You have the property " + NATIVEUTILS_VENDOR_FOLDER_PROPERTY
+                            + " set to a non-default value: " + prop);
             log.logError("The default path (from the project root) is " + DEFAULT_VENDORDEPS_FOLDER_NAME);
             log.logError(
                     "This can cause NativeUtils/GradleRIO to not be able to find the vendordep JSON files, and the dependencies not being loaded.");
@@ -115,7 +134,18 @@ public abstract class WPIVendorDepsExtension {
     }
 
     public void validateDependencies() {
+        Logger logger = Logging.getLogger(WPIVendorDepsExtension.class);
+        String requiredFrcYear = frcYear.getOrNull();
         for (NamedJsonDependency jsonDep : dependencySet) {
+            if (requiredFrcYear != null) {
+                if (jsonDep.dependency.frcYear == null || jsonDep.dependency.frcYear.isBlank()) {
+                    logger.warn("Vendor Dependency %s is missing frcYear. In future years this will be an error",
+                            jsonDep.dependency.name);
+                } else if (!requiredFrcYear.equals(jsonDep.dependency.frcYear)) {
+                    throw new InvalidVendorDepYearException(jsonDep.dependency, requiredFrcYear);
+                }
+            }
+
             VendorDependency[] requiredDependencies = jsonDep.dependency.requires;
             if (requiredDependencies != null) {
                 for (VendorDependency requiredDep : requiredDependencies) {
@@ -356,7 +386,7 @@ public abstract class WPIVendorDepsExtension {
     public void addVendorReposToMaven(boolean enableGroupLimits) {
         for (VendorMavenRepo vRepo : vendorRepos) {
             project.getRepositories().maven(repo -> {
-                repo.setName("WPI"+vRepo.getName() + "Vendor");
+                repo.setName("WPI" + vRepo.getName() + "Vendor");
                 repo.setUrl(vRepo.getUrl());
                 if (enableGroupLimits) {
                     repo.content(desc -> {
@@ -367,29 +397,5 @@ public abstract class WPIVendorDepsExtension {
                 }
             });
         }
-    }
-
-    private String frcHomeCache;
-    private final String frcYear = "2023";
-
-    public String getFrcHome() {
-        if (frcHomeCache != null) {
-            return this.frcHomeCache;
-        }
-        String frcHome = "";
-        if (OperatingSystem.current().isWindows()) {
-            String publicFolder = System.getenv("PUBLIC");
-            if (publicFolder == null) {
-                publicFolder = "C:\\Users\\Public";
-            }
-            File homeRoot = new File(publicFolder, "wpilib");
-            frcHome = new File(homeRoot, this.frcYear).toString();
-        } else {
-            String userFolder = System.getProperty("user.home");
-            File homeRoot = new File(userFolder, "wpilib");
-            frcHome = new File(homeRoot, this.frcYear).toString();
-        }
-        frcHomeCache = frcHome;
-        return frcHomeCache;
     }
 }

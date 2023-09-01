@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.file.Directory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.options.Option;
 
@@ -78,8 +79,8 @@ public class VendorDepTask extends DefaultTask {
      * @param dest the destination file
      */
     private void copyLocal(String filename, Path dest) {
-        Path localCache = Path.of(wpiExt.getFrcHome()).resolve("vendordeps");
-        File localFolder = localCache.toFile();
+        Directory localCache = wpiExt.getFrcHome().dir("vendordeps").get();
+        File localFolder = localCache.getAsFile();
         if (!localFolder.isDirectory()) {
             getLogger().error("For some reason " + localFolder + " is not a folder");
             return;
