@@ -72,8 +72,6 @@ public abstract class WPIVendorDepsExtension {
         project.getPlugins().withType(JavaPlugin.class, p -> {
             javaVendor = objects.newInstance(WPIJavaVendorDepsExtension.class, this, project);
         });
-
-        loadAll();
     }
 
     private File vendorFolder(Project project) {
