@@ -58,7 +58,7 @@ public class WPINativeUtilsExtension {
 
         // -Wdeprecated-enum-enum-conversion was introduced in GCC 11
         public final List<String> linuxCrossCompilerArgs = List.of("-std=c++20", "-Wformat=2", "-pedantic",
-                "-Wno-psabi", "-Wno-unused-parameter", "-Wno-error=deprecated-declarations", "-fPIC", "-pthread");
+                "-Wno-psabi", "-Wno-unused-parameter", "-fPIC", "-pthread");
         public final List<String> linuxCrossCompilerExtraArgs11 = List.of("-Wno-error=deprecated-enum-enum-conversion");
         public final List<String> linuxCrossCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
                 "-Wno-unused-parameter", "-fPIC", "-pthread");
@@ -67,8 +67,7 @@ public class WPINativeUtilsExtension {
         public final List<String> linuxCrossDebugCompilerArgs = List.of("-Og");
 
         public final List<String> linuxCompilerArgs = List.of("-std=c++20", "-Wformat=2", "-pedantic", "-Wno-psabi",
-                "-Wno-unused-parameter", "-Wno-error=deprecated-declarations",
-                "-Wno-error=deprecated-enum-enum-conversion", "-fPIC", "-pthread");
+                "-Wno-unused-parameter", "-Wno-error=deprecated-enum-enum-conversion", "-fPIC", "-pthread");
         public final List<String> linuxCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
                 "-Wno-unused-parameter", "-fPIC", "-pthread");
         public final List<String> linuxLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic");
@@ -78,9 +77,8 @@ public class WPINativeUtilsExtension {
         public final String macMinimumVersionArg = "-mmacosx-version-min=10.15";
 
         public final List<String> macCompilerArgs = List.of("-std=c++20", "-pedantic", "-fPIC", "-Wno-unused-parameter",
-                "-Wno-error=deprecated-declarations", "-Wno-error=deprecated-enum-enum-conversion",
-                "-Wno-missing-field-initializers", "-Wno-unused-private-field", "-Wno-unused-const-variable",
-                "-Wno-error=c11-extensions", "-pthread");
+                "-Wno-error=deprecated-enum-enum-conversion", "-Wno-missing-field-initializers",
+                "-Wno-unused-private-field", "-Wno-unused-const-variable", "-Wno-error=c11-extensions", "-pthread");
         public final List<String> macCCompilerArgs = List.of("-pedantic", "-fPIC", "-Wno-unused-parameter",
                 "-Wno-missing-field-initializers", "-Wno-unused-private-field", "-Wno-fixed-enum-extension");
         public final List<String> macObjcppCompilerArgs = List.of("-std=c++20", "-stdlib=libc++", "-fobjc-weak",
