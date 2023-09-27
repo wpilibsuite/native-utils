@@ -15,8 +15,6 @@ import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.Project;
 import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.logging.Logger;
-import org.gradle.api.logging.Logging;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.provider.Property;
@@ -134,14 +132,10 @@ public abstract class WPIVendorDepsExtension {
     }
 
     public void validateDependencies() {
-        Logger logger = Logging.getLogger(WPIVendorDepsExtension.class);
         String requiredFrcYear = frcYear.getOrNull();
         for (NamedJsonDependency jsonDep : dependencySet) {
             if (requiredFrcYear != null) {
-                if (jsonDep.dependency.frcYear == null || jsonDep.dependency.frcYear.isBlank()) {
-                    logger.warn("Vendor Dependency %s is missing frcYear. In future years this will be an error",
-                            jsonDep.dependency.name);
-                } else if (!requiredFrcYear.equals(jsonDep.dependency.frcYear)) {
+                if (!requiredFrcYear.equals(jsonDep.dependency.frcYear)) {
                     throw new InvalidVendorDepYearException(jsonDep.dependency, requiredFrcYear);
                 }
             }
