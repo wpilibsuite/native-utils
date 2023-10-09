@@ -60,6 +60,7 @@ public class WPINativeUtilsExtension {
         public final List<String> linuxCrossCompilerArgs = List.of("-std=c++20", "-Wformat=2", "-pedantic",
                 "-Wno-psabi", "-Wno-unused-parameter", "-fPIC", "-pthread");
         public final List<String> linuxCrossCompilerExtraArgs11 = List.of("-Wno-error=deprecated-enum-enum-conversion");
+        public final List<String> linuxCrossCompilerExtraArgs10 = List.of("-Wno-error=deprecated-declarations");
         public final List<String> linuxCrossCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
                 "-Wno-unused-parameter", "-fPIC", "-pthread");
         public final List<String> linuxCrossLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic");
@@ -116,6 +117,8 @@ public class WPINativeUtilsExtension {
         platform.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerArgs);
         if (gccMajor >= 11) {
             platform.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerExtraArgs11);
+        } else {
+            platform.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerExtraArgs10);
         }
         platform.getcCompiler().getArgs().addAll(defaultArguments.linuxCrossCCompilerArgs);
         platform.getLinker().getArgs().addAll(defaultArguments.linuxCrossLinkerArgs);
