@@ -36,8 +36,8 @@ public class SourceLinkPlugin implements Plugin<Project> {
         } catch (UnknownTaskException notfound) {
             File gitDir = getGitDir(project.getRootProject().getRootDir());
             if (gitDir == null) {
-                System.out.println("No .git directory was found in" + project.getRootProject().getRootDir().toString()
-                        + "or any parent directories of that directory.");
+                System.out.println("No .git directory was found in " + project.getRootProject().getRootDir().toString()
+                        + " or any parent directories of that directory.");
                 System.out.println("SourceLink generation skipped");
             } else {
                 project.getRootProject().getTasks().register(SOURCE_LINK_ROOT_TASK_NAME, SourceLinkGenerationTask.class,
