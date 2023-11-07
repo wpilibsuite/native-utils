@@ -388,4 +388,12 @@ public class NativeUtilsExtension {
   public void setSkipInstallPdb(boolean skip) {
     skipInstallPdb = skip;
   }
+
+  public void setRemoveInvalidWindowsToolchains(boolean remove) {
+    tcExt.setRemoveInvalidWindowsToolchains(remove);
+}
+
+  public boolean isRemoveInvalidWindowsToolchains() {
+      return tcExt.isRemoveInvalidWindowsToolchains();
+  }
 }

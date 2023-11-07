@@ -107,6 +107,16 @@ public class ToolchainExtension {
         }
     }
 
+    private boolean removeInvalidWindowsToolchains = true;
+
+    public void setRemoveInvalidWindowsToolchains(boolean remove) {
+        this.removeInvalidWindowsToolchains = remove;
+    }
+
+    public boolean isRemoveInvalidWindowsToolchains() {
+        return this.removeInvalidWindowsToolchains;
+    }
+
     public NamedDomainObjectContainer<ToolchainDescriptorBase> getToolchainDescriptors() {
         return toolchainDescriptors;
     }
