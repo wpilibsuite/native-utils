@@ -1,5 +1,6 @@
 package edu.wpi.first.toolchain;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,8 @@ import org.gradle.nativeplatform.toolchain.Gcc;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
 import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInternal;
+import org.gradle.nativeplatform.toolchain.internal.clang.ClangToolChain;
+import org.gradle.nativeplatform.toolchain.internal.gcc.GccToolChain;
 import org.gradle.platform.base.BinaryContainer;
 import org.gradle.platform.base.BinarySpec;
 import org.gradle.platform.base.BinaryTasks;
@@ -42,17 +45,31 @@ public class ToolchainRules extends RuleSource {
     private static final ETLogger logger = ETLoggerFactory.INSTANCE.create("ToolchainRules");
 
     @Finalize
-    void addClangArm(NativeToolChainRegistryInternal toolChainRegistry) {
+    void addClangArm(NativeToolChainRegistryInternal toolChainRegistry, ExtensionContainer extContainer) {
+        // To work around sometimes GCC and Clang getting picked up on Windows, remove
+        // them completely
+        List<Object> toRemove = new ArrayList<>();
         toolChainRegistry.all(n -> {
+            if (OperatingSystem.current().equals(OperatingSystem.WINDOWS)) {
+                if (n instanceof Gcc && n.getName().equals(GccToolChain.DEFAULT_NAME)) {
+                    toRemove.add(n);
+                }
+                if (n instanceof Clang && n.getName().equals(ClangToolChain.DEFAULT_NAME)) {
+                    toRemove.add(n);
+                }
+            }
+
             if (n instanceof Gcc && OperatingSystem.current().equals(OperatingSystem.LINUX)) {
-                Gcc gcc = (Gcc)n;
-                if ((NativePlatforms.desktop.equals(NativePlatforms.linuxarm32) || NativePlatforms.desktop.equals(NativePlatforms.linuxarm64)) && gcc.getName().equals("gcc")) {
+                Gcc gcc = (Gcc) n;
+                if ((NativePlatforms.desktop.equals(NativePlatforms.linuxarm32)
+                        || NativePlatforms.desktop.equals(NativePlatforms.linuxarm64))
+                        && gcc.getName().equals(GccToolChain.DEFAULT_NAME)) {
                     gcc.setTargets();
                     gcc.target(NativePlatforms.desktop);
                 }
             }
             if (n instanceof Clang && OperatingSystem.current().equals(OperatingSystem.MAC_OS)) {
-                Clang gcc = (Clang)n;
+                Clang gcc = (Clang) n;
                 gcc.setTargets();
                 gcc.target("osxuniversal", gccToolChain -> {
                     Action<List<String>> m64args = new Action<List<String>>() {
@@ -73,6 +90,13 @@ public class ToolchainRules extends RuleSource {
                 });
             }
         });
+
+        final ToolchainExtension ext = extContainer.getByType(ToolchainExtension.class);
+        if (ext.isRemoveInvalidWindowsToolchains()) {
+            for (var t : toRemove) {
+                toolChainRegistry.remove(t);
+            }
+        }
     }
 
     @Defaults
@@ -112,7 +136,6 @@ public class ToolchainRules extends RuleSource {
                 }
             });
         });
-
 
     }
 
@@ -181,7 +204,8 @@ public class ToolchainRules extends RuleSource {
     }
 
     @Validate
-    void checkEnabledToolchains(final BinaryContainer binaries, final NativeToolChainRegistry toolChains, final ExtensionContainer extContainer) {
+    void checkEnabledToolchains(final BinaryContainer binaries, final NativeToolChainRegistry toolChains,
+            final ExtensionContainer extContainer) {
         final ToolchainExtension ext = extContainer.getByType(ToolchainExtension.class);
         // Map of platform to toolchains
         Map<String, GccExtension> gccToolChains = new HashMap<>();
@@ -205,8 +229,9 @@ public class ToolchainRules extends RuleSource {
         }
     }
 
-    public static OrderedStripTask configureOrderedStrip(AbstractLinkTask link, GccExtension gcc, NativeBinarySpec binary) {
-        ExtensionAware linkExt = (ExtensionAware)link;
+    public static OrderedStripTask configureOrderedStrip(AbstractLinkTask link, GccExtension gcc,
+            NativeBinarySpec binary) {
+        ExtensionAware linkExt = (ExtensionAware) link;
         OrderedStripTask strip = linkExt.getExtensions().findByType(OrderedStripTask.class);
         if (strip == null) {
             Project project = link.getProject();
@@ -216,14 +241,16 @@ public class ToolchainRules extends RuleSource {
                 return null;
             }
 
-            strip = linkExt.getExtensions().create("orderedStrip", OrderedStripTask.class, tcExt, binary, link, gcc, project);
+            strip = linkExt.getExtensions().create("orderedStrip", OrderedStripTask.class, tcExt, binary, link, gcc,
+                    project);
             link.doLast(strip);
         }
         return strip;
     }
 
     @BinaryTasks
-    void createNativeStripTasks(final ModelMap<Task> tasks, NativeBinarySpec binary, final ExtensionContainer extContainer) {
+    void createNativeStripTasks(final ModelMap<Task> tasks, NativeBinarySpec binary,
+            final ExtensionContainer extContainer) {
         final ToolchainExtension ext = extContainer.getByType(ToolchainExtension.class);
         NativeToolChain tc = binary.getToolChain();
         GccExtension gccExt = ext.getGccExtensionMap().getOrDefault(tc, null);
