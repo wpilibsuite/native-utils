@@ -206,3 +206,17 @@ nativeUtils.platformConfigs {
     }
 }
 ```
+
+# Using custom builds
+
+To use a custom build of native-utils in a robot project, the build must be published, and a GradleRIO build that uses the new version must be pulished.
+
+1. Update the version in `build.gradle` so that native-utils won't overwrite an existing version.
+```
+allprojects {
+    group = "edu.wpi.first"
+    version = "2024.3.1"
+```
+2. Execute `.\gradlew publishToMavenLocal`
+3. Update native-utils version in GradleRIO ``build.gradle``: ``api 'edu.wpi.first:native-utils:2024.3.1'``
+4. Follow the directions in the ![GradleRIO readme](https://github.com/wpilibsuite/GradleRIO/#using-gradlerio-custom-builds) for publishing a local build and using in a robot program
