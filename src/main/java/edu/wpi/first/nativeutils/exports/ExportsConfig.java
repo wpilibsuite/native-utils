@@ -1,11 +1,15 @@
 package edu.wpi.first.nativeutils.exports;
 
+import java.io.File;
 import java.util.List;
 
 import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
+import org.gradle.api.specs.Spec;
+
+import groovy.lang.Closure;
 
 public interface ExportsConfig extends Named {
     ListProperty<String> getArm64ExcludeSymbols();
@@ -21,4 +25,8 @@ public interface ExportsConfig extends Named {
     Property<Action<List<String>>> getX86SymbolFilter();
 
     Property<Action<List<String>>> getX64SymbolFilter();
+
+    Property<Spec<File>> getObjectFilter();
+
+    Property<Closure<?>> getObjectFilterClosure();
 }

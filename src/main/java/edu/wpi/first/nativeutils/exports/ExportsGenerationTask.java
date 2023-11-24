@@ -12,12 +12,15 @@ import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecSpec;
+
+import groovy.lang.Closure;
 
 public abstract class ExportsGenerationTask extends DefaultTask implements Action<ExecSpec> {
 
@@ -110,7 +113,16 @@ public abstract class ExportsGenerationTask extends DefaultTask implements Actio
     public void execute(ExecSpec exec) {
         exec.setExecutable(getDefFileGenerator().get().getAsFile().toString());
         exec.args(getDefFile().get().getAsFile().toString());
-        exec.args(getSourceFiles());
+
+        Spec<File> objectFilter = getExportsConfig().getObjectFilter().getOrElse(null);
+        Closure<?> objectFilterClosure = getExportsConfig().getObjectFilterClosure().getOrElse(null);
+        if (objectFilter == null && objectFilterClosure == null) {
+            exec.args(getSourceFiles());
+        } else if (objectFilterClosure == null) {
+            exec.args(getSourceFiles().filter(objectFilter));
+        } else {
+            exec.args(getSourceFiles().filter(objectFilterClosure));
+        }
     }
 
 }
