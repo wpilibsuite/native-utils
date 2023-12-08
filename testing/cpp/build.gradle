@@ -2,7 +2,7 @@ import edu.wpi.first.toolchain.NativePlatforms
 
 plugins {
     id "cpp"
-    id "edu.wpi.first.NativeUtils" version "2024.5.1"
+    id "edu.wpi.first.NativeUtils" version "2024.5.2"
 }
 
 nativeUtils.addWpiNativeUtils()
