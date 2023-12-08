@@ -22,6 +22,7 @@ import edu.wpi.first.toolchain.NativePlatforms;
 import edu.wpi.first.nativeutils.dependencies.AllPlatformsCombinedNativeDependency;
 import edu.wpi.first.nativeutils.dependencies.CombinedIgnoreMissingPlatformNativeDependency;
 import edu.wpi.first.nativeutils.dependencies.NativeDependency;
+import edu.wpi.first.nativeutils.dependencies.WPIHeaderOnlyMavenDependency;
 import edu.wpi.first.nativeutils.dependencies.WPISharedMavenDependency;
 import edu.wpi.first.nativeutils.dependencies.WPIStaticMavenDependency;
 
@@ -518,6 +519,16 @@ public class WPINativeUtilsExtension {
         });
 
         configs.register("chipobject", WPISharedMavenDependency.class, c -> {
+            c.getGroupId().set("edu.wpi.first.ni-libraries");
+            c.getArtifactId().set("chipobject");
+            c.getHeaderClassifier().set("headers");
+            c.getExt().set("zip");
+            c.getVersion().set(dependencyVersions.getNiLibVersion());
+            c.getSkipAtRuntime().set(true);
+            c.getTargetPlatforms().add(this.platforms.roborio);
+        });
+
+        configs.register("chipobject_headers", WPIHeaderOnlyMavenDependency.class, c -> {
             c.getGroupId().set("edu.wpi.first.ni-libraries");
             c.getArtifactId().set("chipobject");
             c.getHeaderClassifier().set("headers");

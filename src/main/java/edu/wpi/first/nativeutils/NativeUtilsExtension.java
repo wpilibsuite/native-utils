@@ -31,6 +31,7 @@ import edu.wpi.first.nativeutils.dependencies.CustomDependencySet;
 import edu.wpi.first.nativeutils.dependencies.DelegatedDependencySet;
 import edu.wpi.first.nativeutils.dependencies.FastDownloadDependencySet;
 import edu.wpi.first.nativeutils.dependencies.NativeDependency;
+import edu.wpi.first.nativeutils.dependencies.WPIHeaderOnlyMavenDependency;
 import edu.wpi.first.nativeutils.dependencies.WPISharedMavenDependency;
 import edu.wpi.first.nativeutils.dependencies.WPIStaticMavenDependency;
 import edu.wpi.first.nativeutils.exports.DefaultExportsConfig;
@@ -105,6 +106,7 @@ public class NativeUtilsExtension {
     dependencyContainer = objectFactory.polymorphicDomainObjectContainer(NativeDependency.class);
     addNativeDependencyType(WPIStaticMavenDependency.class, project);
     addNativeDependencyType(WPISharedMavenDependency.class, project);
+    addNativeDependencyType(WPIHeaderOnlyMavenDependency.class, project);
 
     addNativeDependencyType(CombinedIgnoreMissingPlatformNativeDependency.class, dependencyContainer);
     addNativeDependencyType(AllPlatformsCombinedNativeDependency.class, dependencyContainer);
