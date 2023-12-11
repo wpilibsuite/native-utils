@@ -13,7 +13,7 @@ java {
 
 allprojects {
     group = "edu.wpi.first"
-    version = "2024.5.2"
+    version = "2024.6.0"
 
     if (project.hasProperty('publishVersion')) {
         version = project.publishVersion

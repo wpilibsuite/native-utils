@@ -42,8 +42,7 @@ public class SourceLinkRules extends RuleSource {
     String sourceLinkName = binary.getNamingScheme().getTaskName("generateSourceLinkFile");
 
     TaskProvider<LinkerSourceLinkGenerationTask> sourceGenTask = project.getTasks().register(sourceLinkName, LinkerSourceLinkGenerationTask.class);
-    File tmpDir = project.file(project.getBuildDir() + "/tmp/" + sourceLinkName);
-    File sourceLinkFile = project.file(tmpDir.toString() + "/SourceLink.json");
+    File sourceLinkFile = project.getLayout().getBuildDirectory().get().file("/tmp/" + sourceLinkName + "/SourceLink.json").getAsFile();
     sourceGenTask.configure(genTask -> {
         genTask.dependsOn(rootGenTask);
         Callable<Set<Object>> linkDepends = () -> linkTask.getLibs().getFrom();
