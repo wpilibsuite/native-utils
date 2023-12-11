@@ -32,16 +32,13 @@ tasks.withType(Test).configureEach {
     useJUnitPlatform()
 }
 
-archivesBaseName = "Toolchain"
+base {
+    archivesName = "Toolchain"
+}
 
-sourceCompatibility = 11
-targetCompatibility = 11
-
-pluginBundle {
-    website = 'https://github.com/wpilibsuite/native-utils'
-    vcsUrl = 'https://github.com/wpilibsuite/native-utils'
-    description = 'FRC Toolchain Standalone Gradle Plugin'
-    tags = ['frc', 'wpilib', 'gradlerio']
+java {
+    sourceCompatibility = 11
+    targetCompatibility = 11
 }
 
 if (project.hasProperty('RunToolchainTests')) {
@@ -51,11 +48,15 @@ if (project.hasProperty('RunToolchainTests')) {
 }
 
 gradlePlugin {
+    website = 'https://github.com/wpilibsuite/native-utils'
+    vcsUrl = 'https://github.com/wpilibsuite/native-utils'
     plugins {
         toolchain {
             id = 'edu.wpi.first.Toolchain'
             displayName = 'Toolchain'
             implementationClass = 'edu.wpi.first.toolchain.ToolchainPlugin'
+            description = 'FRC Toolchain Standalone Gradle Plugin'
+            tags = ['frc', 'wpilib', 'gradlerio']
         }
     }
 }

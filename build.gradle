@@ -1,14 +1,15 @@
 plugins {
-    id "com.gradle.plugin-publish" version "0.15.0"
+    id "com.gradle.plugin-publish" version "1.2.1"
     id 'java-gradle-plugin'
     id 'maven-publish'
     id 'groovy'
     id 'java'
-    id 'idea'
 }
 
-sourceCompatibility = 11
-targetCompatibility = 11
+java {
+    sourceCompatibility = 11
+    targetCompatibility = 11
+}
 
 allprojects {
     group = "edu.wpi.first"
@@ -48,19 +49,16 @@ tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
 }
 
-pluginBundle {
+gradlePlugin {
     website = 'https://github.com/wpilibsuite/native-utils'
     vcsUrl = 'https://github.com/wpilibsuite/native-utils'
-    description = 'This plugin provides native build utilities for FRC projects.'
-    tags = ['groovy', 'native', 'utils', 'maven', 'frc', 'wpilib']
-}
-
-gradlePlugin {
     plugins {
         NativeUtils {
             id = 'edu.wpi.first.NativeUtils'
             displayName = 'NativeUtils'
             implementationClass = 'edu.wpi.first.nativeutils.NativeUtils'
+            description = 'This plugin provides native build utilities for FRC projects.'
+            tags = ['groovy', 'native', 'utils', 'maven', 'frc', 'wpilib']
         }
     }
 }
@@ -99,3 +97,8 @@ tasks.register('PatchExamples') {
 
 build.dependsOn PatchExamples
 jar.finalizedBy PatchExamples
+
+wrapper {
+    gradleVersion = '8.5'
+    distributionType = Wrapper.DistributionType.BIN
+}
