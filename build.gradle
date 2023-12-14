@@ -72,10 +72,6 @@ tasks.withType(JavaCompile) {
     options.deprecation = true
 }
 
-wrapper {
-    gradleVersion = '8.1'
-}
-
 def examplesFolder = file("$rootDir/testing")
 
 tasks.register('PatchExamples') {
