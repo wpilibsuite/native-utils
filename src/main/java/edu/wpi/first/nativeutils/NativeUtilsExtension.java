@@ -16,6 +16,7 @@ import org.gradle.api.internal.PolymorphicDomainObjectContainerInternal;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.internal.os.OperatingSystem;
+import org.gradle.nativeplatform.BuildTypeContainer;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
 import org.gradle.nativeplatform.platform.NativePlatform;
@@ -251,6 +252,22 @@ public class NativeUtilsExtension {
     if (platformsToConfigure.contains(platform)) {
       component.targetPlatform(platform);
     }
+  }
+
+  private PlatformContainer platforms;
+  public PlatformContainer getPlatforms() {
+    return platforms;
+  }
+
+  private BuildTypeContainer buildTypes;
+
+  public BuildTypeContainer getBuildTypes() {
+    return buildTypes;
+  }
+
+  public void addPlatformsAndBuildTypes(PlatformContainer platforms, BuildTypeContainer buildTypes) {
+    this.platforms = platforms;
+    this.buildTypes = buildTypes;
   }
 
   // Internal, used from the model to add the platforms

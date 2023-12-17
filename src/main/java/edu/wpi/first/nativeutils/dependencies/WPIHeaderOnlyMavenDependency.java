@@ -1,14 +1,14 @@
 package edu.wpi.first.nativeutils.dependencies;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Property;
-import org.gradle.nativeplatform.NativeBinarySpec;
+import org.gradle.nativeplatform.BuildType;
+import org.gradle.nativeplatform.platform.NativePlatform;
 
 public abstract class WPIHeaderOnlyMavenDependency extends WPIMavenDependency {
     @Inject
@@ -16,12 +16,10 @@ public abstract class WPIHeaderOnlyMavenDependency extends WPIMavenDependency {
         super(name, project);
     }
 
-    private final Map<NativeBinarySpec, ResolvedNativeDependency> resolvedDependencies = new HashMap<>();
-
     @Override
-    public ResolvedNativeDependency resolveNativeDependency(NativeBinarySpec binary, FastDownloadDependencySet loaderDependencySet) {
-        ResolvedNativeDependency resolvedDep = resolvedDependencies.get(binary);
-        if (resolvedDep != null) {
+    public Optional<ResolvedNativeDependency> resolveNativeDependency(NativePlatform platform, BuildType buildType, Optional<FastDownloadDependencySet> loaderDependencySet) {
+        Optional<ResolvedNativeDependency> resolvedDep = tryFromCache(platform, buildType);
+        if (resolvedDep.isPresent()) {
             return resolvedDep;
         }
 
@@ -31,9 +29,9 @@ public abstract class WPIHeaderOnlyMavenDependency extends WPIMavenDependency {
         FileCollection linkFiles = getProject().files();
         FileCollection runtimeFiles = getProject().files();
 
-        resolvedDep = new ResolvedNativeDependency(headers, sources, linkFiles, runtimeFiles);
+        resolvedDep = Optional.of(new ResolvedNativeDependency(headers, sources, linkFiles, runtimeFiles));
 
-        resolvedDependencies.put(binary, resolvedDep);
+        addToCache(platform, buildType, resolvedDep);
         return resolvedDep;
     }
 

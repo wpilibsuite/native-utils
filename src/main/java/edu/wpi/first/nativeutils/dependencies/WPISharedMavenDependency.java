@@ -1,9 +1,8 @@
 package edu.wpi.first.nativeutils.dependencies;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -11,7 +10,8 @@ import javax.inject.Inject;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Property;
-import org.gradle.nativeplatform.NativeBinarySpec;
+import org.gradle.nativeplatform.BuildType;
+import org.gradle.nativeplatform.platform.NativePlatform;
 
 public abstract class WPISharedMavenDependency extends WPIMavenDependency {
     public static final List<String> SHARED_MATCHERS = List.of("**/*.so", "**/*.so.*", "**/*.dylib", "**/*.lib");
@@ -24,22 +24,20 @@ public abstract class WPISharedMavenDependency extends WPIMavenDependency {
         super(name, project);
     }
 
-    private final Map<NativeBinarySpec, ResolvedNativeDependency> resolvedDependencies = new HashMap<>();
-
     @Override
-    public ResolvedNativeDependency resolveNativeDependency(NativeBinarySpec binary, FastDownloadDependencySet loaderDependencySet) {
-        ResolvedNativeDependency resolvedDep = resolvedDependencies.get(binary);
-        if (resolvedDep != null) {
+    public Optional<ResolvedNativeDependency> resolveNativeDependency(NativePlatform platform, BuildType buildType, Optional<FastDownloadDependencySet> loaderDependencySet) {
+        Optional<ResolvedNativeDependency> resolvedDep = tryFromCache(platform, buildType);
+        if (resolvedDep.isPresent()) {
             return resolvedDep;
         }
 
         Set<String> targetPlatforms = getTargetPlatforms().get();
-        String platformName = binary.getTargetPlatform().getName();
+        String platformName = platform.getName();
         if (!targetPlatforms.contains(platformName)) {
             return null;
         }
 
-        String buildType = binary.getBuildType().getName();
+        String buildTypeName = buildType.getName();
 
         FileCollection headers = getArtifactRoots(getHeaderClassifier().getOrElse(null), ArtifactType.HEADERS, loaderDependencySet);
         FileCollection sources = getArtifactRoots(getSourceClassifier().getOrElse(null), ArtifactType.SOURCES, loaderDependencySet);
@@ -51,18 +49,18 @@ public abstract class WPISharedMavenDependency extends WPIMavenDependency {
             sharedExcludes.addAll(extraExcludes);
         }
 
-        FileCollection linkFiles = getArtifactFiles(platformName, buildType, SHARED_MATCHERS, sharedExcludes, ArtifactType.LINK, loaderDependencySet);
+        FileCollection linkFiles = getArtifactFiles(platformName, buildTypeName, SHARED_MATCHERS, sharedExcludes, ArtifactType.LINK, loaderDependencySet);
 
         FileCollection runtimeFiles;
         if (getSkipAtRuntime().getOrElse(false)) {
             runtimeFiles = getProject().files();
         } else {
-            runtimeFiles = getArtifactFiles(platformName, buildType, RUNTIME_MATCHERS, RUNTIME_EXCLUDES, ArtifactType.RUNTIME, loaderDependencySet);
+            runtimeFiles = getArtifactFiles(platformName, buildTypeName, RUNTIME_MATCHERS, RUNTIME_EXCLUDES, ArtifactType.RUNTIME, loaderDependencySet);
         }
 
-        resolvedDep = new ResolvedNativeDependency(headers, sources, linkFiles, runtimeFiles);
+        resolvedDep = Optional.of(new ResolvedNativeDependency(headers, sources, linkFiles, runtimeFiles));
 
-        resolvedDependencies.put(binary, resolvedDep);
+        addToCache(platform, buildType, resolvedDep);
         return resolvedDep;
     }
 

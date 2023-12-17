@@ -1,6 +1,7 @@
 package edu.wpi.first.nativeutils.dependencies;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -24,7 +25,7 @@ public class DelegatedDependencySet implements NativeDependencySet, Named, Sourc
     private final NamedDomainObjectCollection<NativeDependency> dependencyCollection;
     private boolean resolved = false;
     private final NativeBinarySpec binary;
-    private final FastDownloadDependencySet fastDownloadSet;
+    private final Optional<FastDownloadDependencySet> fastDownloadSet;
 
     @Inject
     public ProjectLayout getProjectLayout() {
@@ -37,7 +38,7 @@ public class DelegatedDependencySet implements NativeDependencySet, Named, Sourc
         this.required = required;
         this.dependencyCollection = Objects.requireNonNull(dependencyCollection, "Must have a valid depenedency collection");
         this.binary = binary;
-        this.fastDownloadSet = Objects.requireNonNull(fastDownloadSet);
+        this.fastDownloadSet = Optional.of(fastDownloadSet);
         resolve();
     }
 
@@ -69,9 +70,9 @@ public class DelegatedDependencySet implements NativeDependencySet, Named, Sourc
             return;
         }
 
-        ResolvedNativeDependency resolvedDep = resolvedDependency.resolveNativeDependency(binary, fastDownloadSet);
+        Optional<ResolvedNativeDependency> resolvedDep = resolvedDependency.resolveNativeDependency(binary.getTargetPlatform(), binary.getBuildType(), fastDownloadSet);
 
-        if (resolvedDep == null) {
+        if (resolvedDep.isEmpty()) {
             if (required) {
                 // TODO better exceptions
                 throw new GradleException("Missing Dependency " + resolvedDependency.getName());
@@ -84,10 +85,12 @@ public class DelegatedDependencySet implements NativeDependencySet, Named, Sourc
             return;
         }
 
-        includeRoots = resolvedDep.getIncludeRoots();
-        sourceRoots = resolvedDep.getSourceRoots();
-        linkFiles = resolvedDep.getLinkFiles();
-        runtimeFiles = resolvedDep.getRuntimeFiles();
+        ResolvedNativeDependency dep = resolvedDep.get();
+
+        includeRoots = dep.getIncludeRoots();
+        sourceRoots = dep.getSourceRoots();
+        linkFiles = dep.getLinkFiles();
+        runtimeFiles = dep.getRuntimeFiles();
     }
 
     @Override

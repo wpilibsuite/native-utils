@@ -1,8 +1,11 @@
 package edu.wpi.first.nativeutils.dependencies;
 
+import java.util.Optional;
+
 import org.gradle.api.Named;
-import org.gradle.nativeplatform.NativeBinarySpec;
+import org.gradle.nativeplatform.BuildType;
+import org.gradle.nativeplatform.platform.NativePlatform;
 
 public interface NativeDependency extends Named {
-    ResolvedNativeDependency resolveNativeDependency(NativeBinarySpec binary, FastDownloadDependencySet loaderDependencySet);
+    Optional<ResolvedNativeDependency> resolveNativeDependency(NativePlatform platform, BuildType buildType, Optional<FastDownloadDependencySet> loaderDependencySet);
 }

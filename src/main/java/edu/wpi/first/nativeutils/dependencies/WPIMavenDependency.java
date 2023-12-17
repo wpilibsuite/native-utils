@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -17,12 +18,37 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.util.PatternFilterable;
 import org.gradle.api.tasks.util.PatternSet;
+import org.gradle.nativeplatform.BuildType;
+import org.gradle.nativeplatform.platform.NativePlatform;
 
 import edu.wpi.first.nativeutils.NativeUtils;
 
 public abstract class WPIMavenDependency implements NativeDependency {
     private final String name;
     private final Project project;
+
+    private final Map<NativePlatform, Map<BuildType, Optional<ResolvedNativeDependency>>> resolvedDependencies = new HashMap<>();
+
+    private Map<BuildType, Optional<ResolvedNativeDependency>> getInnerMap(NativePlatform platform) {
+        Map<BuildType, Optional<ResolvedNativeDependency>> buildTypeMap = resolvedDependencies.get(platform);
+
+        if (buildTypeMap == null) {
+            buildTypeMap = new HashMap<>();
+            resolvedDependencies.put(platform, buildTypeMap);
+        }
+
+        return buildTypeMap;
+    }
+
+    protected void addToCache(NativePlatform platform, BuildType buildType, Optional<ResolvedNativeDependency> dependency) {
+        Map<BuildType, Optional<ResolvedNativeDependency>> innerMap = getInnerMap(platform);
+        innerMap.put(buildType, dependency);
+    }
+
+    protected Optional<ResolvedNativeDependency> tryFromCache(NativePlatform platform, BuildType buildType) {
+        Map<BuildType, Optional<ResolvedNativeDependency>> innerMap = getInnerMap(platform);
+        return innerMap.getOrDefault(buildType, Optional.empty());
+    }
 
     @Inject
     public WPIMavenDependency(String name, Project project) {
@@ -42,7 +68,7 @@ public abstract class WPIMavenDependency implements NativeDependency {
 
     private final Map<String, ViewConfigurationContainer> classifierViewMap = new HashMap<>();
 
-    protected FileCollection getArtifactRoots(String classifier, ArtifactType type, FastDownloadDependencySet loaderDependencySet) {
+    protected FileCollection getArtifactRoots(String classifier, ArtifactType type, Optional<FastDownloadDependencySet> loaderDependencySet) {
         if (classifier == null) {
             return project.files();
         }
@@ -52,7 +78,7 @@ public abstract class WPIMavenDependency implements NativeDependency {
     }
 
     protected FileCollection getArtifactFiles(String targetPlatform, String buildType, List<String> matches,
-            List<String> excludes, ArtifactType type, FastDownloadDependencySet loaderDependencySet) {
+            List<String> excludes, ArtifactType type, Optional<FastDownloadDependencySet> loaderDependencySet) {
         buildType = buildType.equalsIgnoreCase("debug") ? "debug" : "";
         ArtifactView view = getViewForArtifact(targetPlatform + buildType, type, loaderDependencySet);
         PatternFilterable filterable = new PatternSet();
@@ -62,16 +88,20 @@ public abstract class WPIMavenDependency implements NativeDependency {
         return project.files(cbl);
     }
 
-    protected ArtifactView getViewForArtifact(String classifier, ArtifactType type, FastDownloadDependencySet loaderDependencySet) {
+    protected ArtifactView getViewForArtifact(String classifier, ArtifactType type, Optional<FastDownloadDependencySet> loaderDependencySet) {
         ViewConfigurationContainer viewContainer = classifierViewMap.get(classifier);
         String configName = name + "_" + classifier;
         if (viewContainer != null) {
-            loaderDependencySet.addConfiguration(type, viewContainer.configuration);
+            if (loaderDependencySet.isPresent()) {
+                loaderDependencySet.get().addConfiguration(type, viewContainer.configuration);
+            }
             return viewContainer.view;
         }
-        
+
         Configuration cfg = project.getConfigurations().create(configName);
-        loaderDependencySet.addConfiguration(type, cfg);
+        if (loaderDependencySet.isPresent()) {
+            loaderDependencySet.get().addConfiguration(type, cfg);
+        }
         String dep = getGroupId().get() + ":" + getArtifactId().get() + ":" + getVersion().get() + ":" + classifier
                 + "@" + getExt().get();
         project.getDependencies().add(configName, dep);
