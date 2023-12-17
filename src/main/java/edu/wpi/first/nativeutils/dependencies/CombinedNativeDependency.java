@@ -2,6 +2,7 @@ package edu.wpi.first.nativeutils.dependencies;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -9,7 +10,8 @@ import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.provider.MapProperty;
-import org.gradle.nativeplatform.NativeBinarySpec;
+import org.gradle.nativeplatform.BuildType;
+import org.gradle.nativeplatform.platform.NativePlatform;
 
 public abstract class CombinedNativeDependency implements NativeDependency {
 
@@ -35,12 +37,12 @@ public abstract class CombinedNativeDependency implements NativeDependency {
     }
 
     @Override
-    public ResolvedNativeDependency resolveNativeDependency(NativeBinarySpec binary, FastDownloadDependencySet loaderDependencySet) {
+    public Optional<ResolvedNativeDependency> resolveNativeDependency(NativePlatform platform, BuildType buildType, Optional<FastDownloadDependencySet> loaderDependencySet) {
         Map<String, List<String>> dependencies = getDependencies().get();
 
-        List<String> depsForPlatform = dependencies.getOrDefault(binary.getTargetPlatform().getName(), null);
+        List<String> depsForPlatform = dependencies.getOrDefault(platform.getName(), null);
         if (depsForPlatform == null) {
-            return null;
+            return Optional.empty();
         }
 
         ProjectLayout projectLayout = getProjectLayout();
@@ -51,13 +53,13 @@ public abstract class CombinedNativeDependency implements NativeDependency {
         FileCollection runtimeFiles = projectLayout.files();
 
         for (String dep : depsForPlatform) {
-            ResolvedNativeDependency resolved = dependencyCollection.getByName(dep).resolveNativeDependency(binary, loaderDependencySet);
+            ResolvedNativeDependency resolved = dependencyCollection.getByName(dep).resolveNativeDependency(platform, buildType, loaderDependencySet).get();
             includeRoots = includeRoots.plus(resolved.getIncludeRoots());
             sourceRoots = sourceRoots.plus(resolved.getSourceRoots());
             linkFiles = linkFiles.plus(resolved.getLinkFiles());
             runtimeFiles = runtimeFiles.plus(resolved.getRuntimeFiles());
         }
 
-        return new ResolvedNativeDependency(includeRoots, sourceRoots, linkFiles, runtimeFiles);
+        return Optional.of(new ResolvedNativeDependency(includeRoots, sourceRoots, linkFiles, runtimeFiles));
     }
 }
