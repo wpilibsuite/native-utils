@@ -23,6 +23,6 @@ Keys
 | jsonUrl | String | The URL that the vendordep json file can be found at. | No. |
 | fileName | String | The name of the file this vendordep should be found in. | No. |
 | frcYear | String | The FRC year that this project should be compatible with | No. |
-| javaDependencies | JavaArtifact[] |
-| jniDependencies | JniArtifact[] |
-| cppDependencies | CppArtifact[] |
+| javaDependencies | JavaArtifact[] | The Java artifacts that the project exports. | No. |
+| jniDependencies | JniArtifact[] | The JNI Artifacts that the project exports. | No. |
+| cppDependencies | CppArtifact[] | The C++ Artifacts that the project exports. | No. |
