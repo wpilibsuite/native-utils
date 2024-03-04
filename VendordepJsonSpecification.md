@@ -20,7 +20,7 @@ Keys
 | uuid | String | The unique identifier for the vendordep. Used to avoid replicating vendordeps in projects. | No. |
 | mavenUrls | String[] | An array of urls pointing to the root of the maven repository storing the vendordep. | No. |
 | extraGroupIds | String[] | | Yes. |
-| jsonUrl | String | The URL that the vendordep json file can be found at. | No. |
+| jsonUrl | String | The URL that the vendordep json file can be found at. | Yes. |
 | fileName | String | The name of the file this vendordep should be found in. | No. |
 | frcYear | String | The FRC year that this project should be compatible with | No. |
 | javaDependencies | JavaArtifact[] | The Java artifacts that the project exports. | No. |
