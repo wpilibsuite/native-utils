@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -315,7 +316,7 @@ public abstract class WPIVendorDepsExtension {
         public VendorDependency[] conflictsWith;
         public String[] mavenUrls;
         public String[] extraGroupIds;
-        public String jsonUrl;
+        public Optional<String> jsonUrl;
         public String fileName;
         public String frcYear;
         public JavaArtifact[] javaDependencies;
