@@ -22,6 +22,7 @@ import org.gradle.api.provider.Property;
 import org.gradle.nativeplatform.plugins.NativeComponentPlugin;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import edu.wpi.first.deployutils.log.ETLogger;
 import edu.wpi.first.deployutils.log.ETLoggerFactory;
@@ -48,7 +49,7 @@ public abstract class WPIVendorDepsExtension {
     }
 
     private final ETLogger log;
-    private final Gson gson = new Gson();
+    private final Gson gson;
 
     public static final String DEFAULT_VENDORDEPS_FOLDER_NAME = "vendordeps";
     public static final String NATIVEUTILS_VENDOR_FOLDER_PROPERTY = "nativeutils.vendordep.folder.path";
@@ -70,6 +71,10 @@ public abstract class WPIVendorDepsExtension {
 
     @Inject
     public WPIVendorDepsExtension(Project project) {
+        GsonBuilder builder = new GsonBuilder();
+        builder.setPrettyPrinting();
+        builder.registerTypeAdapterFactory(OptionalTypeAdapter.FACTORY);
+        gson = builder.create();
 
         frcYear = project.getObjects().property(String.class);
         frcHome = project.getObjects().directoryProperty();
