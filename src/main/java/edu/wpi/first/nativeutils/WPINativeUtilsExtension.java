@@ -76,7 +76,7 @@ public class WPINativeUtilsExtension {
         public final List<String> linuxReleaseCompilerArgs = List.of("-O2");
         public final List<String> linuxDebugCompilerArgs = List.of("-O0");
 
-        public final String macMinimumVersionArg = "-mmacosx-version-min=12";
+        public final String macMinimumVersionArg = "-mmacosx-version-min=13";
 
         public final List<String> macCompilerArgs = List.of("-std=c++20", "-pedantic", "-fPIC", "-Wno-unused-parameter",
                 "-Wno-error=deprecated-enum-enum-conversion", "-Wno-missing-field-initializers",
