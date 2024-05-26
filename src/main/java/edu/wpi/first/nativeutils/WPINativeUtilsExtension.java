@@ -43,7 +43,7 @@ public class WPINativeUtilsExtension {
         public final List<String> windowsCCompilerArgs = List.of("/FS", "/Zc:inline", "/D_CRT_SECURE_NO_WARNINGS");
         public final List<String> windowsReleaseCompilerArgs = List.of("/O2", "/MD");
         public final List<String> windowsDebugCompilerArgs = List.of("/Od", "/MDd");
-        public final List<String> windowsLinkerArgs = List.of("/DEBUG:FULL", "/PDBALTPATH:%_PDB%");
+        public final List<String> windowsLinkerArgs = List.of("/DEBUG:FULL", "/PDBALTPATH:%_PDB%", "/DEPENDENTLOADFLAG:0x1100");
         public final List<String> windowsReleaseLinkerArgs = List.of("/OPT:REF", "/OPT:ICF");
 
         public final String windowsSymbolArg = "/Zi";
