@@ -80,7 +80,8 @@ public class WPINativeUtilsExtension {
 
         public final List<String> macCompilerArgs = List.of("-std=c++20", "-pedantic", "-fPIC", "-Wno-unused-parameter",
                 "-Wno-error=deprecated-enum-enum-conversion", "-Wno-missing-field-initializers",
-                "-Wno-unused-private-field", "-Wno-unused-const-variable", "-Wno-error=c11-extensions", "-pthread");
+                "-Wno-unused-private-field", "-Wno-unused-const-variable", "-Wno-error=c11-extensions", "-pthread",
+                "-Wno-deprecated-anon-enum-enum-conversion");
         public final List<String> macCCompilerArgs = List.of("-pedantic", "-fPIC", "-Wno-unused-parameter",
                 "-Wno-missing-field-initializers", "-Wno-unused-private-field", "-Wno-fixed-enum-extension");
         public final List<String> macObjcppCompilerArgs = List.of("-std=c++20", "-stdlib=libc++", "-fobjc-weak",
