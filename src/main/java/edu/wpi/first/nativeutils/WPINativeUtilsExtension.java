@@ -54,7 +54,6 @@ public class WPINativeUtilsExtension {
         public final List<String> unixWarningArgs = List.of("-Wall", "-Wextra");
         public final List<String> unixWarningsAsErrorsArgs = List.of("-Werror");
 
-        public final String unixRpathOriginArg = "-Wl,-rpath,'$ORIGIN'";
         public final String unixSymbolArg = "-g";
 
         // -Wdeprecated-enum-enum-conversion was introduced in GCC 11
@@ -64,7 +63,7 @@ public class WPINativeUtilsExtension {
         public final List<String> linuxCrossCompilerExtraArgs10 = List.of("-Wno-error=deprecated-declarations");
         public final List<String> linuxCrossCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
                 "-Wno-unused-parameter", "-fPIC", "-pthread");
-        public final List<String> linuxCrossLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic");
+        public final List<String> linuxCrossLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic", "-Wl,-rpath,'$ORIGIN'");
         public final List<String> linuxCrossReleaseCompilerArgs = List.of("-O2");
         public final List<String> linuxCrossDebugCompilerArgs = List.of("-Og");
 
@@ -72,7 +71,7 @@ public class WPINativeUtilsExtension {
                 "-Wno-unused-parameter", "-Wno-error=deprecated-enum-enum-conversion", "-fPIC", "-pthread");
         public final List<String> linuxCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
                 "-Wno-unused-parameter", "-fPIC", "-pthread");
-        public final List<String> linuxLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic");
+        public final List<String> linuxLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic", "-Wl,-rpath,'$ORIGIN'");
         public final List<String> linuxReleaseCompilerArgs = List.of("-O2");
         public final List<String> linuxDebugCompilerArgs = List.of("-O0");
 
@@ -91,7 +90,7 @@ public class WPINativeUtilsExtension {
         public final List<String> macDebugCompilerArgs = List.of("-O0");
         public final List<String> macLinkerArgs = List.of("-framework", "CoreFoundation", "-framework", "AVFoundation",
                 "-framework", "Foundation", "-framework", "CoreMedia", "-framework", "CoreVideo",
-                "-headerpad_max_install_names");
+                "-headerpad_max_install_names", "-Wl,-rpath,'@loader_path'");
     }
 
     public static class Platforms {
@@ -375,26 +374,6 @@ public class WPINativeUtilsExtension {
         } else {
             for (String platform : platforms) {
                 addPlatformWarningsAsErrors(platform);
-            }
-        }
-    }
-
-    private void addPlatformRpathAsOrigin(String platform) {
-        PlatformConfig plat = unixPlatforms.get(platform);
-        if (plat != null) {
-            plat.getLinker().getArgs().add(defaultArguments.unixRpathOriginArg);
-            return;
-        }
-    }
-
-    public void addPlatformRpathAsOrigin(String... platforms) {
-        if (platforms.length == 0) {
-            for (String platform : this.platforms.allPlatforms) {
-                addPlatformRpathAsOrigin(platform);
-            }
-        } else {
-            for (String platform : platforms) {
-                addPlatformRpathAsOrigin(platform);
             }
         }
     }
