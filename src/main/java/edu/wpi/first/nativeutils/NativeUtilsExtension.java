@@ -94,6 +94,12 @@ public class NativeUtilsExtension {
     });
   }
 
+  private <T extends NativeDependency> void addNativeDependencyType(Class<T> cls, Object arg0, Object arg1) {
+    dependencyContainer.registerFactory(cls, name -> {
+      return objectFactory.newInstance(cls, name, arg0, arg1);
+    });
+  }
+
   @Inject
   public NativeUtilsExtension(Project project, ToolchainExtension tcExt) {
     this.project = project;
@@ -105,8 +111,8 @@ public class NativeUtilsExtension {
     });
 
     dependencyContainer = objectFactory.polymorphicDomainObjectContainer(NativeDependency.class);
-    addNativeDependencyType(WPIStaticMavenDependency.class, project);
-    addNativeDependencyType(WPISharedMavenDependency.class, project);
+    addNativeDependencyType(WPIStaticMavenDependency.class, project, dependencyContainer);
+    addNativeDependencyType(WPISharedMavenDependency.class, project, dependencyContainer);
     addNativeDependencyType(WPIHeaderOnlyMavenDependency.class, project);
 
     addNativeDependencyType(CombinedIgnoreMissingPlatformNativeDependency.class, dependencyContainer);
