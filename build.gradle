@@ -11,6 +11,11 @@ java {
     targetCompatibility = 17
 }
 
+buildScan {
+    termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+    termsOfServiceAgree = 'yes'
+}
+
 allprojects {
     group = "edu.wpi.first"
     version = "2025.1.0"

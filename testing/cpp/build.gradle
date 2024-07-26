@@ -5,6 +5,13 @@ plugins {
     id "edu.wpi.first.NativeUtils" version "2025.1.0"
 }
 
+deploy {
+    targets {
+        myTarget(getTargetTypeClass("RemoteTarget")) {
+        }
+    }
+}
+
 nativeUtils.addWpiNativeUtils()
 nativeUtils.withCrossRoboRIO()
 nativeUtils.withCrossLinuxArm32()
