@@ -1,1 +1,2 @@
 include ':ToolchainPlugin'
+include ':GradleJni'
