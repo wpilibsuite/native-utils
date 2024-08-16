@@ -124,7 +124,6 @@ nativeUtils.wpi.configureDependencies {
   wpiVersion = ""
   niLibVersion = ""
   opencvVersion = ""
-  googleTestVersion = ""
 }
 
 // The 6 below get the string representation of the main platforms
