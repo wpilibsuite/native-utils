@@ -11,6 +11,8 @@ import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
+import edu.wpi.first.toolchain.NativePlatforms;
+
 public abstract class ExtractDefFileGeneratorTask extends DefaultTask {
 
   @OutputFile
@@ -19,7 +21,8 @@ public abstract class ExtractDefFileGeneratorTask extends DefaultTask {
   @TaskAction
   public void execute() {
     File file = getDefFileGenerator().getAsFile().get();
-    InputStream is = ExportsConfigRules.class.getResourceAsStream("/DefFileGenerator.exe");
+    String platformId = (NativePlatforms.desktopPlatformArch(getProject()) == NativePlatforms.x64arch ? "x64" : "arm64");
+    InputStream is = ExportsConfigRules.class.getResourceAsStream("/" + platformId + "/DefFileGenerator.exe");
     OutputStream os = null;
 
     byte[] buffer = new byte[1024];
