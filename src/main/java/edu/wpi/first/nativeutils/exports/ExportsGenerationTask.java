@@ -71,10 +71,6 @@ public abstract class ExportsGenerationTask extends DefaultTask implements Actio
         try (Stream<String> stream = Files.lines(defFile.toPath())) {
             stream.map(s -> s.trim()).forEach(line -> {
                 String symbol = line;
-                int space = line.indexOf(' ');
-                if (space != -1) {
-                    symbol = symbol.substring(0, space);
-                }
                 if (!symbol.equals("EXPORTS") && !exSymbols.contains(symbol)) {
                     lines.add(symbol);
                 }
