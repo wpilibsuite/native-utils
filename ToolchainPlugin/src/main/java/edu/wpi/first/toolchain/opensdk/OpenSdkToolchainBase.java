@@ -2,6 +2,8 @@ package edu.wpi.first.toolchain.opensdk;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.gradle.api.GradleException;
@@ -69,9 +71,9 @@ public class OpenSdkToolchainBase {
     public URL toolchainDownloadUrl() {
         String file = toolchainRemoteFile();
         try {
-            return new URL("https://github.com/wpilibsuite/opensdk/releases/download/" + tcExt.getToolchainTag().get()
-                    + "/" + file);
-        } catch (MalformedURLException e) {
+            return new URI("https://github.com/wpilibsuite/opensdk/releases/download/" + tcExt.getToolchainTag().get()
+                    + "/" + file).toURL();
+        } catch (MalformedURLException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
