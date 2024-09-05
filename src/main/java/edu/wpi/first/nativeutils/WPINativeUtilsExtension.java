@@ -263,6 +263,7 @@ public class WPINativeUtilsExtension {
         platform.getCppCompiler().getArgs().add(defaultArguments.macMinimumVersionArg);
         platform.getObjcCompiler().getArgs().add(defaultArguments.macMinimumVersionArg);
         platform.getObjcppCompiler().getArgs().add(defaultArguments.macMinimumVersionArg);
+        platform.getLinker().getArgs().add(defaultArguments.macMinimumVersionArg);
     }
 
     public static abstract class DependencyVersions {
