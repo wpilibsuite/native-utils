@@ -451,7 +451,7 @@ public class WPINativeUtilsExtension {
 
     private void registerStaticOnlyStandardDependency(
             ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs,
-            String name, Provider<String> groupId, String artifactId, Property<String> version) {
+            String name, String groupId, String artifactId, Property<String> version) {
         configs.register(name + "_static", WPIStaticMavenDependency.class, c -> {
             c.getGroupId().set(groupId);
             c.getArtifactId().set(artifactId);
@@ -563,13 +563,11 @@ public class WPINativeUtilsExtension {
 
         Provider<String> opencvYearGroup = provider
                 .provider(() -> "edu.wpi.first.thirdparty." + dependencyVersions.getOpencvYear().get() + ".opencv");
-        Provider<String> googleTestYearGroup = provider
-                .provider(() -> "edu.wpi.first.thirdparty." + dependencyVersions.getGoogleTestYear().get());
 
         registerStandardDependency(configs, "opencv", opencvYearGroup, "opencv-cpp",
                 dependencyVersions.getOpencvVersion());
-        registerStaticOnlyStandardDependency(configs, "googletest", googleTestYearGroup, "googletest",
-                dependencyVersions.getGoogleTestVersion());
+        registerStaticOnlyStandardDependency(configs, "googletest", "edu.wpi.first.thirdparty.googletest", "googletest-cpp",
+                wpiVersion);
 
         configs.register("wpilib_jni", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
