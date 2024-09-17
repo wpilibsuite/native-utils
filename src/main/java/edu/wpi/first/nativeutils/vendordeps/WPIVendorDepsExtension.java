@@ -336,7 +336,7 @@ public abstract class WPIVendorDepsExtension {
         public VendorDependency[] conflictsWith;
         public String[] mavenUrls;
         public String[] extraGroupIds;
-        public String jsonUrl;
+        public String jsonUrl = "";
         public String fileName;
         public String frcYear;
         public JavaArtifact[] javaDependencies;
