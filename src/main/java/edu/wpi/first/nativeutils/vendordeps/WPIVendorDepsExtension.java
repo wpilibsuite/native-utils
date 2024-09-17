@@ -19,6 +19,7 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.provider.Property;
 import org.gradle.nativeplatform.plugins.NativeComponentPlugin;
+import org.gradle.tooling.BuildException;
 
 import com.google.gson.Gson;
 
@@ -165,7 +166,11 @@ public abstract class WPIVendorDepsExtension {
         for (File f : vendorFiles(directory)) {
             JsonDependency dep = parse(f);
             if (dep != null) {
-                load(dep);
+                try {
+                    load(dep);
+                } catch(Exception e) {
+                    throw new BuildException("Failed to load dependency", e);
+                }
             }
         }
     }
@@ -182,7 +187,7 @@ public abstract class WPIVendorDepsExtension {
         }
     }
 
-    private void load(JsonDependency dep) {
+    private void load(JsonDependency dep) throws VendorParsingException {
         // Don"t double-add a dependency!
         if (dependencySet.findByName(dep.uuid) != null) {
             return;
@@ -191,40 +196,56 @@ public abstract class WPIVendorDepsExtension {
         NamedJsonDependency namedDep = new NamedJsonDependency(dep.uuid, dep);
         dependencySet.add(namedDep);
 
-        if (dep.mavenUrls != null) {
-            // Enumerate all group ids
-            Set<String> groupIds = new HashSet<>();
-            for (CppArtifact cpp : dep.cppDependencies) {
-                groupIds.add(cpp.groupId);
+        if (dep.name == null) {
+            throw new VendorParsingException(VendorParsingError.MissingName);
+        }
+        String filename = dep.name;
+
+        if (dep.mavenUrls == null) {
+            throw new VendorParsingException(filename, VendorParsingError.NoMavenUrl);
+        }
+
+        // Enumerate all group ids
+        Set<String> groupIds = new HashSet<>();
+        if (dep.cppDependencies == null) {
+            throw new VendorParsingException(filename, VendorParsingError.MissingCppDeps);
+        }
+        for (CppArtifact cpp : dep.cppDependencies) {
+            groupIds.add(cpp.groupId);
+        }
+        if (dep.jniDependencies == null) {
+            throw new VendorParsingException(filename, VendorParsingError.MissingJniDeps);
+        }
+        for (JniArtifact jni : dep.jniDependencies) {
+            groupIds.add(jni.groupId);
+        }
+        if (dep.javaDependencies == null) {
+            throw new VendorParsingException(filename, VendorParsingError.MissingJavaDeps);
+        }
+        for (JavaArtifact java : dep.javaDependencies) {
+            groupIds.add(java.groupId);
+        }
+        if (dep.extraGroupIds != null) {
+            for (String groupId : dep.extraGroupIds) {
+                groupIds.add(groupId);
             }
-            for (JniArtifact jni : dep.jniDependencies) {
-                groupIds.add(jni.groupId);
-            }
-            for (JavaArtifact java : dep.javaDependencies) {
-                groupIds.add(java.groupId);
-            }
-            if (dep.extraGroupIds != null) {
-                for (String groupId : dep.extraGroupIds) {
-                    groupIds.add(groupId);
-                }
+        }
+
+        int i = 0;
+        for (String url : dep.mavenUrls) {
+            boolean found = false;
+
+            for (VendorMavenRepo machingRepo : vendorRepos.matching(x -> x.getUrl().equals(url))) {
+                found = true;
+                machingRepo.getAllowedGroupIds().addAll(groupIds);
             }
 
-            int i = 0;
-            for (String url : dep.mavenUrls) {
-                boolean found = false;
-
-                for (VendorMavenRepo machingRepo : vendorRepos.matching(x -> x.getUrl().equals(url))) {
-                    found = true;
-                    machingRepo.getAllowedGroupIds().addAll(groupIds);
-                }
-
-                // // Only add if the maven doesn"t yet exist.
-                if (!found) {
-                    String name = dep.uuid + "_" + i++;
-                    log.info("Registering vendor dep maven: " + name + " on project " + project.getPath());
-                    VendorMavenRepo repo = project.getObjects().newInstance(VendorMavenRepo.class, name, url, groupIds);
-                    vendorRepos.add(repo);
-                }
+            // // Only add if the maven doesn"t yet exist.
+            if (!found) {
+                String name = dep.uuid + "_" + i++;
+                log.info("Registering vendor dep maven: " + name + " on project " + project.getPath());
+                VendorMavenRepo repo = project.getObjects().newInstance(VendorMavenRepo.class, name, url, groupIds);
+                vendorRepos.add(repo);
             }
         }
     }
