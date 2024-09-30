@@ -12,6 +12,7 @@ import org.gradle.api.file.Directory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.options.Option;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import de.undercouch.gradle.tasks.download.DownloadAction;
@@ -22,6 +23,7 @@ import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.JsonDependenc
  */
 public class VendorDepTask extends DefaultTask {
     private String url;
+    private boolean update;
     private DownloadAction downloadAction = new DownloadAction(getProject());
     private WPIVendorDepsExtension wpiExt = getProject().getExtensions().getByType(WPIVendorDepsExtension.class);
 
@@ -30,41 +32,68 @@ public class VendorDepTask extends DefaultTask {
         this.url = url;
     }
 
+    @Option(option = "update", description = "Update the existing vendordeps")
+    public void update() {
+      update = true;
+    }
+
     /**
      * Installs the JSON file
      * @throws java.io.IOException throws on ioexception
      */
     @TaskAction
     public void install() throws IOException {
-        String filename = findFileName(url);
-        Path dest = computeDest(filename);
-        if (url.startsWith("FRCLOCAL/")) {
-            getLogger().info("Locally fetching $filename");
-            copyLocal(filename, dest);
-        } else {
-            getLogger().info("Remotely fetching " + filename);
-            downloadRemote(dest);
-        }
-
-        var destString = dest.toString();
-        String newFilename;
-        try (BufferedReader reader = Files.newBufferedReader(dest)) {
-            newFilename = new GsonBuilder().create().fromJson(reader, JsonDependency.class).fileName;
-            if (newFilename == null) {
-              getLogger().warn("Couldn't find fileName field in " + destString + "\n Aborting");
-              return;
+        if (update) {
+          Gson gson = new GsonBuilder().create();
+          Object property = getProject().findProperty(WPIVendorDepsExtension.NATIVEUTILS_VENDOR_FOLDER_PROPERTY);
+          File destfolder = new File(property != null ? (String)property : WPIVendorDepsExtension.DEFAULT_VENDORDEPS_FOLDER_NAME);
+          File[] vendordeps = destfolder.listFiles();
+          if (vendordeps != null) {
+            for (File vendordep : vendordeps) {
+              getLogger().info("Remotely fetching " + vendordep.toString());
+              BufferedReader reader = Files.newBufferedReader(Path.of(vendordep.getPath()));
+              var jsonUrl = gson.fromJson(reader, JsonDependency.class).jsonUrl;
+              if (jsonUrl != null) {
+                url = jsonUrl;
+                downloadRemote(Path.of(vendordep.getPath()));
+              } else {
+                getLogger().warn("Couldn't get jsonUrl for " + vendordep);
+              }
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        File file = new File(destString);
-        int lastPathSeparator = dest.toString().lastIndexOf('/');
-        File newFile = new File(dest.toString().substring(0, lastPathSeparator + 1) + newFilename);
-        boolean didRename = file.renameTo(newFile);
-        if (didRename) {
-          getLogger().info("Succesfully renamed " + file.toString() + " to " + newFile.toString());
+          } else {
+            getLogger().warn("Couldn't update vendordeps, invalid directory.");
+          }
         } else {
-          getLogger().warn("Failed to rename file " + file.toString() + " to " + newFile.toString());
+          String filename = findFileName(url);
+          Path dest = computeDest(filename);
+          if (url.startsWith("FRCLOCAL/")) {
+              getLogger().info("Locally fetching $filename");
+              copyLocal(filename, dest);
+          } else {
+              getLogger().info("Remotely fetching " + filename);
+              downloadRemote(dest);
+          }
+
+          var destString = dest.toString();
+          String newFilename;
+          try (BufferedReader reader = Files.newBufferedReader(dest)) {
+              newFilename = new GsonBuilder().create().fromJson(reader, JsonDependency.class).fileName;
+              if (newFilename == null) {
+                getLogger().warn("Couldn't find fileName field in " + destString + "\n Aborting");
+                return;
+              }
+          } catch (IOException e) {
+              throw new RuntimeException(e);
+          }
+          File file = new File(destString);
+          int lastPathSeparator = dest.toString().lastIndexOf('/');
+          File newFile = new File(dest.toString().substring(0, lastPathSeparator + 1) + newFilename);
+          boolean didRename = file.renameTo(newFile);
+          if (didRename) {
+            getLogger().info("Succesfully renamed " + file.toString() + " to " + newFile.toString());
+          } else {
+            getLogger().warn("Failed to rename file " + file.toString() + " to " + newFile.toString());
+          }
         }
     }
 
