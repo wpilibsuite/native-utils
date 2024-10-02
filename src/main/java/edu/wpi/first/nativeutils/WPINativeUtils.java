@@ -1,5 +1,7 @@
 package edu.wpi.first.nativeutils;
 
+import java.io.IOException;
+
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.options.Option;
@@ -41,6 +43,12 @@ public class WPINativeUtils implements Plugin<Project> {
                 + "--version -s %s %s", developerID, path);
                 builder.command("sh", "-c", codesigncommand);
                 builder.directory(project.getRootDir());
+
+                try {
+                  builder.start();
+                } catch (IOException e) {
+                  throw new RuntimeException(e);
+                }
               }
           });
         }
