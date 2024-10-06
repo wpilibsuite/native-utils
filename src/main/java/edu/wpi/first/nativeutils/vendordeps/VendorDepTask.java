@@ -1,5 +1,6 @@
 package edu.wpi.first.nativeutils.vendordeps;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,7 +12,10 @@ import org.gradle.api.file.Directory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.options.Option;
 
+import com.google.gson.GsonBuilder;
+
 import de.undercouch.gradle.tasks.download.DownloadAction;
+import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.JsonDependency;
 
 /**
  * A task type for downloading vendordep JSON files from the vendor URL.
@@ -40,6 +44,27 @@ public class VendorDepTask extends DefaultTask {
         } else {
             getLogger().info("Remotely fetching " + filename);
             downloadRemote(dest);
+        }
+
+        var destString = dest.toString();
+        String newFilename;
+        try (BufferedReader reader = Files.newBufferedReader(dest)) {
+            newFilename = new GsonBuilder().create().fromJson(reader, JsonDependency.class).fileName;
+            if (newFilename == null) {
+              getLogger().warn("Couldn't find fileName field in " + destString + "\n Aborting");
+              return;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        File file = new File(destString);
+        int lastPathSeparator = dest.toString().lastIndexOf('/');
+        File newFile = new File(dest.toString().substring(0, lastPathSeparator + 1) + newFilename);
+        boolean didRename = file.renameTo(newFile);
+        if (didRename) {
+          getLogger().info("Succesfully renamed " + file.toString() + " to " + newFile.toString());
+        } else {
+          getLogger().warn("Failed to rename file " + file.toString() + " to " + newFile.toString());
         }
     }
 
