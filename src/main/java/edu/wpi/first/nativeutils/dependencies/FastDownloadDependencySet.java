@@ -18,21 +18,10 @@ public class FastDownloadDependencySet implements NativeDependencySet, SourceCon
 
     public void addConfiguration(ArtifactType type, Configuration configuration) {
         switch (type) {
-        case SOURCES:
-            sourcesConfiguration.extendsFrom(configuration);
-            break;
-        case HEADERS:
-            headerConfiguration.extendsFrom(configuration);
-            break;
-        case LINK:
-            linkConfiguration.extendsFrom(configuration);
-            break;
-        case RUNTIME:
-            runtimeConfiguration.extendsFrom(configuration);
-            break;
-
-        default:
-            break;
+        case SOURCES -> sourcesConfiguration.extendsFrom(configuration);
+        case HEADERS -> headerConfiguration.extendsFrom(configuration);
+        case LINK -> linkConfiguration.extendsFrom(configuration);
+        case RUNTIME -> runtimeConfiguration.extendsFrom(configuration);
         }
     }
 
