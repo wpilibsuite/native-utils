@@ -12,17 +12,23 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Property;
 import org.gradle.nativeplatform.BuildType;
 import org.gradle.nativeplatform.platform.NativePlatform;
+import org.gradle.api.NamedDomainObjectCollection;
+import org.gradle.api.provider.ListProperty;
 
 public abstract class WPISharedMavenDependency extends WPIMavenDependency {
     public static final List<String> SHARED_MATCHERS = List.of("**/*.so", "**/*.so.*", "**/*.dylib", "**/*.lib");
     public static final List<String> RUNTIME_MATCHERS = List.of("**/*.so", "**/*.so.*", "**/*.dylib", "**/*.dll", "**/*.pdb");
     public static final List<String> SHARED_EXCLUDES = List.of("**/*.so.debug", "**/*.so.*.debug", "**/*jni*");
     public static final List<String> RUNTIME_EXCLUDES = List.of();
+    protected final NamedDomainObjectCollection<NativeDependency> dependencyCollection;
 
     @Inject
-    public WPISharedMavenDependency(String name, Project project) {
+    public WPISharedMavenDependency(String name, Project project, NamedDomainObjectCollection<NativeDependency> dependencyCollection) {
         super(name, project);
+        this.dependencyCollection = dependencyCollection;
     }
+    
+    public abstract ListProperty<String> getDependencies();
 
     @Override
     public Optional<ResolvedNativeDependency> resolveNativeDependency(NativePlatform platform, BuildType buildType, Optional<FastDownloadDependencySet> loaderDependencySet) {
@@ -56,6 +62,16 @@ public abstract class WPISharedMavenDependency extends WPIMavenDependency {
             runtimeFiles = getProject().files();
         } else {
             runtimeFiles = getArtifactFiles(platformName, buildTypeName, RUNTIME_MATCHERS, RUNTIME_EXCLUDES, ArtifactType.RUNTIME, loaderDependencySet);
+        }
+
+        
+        List<String> dependencies = getDependencies().get();
+        for (String dep : dependencies) {
+            ResolvedNativeDependency resolved = dependencyCollection.getByName(dep).resolveNativeDependency(platform, buildType, loaderDependencySet).get();
+            headers = headers.plus(resolved.getIncludeRoots());
+            sources = sources.plus(resolved.getSourceRoots());
+            linkFiles = linkFiles.plus(resolved.getLinkFiles());
+            runtimeFiles = runtimeFiles.plus(resolved.getRuntimeFiles());
         }
 
         resolvedDep = Optional.of(new ResolvedNativeDependency(headers, sources, linkFiles, runtimeFiles));
