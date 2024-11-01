@@ -222,3 +222,5 @@ gradle-app.setting
 .vscode/
 
 !src/resources/DefFileGenerator.exe
+
+testing/cpp/vendordeps
