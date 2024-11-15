@@ -21,16 +21,16 @@ jobs:
     - name: Check output
       run: git --no-pager diff --exit-code HEAD
     - name: InstallRioTC
-      run: ./gradlew installRoboRioToolchain
+      run: ../../gradlew installRoboRioToolchain
       working-directory: testing/cpp
     - name: InstallArm32Tc
-      run: ./gradlew installArm32Toolchain
+      run: ../../gradlew installArm32Toolchain
       working-directory: testing/cpp
     - name: InstallArm64Tc
-      run: ./gradlew installArm64Toolchain
+      run: ../../gradlew installArm64Toolchain
       working-directory: testing/cpp
     - name: Build Test
-      run: ./gradlew build
+      run: ../../gradlew build
       working-directory: testing/cpp
 
   publish:
