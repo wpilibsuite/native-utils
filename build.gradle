@@ -91,7 +91,6 @@ tasks.register('PatchExamples') {
     }
 }
 
-build.dependsOn PatchExamples
 jar.finalizedBy PatchExamples
 
 wrapper {
