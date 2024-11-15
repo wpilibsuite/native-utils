@@ -13,6 +13,7 @@ import org.gradle.api.Project;
 import org.gradle.internal.logging.text.DiagnosticsVisitor;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.toolchain.Gcc;
+import org.gradle.process.ExecOperations;
 
 import edu.wpi.first.toolchain.arm32.Arm32ToolchainPlugin;
 import edu.wpi.first.toolchain.arm64.Arm64ToolchainPlugin;
@@ -45,7 +46,7 @@ public class ToolchainExtension {
     }
 
     @Inject
-    public ToolchainExtension(Project project, ToolchainGraphBuildService rootExtension) {
+    public ToolchainExtension(Project project, ToolchainGraphBuildService rootExtension, ExecOperations operations) {
         this.project = project;
         this.rootExtension = rootExtension;
 
@@ -67,13 +68,15 @@ public class ToolchainExtension {
                 descriptor.getVersionLow().convention("0.0");
                 descriptor.getVersionHigh().convention("1000.0");
 
-                descriptor.getToolchainPlatform().set(project.provider(() -> config.getOperatingSystem().get() + config.getArchitecture().get()));
+                descriptor.getToolchainPlatform().set(
+                        project.provider(() -> config.getOperatingSystem().get() + config.getArchitecture().get()));
                 toolchainDescriptors.add(descriptor);
 
-                descriptor.getDiscoverers().add(ToolchainDiscoverer.forSystemPath(project, rootExtension, descriptor, name -> {
-                    String exeSuffix = OperatingSystem.current().isWindows() ? ".exe" : "";
-                    return config.getCompilerPrefix().get() + name + exeSuffix;
-                }));
+                descriptor.getDiscoverers()
+                        .add(ToolchainDiscoverer.forSystemPath(project, rootExtension, descriptor, name -> {
+                            String exeSuffix = OperatingSystem.current().isWindows() ? ".exe" : "";
+                            return config.getCompilerPrefix().get() + name + exeSuffix;
+                        }, operations));
 
                 config.getToolchainDescriptor().set(descriptor);
             } else {
@@ -85,9 +88,10 @@ public class ToolchainExtension {
 
     public void setSinglePrintPerPlatform() {
         rootExtension.setSinglePrintPerPlatform();
-        // ToolchainUtilExtension tcuExt = project.getExtensions().findByType(ToolchainUtilExtension.class);
+        // ToolchainUtilExtension tcuExt =
+        // project.getExtensions().findByType(ToolchainUtilExtension.class);
         // if (tcuExt != null) {
-        //     tcuExt.setSkipBinaryToolchainMissingWarning(true);
+        // tcuExt.setSkipBinaryToolchainMissingWarning(true);
         // }
     }
 

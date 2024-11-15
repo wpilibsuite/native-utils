@@ -7,10 +7,10 @@ import java.util.Optional;
 import javax.inject.Inject;
 
 import org.gradle.api.Action;
-import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
+import org.gradle.process.ExecOperations;
 
 import edu.wpi.first.deployutils.log.ETLogger;
 import edu.wpi.first.deployutils.log.ETLoggerFactory;
@@ -21,7 +21,7 @@ public class OrderedStripTask implements Action<Task> {
     public final NativeBinarySpec binary;
     public final AbstractLinkTask linkTask;
     public final GccExtension gcc;
-    public final Project project;
+    public final ExecOperations operations;
     private boolean performStripAll = false;
     private boolean performDebugStrip = false;
 
@@ -43,11 +43,11 @@ public class OrderedStripTask implements Action<Task> {
     }
 
     @Inject
-    public OrderedStripTask(ToolchainExtension tcExt, NativeBinarySpec binary, AbstractLinkTask linkTask, GccExtension gcc, Project project) {
+    public OrderedStripTask(ToolchainExtension tcExt, NativeBinarySpec binary, AbstractLinkTask linkTask, GccExtension gcc, ExecOperations operations) {
         this.tcExt = tcExt;
         this.binary = binary;
         this.linkTask = linkTask;
-        this.project = project;
+        this.operations = operations;
         this.gcc = gcc;
     }
 
@@ -79,17 +79,17 @@ public class OrderedStripTask implements Action<Task> {
             String objcopy = disc.tool("objcopy").get().toString();
             String strip = disc.tool("strip").get().toString();
 
-            project.exec((ex) -> {
+            operations.exec((ex) -> {
                 ex.commandLine(objcopy, "--only-keep-debug", mainFileStr, debugFile);
             });
-            project.exec((ex) -> {
+            operations.exec((ex) -> {
                 ex.commandLine(strip, "-g", mainFileStr);
             });
-            project.exec((ex) -> {
+            operations.exec((ex) -> {
                 ex.commandLine(objcopy, "--add-gnu-debuglink=" + debugFile, mainFileStr);
             });
             if (performStripAll) {
-                project.exec((ex) -> {
+                operations.exec((ex) -> {
                     ex.commandLine(strip, "--strip-all", "--discard-all", mainFileStr);
                 });
             }

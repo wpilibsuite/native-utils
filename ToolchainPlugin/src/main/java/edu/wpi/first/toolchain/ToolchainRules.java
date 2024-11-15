@@ -241,8 +241,7 @@ public class ToolchainRules extends RuleSource {
                 return null;
             }
 
-            strip = linkExt.getExtensions().create("orderedStrip", OrderedStripTask.class, tcExt, binary, link, gcc,
-                    project);
+            strip = linkExt.getExtensions().create("orderedStrip", OrderedStripTask.class, tcExt, binary, link, gcc);
             link.doLast(strip);
         }
         return strip;

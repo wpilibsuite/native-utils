@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import javax.inject.Inject;
+
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
@@ -18,6 +20,7 @@ import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.ExecOperations;
 import org.gradle.process.ExecSpec;
 
 import groovy.lang.Closure;
@@ -43,12 +46,19 @@ public abstract class ExportsGenerationTask extends DefaultTask implements Actio
 
     public abstract void setExportsConfig(ExportsConfig config);
 
+    private ExecOperations operations;
+
+    @Inject
+    public ExportsGenerationTask(ExecOperations operations) {
+        this.operations = operations;
+    }
+
     @TaskAction
     public void execute() {
         File defFile = getDefFile().get().getAsFile();
         defFile.getParentFile().mkdirs();
 
-        getProject().exec(this);
+        operations.exec(this);
 
         final List<String> lines = new ArrayList<>();
         List<String> excludeSymbols;
