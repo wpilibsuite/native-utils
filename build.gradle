@@ -13,7 +13,7 @@ java {
 
 allprojects {
     group = "edu.wpi.first"
-    version = "2025.5.0"
+    version = "2025.6.0"
 
     if (project.hasProperty('publishVersion')) {
         version = project.publishVersion
@@ -94,6 +94,6 @@ tasks.register('PatchExamples') {
 jar.finalizedBy PatchExamples
 
 wrapper {
-    gradleVersion = '8.5'
+    gradleVersion = '8.11'
     distributionType = Wrapper.DistributionType.BIN
 }

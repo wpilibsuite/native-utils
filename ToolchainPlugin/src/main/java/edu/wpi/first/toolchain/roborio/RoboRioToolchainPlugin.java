@@ -2,9 +2,12 @@ package edu.wpi.first.toolchain.roborio;
 
 import java.io.File;
 
+import javax.inject.Inject;
+
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.provider.Provider;
+import org.gradle.process.ExecOperations;
 
 import edu.wpi.first.toolchain.NativePlatforms;
 import edu.wpi.first.toolchain.ToolchainDescriptor;
@@ -21,6 +24,12 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
     private RoboRioToolchainExtension roborioExt;
     private Project project;
     private OpenSdkToolchainBase opensdk;
+    private ExecOperations operations;
+
+    @Inject
+    public RoboRioToolchainPlugin(ExecOperations operations) {
+        this.operations = operations;
+    }
 
     @Override
     public void apply(Project project) {
@@ -37,7 +46,7 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
         });
 
         opensdk = new OpenSdkToolchainBase(baseToolchainName, roborioExt, project,
-                RoboRioToolchainExtension.INSTALL_SUBDIR, "roborio-academic", prefixProvider, toolchainExt.getToolchainGraphService());
+                RoboRioToolchainExtension.INSTALL_SUBDIR, "roborio-academic", prefixProvider, toolchainExt.getToolchainGraphService(), operations);
 
         CrossCompilerConfiguration configuration = project.getObjects().newInstance(CrossCompilerConfiguration.class, NativePlatforms.roborio);
 
