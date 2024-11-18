@@ -183,7 +183,7 @@ public abstract class WPIVendorDepsExtension {
         try (BufferedReader reader = Files.newBufferedReader(f.toPath())) {
             return gson.fromJson(reader, JsonDependency.class);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to parse vendor dependency: " + f.getName(), e);
+            throw new BuildException("Failed to parse vendor dependency: " + f.getName(), e);
         }
     }
 
