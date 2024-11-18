@@ -15,7 +15,7 @@ import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainBase;
 public class Arm64ToolchainPlugin implements Plugin<Project> {
 
     public static final String toolchainName = "arm64";
-    public static final String baseToolchainName = "arm64-bullseye";
+    public static final String baseToolchainName = "arm64-bookworm";
 
     private Arm64ToolchainExtension arm64Ext;
     private OpenSdkToolchainBase opensdk;
@@ -33,7 +33,7 @@ public class Arm64ToolchainPlugin implements Plugin<Project> {
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
 
         opensdk = new OpenSdkToolchainBase(baseToolchainName, arm64Ext, project, Arm64ToolchainExtension.INSTALL_SUBDIR,
-                "bullseye", project.provider(() -> "aarch64-bullseye-linux-gnu"),
+                "bookworm", project.provider(() -> "aarch64-bookworm-linux-gnu"),
                 toolchainExt.getToolchainGraphService(), operations);
 
         CrossCompilerConfiguration configuration = project.getObjects().newInstance(CrossCompilerConfiguration.class,

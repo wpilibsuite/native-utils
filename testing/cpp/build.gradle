@@ -3,7 +3,7 @@ import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsPlugin
 
 plugins {
     id "cpp"
-    id "edu.wpi.first.NativeUtils" version "2025.6.0"
+    id "edu.wpi.first.NativeUtils" version "2025.7.0"
 }
 
 nativeUtils.addWpiNativeUtils()

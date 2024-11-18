@@ -15,7 +15,7 @@ import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainBase;
 public class Arm32ToolchainPlugin implements Plugin<Project> {
 
     public static final String toolchainName = "arm32";
-    public static final String baseToolchainName = "armhf-raspi-bullseye";
+    public static final String baseToolchainName = "armhf-raspi-bookworm";
 
     private Arm32ToolchainExtension arm32Ext;
     private OpenSdkToolchainBase opensdk;
@@ -35,7 +35,7 @@ public class Arm32ToolchainPlugin implements Plugin<Project> {
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
 
         opensdk = new OpenSdkToolchainBase(baseToolchainName, arm32Ext, project, Arm32ToolchainExtension.INSTALL_SUBDIR,
-                "raspi-bullseye", project.provider(() -> "armv6-bullseye-linux-gnueabihf"),
+                "raspi-bookworm", project.provider(() -> "armv6-bookworm-linux-gnueabihf"),
                 toolchainExt.getToolchainGraphService(), operations);
 
         CrossCompilerConfiguration configuration = project.getObjects().newInstance(CrossCompilerConfiguration.class,
