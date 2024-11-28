@@ -112,7 +112,7 @@ public class ToolchainExtension {
         }
     }
 
-    public void withSystemCore() {
+    public void withCrossSystemCore() {
         project.getPluginManager().apply(SystemCoreToolchainPlugin.class);
     }
 
