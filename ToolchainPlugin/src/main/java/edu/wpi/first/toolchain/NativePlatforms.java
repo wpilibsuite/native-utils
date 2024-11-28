@@ -8,6 +8,7 @@ import org.gradle.process.ExecOperations;
 public class NativePlatforms {
     public static final String desktop = desktopOS() + desktopArch();
     public static final String roborio = "linuxathena";
+    public static final String systemcore = "linuxsystemcore";
     public static final String linuxarm32 = "linuxarm32";
     public static final String linuxarm64 = "linuxarm64";
 

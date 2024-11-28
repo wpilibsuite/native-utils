@@ -28,6 +28,8 @@ jobs:
       working-directory: testing/cpp
     - name: InstallArm64Tc
       run: ../../gradlew installArm64Toolchain
+    - name: InstallSystemCoreTc
+      run: ../../gradlew installSystemCoreToolchain
       working-directory: testing/cpp
     - name: Build Test
       run: ../../gradlew build

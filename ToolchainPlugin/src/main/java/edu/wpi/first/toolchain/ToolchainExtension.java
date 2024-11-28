@@ -17,6 +17,7 @@ import org.gradle.process.ExecOperations;
 
 import edu.wpi.first.toolchain.arm32.Arm32ToolchainPlugin;
 import edu.wpi.first.toolchain.arm64.Arm64ToolchainPlugin;
+import edu.wpi.first.toolchain.systemcore.SystemCoreToolchainPlugin;
 import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
 import edu.wpi.first.toolchain.roborio.RoboRioToolchainPlugin;
 
@@ -109,6 +110,10 @@ public class ToolchainExtension {
         if (!NativePlatforms.desktop.equals(NativePlatforms.linuxarm64)) {
             project.getPluginManager().apply(Arm64ToolchainPlugin.class);
         }
+    }
+
+    public void withSystemCore() {
+        project.getPluginManager().apply(SystemCoreToolchainPlugin.class);
     }
 
     private boolean removeInvalidWindowsToolchains = true;
