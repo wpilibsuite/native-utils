@@ -55,7 +55,7 @@ public class SystemCoreToolchainPlugin implements Plugin<Project> {
                 toolchainName,
                 toolchainName + "Gcc",
                 configuration.getOptional());
-        descriptor.getToolchainPlatform().set(NativePlatforms.roborio);
+        descriptor.getToolchainPlatform().set(NativePlatforms.systemcore);
         descriptor.getVersionLow().set(systemcoreExt.getVersionLow());
         descriptor.getVersionHigh().set(systemcoreExt.getVersionHigh());
         configuration.getToolchainDescriptor().set(descriptor);
