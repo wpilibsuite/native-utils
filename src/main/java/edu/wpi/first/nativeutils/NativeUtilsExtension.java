@@ -50,6 +50,7 @@ import edu.wpi.first.toolchain.arm32.Arm32ToolchainPlugin;
 import edu.wpi.first.toolchain.arm64.Arm64ToolchainPlugin;
 import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
 import edu.wpi.first.toolchain.roborio.RoboRioToolchainPlugin;
+import edu.wpi.first.toolchain.systemcore.SystemCoreToolchainPlugin;
 
 public class NativeUtilsExtension {
 
@@ -364,6 +365,10 @@ public class NativeUtilsExtension {
 
   public void withCrossRoboRIO() {
     project.getPluginManager().apply(RoboRioToolchainPlugin.class);
+  }
+
+  public void withCrossSystemCore() {
+    project.getPluginManager().apply(SystemCoreToolchainPlugin.class);
   }
 
   public void withCrossLinuxArm32() {

@@ -95,6 +95,7 @@ public class WPINativeUtilsExtension {
 
     public static class Platforms {
         public final String roborio = "linuxathena";
+        public final String systemcore = "linuxsystemcore";
         public final String linuxarm32 = "linuxarm32";
         public final String linuxarm64 = "linuxarm64";
         public final String windowsx64 = "windowsx86-64";
@@ -102,7 +103,7 @@ public class WPINativeUtilsExtension {
         public final String windowsarm64 = "windowsarm64";
         public final String osxuniversal = "osxuniversal";
         public final String linuxx64 = "linuxx86-64";
-        public final List<String> allPlatforms = List.of(roborio, linuxarm32, linuxarm64, windowsx64,
+        public final List<String> allPlatforms = List.of(roborio, systemcore, linuxarm32, linuxarm64, windowsx64,
                 windowsx86, windowsarm64, osxuniversal, linuxx64);
         public final List<String> desktopPlatforms = List.of(windowsx64, windowsx86, windowsarm64, osxuniversal, linuxx64);
     }
@@ -219,14 +220,19 @@ public class WPINativeUtilsExtension {
         PlatformConfig linuxathena = nativeExt.getPlatformConfigs().create(platforms.roborio);
         PlatformConfig linuxarm32 = nativeExt.getPlatformConfigs().create(platforms.linuxarm32);
         PlatformConfig linuxarm64 = nativeExt.getPlatformConfigs().create(platforms.linuxarm64);
+        PlatformConfig linuxsystemcore = nativeExt.getPlatformConfigs().create(platforms.systemcore);
         unixPlatforms.put(platforms.linuxx64, linuxx86_64);
         unixPlatforms.put(platforms.osxuniversal, osxuniversal);
         unixPlatforms.put(platforms.linuxarm32, linuxarm32);
         unixPlatforms.put(platforms.roborio, linuxathena);
         unixPlatforms.put(platforms.linuxarm64, linuxarm64);
+        unixPlatforms.put(platforms.systemcore, linuxsystemcore);
 
         linuxathena.getPlatformPath().set("linux/athena");
         addLinuxCrossArgs(linuxathena, 12);
+
+        linuxsystemcore.getPlatformPath().set("linux/systemcore");
+        addLinuxCrossArgs(linuxsystemcore, 12);
 
         linuxarm32.getPlatformPath().set("linux/arm32");
         addLinuxCrossArgs(linuxarm32, 10);

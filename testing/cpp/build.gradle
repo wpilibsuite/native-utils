@@ -3,17 +3,19 @@ import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsPlugin
 
 plugins {
     id "cpp"
-    id "edu.wpi.first.NativeUtils" version "2025.6.0"
+    id "edu.wpi.first.NativeUtils" version "2025.7.0"
 }
 
 nativeUtils.addWpiNativeUtils()
 nativeUtils.withCrossRoboRIO()
 nativeUtils.withCrossLinuxArm32()
 nativeUtils.withCrossLinuxArm64()
+nativeUtils.withCrossSystemCore();
 
 nativeUtils.crossCompilers.getByName(NativePlatforms.roborio).optional = false
 nativeUtils.crossCompilers.getByName(NativePlatforms.linuxarm32).optional = false
 nativeUtils.crossCompilers.getByName(NativePlatforms.linuxarm64).optional = false
+nativeUtils.crossCompilers.getByName(NativePlatforms.systemcore).optional = false
 
 project.getPlugins().apply(WPIVendorDepsPlugin.class)
 
