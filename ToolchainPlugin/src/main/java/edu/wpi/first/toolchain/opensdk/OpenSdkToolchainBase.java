@@ -53,9 +53,9 @@ public class OpenSdkToolchainBase {
         } else {
             String desktopPlatformArch = NativePlatforms.desktopPlatformArch(operations);
             if (desktopPlatformArch.equals(NativePlatforms.arm64arch)) {
-                platformId = "aarch64-bullseye-linux-gnu";
+                platformId = "aarch64-bookworm-linux-gnu";
             } else if (desktopPlatformArch.equals(NativePlatforms.arm32arch)) {
-                platformId = "armv6-bullseye-linux-gnueabihf";
+                platformId = "armv6-bookworm-linux-gnueabihf";
             } else {
                 platformId = "x86_64-linux-gnu";
             }
