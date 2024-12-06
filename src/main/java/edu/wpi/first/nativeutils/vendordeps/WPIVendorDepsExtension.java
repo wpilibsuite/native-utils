@@ -121,7 +121,7 @@ public abstract class WPIVendorDepsExtension {
     public static List<File> vendorFiles(File directory) {
         if (directory.exists()) {
             return List.of(directory.listFiles(pathname -> {
-                return pathname.getName().endsWith(".json");
+                return pathname.getName().endsWith(".json") && !pathname.isHidden();
             }));
         } else {
             return List.of();
@@ -169,7 +169,7 @@ public abstract class WPIVendorDepsExtension {
                 try {
                     load(dep);
                 } catch(Exception e) {
-                    throw new BuildException("Failed to load dependency", e);
+                    throw new BuildException("Failed to load vendor dependency: " + f.getName(), e);
                 }
             }
         }
@@ -182,8 +182,8 @@ public abstract class WPIVendorDepsExtension {
     private JsonDependency parse(File f) {
         try (BufferedReader reader = Files.newBufferedReader(f.toPath())) {
             return gson.fromJson(reader, JsonDependency.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new BuildException("Failed to parse vendor dependency: " + f.getName(), e);
         }
     }
 
