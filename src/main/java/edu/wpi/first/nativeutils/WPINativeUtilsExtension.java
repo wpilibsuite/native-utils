@@ -56,11 +56,9 @@ public class WPINativeUtilsExtension {
 
         public final String unixSymbolArg = "-g";
 
-        // -Wdeprecated-enum-enum-conversion was introduced in GCC 11
         public final List<String> linuxCrossCompilerArgs = List.of("-std=c++20", "-Wformat=2", "-pedantic",
-                "-Wno-psabi", "-Wno-unused-parameter", "-fPIC", "-pthread");
-        public final List<String> linuxCrossCompilerExtraArgs11 = List.of("-Wno-error=deprecated-enum-enum-conversion");
-        public final List<String> linuxCrossCompilerExtraArgs10 = List.of("-Wno-error=deprecated-declarations");
+                "-Wno-psabi", "-Wno-unused-parameter", "-Wno-error=deprecated-enum-enum-conversion", "-fPIC",
+                "-pthread");
         public final List<String> linuxCrossCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
                 "-Wno-unused-parameter", "-fPIC", "-pthread");
         public final List<String> linuxCrossLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic", "-Wl,-rpath,'$ORIGIN'");
@@ -115,13 +113,8 @@ public class WPINativeUtilsExtension {
     private final Map<String, PlatformConfig> windowsPlatforms = new HashMap<>();
     private final Map<String, PlatformConfig> unixPlatforms = new HashMap<>();
 
-    public void addLinuxCrossArgs(PlatformConfig platform, int gccMajor) {
+    public void addLinuxCrossArgs(PlatformConfig platform) {
         platform.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerArgs);
-        if (gccMajor >= 11) {
-            platform.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerExtraArgs11);
-        } else {
-            platform.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerExtraArgs10);
-        }
         platform.getcCompiler().getArgs().addAll(defaultArguments.linuxCrossCCompilerArgs);
         platform.getLinker().getArgs().addAll(defaultArguments.linuxCrossLinkerArgs);
         platform.getCppCompiler().getDebugArgs().addAll(defaultArguments.linuxCrossDebugCompilerArgs);
@@ -229,16 +222,16 @@ public class WPINativeUtilsExtension {
         unixPlatforms.put(platforms.systemcore, linuxsystemcore);
 
         linuxathena.getPlatformPath().set("linux/athena");
-        addLinuxCrossArgs(linuxathena, 12);
+        addLinuxCrossArgs(linuxathena);
 
         linuxsystemcore.getPlatformPath().set("linux/systemcore");
-        addLinuxCrossArgs(linuxsystemcore, 12);
+        addLinuxCrossArgs(linuxsystemcore);
 
         linuxarm32.getPlatformPath().set("linux/arm32");
-        addLinuxCrossArgs(linuxarm32, 10);
+        addLinuxCrossArgs(linuxarm32);
 
         linuxarm64.getPlatformPath().set("linux/arm64");
-        addLinuxCrossArgs(linuxarm64, 10);
+        addLinuxCrossArgs(linuxarm64);
 
         windowsx86.getPlatformPath().set("windows/x86");
         addWindowsArgs(windowsx86);
@@ -254,13 +247,6 @@ public class WPINativeUtilsExtension {
 
         osxuniversal.getPlatformPath().set("osx/universal");
         addMacArgs(osxuniversal);
-    }
-
-    public void addGcc11CrossArgs(String platform) {
-        PlatformConfig config = unixPlatforms.get(platform);
-        if (config != null) {
-            config.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerExtraArgs11);
-        }
     }
 
     public void addMacMinimumVersionArg() {
