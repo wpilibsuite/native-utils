@@ -55,6 +55,7 @@ public class VendorDepTask extends DefaultTask {
               var jsonUrl = gson.fromJson(reader, JsonDependency.class).jsonUrl;
               if (jsonUrl != null) {
                 if (jsonUrl.isEmpty()) {
+                  getLogger().warn("Couldn't get jsonUrl for " + vendordep);
                   continue;
                 }
                 url = jsonUrl;
