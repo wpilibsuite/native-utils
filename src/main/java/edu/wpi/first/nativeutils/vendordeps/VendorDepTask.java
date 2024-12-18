@@ -54,6 +54,9 @@ public class VendorDepTask extends DefaultTask {
               BufferedReader reader = Files.newBufferedReader(Path.of(vendordep.getPath()));
               var jsonUrl = gson.fromJson(reader, JsonDependency.class).jsonUrl;
               if (jsonUrl != null) {
+                if (jsonUrl.isEmpty()) {
+                  continue;
+                }
                 url = jsonUrl;
                 downloadRemote(Path.of(vendordep.getPath()));
               } else {
