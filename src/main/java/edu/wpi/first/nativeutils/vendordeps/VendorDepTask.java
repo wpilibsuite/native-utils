@@ -24,7 +24,6 @@ import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.JsonDependenc
 public class VendorDepTask extends DefaultTask {
     private String url;
     private boolean update;
-    private DownloadAction downloadAction = new DownloadAction(getProject());
     private WPIVendorDepsExtension wpiExt = getProject().getExtensions().getByType(WPIVendorDepsExtension.class);
 
     @Option(option = "url", description = "The vendordep JSON URL or path")
@@ -58,8 +57,7 @@ public class VendorDepTask extends DefaultTask {
                   getLogger().warn("Couldn't get jsonUrl for " + vendordep);
                   continue;
                 }
-                url = jsonUrl;
-                downloadRemote(Path.of(vendordep.getPath()));
+                downloadRemote(Path.of(vendordep.getPath()), jsonUrl);
               } else {
                 getLogger().warn("Couldn't get jsonUrl for " + vendordep);
               }
@@ -75,7 +73,7 @@ public class VendorDepTask extends DefaultTask {
               copyLocal(filename, dest);
           } else {
               getLogger().info("Remotely fetching " + filename);
-              downloadRemote(dest);
+              downloadRemote(dest, url);
           }
 
           var destString = dest.toString();
@@ -172,7 +170,8 @@ public class VendorDepTask extends DefaultTask {
      * Download a vendor JSON file from a URL
      * @param dest the destination file
      */
-    private void downloadRemote(Path dest) throws IOException {
+    private void downloadRemote(Path dest, String url) throws IOException {
+        DownloadAction downloadAction = new DownloadAction(getProject());
         downloadAction.src(url);
         downloadAction.dest(dest.toFile());
         downloadAction.execute();
