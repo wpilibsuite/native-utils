@@ -190,6 +190,20 @@ public abstract class WPIVendorDepsExtension {
     private void load(JsonDependency dep) throws VendorParsingException {
         // Don"t double-add a dependency!
         if (dependencySet.findByName(dep.uuid) != null) {
+            String requiredFrcYear = frcYear.getOrNull();
+            if (requiredFrcYear != null) {
+                if (!requiredFrcYear.equals(dep.frcYear)) {
+                    log.logError("Warning! Ignoring duplicate vendordep: " + dep.fileName
+                            + " because it has the wrong year.");
+                    return;
+                }
+            }
+            NamedJsonDependency duplicateDep = dependencySet.findByName(dep.uuid);
+            log.logErrorHead(
+                    "Warning! Duplicate Vendordeps detected. " + dep.fileName + " and "
+                            + duplicateDep.getDependency().fileName);
+            log.logError("have the same UUID: " + dep.uuid);
+            log.logError("Remove one of these vendordeps to avoid conflicts.");
             return;
         }
 
