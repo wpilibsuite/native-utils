@@ -39,11 +39,14 @@ public class WPINativeUtilsExtension {
 
         public final List<String> windowsCompilerArgs = List.of("/EHsc", "/FS", "/Zc:inline", "/wd4244", "/wd4267",
                 "/wd4146", "/wd4996", "/Zc:throwingNew", "/D_CRT_SECURE_NO_WARNINGS", "/std:c++20", "/permissive-",
-                "/utf-8", "/bigobj", "/Zc:__cplusplus", "/Zc:preprocessor", "/wd5105", "/wd4324"); // 5105 is thrown by windows sdk headers
+                "/utf-8", "/bigobj", "/Zc:__cplusplus", "/Zc:preprocessor", "/wd5105", "/wd4324"); // 5105 is thrown by
+                                                                                                   // windows sdk
+                                                                                                   // headers
         public final List<String> windowsCCompilerArgs = List.of("/FS", "/Zc:inline", "/D_CRT_SECURE_NO_WARNINGS");
         public final List<String> windowsReleaseCompilerArgs = List.of("/O2", "/MD");
         public final List<String> windowsDebugCompilerArgs = List.of("/Od", "/MDd");
-        public final List<String> windowsLinkerArgs = List.of("/DEBUG:FULL", "/PDBALTPATH:%_PDB%", "/DEPENDENTLOADFLAG:0x1100");
+        public final List<String> windowsLinkerArgs = List.of("/DEBUG:FULL", "/PDBALTPATH:%_PDB%",
+                "/DEPENDENTLOADFLAG:0x1100");
         public final List<String> windowsReleaseLinkerArgs = List.of("/OPT:REF", "/OPT:ICF");
 
         public final String windowsSymbolArg = "/Zi";
@@ -61,7 +64,8 @@ public class WPINativeUtilsExtension {
                 "-pthread");
         public final List<String> linuxCrossCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
                 "-Wno-unused-parameter", "-fPIC", "-pthread");
-        public final List<String> linuxCrossLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic", "-Wl,-rpath,'$ORIGIN'");
+        public final List<String> linuxCrossLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic",
+                "-Wl,-rpath,'$ORIGIN'");
         public final List<String> linuxCrossReleaseCompilerArgs = List.of("-O2");
         public final List<String> linuxCrossDebugCompilerArgs = List.of("-Og");
 
@@ -69,7 +73,8 @@ public class WPINativeUtilsExtension {
                 "-Wno-unused-parameter", "-Wno-error=deprecated-enum-enum-conversion", "-fPIC", "-pthread");
         public final List<String> linuxCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
                 "-Wno-unused-parameter", "-fPIC", "-pthread");
-        public final List<String> linuxLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic", "-Wl,-rpath,'$ORIGIN'");
+        public final List<String> linuxLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic",
+                "-Wl,-rpath,'$ORIGIN'");
         public final List<String> linuxReleaseCompilerArgs = List.of("-O2");
         public final List<String> linuxDebugCompilerArgs = List.of("-O0");
 
@@ -103,7 +108,8 @@ public class WPINativeUtilsExtension {
         public final String linuxx64 = "linuxx86-64";
         public final List<String> allPlatforms = List.of(roborio, systemcore, linuxarm32, linuxarm64, windowsx64,
                 windowsx86, windowsarm64, osxuniversal, linuxx64);
-        public final List<String> desktopPlatforms = List.of(windowsx64, windowsx86, windowsarm64, osxuniversal, linuxx64);
+        public final List<String> desktopPlatforms = List.of(windowsx64, windowsx86, windowsarm64, osxuniversal,
+                linuxx64);
     }
 
     public final Platforms platforms;
@@ -554,14 +560,15 @@ public class WPINativeUtilsExtension {
                 wpiVersion);
 
         registerSharedOnlyStandardDependency(configs, "datalog", "edu.wpi.first.datalog", "datalog-cpp",
-            wpiVersion);
+                wpiVersion);
 
         Provider<String> opencvYearGroup = provider
                 .provider(() -> "edu.wpi.first.thirdparty." + dependencyVersions.getOpencvYear().get() + ".opencv");
 
         registerStandardDependency(configs, "opencv", opencvYearGroup, "opencv-cpp",
                 dependencyVersions.getOpencvVersion());
-        registerStaticOnlyStandardDependency(configs, "googletest", "edu.wpi.first.thirdparty.googletest", "googletest-cpp",
+        registerStaticOnlyStandardDependency(configs, "googletest", "edu.wpi.first.thirdparty.googletest",
+                "googletest-cpp",
                 wpiVersion);
 
         configs.register("wpilib_jni", AllPlatformsCombinedNativeDependency.class, c -> {
@@ -620,6 +627,37 @@ public class WPINativeUtilsExtension {
         configs.register("vision_static", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
             d.set(List.of("cameraserver_static", "cscore_static", "opencv_static"));
+        });
+
+        // 2027
+        configs.register("wpilib_jni_2027", AllPlatformsCombinedNativeDependency.class, c -> {
+            ListProperty<String> d = c.getDependencies();
+            d.set(List.of("ntcore_shared", "hal_shared", "datalog_shared", "wpimath_shared", "wpinet_shared",
+                    "wpiutil_shared"));
+        });
+
+        configs.register("wpilib_static_2027", AllPlatformsCombinedNativeDependency.class, c -> {
+            ListProperty<String> d = c.getDependencies();
+            d.set(List.of("wpilibc_static", "ntcore_static", "hal_static", "datalog_static", "wpimath_static",
+                    "wpinet_static",
+                    "wpiutil_static"));
+        });
+
+        configs.register("wpilib_shared_2027", AllPlatformsCombinedNativeDependency.class, c -> {
+            ListProperty<String> d = c.getDependencies();
+            d.set(List.of("wpilibc_shared", "ntcore_shared", "hal_shared", "datalog_shared", "wpimath_shared",
+                    "wpinet_shared",
+                    "wpiutil_shared"));
+        });
+
+        configs.register("driver_static_2027", AllPlatformsCombinedNativeDependency.class, c -> {
+            ListProperty<String> d = c.getDependencies();
+            d.set(List.of("hal_static", "datalog_static", "wpimath_static", "wpinet_static", "wpiutil_static"));
+        });
+
+        configs.register("driver_shared_2027", AllPlatformsCombinedNativeDependency.class, c -> {
+            ListProperty<String> d = c.getDependencies();
+            d.set(List.of("hal_shared", "datalog_shared", "wpimath_shared", "wpinet_shared", "wpiutil_shared"));
         });
     }
 }
