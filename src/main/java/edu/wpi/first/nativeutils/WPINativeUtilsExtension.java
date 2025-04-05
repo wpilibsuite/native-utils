@@ -553,13 +553,11 @@ public class WPINativeUtilsExtension {
         registerStandardDependency(configs, "cameraserver", "edu.wpi.first.cameraserver", "cameraserver-cpp",
                 wpiVersion);
         registerStandardDependency(configs, "wpilibc", "edu.wpi.first.wpilibc", "wpilibc-cpp", wpiVersion);
-
+        registerStandardDependency(configs, "datalog", "edu.wpi.first.datalog", "datalog-cpp", wpiVersion);
         registerStandardDependency(configs, "wpimath", "edu.wpi.first.wpimath", "wpimath-cpp",
                 wpiVersion);
-        registerSharedOnlyStandardDependency(configs, "apriltag", "edu.wpi.first.apriltag", "apriltag-cpp",
-                wpiVersion);
 
-        registerSharedOnlyStandardDependency(configs, "datalog", "edu.wpi.first.datalog", "datalog-cpp",
+        registerSharedOnlyStandardDependency(configs, "apriltag", "edu.wpi.first.apriltag", "apriltag-cpp",
                 wpiVersion);
 
         Provider<String> opencvYearGroup = provider
