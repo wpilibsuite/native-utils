@@ -553,6 +553,9 @@ public class WPINativeUtilsExtension {
         registerSharedOnlyStandardDependency(configs, "apriltag", "edu.wpi.first.apriltag", "apriltag-cpp",
                 wpiVersion);
 
+        registerSharedOnlyStandardDependency(configs, "datalog", "edu.wpi.first.datalog", "datalog-cpp",
+            wpiVersion);
+
         Provider<String> opencvYearGroup = provider
                 .provider(() -> "edu.wpi.first.thirdparty." + dependencyVersions.getOpencvYear().get() + ".opencv");
 
