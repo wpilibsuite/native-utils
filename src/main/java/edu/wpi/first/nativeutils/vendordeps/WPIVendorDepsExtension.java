@@ -318,7 +318,8 @@ public abstract class WPIVendorDepsExtension {
         }
 
         public boolean useInRio() {
-            return Arrays.asList(binaryPlatforms).contains(NativePlatforms.roborio);
+            List<String> list = Arrays.asList(binaryPlatforms);
+            return list.contains(NativePlatforms.roborio) || list.contains(NativePlatforms.systemcore);
         }
 
         public String groupId;
