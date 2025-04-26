@@ -74,7 +74,7 @@ public class WPIJavaVendorDepsExtension {
     }
 
     private List<Provider<String>> jniInternal(boolean debug, String platform, String... ignore) {
-        boolean isRio = platform.equals(NativePlatforms.roborio);
+        boolean isRio = platform.equals(NativePlatforms.roborio) || platform.equals(NativePlatforms.systemcore);
         boolean hwSim = vendorDeps.isHwSimulation();
         List<Provider<String>> deps = new ArrayList<>();
 
