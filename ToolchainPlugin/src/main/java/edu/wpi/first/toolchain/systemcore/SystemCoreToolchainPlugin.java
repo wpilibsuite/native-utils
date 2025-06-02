@@ -67,7 +67,7 @@ public class SystemCoreToolchainPlugin implements Plugin<Project> {
 
     public void populateDescriptor(ToolchainDescriptor descriptor) {
         Provider<File> fp = project.provider(() -> {
-            String year = systemcoreExt.getToolchainVersion().get().split("-")[0].toLowerCase();
+            String year = "2027_alpha1";
             File frcHomeLoc = new File(new FrcHome(year).get(), "systemcore");
             return frcHomeLoc;
         });
