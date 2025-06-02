@@ -78,6 +78,8 @@ public class WPINativeUtilsExtension {
         public final List<String> linuxReleaseCompilerArgs = List.of("-O2");
         public final List<String> linuxDebugCompilerArgs = List.of("-O0");
 
+        public final List<String> linuxSystemCoreArgs = List.of("-D__FRC_SYSTEMCORE__=1");
+
         public final String macMinimumVersionArg = "-mmacosx-version-min=13.3";
 
         public final List<String> macCompilerArgs = List.of("-std=c++20", "-pedantic", "-fPIC", "-Wno-unused-parameter",
@@ -232,6 +234,10 @@ public class WPINativeUtilsExtension {
 
         linuxsystemcore.getPlatformPath().set("linux/systemcore");
         addLinuxCrossArgs(linuxsystemcore);
+        linuxsystemcore.getCppCompiler().getArgs().addAll(defaultArguments.linuxSystemCoreArgs);
+        linuxsystemcore.getcCompiler().getArgs().addAll(defaultArguments.linuxSystemCoreArgs);
+        linuxsystemcore.getObjcCompiler().getArgs().addAll(defaultArguments.linuxSystemCoreArgs);
+        linuxsystemcore.getObjcppCompiler().getArgs().addAll(defaultArguments.linuxSystemCoreArgs);
 
         linuxarm32.getPlatformPath().set("linux/arm32");
         addLinuxCrossArgs(linuxarm32);
