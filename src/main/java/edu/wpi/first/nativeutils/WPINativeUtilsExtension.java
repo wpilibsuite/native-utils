@@ -2,6 +2,8 @@ package edu.wpi.first.nativeutils;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -199,6 +201,7 @@ public class WPINativeUtilsExtension {
     }
 
     private final Project project;
+    private final Map<String, Set<String>> transitiveDependencyLookup;
 
     @Inject
     public WPINativeUtilsExtension(NativeUtilsExtension nativeExt, Project project) {
@@ -259,6 +262,8 @@ public class WPINativeUtilsExtension {
 
         osxuniversal.getPlatformPath().set("osx/universal");
         addMacArgs(osxuniversal);
+
+        this.transitiveDependencyLookup = configuretransitiveDependencies();
     }
 
     public void addMacMinimumVersionArg() {
@@ -388,6 +393,9 @@ public class WPINativeUtilsExtension {
     private void registerStandardDependency(ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs,
             String name, String groupId, String artifactId, Property<String> version) {
         configs.register(name + "_shared", WPISharedMavenDependency.class, c -> {
+            Set<String> transitiveDependencies = gettransitiveDependencies(name + "_shared");
+            c.getDependencies().set(transitiveDependencies);
+
             c.getGroupId().set(groupId);
             c.getArtifactId().set(artifactId);
             c.getHeaderClassifier().set("headers");
@@ -399,6 +407,9 @@ public class WPINativeUtilsExtension {
             c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
         });
         configs.register(name + "_static", WPIStaticMavenDependency.class, c -> {
+            Set<String> transitiveDependencies = gettransitiveDependencies(name + "_static");
+            c.getDependencies().set(transitiveDependencies);
+    
             c.getGroupId().set(groupId);
             c.getArtifactId().set(artifactId);
             c.getHeaderClassifier().set("headers");
@@ -414,6 +425,9 @@ public class WPINativeUtilsExtension {
     private void registerStandardDependency(ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs,
             String name, Provider<String> groupId, String artifactId, Property<String> version) {
         configs.register(name + "_shared", WPISharedMavenDependency.class, c -> {
+            Set<String> transitiveDependencies = gettransitiveDependencies(name + "_shared");
+            c.getDependencies().set(transitiveDependencies);
+
             c.getGroupId().set(groupId);
             c.getArtifactId().set(artifactId);
             c.getHeaderClassifier().set("headers");
@@ -425,6 +439,9 @@ public class WPINativeUtilsExtension {
             c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
         });
         configs.register(name + "_static", WPIStaticMavenDependency.class, c -> {
+            Set<String> transitiveDependencies = gettransitiveDependencies(name + "_static");
+            c.getDependencies().set(transitiveDependencies);
+
             c.getGroupId().set(groupId);
             c.getArtifactId().set(artifactId);
             c.getHeaderClassifier().set("headers");
@@ -441,6 +458,9 @@ public class WPINativeUtilsExtension {
             ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs,
             String name, String groupId, String artifactId, Property<String> version) {
         configs.register(name + "_shared", WPISharedMavenDependency.class, c -> {
+            Set<String> transitiveDependencies = gettransitiveDependencies(name + "_shared");
+            c.getDependencies().set(transitiveDependencies);
+    
             c.getGroupId().set(groupId);
             c.getArtifactId().set(artifactId);
             c.getHeaderClassifier().set("headers");
@@ -457,6 +477,9 @@ public class WPINativeUtilsExtension {
             ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs,
             String name, String groupId, String artifactId, Property<String> version) {
         configs.register(name + "_static", WPIStaticMavenDependency.class, c -> {
+            Set<String> transitiveDependencies = gettransitiveDependencies(name + "_static");
+            c.getDependencies().set(transitiveDependencies);
+
             c.getGroupId().set(groupId);
             c.getArtifactId().set(artifactId);
             c.getHeaderClassifier().set("headers");
@@ -583,14 +606,12 @@ public class WPINativeUtilsExtension {
 
         configs.register("wpilib_static", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("wpilibc_static", "ntcore_static", "hal_static", "wpimath_static", "wpinet_static",
-                    "wpiutil_static", "ni_link_libraries"));
+            d.set(List.of("wpilibc_static"));
         });
 
         configs.register("wpilib_shared", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("wpilibc_shared", "ntcore_shared", "hal_shared", "wpimath_shared", "wpinet_shared",
-                    "wpiutil_shared", "ni_link_libraries"));
+            d.set(List.of("wpilibc_shared"));
         });
 
         configs.register("driver_static", AllPlatformsCombinedNativeDependency.class, c -> {
@@ -605,32 +626,32 @@ public class WPINativeUtilsExtension {
 
         configs.register("wpilib_executable_shared", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("wpilib_shared", "ni_link_libraries", "ni_runtime_libraries"));
+            d.set(List.of("wpilibc_shared", "ni_runtime_libraries"));
         });
 
         configs.register("wpilib_executable_static", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("wpilib_static", "ni_link_libraries", "ni_runtime_libraries"));
+            d.set(List.of("wpilibc_static", "ni_runtime_libraries"));
         });
 
         configs.register("vision_jni_shared", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("cscore_shared", "apriltag_shared", "opencv_shared"));
+            d.set(List.of("cscore_shared", "apriltag_shared"));
         });
 
         configs.register("vision_jni_static", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("cscore_static", "opencv_static"));
+            d.set(List.of("cscore_static"));
         });
 
         configs.register("vision_shared", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("cameraserver_shared", "cscore_shared", "apriltag_shared", "opencv_shared"));
+            d.set(List.of("cameraserver_shared", "cscore_shared", "apriltag_shared"));
         });
 
         configs.register("vision_static", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("cameraserver_static", "cscore_static", "opencv_static"));
+            d.set(List.of("cameraserver_static", "cscore_static"));
         });
 
         // 2027
@@ -663,5 +684,61 @@ public class WPINativeUtilsExtension {
             ListProperty<String> d = c.getDependencies();
             d.set(List.of("hal_shared", "datalog_shared", "wpimath_shared", "wpinet_shared", "wpiutil_shared"));
         });
+    }
+    
+    private Map<String, Set<String>> configuretransitiveDependencies() {
+        
+        Map<String, Set<String>> standardtransitiveDependencyLookup = new HashMap<>();
+        standardtransitiveDependencyLookup.put("wpiutil", Set.of());
+        standardtransitiveDependencyLookup.put("wpinet", Set.of("wpiutil"));
+        standardtransitiveDependencyLookup.put("ntcore", Set.of("wpinet"));
+        standardtransitiveDependencyLookup.put("hal", Set.of("wpiutil"));
+        standardtransitiveDependencyLookup.put("cscore", Set.of("opencv"));
+        // standardtransitiveDependencyLookup.put("cameraserver", Set.of("wpiutil"));
+        standardtransitiveDependencyLookup.put("wpilibc", Set.of("wpiutil", "ntcore", "hal", "wpimath"));
+        
+        Map<String, Set<String>> transitiveDependencyLookup = new HashMap<>();
+        for (var entryPair : standardtransitiveDependencyLookup.entrySet()) {
+            Set<String> sharedDeps = new HashSet<>();
+            Set<String> staticDeps = new HashSet<>();
+
+            for (String dep : entryPair.getValue()) {
+                sharedDeps.add(dep + "_shared");
+                staticDeps.add(dep + "_static");
+            }
+
+            transitiveDependencyLookup.put(entryPair.getKey() + "_shared", sharedDeps);
+            transitiveDependencyLookup.put(entryPair.getKey() + "_static", staticDeps);
+        }
+
+        transitiveDependencyLookup.get("hal_shared").add("ni_link_libraries");
+        transitiveDependencyLookup.get("hal_static").add("ni_link_libraries");
+
+        return transitiveDependencyLookup;
+    }
+    
+    private Set<String> gettransitiveDependencies(String libraryName) {
+        return gettransitiveDependencies(libraryName, new HashSet<>(), "");
+    }
+
+    private Set<String> gettransitiveDependencies(String libraryName, Set<String> transitiveDependencies, String indent) {
+        System.out.println(indent + "Getting transitive deps for " + libraryName);
+
+        if (transitiveDependencies.contains(libraryName)) {
+            System.out.println(indent + "  " + libraryName + " already in list");
+            return transitiveDependencies;
+        }
+
+        if (!transitiveDependencyLookup.containsKey(libraryName)) {
+            System.out.println(indent + "  " + libraryName + " is not in dependency lookup?");
+            return transitiveDependencies;
+        }
+
+        for (String directDependency : transitiveDependencyLookup.get(libraryName)) {
+            transitiveDependencies.addAll(gettransitiveDependencies(directDependency, transitiveDependencies, indent + "  "));
+            transitiveDependencies.add(directDependency);
+        }
+
+        return transitiveDependencies;
     }
 }
