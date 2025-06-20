@@ -1,4 +1,4 @@
-package edu.wpi.first.toolchain.roborio;
+package edu.wpi.first.toolchain;
 
 import org.gradle.internal.os.OperatingSystem;
 

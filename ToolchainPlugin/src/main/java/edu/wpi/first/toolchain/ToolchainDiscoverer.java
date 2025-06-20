@@ -24,6 +24,7 @@ import org.gradle.nativeplatform.toolchain.internal.gcc.metadata.GccMetadata;
 import org.gradle.nativeplatform.toolchain.internal.metadata.CompilerMetaDataProvider;
 import org.gradle.nativeplatform.toolchain.internal.metadata.CompilerMetaDataProviderFactory;
 import org.gradle.platform.base.internal.toolchain.SearchResult;
+import org.gradle.process.ExecOperations;
 import org.gradle.process.ExecSpec;
 import org.gradle.util.internal.VersionNumber;
 
@@ -36,19 +37,24 @@ public abstract class ToolchainDiscoverer implements Named {
     private final Function<String, String> composer;
     private final ToolchainDescriptorBase descriptor;
 
-    public static ToolchainDiscoverer createDiscoverer(String name, ToolchainDescriptorBase descriptor, Provider<File> rootDir, Function<String, String> composer, Project project) {
+    public static ToolchainDiscoverer createDiscoverer(String name, ToolchainDescriptorBase descriptor,
+            Provider<File> rootDir, Function<String, String> composer, Project project) {
         return project.getObjects().newInstance(ToolchainDiscoverer.class, name, descriptor, rootDir, composer);
     }
 
-    public static ToolchainDiscovererProperty createProperty(String name, ToolchainDescriptorBase descriptor, Provider<File> rootDir, Function<String, String> composer, Project project) {
+    public static ToolchainDiscovererProperty createProperty(String name, ToolchainDescriptorBase descriptor,
+            Provider<File> rootDir, Function<String, String> composer, Project project) {
         ToolchainDiscovererProperty prop = project.getObjects().newInstance(ToolchainDiscovererProperty.class, name);
-        Provider<ToolchainDiscoverer> disc = project.provider(() -> project.getObjects().newInstance(ToolchainDiscoverer.class, name, descriptor, rootDir, composer));
+        Provider<ToolchainDiscoverer> disc = project.provider(
+                () -> project.getObjects().newInstance(ToolchainDiscoverer.class, name, descriptor, rootDir, composer));
         prop.getDiscoverers().add(disc);
         return prop;
     }
 
     @Inject
-    public ToolchainDiscoverer(String name, ToolchainDescriptorBase descriptor, Provider<File> rootDir, Function<String, String> composer, CompilerMetaDataProviderFactory metaDataProviderFactory, ProviderFactory providers) {
+    public ToolchainDiscoverer(String name, ToolchainDescriptorBase descriptor, Provider<File> rootDir,
+            Function<String, String> composer, CompilerMetaDataProviderFactory metaDataProviderFactory,
+            ProviderFactory providers) {
         this.name = name;
         this.rootDir = rootDir;
         this.composer = composer;
@@ -75,7 +81,8 @@ public abstract class ToolchainDiscoverer implements Named {
     }
 
     public boolean versionValid() {
-        if (!exists()) return false;
+        if (!exists())
+            return false;
 
         VersionNumber v = metadata(null).get().getVersion();
         String versionLo = descriptor.getVersionLow().get();
@@ -200,22 +207,24 @@ public abstract class ToolchainDiscoverer implements Named {
     private Optional<GccMetadata> metadata(File file, DiagnosticsVisitor visitor) {
         if (file == null || !file.exists())
             return Optional.empty();
-        SearchResult<GccMetadata> searchresult = metadataProvider.getCompilerMetaData(new ArrayList<File>(), compilerSpec -> {
-            compilerSpec.executable(file);
-        });
+        SearchResult<GccMetadata> searchresult = metadataProvider.getCompilerMetaData(new ArrayList<File>(),
+                compilerSpec -> {
+                    compilerSpec.executable(file);
+                });
         if (visitor != null)
             searchresult.explain(visitor);
         return Optional.ofNullable(searchresult.getComponent());
     }
 
-    public static List<File> systemPath(Project project, ToolchainGraphBuildService tce, Function<String, String> composer) {
+    public static List<File> systemPath(Project project, ToolchainGraphBuildService tce,
+            Function<String, String> composer, ExecOperations operations) {
         String tool = composer == null ? "g++" : composer.apply("gcc");
         String whichResult = tce.getWhichResult(tool);
         if (whichResult == null) {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             ByteArrayOutputStream errStr = new ByteArrayOutputStream();
 
-            project.exec((ExecSpec spec) -> {
+            operations.exec((ExecSpec spec) -> {
                 spec.commandLine(OperatingSystem.current().isWindows() ? "where.exe" : "which", tool);
                 spec.setStandardOutput(os);
                 spec.setErrorOutput(errStr);
@@ -228,18 +237,22 @@ public abstract class ToolchainDiscoverer implements Named {
 
         return Arrays.stream(whichResult.split("\n"))
                 .map(String::trim)
-                .filter(((Predicate<String>)String::isEmpty).negate())
-                .map((String path) -> { return new File(path).getParentFile().getParentFile(); })
+                .filter(((Predicate<String>) String::isEmpty).negate())
+                .map((String path) -> {
+                    return new File(path).getParentFile().getParentFile();
+                })
                 .collect(Collectors.toList());
     }
 
-    public static ToolchainDiscovererProperty forSystemPath(Project project, ToolchainGraphBuildService tce, ToolchainDescriptorBase descriptor, Function<String, String> composer) {
-        ToolchainDiscovererProperty prop = project.getObjects().newInstance(ToolchainDiscovererProperty.class, "PathList");
+    public static ToolchainDiscovererProperty forSystemPath(Project project, ToolchainGraphBuildService tce,
+            ToolchainDescriptorBase descriptor, Function<String, String> composer, ExecOperations operations) {
+        ToolchainDiscovererProperty prop = project.getObjects().newInstance(ToolchainDiscovererProperty.class,
+                "PathList");
 
         Provider<List<ToolchainDiscoverer>> p = project.provider(() -> {
             List<ToolchainDiscoverer> disc = new ArrayList<>();
             int i = 0;
-            for (File f : systemPath(project, tce, composer)) {
+            for (File f : systemPath(project, tce, composer, operations)) {
                 Provider<File> fp = project.provider(() -> f);
                 disc.add(ToolchainDiscoverer.createDiscoverer("Path" + (i++), descriptor, fp, composer, project));
             }
@@ -250,7 +263,9 @@ public abstract class ToolchainDiscoverer implements Named {
     }
 
     private static Optional<File> join(Optional<File> f, String join) {
-        return optFile((File)(f.map((File file) -> { return new File(file, join); }).orElse(null)));
+        return optFile((File) (f.map((File file) -> {
+            return new File(file, join);
+        }).orElse(null)));
     }
 
     private static Optional<File> optFile(File f) {

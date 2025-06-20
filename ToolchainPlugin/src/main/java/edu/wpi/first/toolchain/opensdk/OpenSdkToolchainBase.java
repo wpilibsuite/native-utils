@@ -8,6 +8,7 @@ import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.provider.Provider;
 import org.gradle.internal.os.OperatingSystem;
+import org.gradle.process.ExecOperations;
 
 import edu.wpi.first.toolchain.AbstractToolchainInstaller;
 import edu.wpi.first.toolchain.DefaultToolchainInstaller;
@@ -25,9 +26,11 @@ public class OpenSdkToolchainBase {
     private final String archiveSubDir;
     private final Provider<String> toolchainPrefix;
     private final ToolchainGraphBuildService rootExtension;
+    private final ExecOperations operations;
 
     public OpenSdkToolchainBase(String baseToolchainName, OpenSdkToolchainExtension tcExt, Project project,
-            String installSubdir, String archiveSubdir, Provider<String> toolchainPrefix, ToolchainGraphBuildService rootExtension) {
+            String installSubdir, String archiveSubdir, Provider<String> toolchainPrefix,
+            ToolchainGraphBuildService rootExtension, ExecOperations operations) {
         this.baseToolchainName = baseToolchainName;
         this.tcExt = tcExt;
         this.project = project;
@@ -35,6 +38,7 @@ public class OpenSdkToolchainBase {
         this.archiveSubDir = archiveSubdir;
         this.toolchainPrefix = toolchainPrefix;
         this.rootExtension = rootExtension;
+        this.operations = operations;
     }
 
     private String toolchainRemoteFile() {
@@ -44,14 +48,14 @@ public class OpenSdkToolchainBase {
         if (OperatingSystem.current().isWindows()) {
             platformId = "x86_64-w64-mingw32";
         } else if (OperatingSystem.current().isMacOsX()) {
-            platformId = (NativePlatforms.desktopPlatformArch(project) == NativePlatforms.x64arch ? "x86_64" : "arm64")
+            platformId = (NativePlatforms.desktopPlatformArch(operations) == NativePlatforms.x64arch ? "x86_64" : "arm64")
                     + "-apple-darwin";
         } else {
-            String desktopPlatformArch = NativePlatforms.desktopPlatformArch(project);
+            String desktopPlatformArch = NativePlatforms.desktopPlatformArch(operations);
             if (desktopPlatformArch.equals(NativePlatforms.arm64arch)) {
-                platformId = "aarch64-bullseye-linux-gnu";
+                platformId = "aarch64-bookworm-linux-gnu";
             } else if (desktopPlatformArch.equals(NativePlatforms.arm32arch)) {
-                platformId = "armv6-bullseye-linux-gnueabihf";
+                platformId = "armv6-bookworm-linux-gnueabihf";
             } else {
                 platformId = "x86_64-linux-gnu";
             }
@@ -94,8 +98,10 @@ public class OpenSdkToolchainBase {
         });
 
         // Discoverer order matters. They will be searched from top to bottom.
-        descriptor.getDiscoverers().add(ToolchainDiscoverer.createProperty("GradleUserDir", descriptor, fp, this::composeTool, project));
-        descriptor.getDiscoverers().add(ToolchainDiscoverer.forSystemPath(project, rootExtension, descriptor, this::composeTool));
+        descriptor.getDiscoverers()
+                .add(ToolchainDiscoverer.createProperty("GradleUserDir", descriptor, fp, this::composeTool, project));
+        descriptor.getDiscoverers()
+                .add(ToolchainDiscoverer.forSystemPath(project, rootExtension, descriptor, this::composeTool, operations));
 
         try {
             descriptor.getInstallers().add(installerFor(OperatingSystem.LINUX, fp, archiveSubDir));

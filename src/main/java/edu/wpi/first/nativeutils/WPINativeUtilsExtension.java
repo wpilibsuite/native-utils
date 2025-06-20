@@ -39,11 +39,14 @@ public class WPINativeUtilsExtension {
 
         public final List<String> windowsCompilerArgs = List.of("/EHsc", "/FS", "/Zc:inline", "/wd4244", "/wd4267",
                 "/wd4146", "/wd4996", "/Zc:throwingNew", "/D_CRT_SECURE_NO_WARNINGS", "/std:c++20", "/permissive-",
-                "/utf-8", "/bigobj", "/Zc:__cplusplus", "/Zc:preprocessor", "/wd5105", "/wd4324"); // 5105 is thrown by windows sdk headers
+                "/utf-8", "/bigobj", "/Zc:__cplusplus", "/Zc:preprocessor", "/wd5105", "/wd4324"); // 5105 is thrown by
+                                                                                                   // windows sdk
+                                                                                                   // headers
         public final List<String> windowsCCompilerArgs = List.of("/FS", "/Zc:inline", "/D_CRT_SECURE_NO_WARNINGS");
         public final List<String> windowsReleaseCompilerArgs = List.of("/O2", "/MD");
         public final List<String> windowsDebugCompilerArgs = List.of("/Od", "/MDd");
-        public final List<String> windowsLinkerArgs = List.of("/DEBUG:FULL", "/PDBALTPATH:%_PDB%", "/DEPENDENTLOADFLAG:0x1100");
+        public final List<String> windowsLinkerArgs = List.of("/DEBUG:FULL", "/PDBALTPATH:%_PDB%",
+                "/DEPENDENTLOADFLAG:0x1100");
         public final List<String> windowsReleaseLinkerArgs = List.of("/OPT:REF", "/OPT:ICF");
 
         public final String windowsSymbolArg = "/Zi";
@@ -56,14 +59,13 @@ public class WPINativeUtilsExtension {
 
         public final String unixSymbolArg = "-g";
 
-        // -Wdeprecated-enum-enum-conversion was introduced in GCC 11
         public final List<String> linuxCrossCompilerArgs = List.of("-std=c++20", "-Wformat=2", "-pedantic",
-                "-Wno-psabi", "-Wno-unused-parameter", "-fPIC", "-pthread");
-        public final List<String> linuxCrossCompilerExtraArgs11 = List.of("-Wno-error=deprecated-enum-enum-conversion");
-        public final List<String> linuxCrossCompilerExtraArgs10 = List.of("-Wno-error=deprecated-declarations");
+                "-Wno-psabi", "-Wno-unused-parameter", "-Wno-error=deprecated-enum-enum-conversion", "-fPIC",
+                "-pthread");
         public final List<String> linuxCrossCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
                 "-Wno-unused-parameter", "-fPIC", "-pthread");
-        public final List<String> linuxCrossLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic", "-Wl,-rpath,'$ORIGIN'");
+        public final List<String> linuxCrossLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic",
+                "-Wl,-rpath,'$ORIGIN'");
         public final List<String> linuxCrossReleaseCompilerArgs = List.of("-O2");
         public final List<String> linuxCrossDebugCompilerArgs = List.of("-Og");
 
@@ -71,9 +73,12 @@ public class WPINativeUtilsExtension {
                 "-Wno-unused-parameter", "-Wno-error=deprecated-enum-enum-conversion", "-fPIC", "-pthread");
         public final List<String> linuxCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
                 "-Wno-unused-parameter", "-fPIC", "-pthread");
-        public final List<String> linuxLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic", "-Wl,-rpath,'$ORIGIN'");
+        public final List<String> linuxLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic",
+                "-Wl,-rpath,'$ORIGIN'");
         public final List<String> linuxReleaseCompilerArgs = List.of("-O2");
         public final List<String> linuxDebugCompilerArgs = List.of("-O0");
+
+        public final List<String> linuxSystemCoreArgs = List.of("-D__FRC_SYSTEMCORE__=1");
 
         public final String macMinimumVersionArg = "-mmacosx-version-min=13.3";
 
@@ -95,6 +100,7 @@ public class WPINativeUtilsExtension {
 
     public static class Platforms {
         public final String roborio = "linuxathena";
+        public final String systemcore = "linuxsystemcore";
         public final String linuxarm32 = "linuxarm32";
         public final String linuxarm64 = "linuxarm64";
         public final String windowsx64 = "windowsx86-64";
@@ -102,9 +108,10 @@ public class WPINativeUtilsExtension {
         public final String windowsarm64 = "windowsarm64";
         public final String osxuniversal = "osxuniversal";
         public final String linuxx64 = "linuxx86-64";
-        public final List<String> allPlatforms = List.of(roborio, linuxarm32, linuxarm64, windowsx64,
+        public final List<String> allPlatforms = List.of(roborio, systemcore, linuxarm32, linuxarm64, windowsx64,
                 windowsx86, windowsarm64, osxuniversal, linuxx64);
-        public final List<String> desktopPlatforms = List.of(windowsx64, windowsx86, windowsarm64, osxuniversal, linuxx64);
+        public final List<String> desktopPlatforms = List.of(windowsx64, windowsx86, windowsarm64, osxuniversal,
+                linuxx64);
     }
 
     public final Platforms platforms;
@@ -114,13 +121,8 @@ public class WPINativeUtilsExtension {
     private final Map<String, PlatformConfig> windowsPlatforms = new HashMap<>();
     private final Map<String, PlatformConfig> unixPlatforms = new HashMap<>();
 
-    public void addLinuxCrossArgs(PlatformConfig platform, int gccMajor) {
+    public void addLinuxCrossArgs(PlatformConfig platform) {
         platform.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerArgs);
-        if (gccMajor >= 11) {
-            platform.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerExtraArgs11);
-        } else {
-            platform.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerExtraArgs10);
-        }
         platform.getcCompiler().getArgs().addAll(defaultArguments.linuxCrossCCompilerArgs);
         platform.getLinker().getArgs().addAll(defaultArguments.linuxCrossLinkerArgs);
         platform.getCppCompiler().getDebugArgs().addAll(defaultArguments.linuxCrossDebugCompilerArgs);
@@ -219,20 +221,29 @@ public class WPINativeUtilsExtension {
         PlatformConfig linuxathena = nativeExt.getPlatformConfigs().create(platforms.roborio);
         PlatformConfig linuxarm32 = nativeExt.getPlatformConfigs().create(platforms.linuxarm32);
         PlatformConfig linuxarm64 = nativeExt.getPlatformConfigs().create(platforms.linuxarm64);
+        PlatformConfig linuxsystemcore = nativeExt.getPlatformConfigs().create(platforms.systemcore);
         unixPlatforms.put(platforms.linuxx64, linuxx86_64);
         unixPlatforms.put(platforms.osxuniversal, osxuniversal);
         unixPlatforms.put(platforms.linuxarm32, linuxarm32);
         unixPlatforms.put(platforms.roborio, linuxathena);
         unixPlatforms.put(platforms.linuxarm64, linuxarm64);
+        unixPlatforms.put(platforms.systemcore, linuxsystemcore);
 
         linuxathena.getPlatformPath().set("linux/athena");
-        addLinuxCrossArgs(linuxathena, 12);
+        addLinuxCrossArgs(linuxathena);
+
+        linuxsystemcore.getPlatformPath().set("linux/systemcore");
+        addLinuxCrossArgs(linuxsystemcore);
+        linuxsystemcore.getCppCompiler().getArgs().addAll(defaultArguments.linuxSystemCoreArgs);
+        linuxsystemcore.getcCompiler().getArgs().addAll(defaultArguments.linuxSystemCoreArgs);
+        linuxsystemcore.getObjcCompiler().getArgs().addAll(defaultArguments.linuxSystemCoreArgs);
+        linuxsystemcore.getObjcppCompiler().getArgs().addAll(defaultArguments.linuxSystemCoreArgs);
 
         linuxarm32.getPlatformPath().set("linux/arm32");
-        addLinuxCrossArgs(linuxarm32, 10);
+        addLinuxCrossArgs(linuxarm32);
 
         linuxarm64.getPlatformPath().set("linux/arm64");
-        addLinuxCrossArgs(linuxarm64, 10);
+        addLinuxCrossArgs(linuxarm64);
 
         windowsx86.getPlatformPath().set("windows/x86");
         addWindowsArgs(windowsx86);
@@ -248,13 +259,6 @@ public class WPINativeUtilsExtension {
 
         osxuniversal.getPlatformPath().set("osx/universal");
         addMacArgs(osxuniversal);
-    }
-
-    public void addGcc11CrossArgs(String platform) {
-        PlatformConfig config = unixPlatforms.get(platform);
-        if (config != null) {
-            config.getCppCompiler().getArgs().addAll(defaultArguments.linuxCrossCompilerExtraArgs11);
-        }
     }
 
     public void addMacMinimumVersionArg() {
@@ -555,9 +559,10 @@ public class WPINativeUtilsExtension {
         registerStandardDependency(configs, "cameraserver", "edu.wpi.first.cameraserver", "cameraserver-cpp",
                 wpiVersion);
         registerStandardDependency(configs, "wpilibc", "edu.wpi.first.wpilibc", "wpilibc-cpp", wpiVersion);
-
+        registerStandardDependency(configs, "datalog", "edu.wpi.first.datalog", "datalog-cpp", wpiVersion);
         registerStandardDependency(configs, "wpimath", "edu.wpi.first.wpimath", "wpimath-cpp",
                 wpiVersion);
+
         registerSharedOnlyStandardDependency(configs, "apriltag", "edu.wpi.first.apriltag", "apriltag-cpp",
                 wpiVersion);
 
@@ -566,7 +571,8 @@ public class WPINativeUtilsExtension {
 
         registerStandardDependency(configs, "opencv", opencvYearGroup, "opencv-cpp",
                 dependencyVersions.getOpencvVersion());
-        registerStaticOnlyStandardDependency(configs, "googletest", "edu.wpi.first.thirdparty.googletest", "googletest-cpp",
+        registerStaticOnlyStandardDependency(configs, "googletest", "edu.wpi.first.thirdparty.googletest",
+                "googletest-cpp",
                 wpiVersion);
 
         configs.register("wpilib_jni", AllPlatformsCombinedNativeDependency.class, c -> {
@@ -625,6 +631,37 @@ public class WPINativeUtilsExtension {
         configs.register("vision_static", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
             d.set(List.of("cameraserver_static", "cscore_static", "opencv_static"));
+        });
+
+        // 2027
+        configs.register("wpilib_jni_2027", AllPlatformsCombinedNativeDependency.class, c -> {
+            ListProperty<String> d = c.getDependencies();
+            d.set(List.of("ntcore_shared", "hal_shared", "datalog_shared", "wpimath_shared", "wpinet_shared",
+                    "wpiutil_shared"));
+        });
+
+        configs.register("wpilib_static_2027", AllPlatformsCombinedNativeDependency.class, c -> {
+            ListProperty<String> d = c.getDependencies();
+            d.set(List.of("wpilibc_static", "ntcore_static", "hal_static", "datalog_static", "wpimath_static",
+                    "wpinet_static",
+                    "wpiutil_static"));
+        });
+
+        configs.register("wpilib_shared_2027", AllPlatformsCombinedNativeDependency.class, c -> {
+            ListProperty<String> d = c.getDependencies();
+            d.set(List.of("wpilibc_shared", "ntcore_shared", "hal_shared", "datalog_shared", "wpimath_shared",
+                    "wpinet_shared",
+                    "wpiutil_shared"));
+        });
+
+        configs.register("driver_static_2027", AllPlatformsCombinedNativeDependency.class, c -> {
+            ListProperty<String> d = c.getDependencies();
+            d.set(List.of("hal_static", "datalog_static", "wpimath_static", "wpinet_static", "wpiutil_static"));
+        });
+
+        configs.register("driver_shared_2027", AllPlatformsCombinedNativeDependency.class, c -> {
+            ListProperty<String> d = c.getDependencies();
+            d.set(List.of("hal_shared", "datalog_shared", "wpimath_shared", "wpinet_shared", "wpiutil_shared"));
         });
     }
 }

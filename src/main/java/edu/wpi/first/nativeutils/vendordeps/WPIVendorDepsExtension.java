@@ -121,7 +121,7 @@ public abstract class WPIVendorDepsExtension {
     public static List<File> vendorFiles(File directory) {
         if (directory.exists()) {
             return List.of(directory.listFiles(pathname -> {
-                return pathname.getName().endsWith(".json");
+                return pathname.getName().endsWith(".json") && !pathname.isHidden();
             }));
         } else {
             return List.of();
@@ -169,7 +169,7 @@ public abstract class WPIVendorDepsExtension {
                 try {
                     load(dep);
                 } catch(Exception e) {
-                    throw new BuildException("Failed to load dependency", e);
+                    throw new BuildException("Failed to load vendor dependency: " + f.getName(), e);
                 }
             }
         }
@@ -182,14 +182,28 @@ public abstract class WPIVendorDepsExtension {
     private JsonDependency parse(File f) {
         try (BufferedReader reader = Files.newBufferedReader(f.toPath())) {
             return gson.fromJson(reader, JsonDependency.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new BuildException("Failed to parse vendor dependency: " + f.getName(), e);
         }
     }
 
     private void load(JsonDependency dep) throws VendorParsingException {
         // Don"t double-add a dependency!
         if (dependencySet.findByName(dep.uuid) != null) {
+            String requiredFrcYear = frcYear.getOrNull();
+            if (requiredFrcYear != null) {
+                if (!requiredFrcYear.equals(dep.frcYear)) {
+                    log.logError("Warning! Ignoring duplicate vendordep: " + dep.fileName
+                            + " because it has the wrong year.");
+                    return;
+                }
+            }
+            NamedJsonDependency duplicateDep = dependencySet.findByName(dep.uuid);
+            log.logErrorHead(
+                    "Warning! Duplicate Vendordeps detected. " + dep.fileName + " and "
+                            + duplicateDep.getDependency().fileName);
+            log.logError("have the same UUID: " + dep.uuid);
+            log.logError("Remove one of these vendordeps to avoid conflicts.");
             return;
         }
 
@@ -304,7 +318,8 @@ public abstract class WPIVendorDepsExtension {
         }
 
         public boolean useInRio() {
-            return Arrays.asList(binaryPlatforms).contains(NativePlatforms.roborio);
+            List<String> list = Arrays.asList(binaryPlatforms);
+            return list.contains(NativePlatforms.roborio) || list.contains(NativePlatforms.systemcore);
         }
 
         public String groupId;

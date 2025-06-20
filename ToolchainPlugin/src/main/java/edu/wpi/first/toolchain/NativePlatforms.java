@@ -2,12 +2,13 @@ package edu.wpi.first.toolchain;
 
 import java.io.ByteArrayOutputStream;
 
-import org.gradle.api.Project;
 import org.gradle.internal.os.OperatingSystem;
+import org.gradle.process.ExecOperations;
 
 public class NativePlatforms {
     public static final String desktop = desktopOS() + desktopArch();
     public static final String roborio = "linuxathena";
+    public static final String systemcore = "linuxsystemcore";
     public static final String linuxarm32 = "linuxarm32";
     public static final String linuxarm64 = "linuxarm64";
 
@@ -34,7 +35,7 @@ public class NativePlatforms {
         return (arch.equals("amd64") || arch.equals("x86_64")) ? x64arch : x86arch;
     }
 
-    public static String desktopPlatformArch(Project project) {
+    public static String desktopPlatformArch(ExecOperations operations) {
         if (OperatingSystem.current().isWindows()) {
             String arch = System.getenv("PROCESSOR_ARCHITECTURE");
             String wow64Arch = System.getenv("PROCESSOR_ARCHITEW6432");
@@ -43,7 +44,7 @@ public class NativePlatforms {
             String desktop = desktopArchDirect();
             if (desktop.equals("x86-64")) {
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
-                project.exec(spec -> {
+                operations.exec(spec -> {
                     spec.commandLine("sysctl", "-in", "sysctl.proc_translated");
                     spec.setStandardOutput(os);
                     spec.setIgnoreExitValue(true);

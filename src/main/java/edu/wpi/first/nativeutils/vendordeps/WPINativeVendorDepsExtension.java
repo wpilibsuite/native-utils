@@ -101,7 +101,7 @@ public class WPINativeVendorDepsExtension {
 
     private void cppVendorLibForBin(NativeBinarySpec bin, String[] ignore) {
         String prefix = vendorDeps.isHwSimulation() ? HW_SIM_PREFIX : SW_SIM_PREFIX;
-        if (bin.getTargetPlatform().getName().equals(NativePlatforms.roborio)) {
+        if (bin.getTargetPlatform().getName().equals(NativePlatforms.roborio) || bin.getTargetPlatform().getName().equals(NativePlatforms.systemcore)) {
             prefix = RIO_PREFIX;
         }
         for (NamedJsonDependency namedDep : vendorDeps.getDependencySet()) {

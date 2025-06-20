@@ -1,4 +1,4 @@
-package edu.wpi.first.toolchain.roborio;
+package edu.wpi.first.toolchain.systemcore;
 
 import java.io.File;
 
@@ -17,18 +17,18 @@ import edu.wpi.first.toolchain.ToolchainExtension;
 import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
 import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainBase;
 
-public class RoboRioToolchainPlugin implements Plugin<Project> {
+public class SystemCoreToolchainPlugin implements Plugin<Project> {
 
-    public static final String toolchainName = "roboRio";
-    public static final String baseToolchainName = "cortexa9_vfpv3-roborio-academic";
+    public static final String toolchainName = "systemCore";
+    public static final String baseToolchainName = "arm64-bookworm";
 
-    private RoboRioToolchainExtension roborioExt;
+    private SystemCoreToolchainExtension systemcoreExt;
     private Project project;
     private OpenSdkToolchainBase opensdk;
     private ExecOperations operations;
 
     @Inject
-    public RoboRioToolchainPlugin(ExecOperations operations) {
+    public SystemCoreToolchainPlugin(ExecOperations operations) {
         this.operations = operations;
     }
 
@@ -36,22 +36,16 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
     public void apply(Project project) {
         this.project = project;
 
-        roborioExt = project.getExtensions().create("frcToolchain", RoboRioToolchainExtension.class);
+        systemcoreExt = project.getExtensions().create("systemcoreToolchain", SystemCoreToolchainExtension.class);
 
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
 
-        Provider<String> prefixProvider = project.provider(() -> {
-            String year = roborioExt.getToolchainVersion().get().split("-")[0].toLowerCase();
-            String prefix = "arm-frc" + year + "-linux-gnueabi";
-            return prefix;
-        });
+        opensdk = new OpenSdkToolchainBase(baseToolchainName, systemcoreExt, project,
+                SystemCoreToolchainExtension.INSTALL_SUBDIR, "bookworm", project.provider(() -> "aarch64-bookworm-linux-gnu"), toolchainExt.getToolchainGraphService(), operations);
 
-        opensdk = new OpenSdkToolchainBase(baseToolchainName, roborioExt, project,
-                RoboRioToolchainExtension.INSTALL_SUBDIR, "roborio-academic", prefixProvider, toolchainExt.getToolchainGraphService(), operations);
+        CrossCompilerConfiguration configuration = project.getObjects().newInstance(CrossCompilerConfiguration.class, NativePlatforms.systemcore);
 
-        CrossCompilerConfiguration configuration = project.getObjects().newInstance(CrossCompilerConfiguration.class, NativePlatforms.roborio);
-
-        configuration.getArchitecture().set("arm");
+        configuration.getArchitecture().set("arm64");
         configuration.getOperatingSystem().set("linux");
         configuration.getCompilerPrefix().set("");
         configuration.getOptional().convention(true);
@@ -61,9 +55,9 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
                 toolchainName,
                 toolchainName + "Gcc",
                 configuration.getOptional());
-        descriptor.getToolchainPlatform().set(NativePlatforms.roborio);
-        descriptor.getVersionLow().set(roborioExt.getVersionLow());
-        descriptor.getVersionHigh().set(roborioExt.getVersionHigh());
+        descriptor.getToolchainPlatform().set(NativePlatforms.systemcore);
+        descriptor.getVersionLow().set(systemcoreExt.getVersionLow());
+        descriptor.getVersionHigh().set(systemcoreExt.getVersionHigh());
         configuration.getToolchainDescriptor().set(descriptor);
 
         toolchainExt.getCrossCompilers().add(configuration);
@@ -73,8 +67,8 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
 
     public void populateDescriptor(ToolchainDescriptor descriptor) {
         Provider<File> fp = project.provider(() -> {
-            String year = roborioExt.getToolchainVersion().get().split("-")[0].toLowerCase();
-            File frcHomeLoc = new File(new FrcHome(year).get(), "roborio");
+            String year = "2027_alpha1";
+            File frcHomeLoc = new File(new FrcHome(year).get(), "systemcore");
             return frcHomeLoc;
         });
 

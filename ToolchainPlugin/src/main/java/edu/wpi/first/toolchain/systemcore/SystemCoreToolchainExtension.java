@@ -1,15 +1,15 @@
-package edu.wpi.first.toolchain.arm32;
+package edu.wpi.first.toolchain.systemcore;
 
 import javax.inject.Inject;
 
 import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainExtension;
 
-public abstract class Arm32ToolchainExtension extends OpenSdkToolchainExtension {
+public abstract class SystemCoreToolchainExtension extends OpenSdkToolchainExtension {
     public static final String TOOLCHAIN_VERSION = "2025-12.2.0";
-    public static final String INSTALL_SUBDIR = "arm32";
+    public static final String INSTALL_SUBDIR = "systemcore";
 
     @Inject
-    public Arm32ToolchainExtension() {
+    public SystemCoreToolchainExtension() {
         super();
         getVersionLow().convention("12.2.0");
         getVersionHigh().convention("12.2.0");
