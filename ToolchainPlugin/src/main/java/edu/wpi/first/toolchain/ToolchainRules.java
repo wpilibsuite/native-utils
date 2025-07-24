@@ -192,6 +192,11 @@ public class ToolchainRules extends RuleSource {
                 winarm64.architecture("arm64");
             }
 
+            if (ext.getProject().hasProperty("onlyfakeplatform")) {
+                NativePlatform fakePlatform = platforms.maybeCreate("fakeplatform", NativePlatform.class);
+                fakePlatform.architecture("linux");
+            }
+
             for (CrossCompilerConfiguration config : ext.getCrossCompilers()) {
                 if (config.getName().equals(NativePlatforms.desktop)) {
                     continue;
