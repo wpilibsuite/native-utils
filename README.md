@@ -135,6 +135,7 @@ nativeUtils.wpi.platforms.systemcore
 nativeUtils.wpi.platforms.windowsx64
 nativeUtils.wpi.platforms.osxuniversal
 nativeUtils.wpi.platforms.linuxx64
+nativeUtils.wpi.platforms.fakeplatform
 
 // An immutable list of all wpi platforms
 nativeUtils.wpi.platforms.allPlatforms

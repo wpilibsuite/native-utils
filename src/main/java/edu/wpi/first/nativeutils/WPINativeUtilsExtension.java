@@ -107,9 +107,10 @@ public class WPINativeUtilsExtension {
         public final String windowsx86 = "windowsx86";
         public final String windowsarm64 = "windowsarm64";
         public final String osxuniversal = "osxuniversal";
+        public final String fakeplatform = "fakeplatform";
         public final String linuxx64 = "linuxx86-64";
         public final List<String> allPlatforms = List.of(roborio, systemcore, linuxarm32, linuxarm64, windowsx64,
-                windowsx86, windowsarm64, osxuniversal, linuxx64);
+                windowsx86, windowsarm64, osxuniversal, linuxx64, fakeplatform);
         public final List<String> desktopPlatforms = List.of(windowsx64, windowsx86, windowsarm64, osxuniversal,
                 linuxx64);
     }
