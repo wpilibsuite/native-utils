@@ -194,7 +194,7 @@ public class ToolchainRules extends RuleSource {
 
             if (ext.getProject().hasProperty("onlyfakeplatform")) {
                 NativePlatform fakePlatform = platforms.maybeCreate("fakeplatform", NativePlatform.class);
-                fakePlatform.architecture("linux");
+                fakePlatform.architecture("noarch");
             }
 
             for (CrossCompilerConfiguration config : ext.getCrossCompilers()) {
