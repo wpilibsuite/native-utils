@@ -192,7 +192,7 @@ public class ToolchainRules extends RuleSource {
                 winarm64.architecture("arm64");
             }
 
-            if (ext.getProject().hasProperty("onlyfakeplatform")) {
+            if (ext.getProject().hasProperty("addfakeplatform")) {
                 NativePlatform fakePlatform = platforms.maybeCreate("fakeplatform", NativePlatform.class);
                 fakePlatform.architecture("noarch");
             }
