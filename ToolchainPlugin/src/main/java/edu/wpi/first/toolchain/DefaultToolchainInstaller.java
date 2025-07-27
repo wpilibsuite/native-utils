@@ -11,6 +11,7 @@ import org.gradle.internal.os.OperatingSystem;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 public class DefaultToolchainInstaller extends AbstractToolchainInstaller {
 
@@ -39,9 +40,14 @@ public class DefaultToolchainInstaller extends AbstractToolchainInstaller {
             action.src(source);
             action.dest(dst);
             action.overwrite(false);
-            action.execute();
+            action.retries(1);
+            action.execute().get();
         } catch (IOException e) {
             throw new GradleException("Could not download toolchain", e);
+        } catch (InterruptedException e) {
+            throw new GradleException("Could not download toolchain, interrupted", e);
+        } catch (ExecutionException e) {
+            throw new GradleException("Could not download toolchain, failed", e);
         }
 
         if (action.isUpToDate()) {
