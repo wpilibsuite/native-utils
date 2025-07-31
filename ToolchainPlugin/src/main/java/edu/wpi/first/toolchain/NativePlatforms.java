@@ -11,6 +11,7 @@ public class NativePlatforms {
     public static final String systemcore = "linuxsystemcore";
     public static final String linuxarm32 = "linuxarm32";
     public static final String linuxarm64 = "linuxarm64";
+    public static final String fakeplatform = "fakeplatform";
 
     public static final String arm32arch = "arm32";
     public static final String arm64arch = "arm64";
