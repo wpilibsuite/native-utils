@@ -126,7 +126,7 @@ nativeUtils.wpi.configureDependencies {
   opencvVersion = ""
 }
 
-// The 6 below get the string representation of the main platforms
+// The 8 below get the string representation of the main platforms
 // For use comparing to binary.targetPlatform.name
 nativeUtils.wpi.platforms.roborio
 nativeUtils.wpi.platforms.linuxarm32
@@ -135,6 +135,8 @@ nativeUtils.wpi.platforms.systemcore
 nativeUtils.wpi.platforms.windowsx64
 nativeUtils.wpi.platforms.osxuniversal
 nativeUtils.wpi.platforms.linuxx64
+// `fakeplatform` (enabled using -Pusefakeplatform) forces gradle to
+// use platform-specific subdirectories when -Ponly* is specified
 nativeUtils.wpi.platforms.fakeplatform
 
 // An immutable list of all wpi platforms

@@ -294,6 +294,9 @@ public class NativeUtilsExtension {
 
     if (!only) {
       platformsToConfigure.addAll(tmpList);
+    } else if (tmpList.contains(NativePlatforms.fakeplatform) && !platformsToConfigure.contains(NativePlatforms.fakeplatform)) {
+      // the user specified usefakeplatform, ensure that it is added
+      platformsToConfigure.add(NativePlatforms.fakeplatform);
     }
 
     if (!project.hasProperty("buildwinarm64") && NativePlatforms.desktopArch().equals("x86-64")) {

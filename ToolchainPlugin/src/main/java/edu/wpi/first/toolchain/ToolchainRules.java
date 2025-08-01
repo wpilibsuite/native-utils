@@ -193,7 +193,7 @@ public class ToolchainRules extends RuleSource {
             }
 
             if (ext.getProject().hasProperty("usefakeplatform")) {
-                NativePlatform fakePlatform = platforms.maybeCreate("fakeplatform", NativePlatform.class);
+                NativePlatform fakePlatform = platforms.maybeCreate(NativePlatforms.fakeplatform, NativePlatform.class);
                 fakePlatform.architecture("noarch");
             }
 
