@@ -29,7 +29,7 @@ public class DefaultToolchainInstaller extends AbstractToolchainInstaller {
     @Override
     public void install(Project project) {
         URL source = sourceProvider.get();
-        File cacheLoc = new File(ToolchainPlugin.gradleHome(), "cache");
+        File cacheLoc = new File(project.getGradle().getGradleUserHomeDir(), "cache");
         File dst = new File(cacheLoc, "download/" + source.getPath());
         dst.getParentFile().mkdirs();
 
