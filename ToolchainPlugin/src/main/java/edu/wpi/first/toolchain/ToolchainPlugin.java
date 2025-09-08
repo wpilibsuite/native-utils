@@ -75,12 +75,8 @@ public class ToolchainPlugin implements Plugin<Project> {
         //project.getPluginManager().apply(ToolchainsPlugin.class);
     }
 
-    public static File gradleHome() {
-        return new File(System.getProperty("user.home"), ".gradle");
-    }
-
-    public static File pluginHome() {
-        return new File(gradleHome(), "toolchains");
+    public static File pluginHome(Project project) {
+        return new File(project.getGradle().getGradleUserHomeDir(), "toolchains");
     }
 
 }

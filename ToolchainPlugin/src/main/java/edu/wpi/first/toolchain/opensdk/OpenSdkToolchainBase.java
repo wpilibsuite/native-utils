@@ -3,7 +3,6 @@ package edu.wpi.first.toolchain.opensdk;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.gradle.api.GradleException;
@@ -71,9 +70,9 @@ public class OpenSdkToolchainBase {
     public URL toolchainDownloadUrl() {
         String file = toolchainRemoteFile();
         try {
-            return new URI("https://github.com/wpilibsuite/opensdk/releases/download/" + tcExt.getToolchainTag().get()
-                    + "/" + file).toURL();
-        } catch (MalformedURLException | URISyntaxException e) {
+            return URI.create("https://github.com/wpilibsuite/opensdk/releases/download/"
+                    + tcExt.getToolchainTag().get() + "/" + file).toURL();
+        } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
     }
@@ -83,8 +82,8 @@ public class OpenSdkToolchainBase {
         return toolchainPrefix.get() + "-" + toolName + exeSuffix;
     }
 
-    public static File toolchainInstallLoc(String year, String installSubdir) {
-        return new File(ToolchainPlugin.pluginHome(), "frc/" + year + "/" + installSubdir);
+    public File toolchainInstallLoc(String year, String installSubdir) {
+        return new File(ToolchainPlugin.pluginHome(project), "frc/" + year + "/" + installSubdir);
     }
 
     public AbstractToolchainInstaller installerFor(OperatingSystem os, Provider<File> installDir, String subdir)

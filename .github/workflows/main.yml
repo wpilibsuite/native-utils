@@ -3,7 +3,15 @@ name: CI
 on: [push, pull_request]
 
 jobs:
+  validation:
+    name: "Validation"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: gradle/actions/wrapper-validation@v4
+
   build:
+    needs: validation
     strategy:
       matrix:
          os: [ubuntu-latest, windows-latest, macos-latest]
@@ -20,17 +28,8 @@ jobs:
       run: ./gradlew publishToMavenLocal
     - name: Check output
       run: git --no-pager diff --exit-code HEAD
-    - name: InstallRioTC
-      run: ../../gradlew installRoboRioToolchain
-      working-directory: testing/cpp
-    - name: InstallArm32Tc
-      run: ../../gradlew installArm32Toolchain
-      working-directory: testing/cpp
-    - name: InstallArm64Tc
-      run: ../../gradlew installArm64Toolchain
-      working-directory: testing/cpp
-    - name: InstallSystemCoreTc
-      run: ../../gradlew installSystemCoreToolchain
+    - name: Install All Toolchains
+      run: ../../gradlew installRoboRioToolchain installArm32Toolchain installArm64Toolchain installSystemCoreToolchain
       working-directory: testing/cpp
     - name: Build Test
       run: ../../gradlew build
