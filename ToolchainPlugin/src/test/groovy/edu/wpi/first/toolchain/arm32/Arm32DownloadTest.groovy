@@ -12,6 +12,7 @@ import spock.lang.IgnoreIf
 @IgnoreIf({ !Boolean.valueOf(env['SPOCK_RUN_TOOLCHAINS']) })
 class Arm32DownloadTest extends Specification {
   @TempDir File testProjectDir
+  @TempDir File gradleUserHome
   File buildFile
   @Shared File toolchainDir
 
@@ -19,12 +20,6 @@ class Arm32DownloadTest extends Specification {
     buildFile = new File(testProjectDir, 'build.gradle')
   }
 
-  def setupSpec() {
-    String year = Arm32ToolchainExtension.TOOLCHAIN_VERSION.split("-")[0].toLowerCase();
-    toolchainDir = OpenSdkToolchainBase.toolchainInstallLoc(year, Arm32ToolchainExtension.INSTALL_SUBDIR);
-    def result = toolchainDir.deleteDir()  // Returns true if all goes well, false otherwise.
-    assert result
-  }
 
   def "Toolchain Can Download"() {
     given:
@@ -38,7 +33,7 @@ toolchainsPlugin.withCrossLinuxArm32()
     when:
     def result = GradleRunner.create()
                              .withProjectDir(testProjectDir)
-                             .withArguments('installArm32Toolchain', '--stacktrace')
+                             .withArguments('installArm32Toolchain', '--stacktrace', '-Dgradle.user.home=' + gradleUserHome)
                              .withPluginClasspath()
                              .build()
 

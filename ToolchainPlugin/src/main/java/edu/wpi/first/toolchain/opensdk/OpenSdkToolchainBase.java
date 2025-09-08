@@ -81,8 +81,8 @@ public class OpenSdkToolchainBase {
         return toolchainPrefix.get() + "-" + toolName + exeSuffix;
     }
 
-    public static File toolchainInstallLoc(String year, String installSubdir) {
-        return new File(ToolchainPlugin.pluginHome(), "frc/" + year + "/" + installSubdir);
+    public File toolchainInstallLoc(String year, String installSubdir) {
+        return new File(ToolchainPlugin.pluginHome(project), "frc/" + year + "/" + installSubdir);
     }
 
     public AbstractToolchainInstaller installerFor(OperatingSystem os, Provider<File> installDir, String subdir)
