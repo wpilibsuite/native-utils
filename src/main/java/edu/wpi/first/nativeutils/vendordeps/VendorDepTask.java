@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.concurrent.ExecutionException;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.Directory;
@@ -39,10 +40,12 @@ public class VendorDepTask extends DefaultTask {
 
     /**
      * Installs the JSON file
-     * @throws java.io.IOException throws on ioexception
+     * @throws ExecutionException if completed exceptionally
+     * @throws InterruptedException if cancelled
+     * @throws IOException if the download fails
      */
     @TaskAction
-    public void install() throws IOException {
+    public void install() throws IOException, InterruptedException, ExecutionException {
         if (update) {
           Gson gson = new GsonBuilder().create();
           Object property = getProject().findProperty(WPIVendorDepsExtension.NATIVEUTILS_VENDOR_FOLDER_PROPERTY);
@@ -167,10 +170,13 @@ public class VendorDepTask extends DefaultTask {
     /**
      * Download a vendor JSON file from a URL
      * @param dest the destination file
+     * @throws ExecutionException if completed exceptionally
+     * @throws InterruptedException if cancelled
+     * @throws IOException if the download fails
      */
-    private void downloadRemote(Path dest) throws IOException {
+    private void downloadRemote(Path dest) throws IOException, InterruptedException, ExecutionException {
         downloadAction.src(url);
         downloadAction.dest(dest.toFile());
-        downloadAction.execute();
+        downloadAction.execute().get();
     }
 }
