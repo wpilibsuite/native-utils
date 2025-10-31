@@ -80,7 +80,7 @@ public class WPINativeUtilsExtension {
 
         public final List<String> linuxSystemCoreArgs = List.of("-D__FRC_SYSTEMCORE__=1");
 
-        public final String macMinimumVersionArg = "-mmacosx-version-min=13.3";
+        public final String macMinimumVersionArg = "-mmacosx-version-min=14";
 
         public final List<String> macCompilerArgs = List.of("-std=c++20", "-pedantic", "-fPIC", "-Wno-unused-parameter",
                 "-Wno-error=deprecated-enum-enum-conversion", "-Wno-missing-field-initializers",
