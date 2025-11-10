@@ -128,8 +128,6 @@ nativeUtils.wpi.configureDependencies {
 
 // The 8 below get the string representation of the main platforms
 // For use comparing to binary.targetPlatform.name
-nativeUtils.wpi.platforms.roborio
-nativeUtils.wpi.platforms.linuxarm32
 nativeUtils.wpi.platforms.linuxarm64
 nativeUtils.wpi.platforms.systemcore
 nativeUtils.wpi.platforms.windowsx64
@@ -165,10 +163,10 @@ toolchainsPlugin {
   registerReleaseBuildType = true
   registerDebugBuildType = true
 
-  // Add the roborio compiler
-  withCrossRoboRIO()
+  // Add the systemcore compiler
+  withCrossSystemCore()
   // Add the raspbian compiler
-  withCrossLinuxArm32()
+  withCrossLinuxArm64()
   // The above 2 are included with nativeUtils.addWpiNativeUtils()
 
   crossCompilers {
@@ -184,7 +182,7 @@ toolchainsPlugin {
 
 ## Adding a non standard cross compiler
 
-Use the following to add a custom cross compiler, with the same args as the rio and raspbian
+Use the following to add a custom cross compiler, with the same args as the Systemcore and raspbian
 
 ```
 nativeUtils.addWpiNativeUtils() // Must be called before using nativeUtils.wpi.defaultArguments

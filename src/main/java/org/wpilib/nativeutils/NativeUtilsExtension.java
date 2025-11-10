@@ -46,10 +46,8 @@ import org.wpilib.nativeutils.tasks.PrintNativeDependenciesTask;
 import org.wpilib.toolchain.NativePlatforms;
 import org.wpilib.toolchain.ToolchainDescriptorBase;
 import org.wpilib.toolchain.ToolchainExtension;
-import org.wpilib.toolchain.arm32.Arm32ToolchainPlugin;
 import org.wpilib.toolchain.arm64.Arm64ToolchainPlugin;
 import org.wpilib.toolchain.configurable.CrossCompilerConfiguration;
-import org.wpilib.toolchain.roborio.RoboRioToolchainPlugin;
 import org.wpilib.toolchain.systemcore.SystemCoreToolchainPlugin;
 
 public class NativeUtilsExtension {
@@ -366,18 +364,8 @@ public class NativeUtilsExtension {
     return project.getTasks().register(name, ResourceGenerationTask.class, configure);
   }
 
-  public void withCrossRoboRIO() {
-    project.getPluginManager().apply(RoboRioToolchainPlugin.class);
-  }
-
   public void withCrossSystemCore() {
     project.getPluginManager().apply(SystemCoreToolchainPlugin.class);
-  }
-
-  public void withCrossLinuxArm32() {
-    if (!NativePlatforms.desktop.equals(NativePlatforms.linuxarm32)) {
-      project.getPluginManager().apply(Arm32ToolchainPlugin.class);
-    }
   }
 
   public void withCrossLinuxArm64() {

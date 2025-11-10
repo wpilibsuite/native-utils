@@ -20,9 +20,7 @@ import org.wpilib.nativeutils.vendordeps.WPIVendorDepsExtension;
 import org.wpilib.nativeutils.vendordeps.WPIVendorDepsPlugin;
 import org.wpilib.toolchain.NativePlatforms;
 import org.wpilib.nativeutils.dependencies.AllPlatformsCombinedNativeDependency;
-import org.wpilib.nativeutils.dependencies.CombinedIgnoreMissingPlatformNativeDependency;
 import org.wpilib.nativeutils.dependencies.NativeDependency;
-import org.wpilib.nativeutils.dependencies.WPIHeaderOnlyMavenDependency;
 import org.wpilib.nativeutils.dependencies.WPISharedMavenDependency;
 import org.wpilib.nativeutils.dependencies.WPIStaticMavenDependency;
 
@@ -99,9 +97,7 @@ public class WPINativeUtilsExtension {
     }
 
     public static class Platforms {
-        public final String roborio = "linuxathena";
         public final String systemcore = "linuxsystemcore";
-        public final String linuxarm32 = "linuxarm32";
         public final String linuxarm64 = "linuxarm64";
         public final String windowsx64 = "windowsx86-64";
         public final String windowsx86 = "windowsx86";
@@ -109,7 +105,7 @@ public class WPINativeUtilsExtension {
         public final String osxuniversal = "osxuniversal";
         public final String fakeplatform = "fakeplatform";
         public final String linuxx64 = "linuxx86-64";
-        public final List<String> allPlatforms = List.of(roborio, systemcore, linuxarm32, linuxarm64, windowsx64,
+        public final List<String> allPlatforms = List.of(systemcore, linuxarm64, windowsx64,
                 windowsx86, windowsarm64, osxuniversal, linuxx64, fakeplatform);
         public final List<String> desktopPlatforms = List.of(windowsx64, windowsx86, windowsarm64, osxuniversal,
                 linuxx64);
@@ -219,19 +215,12 @@ public class WPINativeUtilsExtension {
         windowsPlatforms.put(platforms.windowsarm64, windowsarm64);
         PlatformConfig linuxx86_64 = nativeExt.getPlatformConfigs().create(platforms.linuxx64);
         PlatformConfig osxuniversal = nativeExt.getPlatformConfigs().create(platforms.osxuniversal);
-        PlatformConfig linuxathena = nativeExt.getPlatformConfigs().create(platforms.roborio);
-        PlatformConfig linuxarm32 = nativeExt.getPlatformConfigs().create(platforms.linuxarm32);
         PlatformConfig linuxarm64 = nativeExt.getPlatformConfigs().create(platforms.linuxarm64);
         PlatformConfig linuxsystemcore = nativeExt.getPlatformConfigs().create(platforms.systemcore);
         unixPlatforms.put(platforms.linuxx64, linuxx86_64);
         unixPlatforms.put(platforms.osxuniversal, osxuniversal);
-        unixPlatforms.put(platforms.linuxarm32, linuxarm32);
-        unixPlatforms.put(platforms.roborio, linuxathena);
         unixPlatforms.put(platforms.linuxarm64, linuxarm64);
         unixPlatforms.put(platforms.systemcore, linuxsystemcore);
-
-        linuxathena.getPlatformPath().set("linux/athena");
-        addLinuxCrossArgs(linuxathena);
 
         linuxsystemcore.getPlatformPath().set("linux/systemcore");
         addLinuxCrossArgs(linuxsystemcore);
@@ -239,9 +228,6 @@ public class WPINativeUtilsExtension {
         linuxsystemcore.getcCompiler().getArgs().addAll(defaultArguments.linuxSystemCoreArgs);
         linuxsystemcore.getObjcCompiler().getArgs().addAll(defaultArguments.linuxSystemCoreArgs);
         linuxsystemcore.getObjcppCompiler().getArgs().addAll(defaultArguments.linuxSystemCoreArgs);
-
-        linuxarm32.getPlatformPath().set("linux/arm32");
-        addLinuxCrossArgs(linuxarm32);
 
         linuxarm64.getPlatformPath().set("linux/arm64");
         addLinuxCrossArgs(linuxarm64);
@@ -494,62 +480,6 @@ public class WPINativeUtilsExtension {
         dependencies.execute(dependencyVersions);
         versions = dependencyVersions;
         ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs = nativeExt.getNativeDependencyContainer();
-        configs.register("netcomm", WPISharedMavenDependency.class, c -> {
-            c.getGroupId().set("edu.wpi.first.ni-libraries");
-            c.getArtifactId().set("netcomm");
-            c.getHeaderClassifier().set("headers");
-            c.getExt().set("zip");
-            c.getVersion().set(dependencyVersions.getNiLibVersion());
-            c.getSkipAtRuntime().set(true);
-            c.getTargetPlatforms().add(this.platforms.roborio);
-        });
-
-        configs.register("chipobject", WPISharedMavenDependency.class, c -> {
-            c.getGroupId().set("edu.wpi.first.ni-libraries");
-            c.getArtifactId().set("chipobject");
-            c.getHeaderClassifier().set("headers");
-            c.getExt().set("zip");
-            c.getVersion().set(dependencyVersions.getNiLibVersion());
-            c.getSkipAtRuntime().set(true);
-            c.getTargetPlatforms().add(this.platforms.roborio);
-        });
-
-        configs.register("chipobject_headers", WPIHeaderOnlyMavenDependency.class, c -> {
-            c.getGroupId().set("edu.wpi.first.ni-libraries");
-            c.getArtifactId().set("chipobject");
-            c.getHeaderClassifier().set("headers");
-            c.getExt().set("zip");
-            c.getVersion().set(dependencyVersions.getNiLibVersion());
-            c.getSkipAtRuntime().set(true);
-            c.getTargetPlatforms().add(this.platforms.roborio);
-        });
-
-        configs.register("visa", WPISharedMavenDependency.class, c -> {
-            c.getGroupId().set("edu.wpi.first.ni-libraries");
-            c.getArtifactId().set("visa");
-            c.getHeaderClassifier().set("headers");
-            c.getExt().set("zip");
-            c.getVersion().set(dependencyVersions.getNiLibVersion());
-            c.getSkipAtRuntime().set(true);
-            c.getTargetPlatforms().add(this.platforms.roborio);
-        });
-
-        configs.register("ni_runtime", WPISharedMavenDependency.class, c -> {
-            c.getGroupId().set("edu.wpi.first.ni-libraries");
-            c.getArtifactId().set("runtime");
-            c.getExt().set("zip");
-            c.getVersion().set(dependencyVersions.getNiLibVersion());
-            c.getSkipAtRuntime().set(true);
-            c.getTargetPlatforms().add(this.platforms.roborio);
-        });
-
-        configs.register("ni_link_libraries", CombinedIgnoreMissingPlatformNativeDependency.class, c -> {
-            c.getDependencies().put(this.platforms.roborio, List.of("netcomm", "chipobject", "visa"));
-        });
-
-        configs.register("ni_runtime_libraries", CombinedIgnoreMissingPlatformNativeDependency.class, c -> {
-            c.getDependencies().put(this.platforms.roborio, List.of("ni_runtime"));
-        });
 
         Property<String> wpiVersion = dependencyVersions.getWpiVersion();
         registerStandardDependency(configs, "wpiutil", "edu.wpi.first.wpiutil", "wpiutil-cpp", wpiVersion);
