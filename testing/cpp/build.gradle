@@ -1,9 +1,9 @@
-import edu.wpi.first.toolchain.NativePlatforms
-import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsPlugin
+import org.wpilib.toolchain.NativePlatforms
+import org.wpilib.nativeutils.vendordeps.WPIVendorDepsPlugin
 
 plugins {
     id "cpp"
-    id "edu.wpi.first.NativeUtils" version "2026.0.0"
+    id "org.wpilib.NativeUtils" version "2027.0.0"
 }
 
 nativeUtils.addWpiNativeUtils()
