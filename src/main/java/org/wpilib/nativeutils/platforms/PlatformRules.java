@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.platforms;
+package org.wpilib.nativeutils.platforms;
 
 import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.model.RuleSource;
@@ -7,7 +7,7 @@ import org.gradle.nativeplatform.BuildTypeContainer;
 import org.gradle.platform.base.ComponentSpecContainer;
 import org.gradle.platform.base.PlatformContainer;
 
-import edu.wpi.first.nativeutils.NativeUtilsExtension;
+import org.wpilib.nativeutils.NativeUtilsExtension;
 
 public class PlatformRules extends RuleSource {
   @Validate

@@ -1,6 +1,6 @@
-package edu.wpi.first.nativeutils.vendordeps;
+package org.wpilib.nativeutils.vendordeps;
 
-import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.JsonDependency;
+import org.wpilib.nativeutils.vendordeps.WPIVendorDepsExtension.JsonDependency;
 
 public class InvalidVendorDepYearException extends RuntimeException {
     public InvalidVendorDepYearException(JsonDependency dependency, String requiredYear) {

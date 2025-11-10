@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.dependencies;
+package org.wpilib.nativeutils.dependencies;
 
 import java.util.Optional;
 import java.util.Set;
@@ -10,7 +10,7 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.nativeplatform.BuildType;
 import org.gradle.nativeplatform.platform.NativePlatform;
 
-import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension;
+import org.wpilib.nativeutils.vendordeps.WPIVendorDepsExtension;
 
 public abstract class WPIVendorMavenDependency extends WPIMavenDependency {
 

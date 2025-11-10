@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.exports;
+package org.wpilib.nativeutils.exports;
 
 import org.gradle.api.Named;
 import org.gradle.api.file.RegularFileProperty;

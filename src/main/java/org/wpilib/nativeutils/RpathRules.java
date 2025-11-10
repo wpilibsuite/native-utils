@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils;
+package org.wpilib.nativeutils;
 
 import org.gradle.api.Task;
 import org.gradle.model.ModelMap;

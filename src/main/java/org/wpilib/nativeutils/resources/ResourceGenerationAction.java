@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.resources;
+package org.wpilib.nativeutils.resources;
 
 import java.io.BufferedWriter;
 import java.io.File;

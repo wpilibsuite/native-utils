@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.vendordeps;
+package org.wpilib.nativeutils.vendordeps;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,11 +12,11 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.JavaArtifact;
-import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.JniArtifact;
-import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.JsonDependency;
-import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.NamedJsonDependency;
-import edu.wpi.first.toolchain.NativePlatforms;
+import org.wpilib.nativeutils.vendordeps.WPIVendorDepsExtension.JavaArtifact;
+import org.wpilib.nativeutils.vendordeps.WPIVendorDepsExtension.JniArtifact;
+import org.wpilib.nativeutils.vendordeps.WPIVendorDepsExtension.JsonDependency;
+import org.wpilib.nativeutils.vendordeps.WPIVendorDepsExtension.NamedJsonDependency;
+import org.wpilib.toolchain.NativePlatforms;
 
 public class WPIJavaVendorDepsExtension {
     private final WPIVendorDepsExtension vendorDeps;
@@ -47,7 +47,8 @@ public class WPIJavaVendorDepsExtension {
                     project.getDependencies().getComponents().withModule(baseId, details -> {
                         details.allVariants(varMeta -> {
                             varMeta.withDependencies(col -> {
-                                col.removeIf(item -> item.getGroup().startsWith("edu.wpi.first"));
+                                col.removeIf(item -> item.getGroup().startsWith("edu.wpi.first")
+                                        || item.getGroup().startsWith("org.wpilib"));
                             });
                         });
                     });
@@ -82,7 +83,8 @@ public class WPIJavaVendorDepsExtension {
             JsonDependency dep = d.getDependency();
             if (!vendorDeps.isIgnored(ignore, dep)) {
                 for (JniArtifact jni : dep.jniDependencies) {
-                    boolean applies = Arrays.asList(jni.validPlatforms).contains(platform) && (isRio || (hwSim ? jni.useInHwSim() : jni.useInSwSim()));
+                    boolean applies = Arrays.asList(jni.validPlatforms).contains(platform)
+                            && (isRio || (hwSim ? jni.useInHwSim() : jni.useInSwSim()));
                     if (!applies && !jni.skipInvalidPlatforms)
                         throw new MissingVendorJniDependencyException(dep.name, platform, jni);
 

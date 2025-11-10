@@ -1,4 +1,4 @@
-package edu.wpi.first.toolchain.roborio;
+package org.wpilib.toolchain.roborio;
 
 import java.io.File;
 
@@ -9,13 +9,13 @@ import org.gradle.api.Project;
 import org.gradle.api.provider.Provider;
 import org.gradle.process.ExecOperations;
 
-import edu.wpi.first.toolchain.FrcHome;
-import edu.wpi.first.toolchain.NativePlatforms;
-import edu.wpi.first.toolchain.ToolchainDescriptor;
-import edu.wpi.first.toolchain.ToolchainDiscoverer;
-import edu.wpi.first.toolchain.ToolchainExtension;
-import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
-import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainBase;
+import org.wpilib.toolchain.FrcHome;
+import org.wpilib.toolchain.NativePlatforms;
+import org.wpilib.toolchain.ToolchainDescriptor;
+import org.wpilib.toolchain.ToolchainDiscoverer;
+import org.wpilib.toolchain.ToolchainExtension;
+import org.wpilib.toolchain.configurable.CrossCompilerConfiguration;
+import org.wpilib.toolchain.opensdk.OpenSdkToolchainBase;
 
 public class RoboRioToolchainPlugin implements Plugin<Project> {
 

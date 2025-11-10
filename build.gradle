@@ -12,8 +12,8 @@ java {
 }
 
 allprojects {
-    group = "edu.wpi.first"
-    version = "2026.0.0"
+    group = "org.wpilib"
+    version = "2027.0.0"
 
     if (project.hasProperty('publishVersion')) {
         version = project.publishVersion
@@ -54,9 +54,9 @@ gradlePlugin {
     vcsUrl = 'https://github.com/wpilibsuite/native-utils'
     plugins {
         NativeUtils {
-            id = 'edu.wpi.first.NativeUtils'
+            id = 'org.wpilib.NativeUtils'
             displayName = 'NativeUtils'
-            implementationClass = 'edu.wpi.first.nativeutils.NativeUtils'
+            implementationClass = 'org.wpilib.nativeutils.NativeUtils'
             description = 'This plugin provides native build utilities for FRC projects.'
             tags = ['groovy', 'native', 'utils', 'maven', 'frc', 'wpilib']
         }
@@ -76,14 +76,14 @@ def examplesFolder = file("$rootDir/testing")
 
 tasks.register('PatchExamples') {
     doLast {
-        String regex = "(id\\s*?[\\\"|\\']edu\\.wpi\\.first\\.NativeUtils[\\\"|\\'].*?version\\s*?[\\\"|\\'])(.+?)([\\\"|\\'])";
+        String regex = "(id\\s*?[\\\"|\\']org\\.wpilib\\.NativeUtils[\\\"|\\'].*?version\\s*?[\\\"|\\'])(.+?)([\\\"|\\'])";
 
         examplesFolder.eachFile { File file ->
             if (file.isDirectory() && file.name != '_archived') {
                 def buildGradleFile = new File(file, 'build.gradle')
                 if (buildGradleFile.exists() && buildGradleFile.isFile()) {
                     def text = buildGradleFile.text
-                    text = text.replaceAll(regex, "id \"edu.wpi.first.NativeUtils\" version \"${version}\"")
+                    text = text.replaceAll(regex, "id \"org.wpilib.NativeUtils\" version \"${version}\"")
                     buildGradleFile.text = text
                 }
             }

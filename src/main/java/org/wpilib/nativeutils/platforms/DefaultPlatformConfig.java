@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.platforms;
+package org.wpilib.nativeutils.platforms;
 
 import javax.inject.Inject;
 

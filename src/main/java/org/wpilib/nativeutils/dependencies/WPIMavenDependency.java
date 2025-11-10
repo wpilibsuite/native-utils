@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.dependencies;
+package org.wpilib.nativeutils.dependencies;
 
 import java.io.File;
 import java.util.HashMap;
@@ -21,7 +21,7 @@ import org.gradle.api.tasks.util.PatternSet;
 import org.gradle.nativeplatform.BuildType;
 import org.gradle.nativeplatform.platform.NativePlatform;
 
-import edu.wpi.first.nativeutils.NativeUtils;
+import org.wpilib.nativeutils.NativeUtils;
 
 public abstract class WPIMavenDependency implements NativeDependency {
     private final String name;

@@ -1,4 +1,4 @@
-package edu.wpi.first.toolchain;
+package org.wpilib.toolchain;
 
 //import edu.wpi.first.deployutils.toolchains.ToolchainsPlugin;
 import org.gradle.api.Plugin;

@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils
+package org.wpilib.nativeutils
 
 import org.gradle.testkit.runner.GradleRunner
 import static org.gradle.testkit.runner.TaskOutcome.*
@@ -18,7 +18,7 @@ class NativeUtilsPluginInitializationTest extends Specification {
     given:
     buildFile << """plugins {
   id 'cpp'
-  id 'edu.wpi.first.NativeUtils'
+  id 'org.wpilib.NativeUtils'
 }
 """
     when:

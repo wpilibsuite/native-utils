@@ -1,4 +1,4 @@
-package edu.wpi.first.toolchain.configurable;
+package org.wpilib.toolchain.configurable;
 
 import javax.inject.Inject;
 
@@ -6,7 +6,7 @@ import org.gradle.api.Named;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 
-import edu.wpi.first.toolchain.ToolchainDescriptorBase;
+import org.wpilib.toolchain.ToolchainDescriptorBase;
 
 public abstract class CrossCompilerConfiguration implements Named {
   private final String name;

@@ -1,8 +1,8 @@
-package edu.wpi.first.toolchain.roborio;
+package org.wpilib.toolchain.roborio;
 
 import javax.inject.Inject;
 
-import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainExtension;
+import org.wpilib.toolchain.opensdk.OpenSdkToolchainExtension;
 
 public abstract class RoboRioToolchainExtension extends OpenSdkToolchainExtension {
     public static final String TOOLCHAIN_VERSION = "2025-12.1.0";

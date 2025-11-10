@@ -52,9 +52,9 @@ gradlePlugin {
     vcsUrl = 'https://github.com/wpilibsuite/native-utils'
     plugins {
         toolchain {
-            id = 'edu.wpi.first.Toolchain'
+            id = 'org.wpilib.Toolchain'
             displayName = 'Toolchain'
-            implementationClass = 'edu.wpi.first.toolchain.ToolchainPlugin'
+            implementationClass = 'org.wpilib.toolchain.ToolchainPlugin'
             description = 'FRC Toolchain Standalone Gradle Plugin'
             tags = ['frc', 'wpilib', 'gradlerio']
         }

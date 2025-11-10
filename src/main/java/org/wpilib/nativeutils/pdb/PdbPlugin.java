@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.pdb;
+package org.wpilib.nativeutils.pdb;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import org.gradle.nativeplatform.tasks.CreateStaticLibrary;
 import org.gradle.nativeplatform.tasks.InstallExecutable;
 import org.gradle.platform.base.BinaryTasks;
 
-import edu.wpi.first.nativeutils.NativeUtilsExtension;
+import org.wpilib.nativeutils.NativeUtilsExtension;
 
 public class PdbPlugin extends RuleSource {
     private void staticLibraryPdbConfiguration(ModelMap<Task> tasks, StaticLibraryBinarySpecInternal staticLib) {

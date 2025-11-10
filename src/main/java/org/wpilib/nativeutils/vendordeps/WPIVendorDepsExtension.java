@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.vendordeps;
+package org.wpilib.nativeutils.vendordeps;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -25,7 +25,7 @@ import com.google.gson.Gson;
 
 import edu.wpi.first.deployutils.log.ETLogger;
 import edu.wpi.first.deployutils.log.ETLoggerFactory;
-import edu.wpi.first.toolchain.NativePlatforms;
+import org.wpilib.toolchain.NativePlatforms;
 
 public abstract class WPIVendorDepsExtension {
 

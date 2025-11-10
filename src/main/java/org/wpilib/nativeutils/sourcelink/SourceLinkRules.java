@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.sourcelink;
+package org.wpilib.nativeutils.sourcelink;
 
 import java.io.File;
 import java.util.Set;

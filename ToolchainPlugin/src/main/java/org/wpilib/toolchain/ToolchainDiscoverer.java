@@ -1,4 +1,4 @@
-package edu.wpi.first.toolchain;
+package org.wpilib.toolchain;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

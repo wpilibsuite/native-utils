@@ -1,4 +1,4 @@
-package edu.wpi.first.toolchain.arm32;
+package org.wpilib.toolchain.arm32;
 
 import javax.inject.Inject;
 
@@ -6,11 +6,11 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.process.ExecOperations;
 
-import edu.wpi.first.toolchain.NativePlatforms;
-import edu.wpi.first.toolchain.ToolchainDescriptor;
-import edu.wpi.first.toolchain.ToolchainExtension;
-import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
-import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainBase;
+import org.wpilib.toolchain.NativePlatforms;
+import org.wpilib.toolchain.ToolchainDescriptor;
+import org.wpilib.toolchain.ToolchainExtension;
+import org.wpilib.toolchain.configurable.CrossCompilerConfiguration;
+import org.wpilib.toolchain.opensdk.OpenSdkToolchainBase;
 
 public class Arm32ToolchainPlugin implements Plugin<Project> {
 

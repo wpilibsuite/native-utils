@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.exports;
+package org.wpilib.nativeutils.exports;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;

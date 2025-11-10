@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.dependencies;
+package org.wpilib.nativeutils.dependencies;
 
 public enum ArtifactType {
     SOURCES,

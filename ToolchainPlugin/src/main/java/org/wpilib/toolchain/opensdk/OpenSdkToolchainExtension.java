@@ -1,4 +1,4 @@
-package edu.wpi.first.toolchain.opensdk;
+package org.wpilib.toolchain.opensdk;
 
 import javax.inject.Inject;
 

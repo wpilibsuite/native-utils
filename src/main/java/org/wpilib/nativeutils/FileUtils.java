@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils;
+package org.wpilib.nativeutils;
 
 import java.io.File;
 import java.io.IOException;

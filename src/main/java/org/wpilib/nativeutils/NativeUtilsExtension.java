@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils;
+package org.wpilib.nativeutils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,32 +25,32 @@ import org.gradle.platform.base.PlatformAwareComponentSpec;
 import org.gradle.platform.base.PlatformContainer;
 import org.gradle.platform.base.VariantComponentSpec;
 
-import edu.wpi.first.nativeutils.dependencies.AllPlatformsCombinedNativeDependency;
-import edu.wpi.first.nativeutils.dependencies.CombinedIgnoreMissingPlatformNativeDependency;
-import edu.wpi.first.nativeutils.dependencies.CombinedNativeDependency;
-import edu.wpi.first.nativeutils.dependencies.CustomDependencySet;
-import edu.wpi.first.nativeutils.dependencies.DelegatedDependencySet;
-import edu.wpi.first.nativeutils.dependencies.FastDownloadDependencySet;
-import edu.wpi.first.nativeutils.dependencies.NativeDependency;
-import edu.wpi.first.nativeutils.dependencies.WPIHeaderOnlyMavenDependency;
-import edu.wpi.first.nativeutils.dependencies.WPISharedMavenDependency;
-import edu.wpi.first.nativeutils.dependencies.WPIStaticMavenDependency;
-import edu.wpi.first.nativeutils.exports.DefaultExportsConfig;
-import edu.wpi.first.nativeutils.exports.ExportsConfig;
-import edu.wpi.first.nativeutils.exports.PrivateExportsConfig;
-import edu.wpi.first.nativeutils.platforms.DefaultPlatformConfig;
-import edu.wpi.first.nativeutils.platforms.PlatformConfig;
-import edu.wpi.first.nativeutils.resources.ResourceGenerationTask;
-import edu.wpi.first.nativeutils.sourcelink.SourceLinkPlugin;
-import edu.wpi.first.nativeutils.tasks.PrintNativeDependenciesTask;
-import edu.wpi.first.toolchain.NativePlatforms;
-import edu.wpi.first.toolchain.ToolchainDescriptorBase;
-import edu.wpi.first.toolchain.ToolchainExtension;
-import edu.wpi.first.toolchain.arm32.Arm32ToolchainPlugin;
-import edu.wpi.first.toolchain.arm64.Arm64ToolchainPlugin;
-import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
-import edu.wpi.first.toolchain.roborio.RoboRioToolchainPlugin;
-import edu.wpi.first.toolchain.systemcore.SystemCoreToolchainPlugin;
+import org.wpilib.nativeutils.dependencies.AllPlatformsCombinedNativeDependency;
+import org.wpilib.nativeutils.dependencies.CombinedIgnoreMissingPlatformNativeDependency;
+import org.wpilib.nativeutils.dependencies.CombinedNativeDependency;
+import org.wpilib.nativeutils.dependencies.CustomDependencySet;
+import org.wpilib.nativeutils.dependencies.DelegatedDependencySet;
+import org.wpilib.nativeutils.dependencies.FastDownloadDependencySet;
+import org.wpilib.nativeutils.dependencies.NativeDependency;
+import org.wpilib.nativeutils.dependencies.WPIHeaderOnlyMavenDependency;
+import org.wpilib.nativeutils.dependencies.WPISharedMavenDependency;
+import org.wpilib.nativeutils.dependencies.WPIStaticMavenDependency;
+import org.wpilib.nativeutils.exports.DefaultExportsConfig;
+import org.wpilib.nativeutils.exports.ExportsConfig;
+import org.wpilib.nativeutils.exports.PrivateExportsConfig;
+import org.wpilib.nativeutils.platforms.DefaultPlatformConfig;
+import org.wpilib.nativeutils.platforms.PlatformConfig;
+import org.wpilib.nativeutils.resources.ResourceGenerationTask;
+import org.wpilib.nativeutils.sourcelink.SourceLinkPlugin;
+import org.wpilib.nativeutils.tasks.PrintNativeDependenciesTask;
+import org.wpilib.toolchain.NativePlatforms;
+import org.wpilib.toolchain.ToolchainDescriptorBase;
+import org.wpilib.toolchain.ToolchainExtension;
+import org.wpilib.toolchain.arm32.Arm32ToolchainPlugin;
+import org.wpilib.toolchain.arm64.Arm64ToolchainPlugin;
+import org.wpilib.toolchain.configurable.CrossCompilerConfiguration;
+import org.wpilib.toolchain.roborio.RoboRioToolchainPlugin;
+import org.wpilib.toolchain.systemcore.SystemCoreToolchainPlugin;
 
 public class NativeUtilsExtension {
 

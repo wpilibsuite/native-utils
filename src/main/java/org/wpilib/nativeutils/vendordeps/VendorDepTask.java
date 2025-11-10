@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.vendordeps;
+package org.wpilib.nativeutils.vendordeps;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,7 +17,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import de.undercouch.gradle.tasks.download.DownloadAction;
-import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.JsonDependency;
+import org.wpilib.nativeutils.vendordeps.WPIVendorDepsExtension.JsonDependency;
 
 /**
  * A task type for downloading vendordep JSON files from the vendor URL.

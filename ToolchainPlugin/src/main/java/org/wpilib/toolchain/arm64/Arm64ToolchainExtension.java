@@ -1,8 +1,8 @@
-package edu.wpi.first.toolchain.arm64;
+package org.wpilib.toolchain.arm64;
 
 import javax.inject.Inject;
 
-import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainExtension;
+import org.wpilib.toolchain.opensdk.OpenSdkToolchainExtension;
 
 public abstract class Arm64ToolchainExtension extends OpenSdkToolchainExtension {
     public static final String TOOLCHAIN_VERSION = "2025-12.2.0";

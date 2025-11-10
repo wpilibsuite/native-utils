@@ -1,4 +1,4 @@
-package edu.wpi.first.toolchain.opensdk;
+package org.wpilib.toolchain.opensdk;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -11,13 +11,13 @@ import org.gradle.api.provider.Provider;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.process.ExecOperations;
 
-import edu.wpi.first.toolchain.AbstractToolchainInstaller;
-import edu.wpi.first.toolchain.DefaultToolchainInstaller;
-import edu.wpi.first.toolchain.NativePlatforms;
-import edu.wpi.first.toolchain.ToolchainDescriptor;
-import edu.wpi.first.toolchain.ToolchainDiscoverer;
-import edu.wpi.first.toolchain.ToolchainGraphBuildService;
-import edu.wpi.first.toolchain.ToolchainPlugin;
+import org.wpilib.toolchain.AbstractToolchainInstaller;
+import org.wpilib.toolchain.DefaultToolchainInstaller;
+import org.wpilib.toolchain.NativePlatforms;
+import org.wpilib.toolchain.ToolchainDescriptor;
+import org.wpilib.toolchain.ToolchainDiscoverer;
+import org.wpilib.toolchain.ToolchainGraphBuildService;
+import org.wpilib.toolchain.ToolchainPlugin;
 
 public class OpenSdkToolchainBase {
     private final String baseToolchainName;

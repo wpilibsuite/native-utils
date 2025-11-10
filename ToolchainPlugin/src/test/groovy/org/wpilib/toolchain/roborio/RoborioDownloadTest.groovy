@@ -1,8 +1,8 @@
-package edu.wpi.first.toolchain.roborio
+package org.wpilib.toolchain.roborio
 
 import org.gradle.testkit.runner.GradleRunner
 import static org.gradle.testkit.runner.TaskOutcome.*
-import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainBase
+import org.wpilib.toolchain.opensdk.OpenSdkToolchainBase
 
 import spock.lang.Shared
 import spock.lang.TempDir
@@ -24,7 +24,7 @@ class RoboRioDownloadTest extends Specification {
     given:
     buildFile << """plugins {
   id 'cpp'
-  id 'edu.wpi.first.Toolchain'
+  id 'org.wpilib.Toolchain'
 }
 
 toolchainsPlugin.withCrossRoboRIO()

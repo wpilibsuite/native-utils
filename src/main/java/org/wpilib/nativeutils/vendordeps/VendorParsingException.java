@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.vendordeps;
+package org.wpilib.nativeutils.vendordeps;
 
 import org.gradle.tooling.BuildException;
 

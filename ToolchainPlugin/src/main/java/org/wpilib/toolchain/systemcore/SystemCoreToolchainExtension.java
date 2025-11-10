@@ -1,8 +1,8 @@
-package edu.wpi.first.toolchain.systemcore;
+package org.wpilib.toolchain.systemcore;
 
 import javax.inject.Inject;
 
-import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainExtension;
+import org.wpilib.toolchain.opensdk.OpenSdkToolchainExtension;
 
 public abstract class SystemCoreToolchainExtension extends OpenSdkToolchainExtension {
     public static final String TOOLCHAIN_VERSION = "2025-12.2.0";

@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils;
+package org.wpilib.nativeutils;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -6,12 +6,12 @@ import org.gradle.api.attributes.Attribute;
 import org.gradle.internal.os.OperatingSystem;
 
 import edu.wpi.first.deployutils.DeployUtils;
-import edu.wpi.first.nativeutils.exports.ExportsConfigPlugin;
-import edu.wpi.first.nativeutils.exports.PrivateExportsConfigRules;
-import edu.wpi.first.nativeutils.pdb.PdbPlugin;
-import edu.wpi.first.nativeutils.platforms.PlatformRules;
-import edu.wpi.first.toolchain.ToolchainExtension;
-import edu.wpi.first.toolchain.ToolchainPlugin;
+import org.wpilib.nativeutils.exports.ExportsConfigPlugin;
+import org.wpilib.nativeutils.exports.PrivateExportsConfigRules;
+import org.wpilib.nativeutils.pdb.PdbPlugin;
+import org.wpilib.nativeutils.platforms.PlatformRules;
+import org.wpilib.toolchain.ToolchainExtension;
+import org.wpilib.toolchain.ToolchainPlugin;
 import edu.wpi.first.vscode.GradleVsCode;
 
 public class NativeUtils implements Plugin<Project> {

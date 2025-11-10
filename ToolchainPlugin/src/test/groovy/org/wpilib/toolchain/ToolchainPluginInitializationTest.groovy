@@ -1,4 +1,4 @@
-package edu.wpi.first.toolchain
+package org.wpilib.toolchain
 
 import org.gradle.testkit.runner.GradleRunner
 import static org.gradle.testkit.runner.TaskOutcome.*
@@ -18,7 +18,7 @@ class ToolchainPluginInitializationTest extends Specification {
     given:
     buildFile << """plugins {
   id 'cpp'
-  id 'edu.wpi.first.Toolchain'
+  id 'org.wpilib.Toolchain'
 }
 """
     when:

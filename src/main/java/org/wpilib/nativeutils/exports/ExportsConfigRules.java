@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.exports;
+package org.wpilib.nativeutils.exports;
 
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -9,7 +9,7 @@ import org.gradle.nativeplatform.internal.SharedLibraryBinarySpecInternal;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 import org.gradle.platform.base.BinaryTasks;
 
-import edu.wpi.first.nativeutils.NativeUtilsExtension;
+import org.wpilib.nativeutils.NativeUtilsExtension;
 
 public class ExportsConfigRules extends RuleSource {
 

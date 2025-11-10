@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.platforms;
+package org.wpilib.nativeutils.platforms;
 
 import org.gradle.api.Named;
 import org.gradle.api.provider.Property;

@@ -1,4 +1,4 @@
-package edu.wpi.first.toolchain;
+package org.wpilib.toolchain;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;

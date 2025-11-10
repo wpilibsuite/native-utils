@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.resources;
+package org.wpilib.nativeutils.resources;
 
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;

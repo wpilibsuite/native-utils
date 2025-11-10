@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils;
+package org.wpilib.nativeutils;
 
 import org.gradle.api.artifacts.transform.InputArtifact;
 import org.gradle.api.artifacts.transform.TransformAction;

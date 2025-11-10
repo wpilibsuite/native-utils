@@ -1,4 +1,4 @@
-package edu.wpi.first.toolchain;
+package org.wpilib.toolchain;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +38,7 @@ import org.gradle.platform.base.PlatformContainer;
 
 import edu.wpi.first.deployutils.log.ETLogger;
 import edu.wpi.first.deployutils.log.ETLoggerFactory;
-import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
+import org.wpilib.toolchain.configurable.CrossCompilerConfiguration;
 
 public class ToolchainRules extends RuleSource {
 

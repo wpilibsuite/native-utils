@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.vendordeps;
+package org.wpilib.nativeutils.vendordeps;
 
 public class MissingRequiredVendorDependencyException extends RuntimeException {
     public MissingRequiredVendorDependencyException(String requestingUuid, String requiredUuid, String errorMessage) {

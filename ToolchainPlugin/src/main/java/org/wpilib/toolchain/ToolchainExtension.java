@@ -1,4 +1,4 @@
-package edu.wpi.first.toolchain;
+package org.wpilib.toolchain;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,11 +15,11 @@ import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.toolchain.Gcc;
 import org.gradle.process.ExecOperations;
 
-import edu.wpi.first.toolchain.arm32.Arm32ToolchainPlugin;
-import edu.wpi.first.toolchain.arm64.Arm64ToolchainPlugin;
-import edu.wpi.first.toolchain.systemcore.SystemCoreToolchainPlugin;
-import edu.wpi.first.toolchain.configurable.CrossCompilerConfiguration;
-import edu.wpi.first.toolchain.roborio.RoboRioToolchainPlugin;
+import org.wpilib.toolchain.arm32.Arm32ToolchainPlugin;
+import org.wpilib.toolchain.arm64.Arm64ToolchainPlugin;
+import org.wpilib.toolchain.systemcore.SystemCoreToolchainPlugin;
+import org.wpilib.toolchain.configurable.CrossCompilerConfiguration;
+import org.wpilib.toolchain.roborio.RoboRioToolchainPlugin;
 
 public class ToolchainExtension {
     private final NamedDomainObjectContainer<CrossCompilerConfiguration> crossCompilers;

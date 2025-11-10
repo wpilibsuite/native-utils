@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.tasks;
+package org.wpilib.nativeutils.tasks;
 
 import javax.inject.Inject;
 
@@ -6,8 +6,8 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.tasks.TaskAction;
 
-import edu.wpi.first.nativeutils.NativeUtilsExtension;
-//import edu.wpi.first.nativeutils.NativeUtilsExtension.NamedNativeDependencyList;
+import org.wpilib.nativeutils.NativeUtilsExtension;
+//import org.wpilib.nativeutils.NativeUtilsExtension.NamedNativeDependencyList;
 
 public class PrintNativeDependenciesTask extends DefaultTask {
 

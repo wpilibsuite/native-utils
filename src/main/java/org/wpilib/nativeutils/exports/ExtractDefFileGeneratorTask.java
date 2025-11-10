@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.exports;
+package org.wpilib.nativeutils.exports;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,7 +14,7 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 
-import edu.wpi.first.toolchain.NativePlatforms;
+import org.wpilib.toolchain.NativePlatforms;
 
 public abstract class ExtractDefFileGeneratorTask extends DefaultTask {
 

@@ -1,8 +1,8 @@
-package edu.wpi.first.toolchain.arm32;
+package org.wpilib.toolchain.arm32;
 
 import javax.inject.Inject;
 
-import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainExtension;
+import org.wpilib.toolchain.opensdk.OpenSdkToolchainExtension;
 
 public abstract class Arm32ToolchainExtension extends OpenSdkToolchainExtension {
     public static final String TOOLCHAIN_VERSION = "2025-12.2.0";

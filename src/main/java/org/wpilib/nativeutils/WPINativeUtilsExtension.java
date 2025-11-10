@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils;
+package org.wpilib.nativeutils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,16 +15,16 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 
-import edu.wpi.first.nativeutils.platforms.PlatformConfig;
-import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension;
-import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsPlugin;
-import edu.wpi.first.toolchain.NativePlatforms;
-import edu.wpi.first.nativeutils.dependencies.AllPlatformsCombinedNativeDependency;
-import edu.wpi.first.nativeutils.dependencies.CombinedIgnoreMissingPlatformNativeDependency;
-import edu.wpi.first.nativeutils.dependencies.NativeDependency;
-import edu.wpi.first.nativeutils.dependencies.WPIHeaderOnlyMavenDependency;
-import edu.wpi.first.nativeutils.dependencies.WPISharedMavenDependency;
-import edu.wpi.first.nativeutils.dependencies.WPIStaticMavenDependency;
+import org.wpilib.nativeutils.platforms.PlatformConfig;
+import org.wpilib.nativeutils.vendordeps.WPIVendorDepsExtension;
+import org.wpilib.nativeutils.vendordeps.WPIVendorDepsPlugin;
+import org.wpilib.toolchain.NativePlatforms;
+import org.wpilib.nativeutils.dependencies.AllPlatformsCombinedNativeDependency;
+import org.wpilib.nativeutils.dependencies.CombinedIgnoreMissingPlatformNativeDependency;
+import org.wpilib.nativeutils.dependencies.NativeDependency;
+import org.wpilib.nativeutils.dependencies.WPIHeaderOnlyMavenDependency;
+import org.wpilib.nativeutils.dependencies.WPISharedMavenDependency;
+import org.wpilib.nativeutils.dependencies.WPIStaticMavenDependency;
 
 public class WPINativeUtilsExtension {
     private NativeUtilsExtension nativeExt;

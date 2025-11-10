@@ -1,8 +1,8 @@
-package edu.wpi.first.toolchain.arm64
+package org.wpilib.toolchain.arm64
 
 import org.gradle.testkit.runner.GradleRunner
 import static org.gradle.testkit.runner.TaskOutcome.*
-import edu.wpi.first.toolchain.opensdk.OpenSdkToolchainBase
+import org.wpilib.toolchain.opensdk.OpenSdkToolchainBase
 
 import spock.lang.Shared
 import spock.lang.TempDir
@@ -24,7 +24,7 @@ class Arm64DownloadTest extends Specification {
     given:
     buildFile << """plugins {
   id 'cpp'
-  id 'edu.wpi.first.Toolchain'
+  id 'org.wpilib.Toolchain'
 }
 
 toolchainsPlugin.withCrossLinuxArm64()

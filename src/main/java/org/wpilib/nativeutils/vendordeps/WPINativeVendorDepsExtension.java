@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.vendordeps;
+package org.wpilib.nativeutils.vendordeps;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,14 +11,14 @@ import org.gradle.api.Project;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.platform.base.VariantComponentSpec;
 
-import edu.wpi.first.nativeutils.NativeUtilsExtension;
-import edu.wpi.first.nativeutils.dependencies.AllPlatformsCombinedNativeDependency;
-import edu.wpi.first.nativeutils.dependencies.NativeDependency;
-import edu.wpi.first.nativeutils.dependencies.WPIVendorMavenDependency;
-import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.CppArtifact;
-import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.JsonDependency;
-import edu.wpi.first.nativeutils.vendordeps.WPIVendorDepsExtension.NamedJsonDependency;
-import edu.wpi.first.toolchain.NativePlatforms;
+import org.wpilib.nativeutils.NativeUtilsExtension;
+import org.wpilib.nativeutils.dependencies.AllPlatformsCombinedNativeDependency;
+import org.wpilib.nativeutils.dependencies.NativeDependency;
+import org.wpilib.nativeutils.dependencies.WPIVendorMavenDependency;
+import org.wpilib.nativeutils.vendordeps.WPIVendorDepsExtension.CppArtifact;
+import org.wpilib.nativeutils.vendordeps.WPIVendorDepsExtension.JsonDependency;
+import org.wpilib.nativeutils.vendordeps.WPIVendorDepsExtension.NamedJsonDependency;
+import org.wpilib.toolchain.NativePlatforms;
 
 public class WPINativeVendorDepsExtension {
     private final WPIVendorDepsExtension vendorDeps;

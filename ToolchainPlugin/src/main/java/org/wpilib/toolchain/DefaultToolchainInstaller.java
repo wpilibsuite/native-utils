@@ -1,4 +1,4 @@
-package edu.wpi.first.toolchain;
+package org.wpilib.toolchain;
 
 import de.undercouch.gradle.tasks.download.DownloadAction;
 import org.gradle.api.GradleException;

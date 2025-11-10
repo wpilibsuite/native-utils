@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.exports;
+package org.wpilib.nativeutils.exports;
 
 import java.util.List;
 
@@ -12,11 +12,11 @@ import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 import org.gradle.nativeplatform.toolchain.NativeToolChain;
 import org.gradle.platform.base.BinaryTasks;
 
-import edu.wpi.first.nativeutils.NativeUtilsExtension;
-import edu.wpi.first.toolchain.GccExtension;
-import edu.wpi.first.toolchain.OrderedStripTask;
-import edu.wpi.first.toolchain.ToolchainExtension;
-import edu.wpi.first.toolchain.ToolchainRules;
+import org.wpilib.nativeutils.NativeUtilsExtension;
+import org.wpilib.toolchain.GccExtension;
+import org.wpilib.toolchain.OrderedStripTask;
+import org.wpilib.toolchain.ToolchainExtension;
+import org.wpilib.toolchain.ToolchainRules;
 
 public class PrivateExportsConfigRules extends RuleSource {
 

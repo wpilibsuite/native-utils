@@ -1,4 +1,4 @@
-package edu.wpi.first.nativeutils.dependencies;
+package org.wpilib.nativeutils.dependencies;
 
 public class MissingVendorDependencyPlatformException extends RuntimeException {
     public MissingVendorDependencyPlatformException(String artifactName, String expectedPlatform) {
