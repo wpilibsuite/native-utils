@@ -15,11 +15,9 @@ import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.toolchain.Gcc;
 import org.gradle.process.ExecOperations;
 
-import org.wpilib.toolchain.arm32.Arm32ToolchainPlugin;
 import org.wpilib.toolchain.arm64.Arm64ToolchainPlugin;
 import org.wpilib.toolchain.systemcore.SystemCoreToolchainPlugin;
 import org.wpilib.toolchain.configurable.CrossCompilerConfiguration;
-import org.wpilib.toolchain.roborio.RoboRioToolchainPlugin;
 
 public class ToolchainExtension {
     private final NamedDomainObjectContainer<CrossCompilerConfiguration> crossCompilers;
@@ -94,16 +92,6 @@ public class ToolchainExtension {
         // if (tcuExt != null) {
         // tcuExt.setSkipBinaryToolchainMissingWarning(true);
         // }
-    }
-
-    public void withCrossRoboRIO() {
-        project.getPluginManager().apply(RoboRioToolchainPlugin.class);
-    }
-
-    public void withCrossLinuxArm32() {
-        if (!NativePlatforms.desktop.equals(NativePlatforms.linuxarm32)) {
-            project.getPluginManager().apply(Arm32ToolchainPlugin.class);
-        }
     }
 
     public void withCrossLinuxArm64() {

@@ -2,7 +2,6 @@ package org.wpilib.nativeutils.vendordeps;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -319,7 +318,7 @@ public abstract class WPIVendorDepsExtension {
 
         public boolean useInRio() {
             List<String> list = Arrays.asList(binaryPlatforms);
-            return list.contains(NativePlatforms.roborio) || list.contains(NativePlatforms.systemcore);
+            return list.contains(NativePlatforms.systemcore);
         }
 
         public String groupId;

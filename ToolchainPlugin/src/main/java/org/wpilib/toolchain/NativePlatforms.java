@@ -7,13 +7,10 @@ import org.gradle.process.ExecOperations;
 
 public class NativePlatforms {
     public static final String desktop = desktopOS() + desktopArch();
-    public static final String roborio = "linuxathena";
     public static final String systemcore = "linuxsystemcore";
-    public static final String linuxarm32 = "linuxarm32";
     public static final String linuxarm64 = "linuxarm64";
     public static final String fakeplatform = "fakeplatform";
 
-    public static final String arm32arch = "arm32";
     public static final String arm64arch = "arm64";
     public static final String x64arch = "x86-64";
     public static final String x86arch = "x86";
@@ -29,9 +26,6 @@ public class NativePlatforms {
         String arch = System.getProperty("os.arch");
         if (arch.equals("arm64") || arch.equals("aarch64")) {
             return arm64arch;
-        }
-        if (arch.equals("arm32") || arch.equals("arm")) {
-            return arm32arch;
         }
         return (arch.equals("amd64") || arch.equals("x86_64")) ? x64arch : x86arch;
     }

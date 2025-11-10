@@ -7,13 +7,9 @@ plugins {
 }
 
 nativeUtils.addWpiNativeUtils()
-nativeUtils.withCrossRoboRIO()
-nativeUtils.withCrossLinuxArm32()
 nativeUtils.withCrossLinuxArm64()
 nativeUtils.withCrossSystemCore();
 
-nativeUtils.crossCompilers.getByName(NativePlatforms.roborio).optional = false
-nativeUtils.crossCompilers.getByName(NativePlatforms.linuxarm32).optional = false
 nativeUtils.crossCompilers.getByName(NativePlatforms.linuxarm64).optional = false
 nativeUtils.crossCompilers.getByName(NativePlatforms.systemcore).optional = false
 
