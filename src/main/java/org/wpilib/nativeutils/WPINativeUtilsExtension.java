@@ -20,9 +20,7 @@ import org.wpilib.nativeutils.vendordeps.WPIVendorDepsExtension;
 import org.wpilib.nativeutils.vendordeps.WPIVendorDepsPlugin;
 import org.wpilib.toolchain.NativePlatforms;
 import org.wpilib.nativeutils.dependencies.AllPlatformsCombinedNativeDependency;
-import org.wpilib.nativeutils.dependencies.CombinedIgnoreMissingPlatformNativeDependency;
 import org.wpilib.nativeutils.dependencies.NativeDependency;
-import org.wpilib.nativeutils.dependencies.WPIHeaderOnlyMavenDependency;
 import org.wpilib.nativeutils.dependencies.WPISharedMavenDependency;
 import org.wpilib.nativeutils.dependencies.WPIStaticMavenDependency;
 
@@ -494,77 +492,21 @@ public class WPINativeUtilsExtension {
         dependencies.execute(dependencyVersions);
         versions = dependencyVersions;
         ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs = nativeExt.getNativeDependencyContainer();
-        configs.register("netcomm", WPISharedMavenDependency.class, c -> {
-            c.getGroupId().set("edu.wpi.first.ni-libraries");
-            c.getArtifactId().set("netcomm");
-            c.getHeaderClassifier().set("headers");
-            c.getExt().set("zip");
-            c.getVersion().set(dependencyVersions.getNiLibVersion());
-            c.getSkipAtRuntime().set(true);
-            c.getTargetPlatforms().add(this.platforms.roborio);
-        });
-
-        configs.register("chipobject", WPISharedMavenDependency.class, c -> {
-            c.getGroupId().set("edu.wpi.first.ni-libraries");
-            c.getArtifactId().set("chipobject");
-            c.getHeaderClassifier().set("headers");
-            c.getExt().set("zip");
-            c.getVersion().set(dependencyVersions.getNiLibVersion());
-            c.getSkipAtRuntime().set(true);
-            c.getTargetPlatforms().add(this.platforms.roborio);
-        });
-
-        configs.register("chipobject_headers", WPIHeaderOnlyMavenDependency.class, c -> {
-            c.getGroupId().set("edu.wpi.first.ni-libraries");
-            c.getArtifactId().set("chipobject");
-            c.getHeaderClassifier().set("headers");
-            c.getExt().set("zip");
-            c.getVersion().set(dependencyVersions.getNiLibVersion());
-            c.getSkipAtRuntime().set(true);
-            c.getTargetPlatforms().add(this.platforms.roborio);
-        });
-
-        configs.register("visa", WPISharedMavenDependency.class, c -> {
-            c.getGroupId().set("edu.wpi.first.ni-libraries");
-            c.getArtifactId().set("visa");
-            c.getHeaderClassifier().set("headers");
-            c.getExt().set("zip");
-            c.getVersion().set(dependencyVersions.getNiLibVersion());
-            c.getSkipAtRuntime().set(true);
-            c.getTargetPlatforms().add(this.platforms.roborio);
-        });
-
-        configs.register("ni_runtime", WPISharedMavenDependency.class, c -> {
-            c.getGroupId().set("edu.wpi.first.ni-libraries");
-            c.getArtifactId().set("runtime");
-            c.getExt().set("zip");
-            c.getVersion().set(dependencyVersions.getNiLibVersion());
-            c.getSkipAtRuntime().set(true);
-            c.getTargetPlatforms().add(this.platforms.roborio);
-        });
-
-        configs.register("ni_link_libraries", CombinedIgnoreMissingPlatformNativeDependency.class, c -> {
-            c.getDependencies().put(this.platforms.roborio, List.of("netcomm", "chipobject", "visa"));
-        });
-
-        configs.register("ni_runtime_libraries", CombinedIgnoreMissingPlatformNativeDependency.class, c -> {
-            c.getDependencies().put(this.platforms.roborio, List.of("ni_runtime"));
-        });
 
         Property<String> wpiVersion = dependencyVersions.getWpiVersion();
-        registerStandardDependency(configs, "wpiutil", "edu.wpi.first.wpiutil", "wpiutil-cpp", wpiVersion);
-        registerStandardDependency(configs, "wpinet", "edu.wpi.first.wpinet", "wpinet-cpp", wpiVersion);
-        registerStandardDependency(configs, "ntcore", "edu.wpi.first.ntcore", "ntcore-cpp", wpiVersion);
-        registerStandardDependency(configs, "hal", "edu.wpi.first.hal", "hal-cpp", wpiVersion);
-        registerStandardDependency(configs, "cscore", "edu.wpi.first.cscore", "cscore-cpp", wpiVersion);
-        registerStandardDependency(configs, "cameraserver", "edu.wpi.first.cameraserver", "cameraserver-cpp",
+        registerStandardDependency(configs, "wpiutil", "org.wpilib.wpiutil", "wpiutil-cpp", wpiVersion);
+        registerStandardDependency(configs, "wpinet", "org.wpilib.wpinet", "wpinet-cpp", wpiVersion);
+        registerStandardDependency(configs, "ntcore", "org.wpilib.ntcore", "ntcore-cpp", wpiVersion);
+        registerStandardDependency(configs, "hal", "org.wpilib.hal", "hal-cpp", wpiVersion);
+        registerStandardDependency(configs, "cscore", "org.wpilib.cscore", "cscore-cpp", wpiVersion);
+        registerStandardDependency(configs, "cameraserver", "org.wpilib.cameraserver", "cameraserver-cpp",
                 wpiVersion);
-        registerStandardDependency(configs, "wpilibc", "edu.wpi.first.wpilibc", "wpilibc-cpp", wpiVersion);
-        registerStandardDependency(configs, "datalog", "edu.wpi.first.datalog", "datalog-cpp", wpiVersion);
-        registerStandardDependency(configs, "wpimath", "edu.wpi.first.wpimath", "wpimath-cpp",
+        registerStandardDependency(configs, "wpilibc", "org.wpilib.wpilibc", "wpilibc-cpp", wpiVersion);
+        registerStandardDependency(configs, "datalog", "org.wpilib.datalog", "datalog-cpp", wpiVersion);
+        registerStandardDependency(configs, "wpimath", "org.wpilib.wpimath", "wpimath-cpp",
                 wpiVersion);
 
-        registerSharedOnlyStandardDependency(configs, "apriltag", "edu.wpi.first.apriltag", "apriltag-cpp",
+        registerSharedOnlyStandardDependency(configs, "apriltag", "org.wpilib.apriltag", "apriltag-cpp",
                 wpiVersion);
 
         Provider<String> opencvYearGroup = provider
@@ -576,42 +518,35 @@ public class WPINativeUtilsExtension {
                 "googletest-cpp",
                 wpiVersion);
 
+        // 2027
         configs.register("wpilib_jni", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("ntcore_shared", "hal_shared", "wpimath_shared", "wpinet_shared", "wpiutil_shared",
-                    "ni_link_libraries"));
+            d.set(List.of("ntcore_shared", "hal_shared", "datalog_shared", "wpimath_shared", "wpinet_shared",
+                    "wpiutil_shared"));
         });
 
         configs.register("wpilib_static", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("wpilibc_static", "ntcore_static", "hal_static", "wpimath_static", "wpinet_static",
-                    "wpiutil_static", "ni_link_libraries"));
+            d.set(List.of("wpilibc_static", "ntcore_static", "hal_static", "datalog_static", "wpimath_static",
+                    "wpinet_static",
+                    "wpiutil_static"));
         });
 
         configs.register("wpilib_shared", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("wpilibc_shared", "ntcore_shared", "hal_shared", "wpimath_shared", "wpinet_shared",
-                    "wpiutil_shared", "ni_link_libraries"));
+            d.set(List.of("wpilibc_shared", "ntcore_shared", "hal_shared", "datalog_shared", "wpimath_shared",
+                    "wpinet_shared",
+                    "wpiutil_shared"));
         });
 
-        configs.register("driver_static", AllPlatformsCombinedNativeDependency.class, c -> {
+        configs.register("driver_static_2027", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("hal_static", "wpimath_static", "wpinet_static", "wpiutil_static", "ni_link_libraries"));
+            d.set(List.of("hal_static", "datalog_static", "wpimath_static", "wpinet_static", "wpiutil_static"));
         });
 
-        configs.register("driver_shared", AllPlatformsCombinedNativeDependency.class, c -> {
+        configs.register("driver_shared_2027", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("hal_shared", "wpimath_shared", "wpinet_shared", "wpiutil_shared", "ni_link_libraries"));
-        });
-
-        configs.register("wpilib_executable_shared", AllPlatformsCombinedNativeDependency.class, c -> {
-            ListProperty<String> d = c.getDependencies();
-            d.set(List.of("wpilib_shared", "ni_link_libraries", "ni_runtime_libraries"));
-        });
-
-        configs.register("wpilib_executable_static", AllPlatformsCombinedNativeDependency.class, c -> {
-            ListProperty<String> d = c.getDependencies();
-            d.set(List.of("wpilib_static", "ni_link_libraries", "ni_runtime_libraries"));
+            d.set(List.of("hal_shared", "datalog_shared", "wpimath_shared", "wpinet_shared", "wpiutil_shared"));
         });
 
         configs.register("vision_jni_shared", AllPlatformsCombinedNativeDependency.class, c -> {
@@ -632,37 +567,6 @@ public class WPINativeUtilsExtension {
         configs.register("vision_static", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
             d.set(List.of("cameraserver_static", "cscore_static", "opencv_static"));
-        });
-
-        // 2027
-        configs.register("wpilib_jni_2027", AllPlatformsCombinedNativeDependency.class, c -> {
-            ListProperty<String> d = c.getDependencies();
-            d.set(List.of("ntcore_shared", "hal_shared", "datalog_shared", "wpimath_shared", "wpinet_shared",
-                    "wpiutil_shared"));
-        });
-
-        configs.register("wpilib_static_2027", AllPlatformsCombinedNativeDependency.class, c -> {
-            ListProperty<String> d = c.getDependencies();
-            d.set(List.of("wpilibc_static", "ntcore_static", "hal_static", "datalog_static", "wpimath_static",
-                    "wpinet_static",
-                    "wpiutil_static"));
-        });
-
-        configs.register("wpilib_shared_2027", AllPlatformsCombinedNativeDependency.class, c -> {
-            ListProperty<String> d = c.getDependencies();
-            d.set(List.of("wpilibc_shared", "ntcore_shared", "hal_shared", "datalog_shared", "wpimath_shared",
-                    "wpinet_shared",
-                    "wpiutil_shared"));
-        });
-
-        configs.register("driver_static_2027", AllPlatformsCombinedNativeDependency.class, c -> {
-            ListProperty<String> d = c.getDependencies();
-            d.set(List.of("hal_static", "datalog_static", "wpimath_static", "wpinet_static", "wpiutil_static"));
-        });
-
-        configs.register("driver_shared_2027", AllPlatformsCombinedNativeDependency.class, c -> {
-            ListProperty<String> d = c.getDependencies();
-            d.set(List.of("hal_shared", "datalog_shared", "wpimath_shared", "wpinet_shared", "wpiutil_shared"));
         });
     }
 }
