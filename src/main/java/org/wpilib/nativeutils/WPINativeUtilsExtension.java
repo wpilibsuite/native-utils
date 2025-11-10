@@ -539,12 +539,12 @@ public class WPINativeUtilsExtension {
                     "wpiutil_shared"));
         });
 
-        configs.register("driver_static_2027", AllPlatformsCombinedNativeDependency.class, c -> {
+        configs.register("driver_static", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
             d.set(List.of("hal_static", "datalog_static", "wpimath_static", "wpinet_static", "wpiutil_static"));
         });
 
-        configs.register("driver_shared_2027", AllPlatformsCombinedNativeDependency.class, c -> {
+        configs.register("driver_shared", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
             d.set(List.of("hal_shared", "datalog_shared", "wpimath_shared", "wpinet_shared", "wpiutil_shared"));
         });
