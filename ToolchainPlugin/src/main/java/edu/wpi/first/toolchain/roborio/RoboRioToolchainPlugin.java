@@ -73,7 +73,7 @@ public class RoboRioToolchainPlugin implements Plugin<Project> {
 
     public void populateDescriptor(ToolchainDescriptor descriptor) {
         Provider<File> fp = project.provider(() -> {
-            String year = roborioExt.getToolchainVersion().get().split("-")[0].toLowerCase();
+            String year = "2026"; // Hardcoded so that we don't have to make a 2026 release of the toolchain
             File frcHomeLoc = new File(new FrcHome(year).get(), "roborio");
             return frcHomeLoc;
         });
