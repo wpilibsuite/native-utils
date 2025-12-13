@@ -36,8 +36,8 @@ import org.gradle.platform.base.BinarySpec;
 import org.gradle.platform.base.BinaryTasks;
 import org.gradle.platform.base.PlatformContainer;
 
-import edu.wpi.first.deployutils.log.ETLogger;
-import edu.wpi.first.deployutils.log.ETLoggerFactory;
+import org.wpilib.deployutils.log.ETLogger;
+import org.wpilib.deployutils.log.ETLoggerFactory;
 import org.wpilib.toolchain.configurable.CrossCompilerConfiguration;
 
 public class ToolchainRules extends RuleSource {

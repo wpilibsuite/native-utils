@@ -22,8 +22,8 @@ import org.gradle.tooling.BuildException;
 
 import com.google.gson.Gson;
 
-import edu.wpi.first.deployutils.log.ETLogger;
-import edu.wpi.first.deployutils.log.ETLoggerFactory;
+import org.wpilib.deployutils.log.ETLogger;
+import org.wpilib.deployutils.log.ETLoggerFactory;
 import org.wpilib.toolchain.NativePlatforms;
 
 public abstract class WPIVendorDepsExtension {

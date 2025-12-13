@@ -12,8 +12,8 @@ import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.tasks.AbstractLinkTask;
 import org.gradle.process.ExecOperations;
 
-import edu.wpi.first.deployutils.log.ETLogger;
-import edu.wpi.first.deployutils.log.ETLoggerFactory;
+import org.wpilib.deployutils.log.ETLogger;
+import org.wpilib.deployutils.log.ETLoggerFactory;
 
 public class OrderedStripTask implements Action<Task> {
 

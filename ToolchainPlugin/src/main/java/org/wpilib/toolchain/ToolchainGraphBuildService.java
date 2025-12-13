@@ -14,8 +14,8 @@ import org.gradle.api.services.BuildServiceParameters;
 import org.gradle.internal.logging.text.TreeFormatter;
 import org.gradle.internal.logging.text.StyledTextOutput;
 
-import edu.wpi.first.deployutils.log.ETLogger;
-import edu.wpi.first.deployutils.log.ETLoggerFactory;
+import org.wpilib.deployutils.log.ETLogger;
+import org.wpilib.deployutils.log.ETLoggerFactory;
 
 public abstract class ToolchainGraphBuildService implements BuildService<BuildServiceParameters.None> {
 
