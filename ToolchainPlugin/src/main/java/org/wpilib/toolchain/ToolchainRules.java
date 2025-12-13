@@ -12,7 +12,6 @@ import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.ExtensionContainer;
 import org.gradle.api.specs.Spec;
 import org.gradle.internal.os.OperatingSystem;
-import org.gradle.model.Defaults;
 import org.gradle.model.Finalize;
 import org.gradle.model.ModelMap;
 import org.gradle.model.Mutate;
@@ -36,13 +35,9 @@ import org.gradle.platform.base.BinarySpec;
 import org.gradle.platform.base.BinaryTasks;
 import org.gradle.platform.base.PlatformContainer;
 
-import org.wpilib.deployutils.log.ETLogger;
-import org.wpilib.deployutils.log.ETLoggerFactory;
 import org.wpilib.toolchain.configurable.CrossCompilerConfiguration;
 
 public class ToolchainRules extends RuleSource {
-
-    private static final ETLogger logger = ETLoggerFactory.INSTANCE.create("ToolchainRules");
 
     @Finalize
     void addClangArm(NativeToolChainRegistryInternal toolChainRegistry, ExtensionContainer extContainer) {
@@ -96,46 +91,6 @@ public class ToolchainRules extends RuleSource {
                 toolChainRegistry.remove(t);
             }
         }
-    }
-
-    @Defaults
-    void addDefaultToolchains(NativeToolChainRegistryInternal toolChainRegistry,
-            ExtensionContainer extContainer) {
-
-        final ToolchainExtension ext = extContainer.getByType(ToolchainExtension.class);
-
-        ext.getToolchainDescriptors().all(desc -> {
-            logger.info("Descriptor Register: " + desc.getName());
-
-            toolChainRegistry.registerDefaultToolChain(desc.getGccName(), Gcc.class);
-
-            toolChainRegistry.containerWithType(Gcc.class).configureEach(tc -> {
-                if (tc.getName().equals(desc.getGccName())) {
-                    ToolchainDiscoverer discoverer = desc.discover();
-                    GccExtension gccExt = new GccExtension(tc, desc, discoverer, ext.getProject());
-                    ext.getGccExtensionMap().put(tc, gccExt);
-
-                    tc.setTargets(desc.getToolchainPlatform().get());
-
-                    if (discoverer != null) {
-                        tc.eachPlatform(toolchain -> {
-                            toolchain.getcCompiler().setExecutable(discoverer.toolName("gcc"));
-                            toolchain.getCppCompiler().setExecutable(discoverer.toolName("g++"));
-                            toolchain.getLinker().setExecutable(discoverer.toolName("g++"));
-                            toolchain.getAssembler().setExecutable(discoverer.toolName("gcc"));
-                            toolchain.getStaticLibArchiver().setExecutable(discoverer.toolName("ar"));
-                        });
-
-                        if (discoverer.sysroot().isPresent())
-                            tc.path(discoverer.binDir().get());
-                    } else {
-                        ext.getToolchainGraphService().addMissingToolchain(gccExt);
-                        tc.path("NOTOOLCHAINPATH");
-                    }
-                }
-            });
-        });
-
     }
 
     @Mutate
