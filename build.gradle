@@ -22,22 +22,23 @@ allprojects {
 
 repositories {
     maven {
-        url "https://plugins.gradle.org/m2/"
+        url = "https://plugins.gradle.org/m2/"
     }
     mavenLocal()
 }
 
 dependencies {
     api project(':ToolchainPlugin')
-    implementation 'org.ajoberstar.grgit:grgit-core:5.0.0'
+    implementation("org.eclipse.jgit:org.eclipse.jgit:7.4.0.202509020913-r")
     implementation 'com.google.code.gson:gson:2.8.6'
     api 'org.wpilib:gradle-cpp-vscode:2027.0.0'
 
-    testImplementation('org.spockframework:spock-core:2.0-M4-groovy-3.0') {
+    testImplementation('org.spockframework:spock-core:2.4-M6-groovy-4.0') {
         exclude group: 'org.codehaus.groovy'
     }
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation gradleTestKit()
 }
 
@@ -94,6 +95,6 @@ tasks.register('PatchExamples') {
 jar.finalizedBy PatchExamples
 
 wrapper {
-    gradleVersion = '8.11'
+    gradleVersion = '9.2.0'
     distributionType = Wrapper.DistributionType.BIN
 }
