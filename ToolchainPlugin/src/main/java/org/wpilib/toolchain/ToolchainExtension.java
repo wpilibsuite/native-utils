@@ -13,7 +13,10 @@ import org.gradle.api.Project;
 import org.gradle.internal.logging.text.DiagnosticsVisitor;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.toolchain.Gcc;
+import org.gradle.nativeplatform.toolchain.NativeToolChainRegistry;
+import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInternal;
 import org.gradle.process.ExecOperations;
+import org.gradle.api.model.ObjectFactory;
 
 import org.wpilib.toolchain.arm64.Arm64ToolchainPlugin;
 import org.wpilib.toolchain.systemcore.SystemCoreToolchainPlugin;
@@ -45,15 +48,51 @@ public class ToolchainExtension {
     }
 
     @Inject
-    public ToolchainExtension(Project project, ToolchainGraphBuildService rootExtension, ExecOperations operations) {
+    public ToolchainExtension(Project project, ToolchainGraphBuildService rootExtension, ExecOperations operations, ObjectFactory objectFactory) {
         this.project = project;
         this.rootExtension = rootExtension;
 
-        crossCompilers = project.container(CrossCompilerConfiguration.class, name -> {
+        crossCompilers = objectFactory.domainObjectContainer(CrossCompilerConfiguration.class, name -> {
             return project.getObjects().newInstance(CrossCompilerConfiguration.class, name);
         });
 
-        toolchainDescriptors = project.container(ToolchainDescriptorBase.class);
+        toolchainDescriptors = objectFactory.domainObjectContainer(ToolchainDescriptorBase.class);
+
+        NativeToolChainRegistryInternal toolChainRegistry = (NativeToolChainRegistryInternal)project.getExtensions().getByType(NativeToolChainRegistry.class);
+
+        toolChainRegistry.containerWithType(Gcc.class).configureEach(tc -> {
+            ToolchainDescriptorBase desc = null;
+            for (ToolchainDescriptorBase base : toolchainDescriptors) {
+                if (base.getGccName().equals(tc.getName())) {
+                    desc = base;
+                    break;
+                }
+            }
+            if (desc == null) {
+                return;
+            }
+            ToolchainDiscoverer discoverer = desc.discover();
+            GccExtension gccExt = new GccExtension(tc, desc, discoverer, this.getProject());
+            this.getGccExtensionMap().put(tc, gccExt);
+
+            tc.setTargets(desc.getToolchainPlatform().get());
+
+            if (discoverer != null) {
+                tc.eachPlatform(toolchain -> {
+                    toolchain.getcCompiler().setExecutable(discoverer.toolName("gcc"));
+                    toolchain.getCppCompiler().setExecutable(discoverer.toolName("g++"));
+                    toolchain.getLinker().setExecutable(discoverer.toolName("g++"));
+                    toolchain.getAssembler().setExecutable(discoverer.toolName("gcc"));
+                    toolchain.getStaticLibArchiver().setExecutable(discoverer.toolName("ar"));
+                });
+
+                if (discoverer.sysroot().isPresent())
+                    tc.path(discoverer.binDir().get());
+            } else {
+                this.getToolchainGraphService().addMissingToolchain(gccExt);
+                tc.path("NOTOOLCHAINPATH");
+            }
+        });
 
         crossCompilers.all(config -> {
             if (!config.getToolchainDescriptor().isPresent()) {
@@ -81,6 +120,7 @@ public class ToolchainExtension {
             } else {
                 toolchainDescriptors.add(config.getToolchainDescriptor().get());
             }
+            toolChainRegistry.registerDefaultToolChain(config.getToolchainDescriptor().get().getGccName(), Gcc.class);
         });
 
     }

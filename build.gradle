@@ -13,7 +13,7 @@ java {
 
 allprojects {
     group = "org.wpilib"
-    version = "2027.1.0"
+    version = "2027.1.1"
 
     if (project.hasProperty('publishVersion')) {
         version = project.publishVersion
