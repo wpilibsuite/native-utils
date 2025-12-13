@@ -6,7 +6,7 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.nativeplatform.NativeDependencySet;
 
-import edu.wpi.first.vscode.dependencies.SourceContainingNativeDependencySet;
+import org.wpilib.vscode.dependencies.SourceContainingNativeDependencySet;
 
 public class CustomDependencySet implements NativeDependencySet, SourceContainingNativeDependencySet {
     private final ConfigurableFileCollection includeRoots;

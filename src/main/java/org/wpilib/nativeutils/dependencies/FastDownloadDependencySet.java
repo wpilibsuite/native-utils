@@ -5,7 +5,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.FileCollection;
 import org.gradle.nativeplatform.NativeDependencySet;
 
-import edu.wpi.first.vscode.dependencies.SourceContainingNativeDependencySet;
+import org.wpilib.vscode.dependencies.SourceContainingNativeDependencySet;
 
 public class FastDownloadDependencySet implements NativeDependencySet, SourceContainingNativeDependencySet {
 

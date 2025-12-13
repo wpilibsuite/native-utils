@@ -5,14 +5,14 @@ import org.gradle.api.Project;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.internal.os.OperatingSystem;
 
-import edu.wpi.first.deployutils.DeployUtils;
+import org.wpilib.deployutils.DeployUtils;
 import org.wpilib.nativeutils.exports.ExportsConfigPlugin;
 import org.wpilib.nativeutils.exports.PrivateExportsConfigRules;
 import org.wpilib.nativeutils.pdb.PdbPlugin;
 import org.wpilib.nativeutils.platforms.PlatformRules;
 import org.wpilib.toolchain.ToolchainExtension;
 import org.wpilib.toolchain.ToolchainPlugin;
-import edu.wpi.first.vscode.GradleVsCode;
+import org.wpilib.vscode.GradleVsCode;
 
 public class NativeUtils implements Plugin<Project> {
   public static final Attribute<String> NATIVE_ARTIFACT_FORMAT = Attribute.of("artifactType", String.class);

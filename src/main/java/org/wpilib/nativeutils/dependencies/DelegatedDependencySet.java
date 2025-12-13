@@ -13,7 +13,7 @@ import org.gradle.api.file.ProjectLayout;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.NativeDependencySet;
 
-import edu.wpi.first.vscode.dependencies.SourceContainingNativeDependencySet;
+import org.wpilib.vscode.dependencies.SourceContainingNativeDependencySet;
 
 public class DelegatedDependencySet implements NativeDependencySet, Named, SourceContainingNativeDependencySet {
     private FileCollection includeRoots;
