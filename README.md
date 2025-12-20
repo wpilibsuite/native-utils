@@ -2,6 +2,9 @@
 
 ![CI](https://github.com/wpilibsuite/native-utils/workflows/CI/badge.svg)
 
+> [!WARNING]
+> Gradle 9 changed the way cross compilers worked and is not compatible with Native Utils 2026 and earlier
+
 ## DSL Documentation for Native Utils
 
 ```
@@ -212,7 +215,7 @@ nativeUtils.platformConfigs {
 
 # Using custom builds
 
-To use a custom build of native-utils in a robot project, the build must be published, and a GradleRIO build that uses the new version must be pulished.
+To use a custom build of native-utils in a robot project, the build must be published, and a GradleRIO build that uses the new version must be published.
 
 1. Update the version in `build.gradle` so that native-utils won't overwrite an existing version.
 ```
