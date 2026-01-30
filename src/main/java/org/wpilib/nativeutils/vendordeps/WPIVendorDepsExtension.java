@@ -168,7 +168,8 @@ public abstract class WPIVendorDepsExtension {
                 try {
                     load(dep);
                 } catch(Exception e) {
-                    throw new BuildException("Failed to load vendor dependency: " + f.getName(), e);
+                    throw new BuildException("Failed to load vendor dependency: " + f.getName() +
+                            "\n " + e.getMessage(), e);
                 }
             }
         }
@@ -182,28 +183,16 @@ public abstract class WPIVendorDepsExtension {
         try (BufferedReader reader = Files.newBufferedReader(f.toPath())) {
             return gson.fromJson(reader, JsonDependency.class);
         } catch (Exception e) {
-            throw new BuildException("Failed to parse vendor dependency: " + f.getName(), e);
+            throw new BuildException("Failed to parse vendor dependency: " + f.getName() +
+                    "\n " + e.getMessage(), e);
         }
     }
 
     private void load(JsonDependency dep) throws VendorParsingException {
         // Don"t double-add a dependency!
         if (dependencySet.findByName(dep.uuid) != null) {
-            String requiredFrcYear = frcYear.getOrNull();
-            if (requiredFrcYear != null) {
-                if (!requiredFrcYear.equals(dep.frcYear)) {
-                    log.logError("Warning! Ignoring duplicate vendordep: " + dep.fileName
-                            + " because it has the wrong year.");
-                    return;
-                }
-            }
             NamedJsonDependency duplicateDep = dependencySet.findByName(dep.uuid);
-            log.logErrorHead(
-                    "Warning! Duplicate Vendordeps detected. " + dep.fileName + " and "
-                            + duplicateDep.getDependency().fileName);
-            log.logError("have the same UUID: " + dep.uuid);
-            log.logError("Remove one of these vendordeps to avoid conflicts.");
-            return;
+            throw new DuplicateVendorDependencyException(dep.fileName, duplicateDep.getDependency().fileName, dep.uuid);
         }
 
         NamedJsonDependency namedDep = new NamedJsonDependency(dep.uuid, dep);
