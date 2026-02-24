@@ -4,12 +4,12 @@ import org.gradle.internal.os.OperatingSystem;
 
 import java.io.File;
 
-public class FrcHome {
+public class FirstHome {
 
     private String year;
-    private File frcFolder;
+    private File firstFolder;
 
-    public FrcHome(String year) {
+    public FirstHome(String year) {
         this.year = year;
 
         File baseFolder;
@@ -22,11 +22,11 @@ public class FrcHome {
         } else {
             baseFolder = new File(System.getProperty("user.home"), "wpilib");
         }
-        this.frcFolder = new File(baseFolder, year);
+        this.firstFolder = new File(baseFolder, year);
     }
 
     public File get() {
-        return frcFolder;
+        return firstFolder;
     }
 
     public String year() {

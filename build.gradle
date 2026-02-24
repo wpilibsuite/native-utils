@@ -13,7 +13,7 @@ java {
 
 allprojects {
     group = "org.wpilib"
-    version = "2027.2.1"
+    version = "2027.3.1"
 
     if (project.hasProperty('publishVersion')) {
         version = project.publishVersion
@@ -58,8 +58,8 @@ gradlePlugin {
             id = 'org.wpilib.NativeUtils'
             displayName = 'NativeUtils'
             implementationClass = 'org.wpilib.nativeutils.NativeUtils'
-            description = 'This plugin provides native build utilities for FRC projects.'
-            tags = ['groovy', 'native', 'utils', 'maven', 'frc', 'wpilib']
+            description = 'This plugin provides native build utilities for FIRST projects.'
+            tags = ['groovy', 'native', 'utils', 'maven', 'frc', 'ftc', 'first', 'wpilib']
         }
     }
 }

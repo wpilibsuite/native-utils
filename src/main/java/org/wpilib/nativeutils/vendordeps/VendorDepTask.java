@@ -69,7 +69,7 @@ public class VendorDepTask extends DefaultTask {
         } else {
           String filename = findFileName(url);
           Path dest = computeDest(filename);
-          if (url.startsWith("FRCLOCAL/")) {
+          if (url.startsWith("FIRSTLOCAL/")) {
               getLogger().info("Locally fetching $filename");
               copyLocal(filename, dest);
           } else {
@@ -109,14 +109,14 @@ public class VendorDepTask extends DefaultTask {
         if (inputUrl == null) {
             throw new IllegalArgumentException(
                     "No valid vendor JSON URL was entered. Try the following:\n\tgradlew vendordep --url=<insert_url_here>\n" +
-                            "Use either a URL to fetch a remote JSON file or `FRCLOCAL/Filename.json` to fetch from the local wpilib folder."
+                            "Use either a URL to fetch a remote JSON file or `FIRSTLOCAL/Filename.json` to fetch from the local wpilib folder."
             );
         }
         int lastUrlSeparator = inputUrl.lastIndexOf('/');
         if (lastUrlSeparator == -1) {
             throw new IllegalArgumentException(
                     "Invalid vendor JSON URL was entered. Try the following:\n\tgradlew vendordep --url=<insert_url_here>\n" +
-                            "Use either a URL to fetch a remote JSON file or `FRCLOCAL/Filename.json` to fetch from the local wpilib folder."
+                            "Use either a URL to fetch a remote JSON file or `FIRSTLOCAL/Filename.json` to fetch from the local wpilib folder."
             );
         }
         return inputUrl.substring(lastUrlSeparator + 1);
@@ -131,12 +131,12 @@ public class VendorDepTask extends DefaultTask {
     }
 
     /**
-     * Fetch and copy a vendor JSON from `FRCHOME/vendordeps`
+     * Fetch and copy a vendor JSON from `FIRSTHOME/vendordeps`
      * @param filename the vendor JSON file name
      * @param dest the destination file
      */
     private void copyLocal(String filename, Path dest) {
-        Directory localCache = wpiExt.getFrcHome().dir("vendordeps").get();
+        Directory localCache = wpiExt.getFirstHome().dir("vendordeps").get();
         File localFolder = localCache.getAsFile();
         if (!localFolder.isDirectory()) {
             getLogger().error("For some reason " + localFolder + " is not a folder");
