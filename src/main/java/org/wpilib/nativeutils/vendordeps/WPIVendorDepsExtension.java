@@ -28,16 +28,16 @@ import org.wpilib.toolchain.NativePlatforms;
 
 public abstract class WPIVendorDepsExtension {
 
-    private final Property<String> frcYear;
+    private final Property<String> firstYear;
 
-    public Property<String> getFrcYear() {
-        return frcYear;
+    public Property<String> getFirstYear() {
+        return firstYear;
     }
 
-    private final DirectoryProperty frcHome;
+    private final DirectoryProperty firstHome;
 
-    public DirectoryProperty getFrcHome() {
-        return frcHome;
+    public DirectoryProperty getFirstHome() {
+        return firstHome;
     }
 
     private final NamedDomainObjectSet<NamedJsonDependency> dependencySet;
@@ -70,8 +70,8 @@ public abstract class WPIVendorDepsExtension {
     @Inject
     public WPIVendorDepsExtension(Project project) {
 
-        frcYear = project.getObjects().property(String.class);
-        frcHome = project.getObjects().directoryProperty();
+        firstYear = project.getObjects().property(String.class);
+        firstHome = project.getObjects().directoryProperty();
         this.log = ETLoggerFactory.INSTANCE.create("WPIVendorDeps");
         this.project = project;
         hwSimulation = project.hasProperty(HW_SIM_SWITCH_PROPERTY);
@@ -132,11 +132,11 @@ public abstract class WPIVendorDepsExtension {
     }
 
     public void validateDependencies() {
-        String requiredFrcYear = frcYear.getOrNull();
+        String requiredFirstYear = firstYear.getOrNull();
         for (NamedJsonDependency jsonDep : dependencySet) {
-            if (requiredFrcYear != null) {
-                if (!requiredFrcYear.equals(jsonDep.dependency.frcYear)) {
-                    throw new InvalidVendorDepYearException(jsonDep.dependency, requiredFrcYear);
+            if (requiredFirstYear != null) {
+                if (!requiredFirstYear.equals(jsonDep.dependency.firstYear)) {
+                    throw new InvalidVendorDepYearException(jsonDep.dependency, requiredFirstYear);
                 }
             }
 
@@ -341,7 +341,7 @@ public abstract class WPIVendorDepsExtension {
         public String[] extraGroupIds;
         public String jsonUrl = "";
         public String fileName;
-        public String frcYear;
+        public String firstYear;
         public JavaArtifact[] javaDependencies;
         public JniArtifact[] jniDependencies;
         public CppArtifact[] cppDependencies;

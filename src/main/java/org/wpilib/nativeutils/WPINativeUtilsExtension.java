@@ -76,7 +76,7 @@ public class WPINativeUtilsExtension {
         public final List<String> linuxReleaseCompilerArgs = List.of("-O2");
         public final List<String> linuxDebugCompilerArgs = List.of("-O0");
 
-        public final List<String> linuxSystemCoreArgs = List.of("-D__FRC_SYSTEMCORE__=1");
+        public final List<String> linuxSystemCoreArgs = List.of("-D__FIRST_SYSTEMCORE__=1");
 
         public final String macMinimumVersionArg = "-mmacosx-version-min=13.3";
 
