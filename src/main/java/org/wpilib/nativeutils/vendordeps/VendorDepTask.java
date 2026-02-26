@@ -131,12 +131,12 @@ public class VendorDepTask extends DefaultTask {
     }
 
     /**
-     * Fetch and copy a vendor JSON from `FIRSTHOME/vendordeps`
+     * Fetch and copy a vendor JSON from `WPILIBHOME/vendordeps`
      * @param filename the vendor JSON file name
      * @param dest the destination file
      */
     private void copyLocal(String filename, Path dest) {
-        Directory localCache = wpiExt.getFirstHome().dir("vendordeps").get();
+        Directory localCache = wpiExt.getWpilibHome().dir("vendordeps").get();
         File localFolder = localCache.getAsFile();
         if (!localFolder.isDirectory()) {
             getLogger().error("For some reason " + localFolder + " is not a folder");

@@ -3,7 +3,7 @@ import org.wpilib.nativeutils.vendordeps.WPIVendorDepsPlugin
 
 plugins {
     id "cpp"
-    id "org.wpilib.NativeUtils" version "2027.3.2"
+    id "org.wpilib.NativeUtils" version "2027.4.1"
 }
 
 nativeUtils.addWpiNativeUtils()
