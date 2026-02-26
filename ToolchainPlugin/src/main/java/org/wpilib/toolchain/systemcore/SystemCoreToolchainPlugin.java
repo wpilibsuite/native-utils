@@ -9,7 +9,7 @@ import org.gradle.api.Project;
 import org.gradle.api.provider.Provider;
 import org.gradle.process.ExecOperations;
 
-import org.wpilib.toolchain.FirstHome;
+import org.wpilib.toolchain.WPILibHome;
 import org.wpilib.toolchain.NativePlatforms;
 import org.wpilib.toolchain.ToolchainDescriptor;
 import org.wpilib.toolchain.ToolchainDiscoverer;
@@ -68,12 +68,12 @@ public class SystemCoreToolchainPlugin implements Plugin<Project> {
     public void populateDescriptor(ToolchainDescriptor descriptor) {
         Provider<File> fp = project.provider(() -> {
             String year = "2027_alpha1";
-            File firstHomeLoc = new File(new FirstHome(year).get(), "systemcore");
-            return firstHomeLoc;
+            File wpilibHomeLoc = new File(new WPILibHome(year).get(), "systemcore");
+            return wpilibHomeLoc;
         });
 
-        // Add FIRST Home first, as we want it searched first
-        descriptor.getDiscoverers().add(ToolchainDiscoverer.createProperty("FIRSTHome", descriptor, fp, opensdk::composeTool, project));
+        // Add WPILib Home first, as we want it searched first
+        descriptor.getDiscoverers().add(ToolchainDiscoverer.createProperty("WPILibHome", descriptor, fp, opensdk::composeTool, project));
 
         opensdk.populatePathAndDownloadDescriptors(descriptor);
     }

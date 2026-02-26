@@ -28,16 +28,16 @@ import org.wpilib.toolchain.NativePlatforms;
 
 public abstract class WPIVendorDepsExtension {
 
-    private final Property<String> firstYear;
+    private final Property<String> wpilibYear;
 
-    public Property<String> getFirstYear() {
-        return firstYear;
+    public Property<String> getWpilibYear() {
+        return wpilibYear;
     }
 
-    private final DirectoryProperty firstHome;
+    private final DirectoryProperty wpilibHome;
 
-    public DirectoryProperty getFirstHome() {
-        return firstHome;
+    public DirectoryProperty getWpilibHome() {
+        return wpilibHome;
     }
 
     private final NamedDomainObjectSet<NamedJsonDependency> dependencySet;
@@ -70,8 +70,8 @@ public abstract class WPIVendorDepsExtension {
     @Inject
     public WPIVendorDepsExtension(Project project) {
 
-        firstYear = project.getObjects().property(String.class);
-        firstHome = project.getObjects().directoryProperty();
+        wpilibYear = project.getObjects().property(String.class);
+        wpilibHome = project.getObjects().directoryProperty();
         this.log = ETLoggerFactory.INSTANCE.create("WPIVendorDeps");
         this.project = project;
         hwSimulation = project.hasProperty(HW_SIM_SWITCH_PROPERTY);
@@ -132,11 +132,11 @@ public abstract class WPIVendorDepsExtension {
     }
 
     public void validateDependencies() {
-        String requiredFirstYear = firstYear.getOrNull();
+        String requiredWpilibYear = wpilibYear.getOrNull();
         for (NamedJsonDependency jsonDep : dependencySet) {
-            if (requiredFirstYear != null) {
-                if (!requiredFirstYear.equals(jsonDep.dependency.firstYear)) {
-                    throw new InvalidVendorDepYearException(jsonDep.dependency, requiredFirstYear);
+            if (requiredWpilibYear != null) {
+                if (!requiredWpilibYear.equals(jsonDep.dependency.wpilibYear)) {
+                    throw new InvalidVendorDepYearException(jsonDep.dependency, requiredWpilibYear);
                 }
             }
 
@@ -341,7 +341,7 @@ public abstract class WPIVendorDepsExtension {
         public String[] extraGroupIds;
         public String jsonUrl = "";
         public String fileName;
-        public String firstYear;
+        public String wpilibYear;
         public JavaArtifact[] javaDependencies;
         public JniArtifact[] jniDependencies;
         public CppArtifact[] cppDependencies;
