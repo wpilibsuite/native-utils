@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.SetProperty;
 import org.gradle.nativeplatform.BuildType;
 import org.gradle.nativeplatform.platform.NativePlatform;
 
@@ -35,5 +36,5 @@ public abstract class WPIHeaderOnlyMavenDependency extends WPIMavenDependency {
         return resolvedDep;
     }
 
-    public abstract Property<Boolean> getSkipAtRuntime();
+    public abstract SetProperty<String> getSkipAtRuntimePlatforms();
 }
