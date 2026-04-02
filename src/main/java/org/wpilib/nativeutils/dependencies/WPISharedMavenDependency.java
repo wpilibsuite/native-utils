@@ -39,6 +39,9 @@ public abstract class WPISharedMavenDependency extends WPIMavenDependency {
         }
 
         String buildTypeName = buildType.getName();
+        if (getNoDebugSplit().getOrElse(false)) {
+            buildTypeName = "release";
+        }
 
         FileCollection headers = getArtifactRoots(getHeaderClassifier().getOrElse(null), ArtifactType.HEADERS, loaderDependencySet);
         FileCollection sources = getArtifactRoots(getSourceClassifier().getOrElse(null), ArtifactType.SOURCES, loaderDependencySet);
@@ -67,4 +70,6 @@ public abstract class WPISharedMavenDependency extends WPIMavenDependency {
     }
 
     public abstract SetProperty<String> getSkipAtRuntimePlatforms();
+
+    public abstract Property<Boolean> getNoDebugSplit();
 }

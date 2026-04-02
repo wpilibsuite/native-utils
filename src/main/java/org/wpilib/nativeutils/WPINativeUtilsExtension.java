@@ -514,6 +514,7 @@ public class WPINativeUtilsExtension {
             c.getVersion().set(dependencyVersions.getMrcLibVersion());
             c.getSkipAtRuntimePlatforms().add(this.platforms.systemcore);
             c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
+            c.getNoDebugSplit().set(true);
         });
 
         // 2027
