@@ -9,7 +9,6 @@ import org.gradle.api.Project;
 import org.gradle.api.provider.Provider;
 import org.gradle.process.ExecOperations;
 
-import org.wpilib.toolchain.WPILibHome;
 import org.wpilib.toolchain.NativePlatforms;
 import org.wpilib.toolchain.ToolchainDescriptor;
 import org.wpilib.toolchain.ToolchainDiscoverer;
@@ -22,6 +21,7 @@ public class SystemCoreToolchainPlugin implements Plugin<Project> {
     public static final String toolchainName = "systemCore";
     public static final String baseToolchainName = "arm64-bookworm";
 
+    private ToolchainExtension toolchainExt;
     private SystemCoreToolchainExtension systemcoreExt;
     private Project project;
     private OpenSdkToolchainBase opensdk;
@@ -41,7 +41,7 @@ public class SystemCoreToolchainPlugin implements Plugin<Project> {
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
 
         opensdk = new OpenSdkToolchainBase(baseToolchainName, systemcoreExt, project,
-                SystemCoreToolchainExtension.INSTALL_SUBDIR, "bookworm", project.provider(() -> "aarch64-bookworm-linux-gnu"), toolchainExt.getToolchainGraphService(), operations);
+                SystemCoreToolchainExtension.INSTALL_SUBDIR, "bookworm", project.provider(() -> "aarch64-bookworm-linux-gnu"), toolchainExt.getToolchainGraphService(), operations, toolchainExt);
 
         CrossCompilerConfiguration configuration = project.getObjects().newInstance(CrossCompilerConfiguration.class, NativePlatforms.systemcore);
 
@@ -67,9 +67,7 @@ public class SystemCoreToolchainPlugin implements Plugin<Project> {
 
     public void populateDescriptor(ToolchainDescriptor descriptor) {
         Provider<File> fp = project.provider(() -> {
-            String year = "2027_alpha1";
-            File wpilibHomeLoc = new File(new WPILibHome(year).get(), "systemcore");
-            return wpilibHomeLoc;
+            return toolchainExt.getWpilibHome().dir("systemcore").get().getAsFile();
         });
 
         // Add WPILib Home first, as we want it searched first
