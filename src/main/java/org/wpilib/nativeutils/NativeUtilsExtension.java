@@ -20,10 +20,6 @@ import org.gradle.nativeplatform.BuildTypeContainer;
 import org.gradle.nativeplatform.NativeBinarySpec;
 import org.gradle.nativeplatform.StaticLibraryBinarySpec;
 import org.gradle.nativeplatform.platform.NativePlatform;
-import org.gradle.nativeplatform.platform.internal.NativePlatformInternal;
-import org.gradle.nativeplatform.toolchain.Clang;
-import org.gradle.nativeplatform.toolchain.internal.ToolType;
-import org.gradle.nativeplatform.toolchain.internal.gcc.AbstractGccCompatibleToolChain;
 import org.gradle.platform.base.Platform;
 import org.gradle.platform.base.PlatformAwareComponentSpec;
 import org.gradle.platform.base.PlatformContainer;
@@ -315,16 +311,6 @@ public class NativeUtilsExtension {
     PlatformConfig config = this.getPlatformConfigs().findByName(targetName);
     if (config == null) {
       return;
-    }
-
-    if (binary.getToolChain() instanceof Clang clang) {
-      AbstractGccCompatibleToolChain tc = (AbstractGccCompatibleToolChain)clang;
-      var version = tc.select((NativePlatformInternal)binary.getTargetPlatform()).getCompilerMetadata(ToolType.C_COMPILER).getVersion();
-      if (version.getMajor() < 20) {
-        binary.getcCompiler().getArgs().add("-Wno-fixed-enum-extension");
-      } else {
-        binary.getcCompiler().getArgs().add("-Wno-c23-extensions");
-      }
     }
 
     boolean isDebug = binary.getBuildType().getName().contains("debug");
