@@ -36,7 +36,7 @@ public class WPINativeUtilsExtension {
     public static class DefaultArguments {
 
         public final List<String> windowsCompilerArgs = List.of("/EHsc", "/FS", "/Zc:inline", "/wd4244", "/wd4267",
-                "/wd4146", "/wd4996", "/Zc:throwingNew", "/D_CRT_SECURE_NO_WARNINGS", "/std:c++20", "/permissive-",
+                "/wd4146", "/wd4996", "/Zc:throwingNew", "/D_CRT_SECURE_NO_WARNINGS", "/std:c++23preview", "/permissive-",
                 "/utf-8", "/bigobj", "/Zc:__cplusplus", "/Zc:preprocessor", "/wd5105", "/wd4324"); // 5105 is thrown by
                                                                                                    // windows sdk
                                                                                                    // headers
@@ -57,7 +57,7 @@ public class WPINativeUtilsExtension {
 
         public final String unixSymbolArg = "-g";
 
-        public final List<String> linuxCrossCompilerArgs = List.of("-std=c++20", "-Wformat=2", "-pedantic",
+        public final List<String> linuxCrossCompilerArgs = List.of("-std=c++23", "-Wformat=2", "-pedantic",
                 "-Wno-psabi", "-Wno-unused-parameter", "-Wno-error=deprecated-enum-enum-conversion", "-fPIC",
                 "-pthread");
         public final List<String> linuxCrossCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
@@ -67,7 +67,7 @@ public class WPINativeUtilsExtension {
         public final List<String> linuxCrossReleaseCompilerArgs = List.of("-O2");
         public final List<String> linuxCrossDebugCompilerArgs = List.of("-Og");
 
-        public final List<String> linuxCompilerArgs = List.of("-std=c++20", "-Wformat=2", "-pedantic", "-Wno-psabi",
+        public final List<String> linuxCompilerArgs = List.of("-std=c++23", "-Wformat=2", "-pedantic", "-Wno-psabi",
                 "-Wno-unused-parameter", "-Wno-error=deprecated-enum-enum-conversion", "-fPIC", "-pthread");
         public final List<String> linuxCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
                 "-Wno-unused-parameter", "-fPIC", "-pthread");
@@ -80,13 +80,13 @@ public class WPINativeUtilsExtension {
 
         public final String macMinimumVersionArg = "-mmacosx-version-min=13.3";
 
-        public final List<String> macCompilerArgs = List.of("-std=c++20", "-pedantic", "-fPIC", "-Wno-unused-parameter",
+        public final List<String> macCompilerArgs = List.of("-std=c++23", "-pedantic", "-fPIC", "-Wno-unused-parameter",
                 "-Wno-error=deprecated-enum-enum-conversion", "-Wno-missing-field-initializers",
                 "-Wno-unused-private-field", "-Wno-unused-const-variable", "-Wno-error=c11-extensions", "-pthread",
                 "-Wno-deprecated-anon-enum-enum-conversion");
         public final List<String> macCCompilerArgs = List.of("-pedantic", "-fPIC", "-Wno-unused-parameter",
                 "-Wno-missing-field-initializers", "-Wno-unused-private-field", "-Wno-fixed-enum-extension", "-Wno-c23-extensions", "-Wno-unknown-warning-option");
-        public final List<String> macObjcppCompilerArgs = List.of("-std=c++20", "-stdlib=libc++", "-fobjc-weak",
+        public final List<String> macObjcppCompilerArgs = List.of("-std=c++23", "-stdlib=libc++", "-fobjc-weak",
                 "-fobjc-arc", "-fPIC");
         public final List<String> macObjcCompilerArgs = List.of("-fobjc-weak", "-fobjc-arc", "-fPIC");
         public final List<String> macReleaseCompilerArgs = List.of("-O2");
