@@ -34,7 +34,7 @@ public class Arm64ToolchainPlugin implements Plugin<Project> {
 
         opensdk = new OpenSdkToolchainBase(baseToolchainName, arm64Ext, project, Arm64ToolchainExtension.INSTALL_SUBDIR,
                 "bookworm", project.provider(() -> "aarch64-bookworm-linux-gnu"),
-                toolchainExt.getToolchainGraphService(), operations);
+                toolchainExt.getToolchainGraphService(), operations, toolchainExt);
 
         CrossCompilerConfiguration configuration = project.getObjects().newInstance(CrossCompilerConfiguration.class,
                 NativePlatforms.linuxarm64);

@@ -16,6 +16,7 @@ import org.wpilib.toolchain.DefaultToolchainInstaller;
 import org.wpilib.toolchain.NativePlatforms;
 import org.wpilib.toolchain.ToolchainDescriptor;
 import org.wpilib.toolchain.ToolchainDiscoverer;
+import org.wpilib.toolchain.ToolchainExtension;
 import org.wpilib.toolchain.ToolchainGraphBuildService;
 import org.wpilib.toolchain.ToolchainPlugin;
 
@@ -28,13 +29,15 @@ public class OpenSdkToolchainBase {
     private final Provider<String> toolchainPrefix;
     private final ToolchainGraphBuildService rootExtension;
     private final ExecOperations operations;
+    private final ToolchainExtension toolchainExt;
 
     public OpenSdkToolchainBase(String baseToolchainName, OpenSdkToolchainExtension tcExt, Project project,
             String installSubdir, String archiveSubdir, Provider<String> toolchainPrefix,
-            ToolchainGraphBuildService rootExtension, ExecOperations operations) {
+            ToolchainGraphBuildService rootExtension, ExecOperations operations, ToolchainExtension toolchainExt) {
         this.baseToolchainName = baseToolchainName;
         this.tcExt = tcExt;
         this.project = project;
+        this.toolchainExt = toolchainExt;
         this.installSubdir = installSubdir;
         this.archiveSubDir = archiveSubdir;
         this.toolchainPrefix = toolchainPrefix;
@@ -91,7 +94,7 @@ public class OpenSdkToolchainBase {
 
     public void populatePathAndDownloadDescriptors(ToolchainDescriptor descriptor) {
         Provider<File> fp = project.provider(() -> {
-            String year = tcExt.getToolchainVersion().get().split("-")[0].toLowerCase();
+            String year = toolchainExt.getWpilibYear().get();
             File installLoc = toolchainInstallLoc(year, installSubdir);
             return installLoc;
         });

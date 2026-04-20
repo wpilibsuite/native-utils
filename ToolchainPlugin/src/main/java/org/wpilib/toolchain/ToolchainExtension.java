@@ -1,5 +1,6 @@
 package org.wpilib.toolchain;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +11,8 @@ import javax.inject.Inject;
 import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
+import org.gradle.api.file.DirectoryProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.internal.logging.text.DiagnosticsVisitor;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.nativeplatform.toolchain.Gcc;
@@ -27,6 +30,18 @@ public class ToolchainExtension {
     private final NamedDomainObjectContainer<ToolchainDescriptorBase> toolchainDescriptors;
     private final Map<String, List<String>> stripExcludeMap = new HashMap<>();
     private final Map<Gcc, GccExtension> gccExtensionMap = new HashMap<>();
+
+    private final Property<String> wpilibYear;
+
+    public Property<String> getWpilibYear() {
+        return wpilibYear;
+    }
+
+    private final DirectoryProperty wpilibHome;
+
+    public DirectoryProperty getWpilibHome() {
+        return wpilibHome;
+    }
 
     public Map<Gcc, GccExtension> getGccExtensionMap() {
         return gccExtensionMap;
@@ -47,10 +62,32 @@ public class ToolchainExtension {
         return rootExtension;
     }
 
+    private static File getDefaultHomeFolder() {
+        File baseFolder;
+        if (OperatingSystem.current().isWindows()) {
+            String publicFolder = System.getenv("PUBLIC");
+            if (publicFolder == null) {
+                publicFolder = "C:\\Users\\Public";
+            }
+            baseFolder = new File(publicFolder, "wpilib");
+        } else {
+            baseFolder = new File(System.getProperty("user.home"), "wpilib");
+        }
+        return baseFolder;
+    }
+
     @Inject
     public ToolchainExtension(Project project, ToolchainGraphBuildService rootExtension, ExecOperations operations, ObjectFactory objectFactory) {
         this.project = project;
         this.rootExtension = rootExtension;
+
+        wpilibYear = objectFactory.property(String.class);
+        wpilibHome = objectFactory.directoryProperty();
+
+        wpilibYear.convention("Unset");
+
+        var fakeProvider = objectFactory.directoryProperty().fileProvider(project.provider(() -> getDefaultHomeFolder())).dir(wpilibYear);
+        wpilibHome.convention(fakeProvider);
 
         crossCompilers = objectFactory.domainObjectContainer(CrossCompilerConfiguration.class, name -> {
             return project.getObjects().newInstance(CrossCompilerConfiguration.class, name);
