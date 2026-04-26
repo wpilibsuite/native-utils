@@ -266,13 +266,7 @@ public class WPINativeUtilsExtension {
 
         public abstract Property<String> getGoogleTestVersion();
 
-        public abstract Property<String> getOpencvYear();
-
-        public abstract Property<String> getGoogleTestYear();
-
         public abstract Property<String> getWpimathVersion();
-
-        public abstract Property<String> getImguiYear();
 
         public abstract Property<String> getImguiVersion();
     }
@@ -398,32 +392,6 @@ public class WPINativeUtilsExtension {
         });
     }
 
-    private void registerStandardDependency(ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs,
-            String name, Provider<String> groupId, String artifactId, Property<String> version) {
-        configs.register(name + "_shared", WPISharedMavenDependency.class, c -> {
-            c.getGroupId().set(groupId);
-            c.getArtifactId().set(artifactId);
-            c.getHeaderClassifier().set("headers");
-            c.getSourceClassifier().set("sources");
-            c.getExt().set("zip");
-            c.getVersion().set(version);
-            c.getExtraSharedExcludes().add("**/*java*");
-            c.getExtraSharedExcludes().add("**/*jni*");
-            c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
-        });
-        configs.register(name + "_static", WPIStaticMavenDependency.class, c -> {
-            c.getGroupId().set(groupId);
-            c.getArtifactId().set(artifactId);
-            c.getHeaderClassifier().set("headers");
-            c.getSourceClassifier().set("sources");
-            c.getExt().set("zip");
-            c.getVersion().set(version);
-            c.getExtraSharedExcludes().add("**/*java*");
-            c.getExtraSharedExcludes().add("**/*jni*");
-            c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
-        });
-    }
-
     private void registerSharedOnlyStandardDependency(
             ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs,
             String name, String groupId, String artifactId, Property<String> version) {
@@ -465,8 +433,6 @@ public class WPINativeUtilsExtension {
             return;
         }
         dependencyVersions = objects.newInstance(DependencyVersions.class);
-        dependencyVersions.getGoogleTestYear().set("Unknown");
-        dependencyVersions.getOpencvYear().set("Unknown");
 
         dependencyVersions.getWpiVersion().set("-1");
         dependencyVersions.getNiLibVersion().set("-1");
@@ -474,7 +440,6 @@ public class WPINativeUtilsExtension {
         dependencyVersions.getGoogleTestVersion().set("-1");
 
         dependencyVersions.getWpimathVersion().set("-1");
-        dependencyVersions.getImguiYear().set("-1");
         dependencyVersions.getImguiVersion().set("-1");
 
         dependencies.execute(dependencyVersions);
@@ -497,10 +462,7 @@ public class WPINativeUtilsExtension {
         registerSharedOnlyStandardDependency(configs, "apriltag", "org.wpilib.apriltag", "apriltag-cpp",
                 wpiVersion);
 
-        Provider<String> opencvYearGroup = provider
-                .provider(() -> "edu.wpi.first.thirdparty." + dependencyVersions.getOpencvYear().get() + ".opencv");
-
-        registerStandardDependency(configs, "opencv", opencvYearGroup, "opencv-cpp",
+        registerStandardDependency(configs, "opencv", "org.wpilib.thirdparty.opencv", "opencv-cpp",
                 dependencyVersions.getOpencvVersion());
         registerStaticOnlyStandardDependency(configs, "googletest", "edu.wpi.first.thirdparty.googletest",
                 "googletest-cpp",
