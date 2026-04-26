@@ -36,7 +36,7 @@ public class WPINativeUtilsExtension {
     public static class DefaultArguments {
 
         public final List<String> windowsCompilerArgs = List.of("/EHsc", "/FS", "/Zc:inline", "/wd4244", "/wd4267",
-                "/wd4146", "/wd4996", "/Zc:throwingNew", "/D_CRT_SECURE_NO_WARNINGS", "/std:c++20", "/permissive-",
+                "/wd4146", "/wd4996", "/Zc:throwingNew", "/D_CRT_SECURE_NO_WARNINGS", "/std:c++23preview", "/permissive-",
                 "/utf-8", "/bigobj", "/Zc:__cplusplus", "/Zc:preprocessor", "/wd5105", "/wd4324"); // 5105 is thrown by
                                                                                                    // windows sdk
                                                                                                    // headers
@@ -57,7 +57,7 @@ public class WPINativeUtilsExtension {
 
         public final String unixSymbolArg = "-g";
 
-        public final List<String> linuxCrossCompilerArgs = List.of("-std=c++20", "-Wformat=2", "-pedantic",
+        public final List<String> linuxCrossCompilerArgs = List.of("-std=c++23", "-Wformat=2", "-pedantic",
                 "-Wno-psabi", "-Wno-unused-parameter", "-Wno-error=deprecated-enum-enum-conversion", "-fPIC",
                 "-pthread");
         public final List<String> linuxCrossCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
@@ -67,7 +67,7 @@ public class WPINativeUtilsExtension {
         public final List<String> linuxCrossReleaseCompilerArgs = List.of("-O2");
         public final List<String> linuxCrossDebugCompilerArgs = List.of("-Og");
 
-        public final List<String> linuxCompilerArgs = List.of("-std=c++20", "-Wformat=2", "-pedantic", "-Wno-psabi",
+        public final List<String> linuxCompilerArgs = List.of("-std=c++23", "-Wformat=2", "-pedantic", "-Wno-psabi",
                 "-Wno-unused-parameter", "-Wno-error=deprecated-enum-enum-conversion", "-fPIC", "-pthread");
         public final List<String> linuxCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
                 "-Wno-unused-parameter", "-fPIC", "-pthread");
@@ -80,13 +80,13 @@ public class WPINativeUtilsExtension {
 
         public final String macMinimumVersionArg = "-mmacosx-version-min=13.3";
 
-        public final List<String> macCompilerArgs = List.of("-std=c++20", "-pedantic", "-fPIC", "-Wno-unused-parameter",
+        public final List<String> macCompilerArgs = List.of("-std=c++23", "-pedantic", "-fPIC", "-Wno-unused-parameter",
                 "-Wno-error=deprecated-enum-enum-conversion", "-Wno-missing-field-initializers",
                 "-Wno-unused-private-field", "-Wno-unused-const-variable", "-Wno-error=c11-extensions", "-pthread",
                 "-Wno-deprecated-anon-enum-enum-conversion");
         public final List<String> macCCompilerArgs = List.of("-pedantic", "-fPIC", "-Wno-unused-parameter",
-                "-Wno-missing-field-initializers", "-Wno-unused-private-field", "-Wno-fixed-enum-extension");
-        public final List<String> macObjcppCompilerArgs = List.of("-std=c++20", "-stdlib=libc++", "-fobjc-weak",
+                "-Wno-missing-field-initializers", "-Wno-unused-private-field", "-Wno-fixed-enum-extension", "-Wno-c23-extensions", "-Wno-unknown-warning-option");
+        public final List<String> macObjcppCompilerArgs = List.of("-std=c++23", "-stdlib=libc++", "-fobjc-weak",
                 "-fobjc-arc", "-fPIC");
         public final List<String> macObjcCompilerArgs = List.of("-fobjc-weak", "-fobjc-arc", "-fPIC");
         public final List<String> macReleaseCompilerArgs = List.of("-O2");
@@ -266,13 +266,7 @@ public class WPINativeUtilsExtension {
 
         public abstract Property<String> getGoogleTestVersion();
 
-        public abstract Property<String> getOpencvYear();
-
-        public abstract Property<String> getGoogleTestYear();
-
         public abstract Property<String> getWpimathVersion();
-
-        public abstract Property<String> getImguiYear();
 
         public abstract Property<String> getImguiVersion();
     }
@@ -398,32 +392,6 @@ public class WPINativeUtilsExtension {
         });
     }
 
-    private void registerStandardDependency(ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs,
-            String name, Provider<String> groupId, String artifactId, Property<String> version) {
-        configs.register(name + "_shared", WPISharedMavenDependency.class, c -> {
-            c.getGroupId().set(groupId);
-            c.getArtifactId().set(artifactId);
-            c.getHeaderClassifier().set("headers");
-            c.getSourceClassifier().set("sources");
-            c.getExt().set("zip");
-            c.getVersion().set(version);
-            c.getExtraSharedExcludes().add("**/*java*");
-            c.getExtraSharedExcludes().add("**/*jni*");
-            c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
-        });
-        configs.register(name + "_static", WPIStaticMavenDependency.class, c -> {
-            c.getGroupId().set(groupId);
-            c.getArtifactId().set(artifactId);
-            c.getHeaderClassifier().set("headers");
-            c.getSourceClassifier().set("sources");
-            c.getExt().set("zip");
-            c.getVersion().set(version);
-            c.getExtraSharedExcludes().add("**/*java*");
-            c.getExtraSharedExcludes().add("**/*jni*");
-            c.getTargetPlatforms().addAll(this.platforms.allPlatforms);
-        });
-    }
-
     private void registerSharedOnlyStandardDependency(
             ExtensiblePolymorphicDomainObjectContainer<NativeDependency> configs,
             String name, String groupId, String artifactId, Property<String> version) {
@@ -465,8 +433,6 @@ public class WPINativeUtilsExtension {
             return;
         }
         dependencyVersions = objects.newInstance(DependencyVersions.class);
-        dependencyVersions.getGoogleTestYear().set("Unknown");
-        dependencyVersions.getOpencvYear().set("Unknown");
 
         dependencyVersions.getWpiVersion().set("-1");
         dependencyVersions.getMrcLibVersion().set("-1");
@@ -474,7 +440,6 @@ public class WPINativeUtilsExtension {
         dependencyVersions.getGoogleTestVersion().set("-1");
 
         dependencyVersions.getWpimathVersion().set("-1");
-        dependencyVersions.getImguiYear().set("-1");
         dependencyVersions.getImguiVersion().set("-1");
 
         dependencies.execute(dependencyVersions);
@@ -497,10 +462,7 @@ public class WPINativeUtilsExtension {
         registerSharedOnlyStandardDependency(configs, "apriltag", "org.wpilib.apriltag", "apriltag-cpp",
                 wpiVersion);
 
-        Provider<String> opencvYearGroup = provider
-                .provider(() -> "edu.wpi.first.thirdparty." + dependencyVersions.getOpencvYear().get() + ".opencv");
-
-        registerStandardDependency(configs, "opencv", opencvYearGroup, "opencv-cpp",
+        registerStandardDependency(configs, "opencv", "org.wpilib.thirdparty.opencv", "opencv-cpp",
                 dependencyVersions.getOpencvVersion());
         registerStaticOnlyStandardDependency(configs, "googletest", "edu.wpi.first.thirdparty.googletest",
                 "googletest-cpp",
