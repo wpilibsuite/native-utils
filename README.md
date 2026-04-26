@@ -119,10 +119,10 @@ nativeUtils.addWpiNativeUtils()
 // wpilib and driver. They still need to manually be added to individual
 // components. These just add to the back end
 nativeUtils.wpi.configureDependencies {
-  // Thse are the 6 separate versions used for wpi
+  // These are the 3 separate versions used for wpi
   // deps. They should be kept in sync.
   wpiVersion = ""
-  niLibVersion = ""
+  mrcLibVersion = ""
   opencvVersion = ""
 }
 
