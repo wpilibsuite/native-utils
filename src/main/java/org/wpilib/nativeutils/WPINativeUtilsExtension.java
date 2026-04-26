@@ -263,12 +263,6 @@ public class WPINativeUtilsExtension {
         public abstract Property<String> getMrcLibVersion();
 
         public abstract Property<String> getOpencvVersion();
-
-        public abstract Property<String> getGoogleTestVersion();
-
-        public abstract Property<String> getWpimathVersion();
-
-        public abstract Property<String> getImguiVersion();
     }
 
     private void addPlatformReleaseSymbolGeneration(String platform) {
@@ -433,14 +427,9 @@ public class WPINativeUtilsExtension {
             return;
         }
         dependencyVersions = objects.newInstance(DependencyVersions.class);
-
         dependencyVersions.getWpiVersion().set("-1");
         dependencyVersions.getMrcLibVersion().set("-1");
         dependencyVersions.getOpencvVersion().set("-1");
-        dependencyVersions.getGoogleTestVersion().set("-1");
-
-        dependencyVersions.getWpimathVersion().set("-1");
-        dependencyVersions.getImguiVersion().set("-1");
 
         dependencies.execute(dependencyVersions);
         versions = dependencyVersions;
@@ -464,7 +453,7 @@ public class WPINativeUtilsExtension {
 
         registerStandardDependency(configs, "opencv", "org.wpilib.thirdparty.opencv", "opencv-cpp",
                 dependencyVersions.getOpencvVersion());
-        registerStaticOnlyStandardDependency(configs, "googletest", "edu.wpi.first.thirdparty.googletest",
+        registerStaticOnlyStandardDependency(configs, "googletest", "org.wpilib.thirdparty.googletest",
                 "googletest-cpp",
                 wpiVersion);
 
