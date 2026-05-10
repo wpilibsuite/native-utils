@@ -19,7 +19,7 @@ import org.gradle.process.ExecOperations;
 import org.gradle.api.model.ObjectFactory;
 
 import org.wpilib.toolchain.arm64.Arm64ToolchainPlugin;
-import org.wpilib.toolchain.systemcore.SystemCoreToolchainPlugin;
+import org.wpilib.toolchain.systemcore.SystemcoreToolchainPlugin;
 import org.wpilib.toolchain.configurable.CrossCompilerConfiguration;
 
 public class ToolchainExtension {
@@ -140,8 +140,8 @@ public class ToolchainExtension {
         }
     }
 
-    public void withCrossSystemCore() {
-        project.getPluginManager().apply(SystemCoreToolchainPlugin.class);
+    public void withCrossSystemcore() {
+        project.getPluginManager().apply(SystemcoreToolchainPlugin.class);
     }
 
     private boolean removeInvalidWindowsToolchains = true;

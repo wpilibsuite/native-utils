@@ -167,7 +167,7 @@ toolchainsPlugin {
   registerDebugBuildType = true
 
   // Add the systemcore compiler
-  withCrossSystemCore()
+  withCrossSystemcore()
   // Add the raspbian compiler
   withCrossLinuxArm64()
   // The above 2 are included with nativeUtils.addWpiNativeUtils()
