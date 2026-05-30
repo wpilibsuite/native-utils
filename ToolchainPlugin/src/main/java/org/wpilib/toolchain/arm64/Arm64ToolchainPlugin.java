@@ -11,11 +11,12 @@ import org.wpilib.toolchain.ToolchainDescriptor;
 import org.wpilib.toolchain.ToolchainExtension;
 import org.wpilib.toolchain.configurable.CrossCompilerConfiguration;
 import org.wpilib.toolchain.opensdk.OpenSdkToolchainBase;
+import org.wpilib.toolchain.opensdk.OpenSdkToolchainBase.ToolchainBaseOptions;
 
 public class Arm64ToolchainPlugin implements Plugin<Project> {
 
     public static final String toolchainName = "arm64";
-    public static final String baseToolchainName = "arm64-bookworm";
+    public static final String baseToolchainName = "arm64-trixie";
 
     private Arm64ToolchainExtension arm64Ext;
     private OpenSdkToolchainBase opensdk;
@@ -32,9 +33,16 @@ public class Arm64ToolchainPlugin implements Plugin<Project> {
 
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
 
-        opensdk = new OpenSdkToolchainBase(baseToolchainName, arm64Ext, project, Arm64ToolchainExtension.INSTALL_SUBDIR,
-                "bookworm", project.provider(() -> "aarch64-bookworm-linux-gnu"),
-                toolchainExt.getToolchainGraphService(), operations);
+        ToolchainBaseOptions options = new ToolchainBaseOptions();
+        options.baseToolchainName = baseToolchainName;
+        options.tcExt = arm64Ext;
+        options.project = project;
+        options.installSubdir = Arm64ToolchainExtension.INSTALL_SUBDIR;
+        options.archiveSubDir = "trixie";
+        options.toolchainPrefix = project.provider(() -> "aarch64-trixie-linux-gnu");
+        options.rootExtension = toolchainExt.getToolchainGraphService();
+
+        opensdk = project.getObjects().newInstance(OpenSdkToolchainBase.class, options);
 
         CrossCompilerConfiguration configuration = project.getObjects().newInstance(CrossCompilerConfiguration.class,
                 NativePlatforms.linuxarm64);
