@@ -28,7 +28,6 @@ public class OpenSdkToolchainBase {
     private final OpenSdkToolchainExtension tcExt;
     private final Project project;
     private final String installSubdir;
-    private final String archiveSubDir;
     private final Provider<String> toolchainPrefix;
     private final ToolchainGraphBuildService rootExtension;
     private final ExecOperations operations;
@@ -39,7 +38,6 @@ public class OpenSdkToolchainBase {
         public OpenSdkToolchainExtension tcExt;
         public Project project;
         public String installSubdir;
-        public String archiveSubDir;
         public Provider<String> toolchainPrefix;
         public ToolchainGraphBuildService rootExtension;
     }
@@ -50,7 +48,6 @@ public class OpenSdkToolchainBase {
         this.tcExt = options.tcExt;
         this.project = options.project;
         this.installSubdir = options.installSubdir;
-        this.archiveSubDir = options.archiveSubDir;
         this.toolchainPrefix = options.toolchainPrefix;
         this.rootExtension = options.rootExtension;
         this.operations = operations;
@@ -99,13 +96,12 @@ public class OpenSdkToolchainBase {
         return new File(ToolchainPlugin.pluginHome(project), "first/" + year + "/" + installSubdir);
     }
 
-    public AbstractToolchainInstaller installerFor(OperatingSystem os, Provider<File> installDir, String subdir)
+    public AbstractToolchainInstaller installerFor(OperatingSystem os, Provider<File> installDir)
             throws MalformedURLException {
                 ToolchainInstallerOptions options = new ToolchainInstallerOptions();
                 options.os = os;
                 options.sourceProvider = project.provider(this::toolchainDownloadUrl);
                 options.installDirProvider = installDir;
-                options.subdir = subdir;
                 options.project = project;
                 return objectFactory.newInstance(DefaultToolchainInstaller.class, options);
     }
@@ -124,9 +120,9 @@ public class OpenSdkToolchainBase {
                 .add(ToolchainDiscoverer.forSystemPath(project, rootExtension, descriptor, this::composeTool, operations));
 
         try {
-            descriptor.getInstallers().add(installerFor(OperatingSystem.LINUX, fp, archiveSubDir));
-            descriptor.getInstallers().add(installerFor(OperatingSystem.WINDOWS, fp, archiveSubDir));
-            descriptor.getInstallers().add(installerFor(OperatingSystem.MAC_OS, fp, archiveSubDir));
+            descriptor.getInstallers().add(installerFor(OperatingSystem.LINUX, fp));
+            descriptor.getInstallers().add(installerFor(OperatingSystem.WINDOWS, fp));
+            descriptor.getInstallers().add(installerFor(OperatingSystem.MAC_OS, fp));
         } catch (MalformedURLException e) {
             throw new GradleException("Malformed Toolchain URL", e);
         }

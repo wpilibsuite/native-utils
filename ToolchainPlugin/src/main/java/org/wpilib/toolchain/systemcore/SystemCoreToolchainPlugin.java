@@ -46,7 +46,6 @@ public class SystemCoreToolchainPlugin implements Plugin<Project> {
         options.tcExt = systemcoreExt;
         options.project = project;
         options.installSubdir = SystemCoreToolchainExtension.INSTALL_SUBDIR;
-        options.archiveSubDir = "systemcore";
         options.toolchainPrefix = project.provider(() -> "aarch64-systemcore2027-linux-gnu");
         options.rootExtension = toolchainExt.getToolchainGraphService();
 
