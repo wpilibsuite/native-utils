@@ -10,7 +10,7 @@ import spock.lang.Specification
 import spock.lang.IgnoreIf
 
 @IgnoreIf({ !Boolean.valueOf(env['SPOCK_RUN_TOOLCHAINS']) })
-class Arm64DownloadTest extends Specification {
+class SystemCoreDownloadTest extends Specification {
   @TempDir File testProjectDir
   @TempDir File gradleUserHome
   File buildFile
