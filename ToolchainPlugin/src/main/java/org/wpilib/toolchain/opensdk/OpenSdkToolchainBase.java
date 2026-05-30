@@ -75,7 +75,7 @@ public class OpenSdkToolchainBase {
             }
 
         }
-        String ext = OperatingSystem.current().isWindows() ? "zip" : "tgz";
+        String ext = "tgz";
         return baseToolchainName + "-" + desiredVersion[0] + "-" + platformId + "-Toolchain-" + desiredVersion[1] + "."
                 + ext;
     }
