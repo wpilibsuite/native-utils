@@ -86,13 +86,11 @@ public class DefaultToolchainInstaller extends AbstractToolchainInstaller {
 
         fileSystemOperations.copy((CopySpec c) -> {
             FileTree tree;
-            if (dst.getName().endsWith(".tar.gz") || dst.getName().endsWith(".tgz"))
+            if (dst.getName().endsWith(".tar.gz") || dst.getName().endsWith(".tgz")) {
                 tree = archiveOperations.tarTree(archiveOperations.gzip(dst));
-            else if (dst.getName().endsWith(".zip"))
-                tree = archiveOperations.zipTree(dst);
-            else
+            } else {
                 throw new GradleException("Don't know how to extract file type: " + dst.getName());
-
+            }
             System.out.println(tree);
             c.from(tree);
             c.into(extractDir);
