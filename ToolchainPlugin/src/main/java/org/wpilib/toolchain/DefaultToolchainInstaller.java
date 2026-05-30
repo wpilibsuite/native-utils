@@ -3,7 +3,10 @@ package org.wpilib.toolchain;
 import de.undercouch.gradle.tasks.download.DownloadAction;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
+import org.gradle.api.file.ArchiveOperations;
 import org.gradle.api.file.CopySpec;
+import org.gradle.api.file.DeleteSpec;
+import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.provider.Provider;
 import org.gradle.internal.os.OperatingSystem;
@@ -13,35 +16,53 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
+import javax.inject.Inject;
+
 public class DefaultToolchainInstaller extends AbstractToolchainInstaller {
 
     private OperatingSystem os;
     private Provider<URL> sourceProvider;
     private Provider<File> installDirProvider;
     private String subdir;
+    private final File gradleUserHomeDir;
+    private final DownloadAction downloadAction;
+    private final FileSystemOperations fileSystemOperations;
+    private final ArchiveOperations archiveOperations;
 
-    public DefaultToolchainInstaller(OperatingSystem os, Provider<URL> source, Provider<File> installDir, String subdir) {
-        this.os = os;
-        this.sourceProvider = source;
-        this.installDirProvider = installDir;
-        this.subdir = subdir;
+    public static class ToolchainInstallerOptions {
+        public OperatingSystem os;
+        public Provider<URL> sourceProvider;
+        public Provider<File> installDirProvider;
+        public String subdir;
+        public Project project;
+    }
+
+    @Inject
+    public DefaultToolchainInstaller(ToolchainInstallerOptions options, FileSystemOperations fileSystemOperations, ArchiveOperations archiveOperations) {
+        this.os = options.os;
+        this.sourceProvider = options.sourceProvider;
+        this.installDirProvider = options.installDirProvider;
+        this.subdir = options.subdir;
+        this.gradleUserHomeDir = options.project.getGradle().getGradleUserHomeDir();
+        downloadAction = new DownloadAction(options.project);
+        this.fileSystemOperations = fileSystemOperations;
+        this.archiveOperations = archiveOperations;
     }
 
     @Override
-    public void install(Project project) {
+    public void install() {
         URL source = sourceProvider.get();
-        File cacheLoc = new File(project.getGradle().getGradleUserHomeDir(), "cache");
+        File cacheLoc = new File(gradleUserHomeDir, "cache");
         File dst = new File(cacheLoc, "download/" + source.getPath());
         dst.getParentFile().mkdirs();
 
         System.out.println("Downloading " + source.toString() + "... ");
-        DownloadAction action = new DownloadAction(project);
         try {
-            action.src(source);
-            action.dest(dst);
-            action.overwrite(false);
-            action.retries(1);
-            action.execute().get();
+            downloadAction.src(source);
+            downloadAction.dest(dst);
+            downloadAction.overwrite(false);
+            downloadAction.retries(1);
+            downloadAction.execute().get();
         } catch (IOException e) {
             throw new GradleException("Could not download toolchain", e);
         } catch (InterruptedException e) {
@@ -50,25 +71,26 @@ public class DefaultToolchainInstaller extends AbstractToolchainInstaller {
             throw new GradleException("Could not download toolchain, failed", e);
         }
 
-        if (action.isUpToDate()) {
+        if (downloadAction.isUpToDate()) {
             System.out.println("Already Downloaded!");
         }
 
         System.out.println("Extracting...");
         File extractDir = new File(cacheLoc, "extract/");
-        if (extractDir.exists())
-            project.delete(extractDir.getAbsolutePath());
+        if (extractDir.exists()) {
+            fileSystemOperations.delete((DeleteSpec d) -> {
+                d.delete(extractDir);
+            });
+        }
         extractDir.mkdirs();
 
-        project.copy((CopySpec c) -> {
+        fileSystemOperations.copy((CopySpec c) -> {
             FileTree tree;
-            if (dst.getName().endsWith(".tar.gz") || dst.getName().endsWith(".tgz"))
-                tree = project.tarTree(project.getResources().gzip(dst));
-            else if (dst.getName().endsWith(".zip"))
-                tree = project.zipTree(dst);
-            else
+            if (dst.getName().endsWith(".tar.gz") || dst.getName().endsWith(".tgz")) {
+                tree = archiveOperations.tarTree(archiveOperations.gzip(dst));
+            } else {
                 throw new GradleException("Don't know how to extract file type: " + dst.getName());
-
+            }
             System.out.println(tree);
             c.from(tree);
             c.into(extractDir);
@@ -76,11 +98,14 @@ public class DefaultToolchainInstaller extends AbstractToolchainInstaller {
 
         System.out.println("Copying...");
         File installDir = installDirProvider.get();
-        if (installDir.exists())
-            project.delete(installDir.getAbsolutePath());
+        if (installDir.exists()) {
+            fileSystemOperations.delete((DeleteSpec d) -> {
+                d.delete(installDir);
+            });
+        }
         installDir.mkdirs();
 
-        project.copy((CopySpec c) -> {
+        fileSystemOperations.copy((CopySpec c) -> {
             c.from(new File(extractDir, subdir));
             c.into(installDir);
         });

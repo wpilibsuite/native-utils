@@ -16,11 +16,12 @@ import org.wpilib.toolchain.ToolchainDiscoverer;
 import org.wpilib.toolchain.ToolchainExtension;
 import org.wpilib.toolchain.configurable.CrossCompilerConfiguration;
 import org.wpilib.toolchain.opensdk.OpenSdkToolchainBase;
+import org.wpilib.toolchain.opensdk.OpenSdkToolchainBase.ToolchainBaseOptions;
 
 public class SystemCoreToolchainPlugin implements Plugin<Project> {
 
     public static final String toolchainName = "systemCore";
-    public static final String baseToolchainName = "arm64-bookworm";
+    public static final String baseToolchainName = "arm64-systemcore";
 
     private SystemCoreToolchainExtension systemcoreExt;
     private Project project;
@@ -40,8 +41,16 @@ public class SystemCoreToolchainPlugin implements Plugin<Project> {
 
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
 
-        opensdk = new OpenSdkToolchainBase(baseToolchainName, systemcoreExt, project,
-                SystemCoreToolchainExtension.INSTALL_SUBDIR, "bookworm", project.provider(() -> "aarch64-bookworm-linux-gnu"), toolchainExt.getToolchainGraphService(), operations);
+        ToolchainBaseOptions options = new ToolchainBaseOptions();
+        options.baseToolchainName = baseToolchainName;
+        options.tcExt = systemcoreExt;
+        options.project = project;
+        options.installSubdir = SystemCoreToolchainExtension.INSTALL_SUBDIR;
+        options.archiveSubDir = "systemcore";
+        options.toolchainPrefix = project.provider(() -> "aarch64-systemcore2027-linux-gnu");
+        options.rootExtension = toolchainExt.getToolchainGraphService();
+
+        opensdk = project.getObjects().newInstance(OpenSdkToolchainBase.class, options);
 
         CrossCompilerConfiguration configuration = project.getObjects().newInstance(CrossCompilerConfiguration.class, NativePlatforms.systemcore);
 
@@ -67,7 +76,7 @@ public class SystemCoreToolchainPlugin implements Plugin<Project> {
 
     public void populateDescriptor(ToolchainDescriptor descriptor) {
         Provider<File> fp = project.provider(() -> {
-            String year = "2027_alpha5";
+            String year = "2027_alpha7";
             File wpilibHomeLoc = new File(new WPILibHome(year).get(), "systemcore");
             return wpilibHomeLoc;
         });

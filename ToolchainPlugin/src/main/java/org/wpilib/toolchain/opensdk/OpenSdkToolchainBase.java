@@ -5,14 +5,18 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
+import javax.inject.Inject;
+
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.process.ExecOperations;
 
 import org.wpilib.toolchain.AbstractToolchainInstaller;
 import org.wpilib.toolchain.DefaultToolchainInstaller;
+import org.wpilib.toolchain.DefaultToolchainInstaller.ToolchainInstallerOptions;
 import org.wpilib.toolchain.NativePlatforms;
 import org.wpilib.toolchain.ToolchainDescriptor;
 import org.wpilib.toolchain.ToolchainDiscoverer;
@@ -28,18 +32,29 @@ public class OpenSdkToolchainBase {
     private final Provider<String> toolchainPrefix;
     private final ToolchainGraphBuildService rootExtension;
     private final ExecOperations operations;
+    private final ObjectFactory objectFactory;
 
-    public OpenSdkToolchainBase(String baseToolchainName, OpenSdkToolchainExtension tcExt, Project project,
-            String installSubdir, String archiveSubdir, Provider<String> toolchainPrefix,
-            ToolchainGraphBuildService rootExtension, ExecOperations operations) {
-        this.baseToolchainName = baseToolchainName;
-        this.tcExt = tcExt;
-        this.project = project;
-        this.installSubdir = installSubdir;
-        this.archiveSubDir = archiveSubdir;
-        this.toolchainPrefix = toolchainPrefix;
-        this.rootExtension = rootExtension;
+    public static class ToolchainBaseOptions {
+        public String baseToolchainName;
+        public OpenSdkToolchainExtension tcExt;
+        public Project project;
+        public String installSubdir;
+        public String archiveSubDir;
+        public Provider<String> toolchainPrefix;
+        public ToolchainGraphBuildService rootExtension;
+    }
+
+    @Inject
+    public OpenSdkToolchainBase(ToolchainBaseOptions options, ExecOperations operations, ObjectFactory objectFactory) {
+        this.baseToolchainName = options.baseToolchainName;
+        this.tcExt = options.tcExt;
+        this.project = options.project;
+        this.installSubdir = options.installSubdir;
+        this.archiveSubDir = options.archiveSubDir;
+        this.toolchainPrefix = options.toolchainPrefix;
+        this.rootExtension = options.rootExtension;
         this.operations = operations;
+        this.objectFactory = objectFactory;
     }
 
     private String toolchainRemoteFile() {
@@ -54,13 +69,13 @@ public class OpenSdkToolchainBase {
         } else {
             String desktopPlatformArch = NativePlatforms.desktopPlatformArch(operations);
             if (desktopPlatformArch.equals(NativePlatforms.arm64arch)) {
-                platformId = "aarch64-bookworm-linux-gnu";
+                platformId = "aarch64-trixie-linux-gnu";
             } else {
                 platformId = "x86_64-linux-gnu";
             }
 
         }
-        String ext = OperatingSystem.current().isWindows() ? "zip" : "tgz";
+        String ext = "tgz";
         return baseToolchainName + "-" + desiredVersion[0] + "-" + platformId + "-Toolchain-" + desiredVersion[1] + "."
                 + ext;
     }
@@ -86,7 +101,13 @@ public class OpenSdkToolchainBase {
 
     public AbstractToolchainInstaller installerFor(OperatingSystem os, Provider<File> installDir, String subdir)
             throws MalformedURLException {
-        return new DefaultToolchainInstaller(os, project.provider(this::toolchainDownloadUrl), installDir, subdir);
+                ToolchainInstallerOptions options = new ToolchainInstallerOptions();
+                options.os = os;
+                options.sourceProvider = project.provider(this::toolchainDownloadUrl);
+                options.installDirProvider = installDir;
+                options.subdir = subdir;
+                options.project = project;
+                return objectFactory.newInstance(DefaultToolchainInstaller.class, options);
     }
 
     public void populatePathAndDownloadDescriptors(ToolchainDescriptor descriptor) {
