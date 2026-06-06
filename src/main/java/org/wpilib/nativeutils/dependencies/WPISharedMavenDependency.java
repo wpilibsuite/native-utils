@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.SetProperty;
 import org.gradle.nativeplatform.BuildType;
 import org.gradle.nativeplatform.platform.NativePlatform;
 
@@ -38,6 +39,9 @@ public abstract class WPISharedMavenDependency extends WPIMavenDependency {
         }
 
         String buildTypeName = buildType.getName();
+        if (getNoDebugSplit().getOrElse(false)) {
+            buildTypeName = "release";
+        }
 
         FileCollection headers = getArtifactRoots(getHeaderClassifier().getOrElse(null), ArtifactType.HEADERS, loaderDependencySet);
         FileCollection sources = getArtifactRoots(getSourceClassifier().getOrElse(null), ArtifactType.SOURCES, loaderDependencySet);
@@ -52,7 +56,8 @@ public abstract class WPISharedMavenDependency extends WPIMavenDependency {
         FileCollection linkFiles = getArtifactFiles(platformName, buildTypeName, SHARED_MATCHERS, sharedExcludes, ArtifactType.LINK, loaderDependencySet);
 
         FileCollection runtimeFiles;
-        if (getSkipAtRuntime().getOrElse(false)) {
+        Set<String> skipAtRuntimePlatforms = getSkipAtRuntimePlatforms().getOrNull();
+        if (skipAtRuntimePlatforms != null && skipAtRuntimePlatforms.contains(platformName)) {
             runtimeFiles = getProject().files();
         } else {
             runtimeFiles = getArtifactFiles(platformName, buildTypeName, RUNTIME_MATCHERS, RUNTIME_EXCLUDES, ArtifactType.RUNTIME, loaderDependencySet);
@@ -64,5 +69,7 @@ public abstract class WPISharedMavenDependency extends WPIMavenDependency {
         return resolvedDep;
     }
 
-    public abstract Property<Boolean> getSkipAtRuntime();
+    public abstract SetProperty<String> getSkipAtRuntimePlatforms();
+
+    public abstract Property<Boolean> getNoDebugSplit();
 }
