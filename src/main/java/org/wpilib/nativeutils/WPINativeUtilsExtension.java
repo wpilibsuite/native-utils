@@ -76,7 +76,7 @@ public class WPINativeUtilsExtension {
         public final List<String> linuxReleaseCompilerArgs = List.of("-O2");
         public final List<String> linuxDebugCompilerArgs = List.of("-O0");
 
-        public final List<String> linuxSystemCoreArgs = List.of("-D__FIRST_SYSTEMCORE__=1");
+        public final List<String> linuxSystemcoreArgs = List.of("-D__FIRST_SYSTEMCORE__=1");
 
         public final String macMinimumVersionArg = "-mmacosx-version-min=13.3";
 
@@ -224,10 +224,10 @@ public class WPINativeUtilsExtension {
 
         linuxsystemcore.getPlatformPath().set("linux/systemcore");
         addLinuxCrossArgs(linuxsystemcore);
-        linuxsystemcore.getCppCompiler().getArgs().addAll(defaultArguments.linuxSystemCoreArgs);
-        linuxsystemcore.getcCompiler().getArgs().addAll(defaultArguments.linuxSystemCoreArgs);
-        linuxsystemcore.getObjcCompiler().getArgs().addAll(defaultArguments.linuxSystemCoreArgs);
-        linuxsystemcore.getObjcppCompiler().getArgs().addAll(defaultArguments.linuxSystemCoreArgs);
+        linuxsystemcore.getCppCompiler().getArgs().addAll(defaultArguments.linuxSystemcoreArgs);
+        linuxsystemcore.getcCompiler().getArgs().addAll(defaultArguments.linuxSystemcoreArgs);
+        linuxsystemcore.getObjcCompiler().getArgs().addAll(defaultArguments.linuxSystemcoreArgs);
+        linuxsystemcore.getObjcppCompiler().getArgs().addAll(defaultArguments.linuxSystemcoreArgs);
 
         linuxarm64.getPlatformPath().set("linux/arm64");
         addLinuxCrossArgs(linuxarm64);

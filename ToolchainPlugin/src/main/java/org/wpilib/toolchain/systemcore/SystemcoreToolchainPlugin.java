@@ -18,18 +18,18 @@ import org.wpilib.toolchain.configurable.CrossCompilerConfiguration;
 import org.wpilib.toolchain.opensdk.OpenSdkToolchainBase;
 import org.wpilib.toolchain.opensdk.OpenSdkToolchainBase.ToolchainBaseOptions;
 
-public class SystemCoreToolchainPlugin implements Plugin<Project> {
+public class SystemcoreToolchainPlugin implements Plugin<Project> {
 
     public static final String toolchainName = "systemCore";
     public static final String baseToolchainName = "arm64-systemcore";
 
-    private SystemCoreToolchainExtension systemcoreExt;
+    private SystemcoreToolchainExtension systemcoreExt;
     private Project project;
     private OpenSdkToolchainBase opensdk;
     private ExecOperations operations;
 
     @Inject
-    public SystemCoreToolchainPlugin(ExecOperations operations) {
+    public SystemcoreToolchainPlugin(ExecOperations operations) {
         this.operations = operations;
     }
 
@@ -37,7 +37,7 @@ public class SystemCoreToolchainPlugin implements Plugin<Project> {
     public void apply(Project project) {
         this.project = project;
 
-        systemcoreExt = project.getExtensions().create("systemcoreToolchain", SystemCoreToolchainExtension.class);
+        systemcoreExt = project.getExtensions().create("systemcoreToolchain", SystemcoreToolchainExtension.class);
 
         ToolchainExtension toolchainExt = project.getExtensions().getByType(ToolchainExtension.class);
 
@@ -45,7 +45,7 @@ public class SystemCoreToolchainPlugin implements Plugin<Project> {
         options.baseToolchainName = baseToolchainName;
         options.tcExt = systemcoreExt;
         options.project = project;
-        options.installSubdir = SystemCoreToolchainExtension.INSTALL_SUBDIR;
+        options.installSubdir = SystemcoreToolchainExtension.INSTALL_SUBDIR;
         options.archiveSubDir = "systemcore";
         options.toolchainPrefix = project.provider(() -> "aarch64-systemcore2027-linux-gnu");
         options.rootExtension = toolchainExt.getToolchainGraphService();

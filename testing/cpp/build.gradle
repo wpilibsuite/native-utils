@@ -3,12 +3,12 @@ import org.wpilib.nativeutils.vendordeps.WPIVendorDepsPlugin
 
 plugins {
     id "cpp"
-    id "org.wpilib.NativeUtils" version "2027.8.2"
+    id "org.wpilib.NativeUtils" version "2027.8.3"
 }
 
 nativeUtils.addWpiNativeUtils()
 nativeUtils.withCrossLinuxArm64()
-nativeUtils.withCrossSystemCore();
+nativeUtils.withCrossSystemcore();
 
 nativeUtils.crossCompilers.getByName(NativePlatforms.linuxarm64).optional = false
 nativeUtils.crossCompilers.getByName(NativePlatforms.systemcore).optional = false

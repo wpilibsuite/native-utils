@@ -48,7 +48,7 @@ import org.wpilib.toolchain.ToolchainDescriptorBase;
 import org.wpilib.toolchain.ToolchainExtension;
 import org.wpilib.toolchain.arm64.Arm64ToolchainPlugin;
 import org.wpilib.toolchain.configurable.CrossCompilerConfiguration;
-import org.wpilib.toolchain.systemcore.SystemCoreToolchainPlugin;
+import org.wpilib.toolchain.systemcore.SystemcoreToolchainPlugin;
 
 public class NativeUtilsExtension {
 
@@ -364,8 +364,8 @@ public class NativeUtilsExtension {
     return project.getTasks().register(name, ResourceGenerationTask.class, configure);
   }
 
-  public void withCrossSystemCore() {
-    project.getPluginManager().apply(SystemCoreToolchainPlugin.class);
+  public void withCrossSystemcore() {
+    project.getPluginManager().apply(SystemcoreToolchainPlugin.class);
   }
 
   public void withCrossLinuxArm64() {
