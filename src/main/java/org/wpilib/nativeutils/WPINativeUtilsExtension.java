@@ -12,8 +12,6 @@ import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.provider.Provider;
-import org.gradle.api.provider.ProviderFactory;
 
 import org.wpilib.nativeutils.platforms.PlatformConfig;
 import org.wpilib.nativeutils.vendordeps.WPIVendorDepsExtension;
@@ -75,8 +73,6 @@ public class WPINativeUtilsExtension {
                 "-Wl,-rpath,'$ORIGIN'");
         public final List<String> linuxReleaseCompilerArgs = List.of("-O2");
         public final List<String> linuxDebugCompilerArgs = List.of("-O0");
-
-        public final List<String> linuxSystemCoreArgs = List.of("-D__FIRST_SYSTEMCORE__=1");
 
         public final String macMinimumVersionArg = "-mmacosx-version-min=13.3";
 
@@ -180,7 +176,6 @@ public class WPINativeUtilsExtension {
     }
 
     private final ObjectFactory objects;
-    private final ProviderFactory provider;
 
     public void addVendorDeps() {
         project.getPlugins().apply(WPIVendorDepsPlugin.class);
@@ -201,7 +196,6 @@ public class WPINativeUtilsExtension {
     public WPINativeUtilsExtension(NativeUtilsExtension nativeExt, Project project) {
         this.nativeExt = nativeExt;
         this.objects = project.getObjects();
-        this.provider = project.getProviders();
         this.project = project;
 
         this.platforms = objects.newInstance(Platforms.class);
@@ -224,10 +218,6 @@ public class WPINativeUtilsExtension {
 
         linuxsystemcore.getPlatformPath().set("linux/systemcore");
         addLinuxCrossArgs(linuxsystemcore);
-        linuxsystemcore.getCppCompiler().getArgs().addAll(defaultArguments.linuxSystemCoreArgs);
-        linuxsystemcore.getcCompiler().getArgs().addAll(defaultArguments.linuxSystemCoreArgs);
-        linuxsystemcore.getObjcCompiler().getArgs().addAll(defaultArguments.linuxSystemCoreArgs);
-        linuxsystemcore.getObjcppCompiler().getArgs().addAll(defaultArguments.linuxSystemCoreArgs);
 
         linuxarm64.getPlatformPath().set("linux/arm64");
         addLinuxCrossArgs(linuxarm64);
