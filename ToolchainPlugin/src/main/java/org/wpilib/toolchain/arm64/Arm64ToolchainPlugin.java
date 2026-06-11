@@ -38,7 +38,6 @@ public class Arm64ToolchainPlugin implements Plugin<Project> {
         options.tcExt = arm64Ext;
         options.project = project;
         options.installSubdir = Arm64ToolchainExtension.INSTALL_SUBDIR;
-        options.archiveSubDir = "trixie";
         options.toolchainPrefix = project.provider(() -> "aarch64-trixie-linux-gnu");
         options.rootExtension = toolchainExt.getToolchainGraphService();
 

@@ -6,14 +6,17 @@ import org.gradle.api.Project;
 import org.gradle.api.file.ArchiveOperations;
 import org.gradle.api.file.CopySpec;
 import org.gradle.api.file.DeleteSpec;
+import org.gradle.api.file.FileCopyDetails;
 import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.file.FileTree;
+import org.gradle.api.file.RelativePath;
 import org.gradle.api.provider.Provider;
 import org.gradle.internal.os.OperatingSystem;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
@@ -23,7 +26,6 @@ public class DefaultToolchainInstaller extends AbstractToolchainInstaller {
     private OperatingSystem os;
     private Provider<URL> sourceProvider;
     private Provider<File> installDirProvider;
-    private String subdir;
     private final File gradleUserHomeDir;
     private final DownloadAction downloadAction;
     private final FileSystemOperations fileSystemOperations;
@@ -33,7 +35,6 @@ public class DefaultToolchainInstaller extends AbstractToolchainInstaller {
         public OperatingSystem os;
         public Provider<URL> sourceProvider;
         public Provider<File> installDirProvider;
-        public String subdir;
         public Project project;
     }
 
@@ -42,7 +43,6 @@ public class DefaultToolchainInstaller extends AbstractToolchainInstaller {
         this.os = options.os;
         this.sourceProvider = options.sourceProvider;
         this.installDirProvider = options.installDirProvider;
-        this.subdir = options.subdir;
         this.gradleUserHomeDir = options.project.getGradle().getGradleUserHomeDir();
         downloadAction = new DownloadAction(options.project);
         this.fileSystemOperations = fileSystemOperations;
@@ -76,27 +76,6 @@ public class DefaultToolchainInstaller extends AbstractToolchainInstaller {
         }
 
         System.out.println("Extracting...");
-        File extractDir = new File(cacheLoc, "extract/");
-        if (extractDir.exists()) {
-            fileSystemOperations.delete((DeleteSpec d) -> {
-                d.delete(extractDir);
-            });
-        }
-        extractDir.mkdirs();
-
-        fileSystemOperations.copy((CopySpec c) -> {
-            FileTree tree;
-            if (dst.getName().endsWith(".tar.gz") || dst.getName().endsWith(".tgz")) {
-                tree = archiveOperations.tarTree(archiveOperations.gzip(dst));
-            } else {
-                throw new GradleException("Don't know how to extract file type: " + dst.getName());
-            }
-            System.out.println(tree);
-            c.from(tree);
-            c.into(extractDir);
-        });
-
-        System.out.println("Copying...");
         File installDir = installDirProvider.get();
         if (installDir.exists()) {
             fileSystemOperations.delete((DeleteSpec d) -> {
@@ -106,10 +85,19 @@ public class DefaultToolchainInstaller extends AbstractToolchainInstaller {
         installDir.mkdirs();
 
         fileSystemOperations.copy((CopySpec c) -> {
-            c.from(new File(extractDir, subdir));
+            FileTree tree;
+            if (dst.getName().endsWith(".tar.gz") || dst.getName().endsWith(".tgz")) {
+                tree = archiveOperations.tarTree(archiveOperations.gzip(dst));
+            } else {
+                throw new GradleException("Don't know how to extract file type: " + dst.getName());
+            }
+            System.out.println(tree);
+            c.from(tree).eachFile((FileCopyDetails fcd) -> {
+                String[] segments = fcd.getRelativePath().getSegments();
+                fcd.setRelativePath(new RelativePath(true, Arrays.copyOfRange(segments, 1, segments.length)));
+            });
             c.into(installDir);
         });
-
         System.out.println("Done! Installed to: " + installDir.getAbsolutePath());
     }
 
