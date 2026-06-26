@@ -49,7 +49,11 @@ public class Arm64ToolchainPlugin implements Plugin<Project> {
         configuration.getArchitecture().set("arm64");
         configuration.getOperatingSystem().set("linux");
         configuration.getCompilerPrefix().set("");
-        configuration.getOptional().convention(true);
+        if (project.hasProperty("onlylinuxarm64")) {
+          configuration.getOptional().convention(false);
+        } else {
+          configuration.getOptional().convention(true);
+        }
 
         ToolchainDescriptor descriptor = new ToolchainDescriptor(
                 project,
