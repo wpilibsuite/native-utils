@@ -38,29 +38,49 @@ import org.gradle.platform.base.PlatformContainer;
 import org.wpilib.toolchain.configurable.CrossCompilerConfiguration;
 
 public class ToolchainRules extends RuleSource {
+    private static final String LINUX_C_COMPILER_EXECUTABLE = "gcc-14";
+    private static final String LINUX_CPP_COMPILER_EXECUTABLE = "g++-14";
+
+    static void configureRequiredLinuxGcc(Gcc gcc) {
+        gcc.eachPlatform(toolchain -> {
+            toolchain.getcCompiler().setExecutable(LINUX_C_COMPILER_EXECUTABLE);
+            toolchain.getCppCompiler().setExecutable(LINUX_CPP_COMPILER_EXECUTABLE);
+            toolchain.getLinker().setExecutable(LINUX_CPP_COMPILER_EXECUTABLE);
+            toolchain.getAssembler().setExecutable(LINUX_C_COMPILER_EXECUTABLE);
+        });
+    }
 
     @Finalize
     void addClangArm(NativeToolChainRegistryInternal toolChainRegistry, ExtensionContainer extContainer) {
         // To work around sometimes GCC and Clang getting picked up on Windows, remove
         // them completely
-        List<Object> toRemove = new ArrayList<>();
+        List<Object> invalidWindowsToolchains = new ArrayList<>();
+        List<Object> linuxFallbackToolchains = new ArrayList<>();
         toolChainRegistry.all(n -> {
             if (OperatingSystem.current().equals(OperatingSystem.WINDOWS)) {
                 if (n instanceof Gcc && n.getName().equals(GccToolChain.DEFAULT_NAME)) {
-                    toRemove.add(n);
+                    invalidWindowsToolchains.add(n);
                 }
                 if (n instanceof Clang && n.getName().equals(ClangToolChain.DEFAULT_NAME)) {
-                    toRemove.add(n);
+                    invalidWindowsToolchains.add(n);
                 }
             }
 
             if (n instanceof Gcc && OperatingSystem.current().equals(OperatingSystem.LINUX)) {
                 Gcc gcc = (Gcc) n;
-                if (NativePlatforms.desktop.equals(NativePlatforms.linuxarm64)
-                        && gcc.getName().equals(GccToolChain.DEFAULT_NAME)) {
-                    gcc.setTargets();
-                    gcc.target(NativePlatforms.desktop);
+                if (gcc.getName().equals(GccToolChain.DEFAULT_NAME)) {
+                    if (NativePlatforms.desktop.equals(NativePlatforms.linuxarm64)) {
+                        gcc.setTargets();
+                        gcc.target(NativePlatforms.desktop);
+                    }
+                    configureRequiredLinuxGcc(gcc);
                 }
+            }
+            // Linux desktop packages are built with Debian Trixie's GCC 14.
+            // Remove default Clang so missing g++-14 cannot silently fall back.
+            if (n instanceof Clang && OperatingSystem.current().equals(OperatingSystem.LINUX)
+                    && n.getName().equals(ClangToolChain.DEFAULT_NAME)) {
+                linuxFallbackToolchains.add(n);
             }
             if (n instanceof Clang && OperatingSystem.current().equals(OperatingSystem.MAC_OS)) {
                 Clang gcc = (Clang) n;
@@ -86,8 +106,11 @@ public class ToolchainRules extends RuleSource {
         });
 
         final ToolchainExtension ext = extContainer.getByType(ToolchainExtension.class);
+        for (var t : linuxFallbackToolchains) {
+            toolChainRegistry.remove(t);
+        }
         if (ext.isRemoveInvalidWindowsToolchains()) {
-            for (var t : toRemove) {
+            for (var t : invalidWindowsToolchains) {
                 toolChainRegistry.remove(t);
             }
         }
