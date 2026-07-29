@@ -5,21 +5,78 @@ import org.gradle.nativeplatform.platform.NativePlatform
 import org.gradle.nativeplatform.toolchain.Gcc
 import org.gradle.nativeplatform.toolchain.GccCommandLineToolConfiguration
 import org.gradle.nativeplatform.toolchain.GccPlatformToolChain
+import org.gradle.testkit.runner.GradleRunner
+import static org.gradle.testkit.runner.TaskOutcome.*
+import spock.lang.TempDir
 import spock.lang.Specification
 
 class ToolchainRulesTest extends Specification {
+  @TempDir File testProjectDir
+  File buildFile
+
+  def setup() {
+    buildFile = new File(testProjectDir, 'build.gradle')
+  }
+
+  def "Versioned Linux GCC requirement can be configured from DSL"() {
+    given:
+    buildFile << """plugins {
+  id 'cpp'
+  id 'org.wpilib.Toolchain'
+}
+
+toolchainsPlugin {
+  requireVersionedLinuxGcc = false
+  linuxCCompilerExecutable = 'gcc-custom'
+  linuxCppCompilerExecutable = 'g++-custom'
+}
+
+tasks.register('verifyLinuxGccSettings') {
+  doLast {
+    assert !toolchainsPlugin.requireVersionedLinuxGcc
+    assert toolchainsPlugin.linuxCCompilerExecutable == 'gcc-custom'
+    assert toolchainsPlugin.linuxCppCompilerExecutable == 'g++-custom'
+  }
+}
+"""
+
+    when:
+    def result = GradleRunner.create()
+                             .withProjectDir(testProjectDir)
+                             .withArguments('verifyLinuxGccSettings', '--stacktrace')
+                             .withPluginClasspath()
+                             .build()
+
+    then:
+    result.task(':verifyLinuxGccSettings').outcome == SUCCESS
+  }
+
   def "Linux default GCC toolchain uses GCC 14 executables"() {
     given:
     def gcc = new RecordingGcc()
 
     when:
-    ToolchainRules.configureRequiredLinuxGcc(gcc)
+    ToolchainRules.configureRequiredLinuxGcc(gcc, 'gcc-14', 'g++-14')
 
     then:
     gcc.platformToolChain.cCompiler.executable == 'gcc-14'
     gcc.platformToolChain.cppCompiler.executable == 'g++-14'
     gcc.platformToolChain.linker.executable == 'g++-14'
     gcc.platformToolChain.assembler.executable == 'gcc-14'
+  }
+
+  def "Linux default GCC toolchain can use custom executables"() {
+    given:
+    def gcc = new RecordingGcc()
+
+    when:
+    ToolchainRules.configureRequiredLinuxGcc(gcc, 'gcc-custom', 'g++-custom')
+
+    then:
+    gcc.platformToolChain.cCompiler.executable == 'gcc-custom'
+    gcc.platformToolChain.cppCompiler.executable == 'g++-custom'
+    gcc.platformToolChain.linker.executable == 'g++-custom'
+    gcc.platformToolChain.assembler.executable == 'gcc-custom'
   }
 
   private static class RecordingGcc implements Gcc {

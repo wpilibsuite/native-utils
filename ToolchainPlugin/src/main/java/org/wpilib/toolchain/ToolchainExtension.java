@@ -41,6 +41,9 @@ public class ToolchainExtension {
     public boolean registerPlatforms = true;
     public boolean registerReleaseBuildType = true;
     public boolean registerDebugBuildType = true;
+    private boolean requireVersionedLinuxGcc = true;
+    private String linuxCCompilerExecutable = "gcc-14";
+    private String linuxCppCompilerExecutable = "g++-14";
     private final ToolchainGraphBuildService rootExtension;
 
     public ToolchainGraphBuildService getToolchainGraphService() {
@@ -152,6 +155,36 @@ public class ToolchainExtension {
 
     public boolean isRemoveInvalidWindowsToolchains() {
         return this.removeInvalidWindowsToolchains;
+    }
+
+    public void setRequireVersionedLinuxGcc(boolean require) {
+        this.requireVersionedLinuxGcc = require;
+    }
+
+    public boolean isRequireVersionedLinuxGcc() {
+        return this.requireVersionedLinuxGcc;
+    }
+
+    public void setLinuxCCompilerExecutable(String executable) {
+        if (executable == null || executable.isBlank()) {
+            throw new IllegalArgumentException("linuxCCompilerExecutable cannot be blank");
+        }
+        this.linuxCCompilerExecutable = executable;
+    }
+
+    public String getLinuxCCompilerExecutable() {
+        return linuxCCompilerExecutable;
+    }
+
+    public void setLinuxCppCompilerExecutable(String executable) {
+        if (executable == null || executable.isBlank()) {
+            throw new IllegalArgumentException("linuxCppCompilerExecutable cannot be blank");
+        }
+        this.linuxCppCompilerExecutable = executable;
+    }
+
+    public String getLinuxCppCompilerExecutable() {
+        return linuxCppCompilerExecutable;
     }
 
     public NamedDomainObjectContainer<ToolchainDescriptorBase> getToolchainDescriptors() {
