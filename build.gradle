@@ -95,6 +95,6 @@ tasks.register('PatchExamples') {
 jar.finalizedBy PatchExamples
 
 wrapper {
-    gradleVersion = '9.2.0'
+    gradleVersion = '9.4.1'
     distributionType = Wrapper.DistributionType.BIN
 }
