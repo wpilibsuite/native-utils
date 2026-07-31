@@ -5,12 +5,10 @@ import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
-import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.internal.os.OperatingSystem;
 
-@CacheableTask
 public class InstallToolchainTask extends DefaultTask {
 
     private ToolchainDescriptorBase desc;
