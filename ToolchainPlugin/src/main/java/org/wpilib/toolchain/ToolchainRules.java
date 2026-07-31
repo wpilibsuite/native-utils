@@ -38,29 +38,51 @@ import org.gradle.platform.base.PlatformContainer;
 import org.wpilib.toolchain.configurable.CrossCompilerConfiguration;
 
 public class ToolchainRules extends RuleSource {
+    static void configureRequiredLinuxGcc(Gcc gcc, String cCompilerExecutable, String cppCompilerExecutable) {
+        gcc.eachPlatform(toolchain -> {
+            toolchain.getcCompiler().setExecutable(cCompilerExecutable);
+            toolchain.getCppCompiler().setExecutable(cppCompilerExecutable);
+            toolchain.getLinker().setExecutable(cppCompilerExecutable);
+            toolchain.getAssembler().setExecutable(cCompilerExecutable);
+        });
+    }
 
     @Finalize
     void addClangArm(NativeToolChainRegistryInternal toolChainRegistry, ExtensionContainer extContainer) {
+        final ToolchainExtension ext = extContainer.getByType(ToolchainExtension.class);
         // To work around sometimes GCC and Clang getting picked up on Windows, remove
         // them completely
-        List<Object> toRemove = new ArrayList<>();
+        List<Object> invalidWindowsToolchains = new ArrayList<>();
+        List<Object> linuxFallbackToolchains = new ArrayList<>();
         toolChainRegistry.all(n -> {
             if (OperatingSystem.current().equals(OperatingSystem.WINDOWS)) {
                 if (n instanceof Gcc && n.getName().equals(GccToolChain.DEFAULT_NAME)) {
-                    toRemove.add(n);
+                    invalidWindowsToolchains.add(n);
                 }
                 if (n instanceof Clang && n.getName().equals(ClangToolChain.DEFAULT_NAME)) {
-                    toRemove.add(n);
+                    invalidWindowsToolchains.add(n);
                 }
             }
 
             if (n instanceof Gcc && OperatingSystem.current().equals(OperatingSystem.LINUX)) {
                 Gcc gcc = (Gcc) n;
-                if (NativePlatforms.desktop.equals(NativePlatforms.linuxarm64)
-                        && gcc.getName().equals(GccToolChain.DEFAULT_NAME)) {
-                    gcc.setTargets();
-                    gcc.target(NativePlatforms.desktop);
+                if (gcc.getName().equals(GccToolChain.DEFAULT_NAME)) {
+                    if (NativePlatforms.desktop.equals(NativePlatforms.linuxarm64)) {
+                        gcc.setTargets();
+                        gcc.target(NativePlatforms.desktop);
+                    }
+                    if (ext.isRequireVersionedLinuxGcc()) {
+                        configureRequiredLinuxGcc(
+                                gcc, ext.getLinuxCCompilerExecutable(), ext.getLinuxCppCompilerExecutable());
+                    }
                 }
+            }
+            // Linux desktop packages are built with a versioned GCC by default.
+            // Remove default Clang so a missing compiler override cannot silently fall back.
+            if (ext.isRequireVersionedLinuxGcc() && n instanceof Clang
+                    && OperatingSystem.current().equals(OperatingSystem.LINUX)
+                    && n.getName().equals(ClangToolChain.DEFAULT_NAME)) {
+                linuxFallbackToolchains.add(n);
             }
             if (n instanceof Clang && OperatingSystem.current().equals(OperatingSystem.MAC_OS)) {
                 Clang gcc = (Clang) n;
@@ -85,9 +107,11 @@ public class ToolchainRules extends RuleSource {
             }
         });
 
-        final ToolchainExtension ext = extContainer.getByType(ToolchainExtension.class);
+        for (var t : linuxFallbackToolchains) {
+            toolChainRegistry.remove(t);
+        }
         if (ext.isRemoveInvalidWindowsToolchains()) {
-            for (var t : toRemove) {
+            for (var t : invalidWindowsToolchains) {
                 toolChainRegistry.remove(t);
             }
         }

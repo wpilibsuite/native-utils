@@ -9,6 +9,14 @@
 
 ```
 nativeUtils {
+  // Linux desktop builds use gcc-14/g++-14 by default to match the WPILib
+  // package build environment. Set false to use Gradle's normal toolchain
+  // selection instead.
+  requireVersionedLinuxGcc = true
+  // Or keep the override enabled and point it at another compatible GCC pair.
+  linuxCCompilerExecutable = "gcc-14"
+  linuxCppCompilerExecutable = "g++-14"
+
   platformConfigs {
     linuxathena {
       // The platform path for archives. Must be set
@@ -175,6 +183,9 @@ toolchainsPlugin {
   registerPlatforms = true
   registerReleaseBuildType = true
   registerDebugBuildType = true
+  requireVersionedLinuxGcc = true
+  linuxCCompilerExecutable = "gcc-14"
+  linuxCppCompilerExecutable = "g++-14"
 
   // Add the systemcore compiler
   withCrossSystemCore()

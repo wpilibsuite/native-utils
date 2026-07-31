@@ -413,4 +413,28 @@ public class NativeUtilsExtension {
   public boolean isRemoveInvalidWindowsToolchains() {
       return tcExt.isRemoveInvalidWindowsToolchains();
   }
+
+  public void setRequireVersionedLinuxGcc(boolean require) {
+    tcExt.setRequireVersionedLinuxGcc(require);
+  }
+
+  public boolean isRequireVersionedLinuxGcc() {
+    return tcExt.isRequireVersionedLinuxGcc();
+  }
+
+  public void setLinuxCCompilerExecutable(String executable) {
+    tcExt.setLinuxCCompilerExecutable(executable);
+  }
+
+  public String getLinuxCCompilerExecutable() {
+    return tcExt.getLinuxCCompilerExecutable();
+  }
+
+  public void setLinuxCppCompilerExecutable(String executable) {
+    tcExt.setLinuxCppCompilerExecutable(executable);
+  }
+
+  public String getLinuxCppCompilerExecutable() {
+    return tcExt.getLinuxCppCompilerExecutable();
+  }
 }
