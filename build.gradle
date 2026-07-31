@@ -13,7 +13,7 @@ java {
 
 allprojects {
     group = "org.wpilib"
-    version = "2027.13.0"
+    version = "2027.13.1"
 
     if (project.hasProperty('publishVersion')) {
         version = project.publishVersion
@@ -95,6 +95,6 @@ tasks.register('PatchExamples') {
 jar.finalizedBy PatchExamples
 
 wrapper {
-    gradleVersion = '9.4.1'
+    gradleVersion = '9.2.0'
     distributionType = Wrapper.DistributionType.BIN
 }
