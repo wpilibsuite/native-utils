@@ -15,25 +15,30 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.specs.Spec;
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
 import org.gradle.process.ExecSpec;
 
 import groovy.lang.Closure;
 
+@CacheableTask
 public abstract class ExportsGenerationTask extends DefaultTask implements Action<ExecSpec> {
 
     @InputFiles
+    @PathSensitive(org.gradle.api.tasks.PathSensitivity.RELATIVE)
     public abstract ConfigurableFileCollection getSourceFiles();
 
     @OutputFile
     public abstract RegularFileProperty getDefFile();
 
     @InputFile
+    @PathSensitive(org.gradle.api.tasks.PathSensitivity.RELATIVE)
     public abstract RegularFileProperty getDefFileGenerator();
 
     @Internal

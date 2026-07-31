@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.Directory;
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.options.Option;
 
@@ -22,6 +23,7 @@ import org.wpilib.nativeutils.vendordeps.WPIVendorDepsExtension.JsonDependency;
 /**
  * A task type for downloading vendordep JSON files from the vendor URL.
  */
+@CacheableTask
 public class VendorDepTask extends DefaultTask {
     private String url;
     private boolean update;

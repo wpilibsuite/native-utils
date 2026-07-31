@@ -16,6 +16,7 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.IgnoreEmptyDirectories;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
@@ -30,6 +31,7 @@ import org.gradle.work.InputChanges;
 import org.gradle.workers.WorkQueue;
 import org.gradle.workers.WorkerExecutor;
 
+@CacheableTask
 public abstract class ResourceGenerationTask extends DefaultTask {
     private final ConfigurableFileCollection sourceFiles = getProject().getObjects().fileCollection();
 

@@ -4,11 +4,13 @@ import javax.inject.Inject;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.NamedDomainObjectSet;
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.TaskAction;
 
 import org.wpilib.nativeutils.NativeUtilsExtension;
 //import org.wpilib.nativeutils.NativeUtilsExtension.NamedNativeDependencyList;
 
+@CacheableTask
 public class PrintNativeDependenciesTask extends DefaultTask {
 
     @Inject
