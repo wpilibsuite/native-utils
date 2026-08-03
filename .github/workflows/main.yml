@@ -23,7 +23,7 @@ jobs:
         java-version: 17
         distribution: 'temurin'
     - name: Build
-      run: ./gradlew build -PRunToolchainTests
+      run: ./gradlew build -PRunToolchainTests -PbuildServer
     - name: Publish
       run: ./gradlew publishToMavenLocal
     - name: Check output

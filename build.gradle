@@ -4,7 +4,10 @@ plugins {
     id 'maven-publish'
     id 'groovy'
     id 'java'
+    id "org.wpilib.WPILibVersioningPlugin" version "2027.0.1"
 }
+
+wpilibVersioning.buildServerMode = project.hasProperty('buildServer')
 
 java {
     sourceCompatibility = 17
@@ -12,10 +15,8 @@ java {
 }
 
 allprojects {
-
-    apply from: "${rootDir}/versioningHelper.gradle"
     group = "org.wpilib"
-    version = versionString
+    version = rootProject.wpilibVersioning.version.get()
 }
 
 repositories {

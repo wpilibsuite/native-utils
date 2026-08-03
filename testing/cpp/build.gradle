@@ -2,7 +2,6 @@ import org.wpilib.toolchain.NativePlatforms
 import org.wpilib.nativeutils.vendordeps.WPIVendorDepsPlugin
 
 buildscript {
-    apply from: "../../versioningHelper.gradle"
     repositories {
         mavenLocal()
         maven {
@@ -12,7 +11,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath "org.wpilib:native-utils:${project.ext.versionString}"
+        classpath "org.wpilib:native-utils:${project.wpilibVersioning.version.get()}"
     }
 }
 
