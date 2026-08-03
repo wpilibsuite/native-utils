@@ -32,10 +32,10 @@ jobs:
     - name: Check output
       run: git --no-pager diff --exit-code HEAD
     - name: Install All Toolchains
-      run: ../../gradlew installArm64Toolchain installSystemCoreToolchain
+      run: ../../gradlew installArm64Toolchain installSystemCoreToolchain -PbuildServer
       working-directory: testing/cpp
     - name: Build Test
-      run: ../../gradlew build
+      run: ../../gradlew build -PbuildServer
       working-directory: testing/cpp
 
   publish:
