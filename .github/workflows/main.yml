@@ -52,7 +52,7 @@ jobs:
           distribution: 'temurin'
       - name: Publish
         if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
-        run: ./gradlew publishToMavenLocal
+        run: ./gradlew publishToMavenLocal -PbuildServer
       - name: Publish (Release)
         if: ${{ github.repository_owner == 'wpilibsuite' && startsWith(github.ref, 'refs/tags/v') }}
         env:
