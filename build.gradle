@@ -12,12 +12,10 @@ java {
 }
 
 allprojects {
-    group = "org.wpilib"
-    version = "2027.13.1"
 
-    if (project.hasProperty('publishVersion')) {
-        version = project.publishVersion
-    }
+    apply from: "${rootDir}/versioningHelper.gradle"
+    group = "org.wpilib"
+    version = versionString
 }
 
 repositories {
