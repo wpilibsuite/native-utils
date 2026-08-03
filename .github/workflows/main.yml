@@ -25,7 +25,7 @@ jobs:
     - name: Build
       run: ./gradlew build -PRunToolchainTests -PbuildServer
     - name: Publish
-      run: ./gradlew publishToMavenLocal
+      run: ./gradlew publishToMavenLocal -PbuildServer
     - name: Check output
       run: git --no-pager diff --exit-code HEAD
     - name: Install All Toolchains
