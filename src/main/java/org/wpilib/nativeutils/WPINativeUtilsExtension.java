@@ -443,7 +443,7 @@ public class WPINativeUtilsExtension {
 
         registerSharedOnlyStandardDependency(configs, "apriltag", "org.wpilib.apriltag", "apriltag-cpp",
                 wpiVersion);
-	registerSharedOnlyStandardDependency(configs, "fields", "org.wpilib.fields", "fields-cpp", wpiVersion);
+        registerSharedOnlyStandardDependency(configs, "fields", "org.wpilib.fields", "fields-cpp", wpiVersion);
 
         registerStandardDependency(configs, "opencv", "org.wpilib.thirdparty.opencv", "opencv-cpp",
                 dependencyVersions.getOpencvVersion());
