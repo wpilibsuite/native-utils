@@ -72,27 +72,6 @@ tasks.withType(JavaCompile) {
     options.deprecation = true
 }
 
-def examplesFolder = file("$rootDir/testing")
-
-tasks.register('PatchExamples') {
-    doLast {
-        String regex = "(id\\s*?[\\\"|\\']org\\.wpilib\\.NativeUtils[\\\"|\\'].*?version\\s*?[\\\"|\\'])(.+?)([\\\"|\\'])";
-
-        examplesFolder.eachFile { File file ->
-            if (file.isDirectory() && file.name != '_archived') {
-                def buildGradleFile = new File(file, 'build.gradle')
-                if (buildGradleFile.exists() && buildGradleFile.isFile()) {
-                    def text = buildGradleFile.text
-                    text = text.replaceAll(regex, "id \"org.wpilib.NativeUtils\" version \"${version}\"")
-                    buildGradleFile.text = text
-                }
-            }
-        }
-    }
-}
-
-jar.finalizedBy PatchExamples
-
 wrapper {
     gradleVersion = '9.2.0'
     distributionType = Wrapper.DistributionType.BIN
