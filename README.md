@@ -236,13 +236,9 @@ nativeUtils.platformConfigs {
 
 To use a custom build of native-utils in a robot project, the build must be published, and a GradleRIO build that uses the new version must be published.
 
-1. Update the version in `build.gradle` so that native-utils won't overwrite an existing version.
-```
-allprojects {
-    group = "org.wpilib"
-    version = "2024.3.1"
-}
-```
-2. Execute `.\gradlew publishToMavenLocal`
-3. Update native-utils version in GradleRIO ``build.gradle``: ``api 'org.wpilib:native-utils:2024.3.1'``
-4. Follow the directions in the ![GradleRIO readme](https://github.com/wpilibsuite/GradleRIO/#using-gradlerio-custom-builds) for publishing a local build and using in a robot program
+The version is computed by the WPILibVersioningPlugin from `git describe`. Pass `-PbuildServer` for a reproducible version (as CI does); without it a per-second timestamp is appended, so the root build and `testing/cpp` (separate Gradle invocations) may compute different versions.
+
+1. Execute `./gradlew publishToMavenLocal -PbuildServer`
+2. Find the published version with `git describe --tags`
+3. Update native-utils version in GradleRIO ``build.gradle``: ``api 'org.wpilib:native-utils:<version>'``
+4. Follow the directions in the [GradleRIO readme](https://github.com/wpilibsuite/GradleRIO/#using-gradlerio-custom-builds) for publishing a local build and using in a robot program
