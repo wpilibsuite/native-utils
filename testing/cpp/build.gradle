@@ -1,10 +1,22 @@
 import org.wpilib.toolchain.NativePlatforms
 import org.wpilib.nativeutils.vendordeps.WPIVendorDepsPlugin
 
-plugins {
-    id "cpp"
-    id "org.wpilib.NativeUtils" version "2027.13.1"
+buildscript {
+    repositories {
+        mavenLocal()
+        maven {
+            url = 'https://frcmaven.wpi.edu/artifactory/ex-gradle'
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath "org.wpilib:native-utils:${project.wpilibVersioning.version.get()}"
+    }
 }
+
+apply plugin: "cpp"
+apply plugin: "org.wpilib.NativeUtils"
 
 nativeUtils.addWpiNativeUtils()
 nativeUtils.withCrossLinuxArm64()

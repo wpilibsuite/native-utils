@@ -18,21 +18,22 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+        fetch-tags: true
     - uses: actions/setup-java@v5
       with:
         java-version: 17
         distribution: 'temurin'
     - name: Build
-      run: ./gradlew build -PRunToolchainTests
+      run: ./gradlew build -PRunToolchainTests -PbuildServer
     - name: Publish
-      run: ./gradlew publishToMavenLocal
-    - name: Check output
-      run: git --no-pager diff --exit-code HEAD
+      run: ./gradlew publishToMavenLocal -PbuildServer
     - name: Install All Toolchains
-      run: ../../gradlew installArm64Toolchain installSystemCoreToolchain
+      run: ../../gradlew installArm64Toolchain installSystemCoreToolchain -PbuildServer
       working-directory: testing/cpp
     - name: Build Test
-      run: ../../gradlew build
+      run: ../../gradlew build -PbuildServer
       working-directory: testing/cpp
 
   publish:
@@ -40,13 +41,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          fetch-tags: true
       - uses: actions/setup-java@v5
         with:
           java-version: 17
           distribution: 'temurin'
       - name: Publish
         if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
-        run: ./gradlew publishToMavenLocal
+        run: ./gradlew publishToMavenLocal -PbuildServer
       - name: Publish (Release)
         if: ${{ github.repository_owner == 'wpilibsuite' && startsWith(github.ref, 'refs/tags/v') }}
         env:
@@ -55,4 +59,5 @@ jobs:
         run: |
           ./gradlew publishPlugin \
             -Pgradle.publish.key=$GRADLE_PUBLISH_KEY \
-            -Pgradle.publish.secret=$GRADLE_PUBLISH_SECRET
+            -Pgradle.publish.secret=$GRADLE_PUBLISH_SECRET \
+            -PbuildServer
