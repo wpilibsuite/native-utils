@@ -446,8 +446,8 @@ public class WPINativeUtilsExtension {
 
         registerStandardDependency(configs, "opencv", "org.wpilib.thirdparty.opencv", "opencv-cpp",
                 dependencyVersions.getOpencvVersion());
-        registerStaticOnlyStandardDependency(configs, "googletest", "org.wpilib.thirdparty.googletest",
-                "googletest-cpp",
+        registerStaticOnlyStandardDependency(configs, "catch2", "org.wpilib.thirdparty.catch2",
+                "catch2-cpp",
                 wpiVersion);
 
         configs.register("mrclib_shared", WPISharedMavenDependency.class, c -> {
