@@ -440,6 +440,8 @@ public class WPINativeUtilsExtension {
         registerStandardDependency(configs, "datalog", "org.wpilib.datalog", "datalog-cpp", wpiVersion);
         registerStandardDependency(configs, "wpimath", "org.wpilib.wpimath", "wpimath-cpp",
                 wpiVersion);
+        registerStandardDependency(configs, "fields", "org.wpilib.fields", "fields-cpp", wpiVersion);
+        registerStandardDependency(configs, "field-images", "org.wpilib.fields", "fields-images-cpp", wpiVersion);
 
         registerSharedOnlyStandardDependency(configs, "apriltag", "org.wpilib.apriltag", "apriltag-cpp",
                 wpiVersion);
