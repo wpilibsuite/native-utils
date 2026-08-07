@@ -2,9 +2,6 @@
 
 ![CI](https://github.com/wpilibsuite/native-utils/workflows/CI/badge.svg)
 
-> [!WARNING]
-> Gradle 9 changed the way cross compilers worked and is not compatible with Native Utils 2026 and earlier
-
 ## DSL Documentation for Native Utils
 
 ```
