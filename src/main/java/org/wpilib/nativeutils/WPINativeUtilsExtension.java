@@ -441,7 +441,9 @@ public class WPINativeUtilsExtension {
         registerStandardDependency(configs, "wpimath", "org.wpilib.wpimath", "wpimath-cpp",
                 wpiVersion);
         registerStandardDependency(configs, "fields", "org.wpilib.fields", "fields-cpp", wpiVersion);
-        registerStandardDependency(configs, "field-images", "org.wpilib.fields", "field-images-cpp", wpiVersion);
+        registerStandardDependency(configs, "field_images", "org.wpilib.fields", "field-images-cpp", wpiVersion);
+        registerStandardDependency(configs, "wpilib_drivers", "org.wpilib.drivers", "drivers-cpp",
+                wpiVersion);
 
         registerSharedOnlyStandardDependency(configs, "apriltag", "org.wpilib.apriltag", "apriltag-cpp",
                 wpiVersion);
@@ -472,13 +474,13 @@ public class WPINativeUtilsExtension {
 
         configs.register("wpilib_static", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("wpilibc_static", "ntcore_static", "hal_static", "datalog_static", "wpimath_static",
+            d.set(List.of("wpilib_drivers_static", "wpilibc_static", "ntcore_static", "hal_static", "datalog_static", "wpimath_static",
                     "wpinet_static", "wpiutil_static", "mrclib_shared"));
         });
 
         configs.register("wpilib_shared", AllPlatformsCombinedNativeDependency.class, c -> {
             ListProperty<String> d = c.getDependencies();
-            d.set(List.of("wpilibc_shared", "ntcore_shared", "hal_shared", "datalog_shared", "wpimath_shared",
+            d.set(List.of("wpilib_drivers_shared","wpilibc_shared", "ntcore_shared", "hal_shared", "datalog_shared", "wpimath_shared",
                     "wpinet_shared", "wpiutil_shared", "mrclib_shared"));
         });
 
