@@ -221,6 +221,7 @@ public class WPINativeUtilsExtension {
 
         linuxsystemcore.getPlatformPath().set("linux/systemcore");
         addLinuxCrossArgs(linuxsystemcore);
+        linuxsystemcore.getLinker().getArgs().add("-lsystemd");
 
         linuxarm64.getPlatformPath().set("linux/arm64");
         addLinuxCrossArgs(linuxarm64);
