@@ -445,6 +445,10 @@ public class WPINativeUtilsExtension {
         registerStandardDependency(configs, "field_images", "org.wpilib.fields", "field-images-cpp", wpiVersion);
         registerStandardDependency(configs, "wpilib_drivers", "org.wpilib.drivers", "drivers-cpp",
                 wpiVersion);
+        registerStandardDependency(configs, "telemetry", "org.wpilib.telemetry", "telemetry-cpp",
+                wpiVersion);
+        registerStandardDependency(configs, "tunables", "org.wpilib.tunables", "tunables-cpp",
+                wpiVersion);
 
         registerSharedOnlyStandardDependency(configs, "apriltag", "org.wpilib.apriltag", "apriltag-cpp",
                 wpiVersion);
