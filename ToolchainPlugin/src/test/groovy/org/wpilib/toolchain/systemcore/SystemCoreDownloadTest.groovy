@@ -10,7 +10,7 @@ import spock.lang.Specification
 import spock.lang.IgnoreIf
 
 @IgnoreIf({ !Boolean.valueOf(env['SPOCK_RUN_TOOLCHAINS']) })
-class SystemCoreDownloadTest extends Specification {
+class SystemcoreDownloadTest extends Specification {
   @TempDir File testProjectDir
   @TempDir File gradleUserHome
   File buildFile
@@ -27,16 +27,16 @@ class SystemCoreDownloadTest extends Specification {
   id 'org.wpilib.Toolchain'
 }
 
-toolchainsPlugin.withCrossSystemCore()
+toolchainsPlugin.withCrossSystemcore()
 """
     when:
     def result = GradleRunner.create()
                              .withProjectDir(testProjectDir)
-                             .withArguments('installSystemCoreToolchain', '--stacktrace', '-Dgradle.user.home=' + gradleUserHome)
+                             .withArguments('installSystemcoreToolchain', '--stacktrace', '-Dgradle.user.home=' + gradleUserHome)
                              .withPluginClasspath()
                              .build()
 
     then:
-    result.task(':installSystemCoreToolchain').outcome == SUCCESS
+    result.task(':installSystemcoreToolchain').outcome == SUCCESS
   }
 }
