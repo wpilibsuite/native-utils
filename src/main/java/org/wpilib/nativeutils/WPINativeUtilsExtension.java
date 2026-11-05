@@ -57,8 +57,7 @@ public class WPINativeUtilsExtension {
         public final String unixSymbolArg = "-g";
 
         public final List<String> linuxCrossCompilerArgs = List.of("-std=c++23", "-Wformat=2", "-pedantic",
-                "-Wno-psabi", "-Wno-unused-parameter", "-Wno-error=deprecated-enum-enum-conversion", "-fPIC",
-                "-pthread");
+                "-Wno-psabi", "-Wno-unused-parameter", "-fPIC", "-pthread");
         public final List<String> linuxCrossCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
                 "-Wno-unused-parameter", "-fPIC", "-pthread");
         public final List<String> linuxCrossLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic",
@@ -67,8 +66,7 @@ public class WPINativeUtilsExtension {
         public final List<String> linuxCrossDebugCompilerArgs = List.of("-Og");
 
         public final List<String> linuxCompilerArgs = List.of("-std=c++23", "-Wformat=2", "-pedantic", "-Wno-psabi",
-                "-Wno-unused-parameter", "-Wno-error=deprecated-enum-enum-conversion", "-fPIC", "-pthread",
-                "-Wno-array-bounds");
+                "-Wno-unused-parameter", "-fPIC", "-pthread", "-Wno-array-bounds");
         public final List<String> linuxCCompilerArgs = List.of("-Wformat=2", "-pedantic", "-Wno-psabi",
                 "-Wno-unused-parameter", "-fPIC", "-pthread", "-Wno-array-bounds");
         public final List<String> linuxLinkerArgs = List.of("-rdynamic", "-pthread", "-ldl", "-latomic",
@@ -79,9 +77,8 @@ public class WPINativeUtilsExtension {
         public final String macMinimumVersionArg = "-mmacosx-version-min=15";
 
         public final List<String> macCompilerArgs = List.of("-std=c++23", "-pedantic", "-fPIC", "-Wno-unused-parameter",
-                "-Wno-error=deprecated-enum-enum-conversion", "-Wno-missing-field-initializers",
-                "-Wno-unused-private-field", "-Wno-unused-const-variable", "-Wno-error=c11-extensions", "-pthread",
-                "-Wno-deprecated-anon-enum-enum-conversion");
+                "-Wno-missing-field-initializers", "-Wno-unused-private-field", "-Wno-unused-const-variable",
+                "-Wno-error=c11-extensions", "-pthread");
         public final List<String> macCCompilerArgs = List.of("-pedantic", "-fPIC", "-Wno-unused-parameter",
                 "-Wno-missing-field-initializers", "-Wno-unused-private-field", "-Wno-fixed-enum-extension",
                 "-Wno-c23-extensions", "-Wno-unknown-warning-option");
