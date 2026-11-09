@@ -79,7 +79,7 @@ public class SystemcoreToolchainPlugin implements Plugin<Project> {
 
     public void populateDescriptor(ToolchainDescriptor descriptor) {
         Provider<File> fp = project.provider(() -> {
-            String year = "2027_alpha7";
+            String year = "2027_beta1";
             File wpilibHomeLoc = new File(new WPILibHome(year).get(), "systemcore");
             return wpilibHomeLoc;
         });
