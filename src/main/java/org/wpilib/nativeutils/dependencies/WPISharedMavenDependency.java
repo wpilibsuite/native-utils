@@ -17,7 +17,7 @@ import org.gradle.nativeplatform.platform.NativePlatform;
 public abstract class WPISharedMavenDependency extends WPIMavenDependency {
     public static final List<String> SHARED_MATCHERS = List.of("**/*.so", "**/*.so.*", "**/*.dylib", "**/*.lib");
     public static final List<String> RUNTIME_MATCHERS = List.of("**/*.so", "**/*.so.*", "**/*.dylib", "**/*.dll", "**/*.pdb");
-    public static final List<String> SHARED_EXCLUDES = List.of("**/*.so.debug", "**/*.so.*.debug", "**/*jni*");
+    public static final List<String> SHARED_EXCLUDES = List.of("**/*.so.debug", "**/*.so.*.debug", "**/*jni*", "**/*java*");
     public static final List<String> RUNTIME_EXCLUDES = List.of();
 
     @Inject
