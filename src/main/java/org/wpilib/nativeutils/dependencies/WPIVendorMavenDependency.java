@@ -29,9 +29,9 @@ public abstract class WPIVendorMavenDependency extends WPIMavenDependency {
             return resolvedDep;
         }
 
-        if (artifact.version.equals("wpilib")) {
+        if (artifact.version.startsWith("wpilib")) {
             WPIVendorDepsExtension wpi = getProject().getExtensions().getByType(WPIVendorDepsExtension.class);
-            getVersion().set(wpi.getFixedVersion());
+            getVersion().set(wpi.getFixedVersions().getting(artifact.version).orElse(artifact.version));
         } else {
             getVersion().set(artifact.version);
         }

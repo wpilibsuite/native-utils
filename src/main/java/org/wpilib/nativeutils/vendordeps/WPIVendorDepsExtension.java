@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -17,6 +18,7 @@ import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.MapProperty;
 import org.gradle.nativeplatform.plugins.NativeComponentPlugin;
 import org.gradle.tooling.BuildException;
 
@@ -77,7 +79,7 @@ public abstract class WPIVendorDepsExtension {
         hwSimulation = project.hasProperty(HW_SIM_SWITCH_PROPERTY);
         dependencySet = project.getObjects().namedDomainObjectSet(NamedJsonDependency.class);
         vendorRepos = project.getObjects().namedDomainObjectSet(VendorMavenRepo.class);
-        getFixedVersion().convention("0.0.0");
+        getFixedVersions().convention(Map.of("wpilib", "0.0.0"));
 
         ObjectFactory objects = project.getObjects();
 
@@ -252,10 +254,10 @@ public abstract class WPIVendorDepsExtension {
         }
     }
 
-    public abstract Property<String> getFixedVersion();
+    public abstract MapProperty<String, String> getFixedVersions();
 
     public String getVersion(String inputVersion) {
-        return inputVersion.equals("wpilib") ? getFixedVersion().get() : inputVersion;
+        return getFixedVersions().getting(inputVersion).getOrElse(inputVersion);
     }
 
     public boolean isIgnored(String[] ignore, JsonDependency dep) {
