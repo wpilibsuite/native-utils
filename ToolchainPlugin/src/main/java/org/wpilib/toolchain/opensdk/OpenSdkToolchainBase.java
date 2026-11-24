@@ -108,8 +108,9 @@ public class OpenSdkToolchainBase {
 
     public void populatePathAndDownloadDescriptors(ToolchainDescriptor descriptor) {
         Provider<File> fp = project.provider(() -> {
-            String year = tcExt.getToolchainVersion().get().split("-")[0].toLowerCase();
-            File installLoc = toolchainInstallLoc(year, installSubdir);
+            String tag = tcExt.getToolchainTag().get();
+            String toolchainVersion = tag.startsWith("v") ? tag.substring(1) : tag;
+            File installLoc = toolchainInstallLoc(toolchainVersion, installSubdir);
             return installLoc;
         });
 
