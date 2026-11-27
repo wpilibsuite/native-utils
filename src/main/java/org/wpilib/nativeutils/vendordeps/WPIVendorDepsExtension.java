@@ -21,6 +21,9 @@ import org.gradle.nativeplatform.plugins.NativeComponentPlugin;
 import org.gradle.tooling.BuildException;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.annotations.SerializedName;
 
 import org.wpilib.deployutils.log.ETLogger;
 import org.wpilib.deployutils.log.ETLoggerFactory;
@@ -28,10 +31,10 @@ import org.wpilib.toolchain.NativePlatforms;
 
 public abstract class WPIVendorDepsExtension {
 
-    private final Property<String> wpilibYear;
+    private final Property<String> wpilibVersion;
 
-    public Property<String> getWpilibYear() {
-        return wpilibYear;
+    public Property<String> getWpilibVersion() {
+        return wpilibVersion;
     }
 
     private final DirectoryProperty wpilibHome;
@@ -70,7 +73,7 @@ public abstract class WPIVendorDepsExtension {
     @Inject
     public WPIVendorDepsExtension(Project project) {
 
-        wpilibYear = project.getObjects().property(String.class);
+        wpilibVersion = project.getObjects().property(String.class);
         wpilibHome = project.getObjects().directoryProperty();
         this.log = ETLoggerFactory.INSTANCE.create("WPIVendorDeps");
         this.project = project;
@@ -132,15 +135,33 @@ public abstract class WPIVendorDepsExtension {
     }
 
     public void validateDependencies() {
-        String requiredWpilibYear = wpilibYear.getOrNull();
+        String requiredWpilibVersion = wpilibVersion.getOrNull();
+        WPILibVersion required = null;
+        if (requiredWpilibVersion != null) {
+            required = WPILibVersion.parse(requiredWpilibVersion);
+        }
+
         for (NamedJsonDependency jsonDep : dependencySet) {
-            if (requiredWpilibYear != null) {
-                if (!requiredWpilibYear.equals(jsonDep.dependency.wpilibYear)) {
-                    throw new InvalidVendorDepYearException(jsonDep.dependency, requiredWpilibYear);
+            JsonDependency dependency = jsonDep.dependency;
+
+            // The legacy field is rejected regardless of whether a version is configured.
+            if (dependency.hasLegacyWpilibYear()) {
+                throw new LegacyVendorDepYearException(dependency);
+            }
+
+            if (required != null) {
+                WPILibVersion actual;
+                try {
+                    actual = WPILibVersion.parse(dependency.wpilibVersion);
+                } catch (InvalidWPILibVersionException e) {
+                    throw new InvalidVendorDepVersionException(dependency, requiredWpilibVersion, e);
+                }
+                if (!required.equals(actual)) {
+                    throw new InvalidVendorDepVersionException(dependency, requiredWpilibVersion);
                 }
             }
 
-            VendorDependency[] requiredDependencies = jsonDep.dependency.requires;
+            VendorDependency[] requiredDependencies = dependency.requires;
             if (requiredDependencies != null) {
                 for (VendorDependency requiredDep : requiredDependencies) {
                     if (dependencySet.findByName(requiredDep.uuid) == null) {
@@ -149,7 +170,7 @@ public abstract class WPIVendorDepsExtension {
                     }
                 }
             }
-            VendorDependency[] conflictsWithDependencies = jsonDep.dependency.conflictsWith;
+            VendorDependency[] conflictsWithDependencies = dependency.conflictsWith;
             if (conflictsWithDependencies != null) {
                 for (VendorDependency conflictsWithDep : conflictsWithDependencies) {
                     if (dependencySet.findByName(conflictsWithDep.uuid) != null) {
@@ -181,7 +202,11 @@ public abstract class WPIVendorDepsExtension {
 
     private JsonDependency parse(File f) {
         try (BufferedReader reader = Files.newBufferedReader(f.toPath())) {
-            return gson.fromJson(reader, JsonDependency.class);
+            JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+            JsonDependency dep = gson.fromJson(json, JsonDependency.class);
+            // Remember presence separately so `"wpilibYear": null` is still rejected.
+            dep.hasLegacyWpilibYear = json.has("wpilibYear");
+            return dep;
         } catch (Exception e) {
             throw new BuildException("Failed to parse vendor dependency: " + f.getName() +
                     "\n " + e.getMessage(), e);
@@ -341,7 +366,21 @@ public abstract class WPIVendorDepsExtension {
         public String[] extraGroupIds;
         public String jsonUrl = "";
         public String fileName;
-        public String wpilibYear;
+        public String wpilibVersion;
+
+        @SerializedName("wpilibYear")
+        private String legacyWpilibYear;
+
+        private transient boolean hasLegacyWpilibYear;
+
+        public boolean hasLegacyWpilibYear() {
+            return hasLegacyWpilibYear;
+        }
+
+        public String getLegacyWpilibYear() {
+            return legacyWpilibYear;
+        }
+
         public JavaArtifact[] javaDependencies;
         public JniArtifact[] jniDependencies;
         public CppArtifact[] cppDependencies;
